@@ -497,4 +497,97 @@ test.describe("Benefits Screener Navigator geography prefill", () => {
 
     await context.close();
   });
+
+  test("ignores a screening response after the authenticated account changes", async ({ browser }) => {
+    const cookie = await forgeSession(db, {
+      userId: TEST_USER_ID,
+      email: TEST_EMAIL,
+      firstName: "E2E",
+      lastName: "Benefits Navigator",
+    });
+    const context = await browser.newContext({
+      baseURL: BASE,
+      extraHTTPHeaders: { Cookie: cookie },
+    });
+    const page = await context.newPage();
+    let authUserRequests = 0;
+    let screeningRequestStarted = false;
+    let releaseScreening!: () => void;
+    let screeningReleased = false;
+    const screeningResponseReleased = new Promise<void>(resolve => {
+      releaseScreening = resolve;
+    });
+    const releaseDelayedScreening = () => {
+      if (screeningReleased) return;
+      screeningReleased = true;
+      releaseScreening();
+    };
+
+    await page.route("**/api/auth/user", async route => {
+      authUserRequests += 1;
+      const userId = authUserRequests === 1 ? TEST_USER_ID : "e2e-benefits-second-account";
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          id: userId,
+          email: `${userId}@test.local`,
+          firstName: "E2E",
+          lastName: "Benefits User",
+        }),
+      });
+    });
+    await page.route("**/api/benefits/screenings", async route => {
+      screeningRequestStarted = true;
+      await screeningResponseReleased;
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          screening: { id: "e2e-stale-screening" },
+          gapBenefits: [{ programCode: "STALE_RESULT" }],
+          gaps: [],
+          eligibleBenefits: [],
+          currentBenefits: [],
+          estimatedAnnualValue: 99999,
+          navigationGuides: [],
+        }),
+      });
+    });
+
+    try {
+      await page.clock.install();
+      await page.goto("/benefits-screener", { waitUntil: "domcontentloaded" });
+      await page.getByTestId("button-next").click();
+      await expect(page.getByTestId("step-household")).toBeVisible();
+      await page.getByTestId("select-county").click();
+      await page.getByRole("option", { name: "Travis County" }).click();
+      await page.getByTestId("select-household-size").click();
+      await page.getByRole("option", { name: "1 person" }).click();
+      await page.getByTestId("input-income").fill("25000");
+      await page.getByTestId("button-next").click();
+      await expect(page.getByTestId("step-situation")).toBeVisible();
+      await page.getByTestId("button-next").click();
+      await expect(page.getByTestId("step-current")).toBeVisible();
+      await page.getByTestId("button-next").click();
+
+      await expect.poll(() => screeningRequestStarted).toBe(true);
+      await page.clock.fastForward(5 * 60 * 1000 + 1);
+      await page.evaluate(() => {
+        window.dispatchEvent(new Event("focus"));
+        window.dispatchEvent(new Event("visibilitychange"));
+      });
+      await expect.poll(() => authUserRequests).toBeGreaterThan(1);
+      await expect(page.getByTestId("step-welcome")).toBeVisible();
+      await expect(page.getByTestId("button-next")).toBeEnabled();
+
+      releaseDelayedScreening();
+      await expect(page.getByTestId("step-results")).toBeHidden();
+      await expect(page.getByTestId("step-welcome")).toBeVisible();
+      expect(await page.getByText("$99,999/year", { exact: true }).count()).toBe(0);
+    } finally {
+      releaseDelayedScreening();
+      await context.close();
+    }
+  });
 });

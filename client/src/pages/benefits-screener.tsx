@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useLayoutEffect, useRef } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { logJourneyEvent } from "@/lib/journey-log";
@@ -106,6 +106,11 @@ type NavigatorPrefillError = Error & { status?: number };
 
 type NavigatorSituationKey = "hasChildren" | "isDisabled" | "isElderly" | "isUnemployed" | "isPregnant";
 type NavigatorPrefillOwnedField = NavigatorSituationKey | "state" | "county" | "zipCode";
+type ScreeningRequest = {
+  userId: string | null;
+  generation: number;
+  data: ScreenerData;
+};
 
 const NAVIGATOR_SITUATION_KEYS = new Set<NavigatorSituationKey>([
   "hasChildren",
@@ -575,6 +580,7 @@ function SendReferralDialog({
 export default function BenefitsScreenerPage() {
   const { toast } = useToast();
   const { user, isLoading: authLoading } = useAuth();
+  const screeningIdentity = user?.id ?? null;
   const isAuthenticated = !!user;
   const [step, setStep] = useState(0);
   const [data, setData] = useState<ScreenerData>(INITIAL_DATA);
@@ -591,6 +597,28 @@ export default function BenefitsScreenerPage() {
   const locationEdits = useRef(new Set<"state" | "county" | "zipCode">());
   const situationEdits = useRef(new Set<NavigatorSituationKey>());
   const navigatorPrefillOwnedFields = useRef(new Set<NavigatorPrefillOwnedField>());
+  const screeningIdentityRef = useRef<string | null>(screeningIdentity);
+  const screeningGenerationRef = useRef(0);
+  const activeScreeningRequestRef = useRef<ScreeningRequest | null>(null);
+  const screeningIdentityChanged = screeningIdentityRef.current !== screeningIdentity;
+
+  // Update identity before the browser can paint the transition. The
+  // screeningIdentityChanged mask covers the render before this effect runs,
+  // so a response that lands during the transition is rejected as well.
+  useLayoutEffect(() => {
+    if (screeningIdentityRef.current === screeningIdentity) return;
+    screeningIdentityRef.current = screeningIdentity;
+    screeningGenerationRef.current += 1;
+    activeScreeningRequestRef.current = null;
+  }, [screeningIdentity]);
+  const displayedStep = screeningIdentityChanged ? 0 : step;
+  const displayedResult = screeningIdentityChanged ? null : result;
+  const displayedScreeningId = screeningIdentityChanged ? null : screeningId;
+
+  const isCurrentScreeningRequest = (request: ScreeningRequest) =>
+    request.userId === screeningIdentityRef.current &&
+    request.generation === screeningGenerationRef.current &&
+    activeScreeningRequestRef.current === request;
 
   // Fetch Navigator prefill data for authenticated users
   const {
@@ -751,35 +779,36 @@ export default function BenefitsScreenerPage() {
       const res = await fetch(`/api/directory/capacity?${params}`);
       return res.json();
     },
-    enabled: step === 4,
+    enabled: displayedStep === 4,
     staleTime: 5 * 60 * 1000,
   });
   const capacityOrgs = capacityData?.orgs ?? [];
 
   const screenMutation = useMutation({
-    mutationFn: async () => {
-      const stateFips = STATE_FIPS_BY_USPS[data.state] || "";
+    mutationFn: async ({ data: screeningData }: ScreeningRequest) => {
+      const stateFips = STATE_FIPS_BY_USPS[screeningData.state] || "";
       // Backend expects 5-digit county FIPS (state FIPS + 3-digit county FIPS).
-      const fullCountyFips = stateFips && data.county ? stateFips + data.county : "";
+      const fullCountyFips = stateFips && screeningData.county ? stateFips + screeningData.county : "";
       const res = await apiRequest("POST", "/api/benefits/screenings", {
         screeningType: "wizard",
-        householdSize: parseInt(data.householdSize),
-        annualIncome: parseFloat(data.annualIncome) || 0,
-        hasChildren: data.hasChildren,
-        isPregnant: data.isPregnant,
-        isDisabled: data.isDisabled,
-        isElderly: data.isElderly,
-        isUnemployed: data.isUnemployed,
-        hadWorkplaceInjury: data.hadWorkplaceInjury,
-        currentBenefits: data.currentBenefits,
+        householdSize: parseInt(screeningData.householdSize),
+        annualIncome: parseFloat(screeningData.annualIncome) || 0,
+        hasChildren: screeningData.hasChildren,
+        isPregnant: screeningData.isPregnant,
+        isDisabled: screeningData.isDisabled,
+        isElderly: screeningData.isElderly,
+        isUnemployed: screeningData.isUnemployed,
+        hadWorkplaceInjury: screeningData.hadWorkplaceInjury,
+        currentBenefits: screeningData.currentBenefits,
         stateFips,
         countyFips: fullCountyFips,
-        zipCode: data.zipCode,
-        preferredLanguage: data.preferredLanguage,
+        zipCode: screeningData.zipCode,
+        preferredLanguage: screeningData.preferredLanguage,
       });
       return res.json();
     },
-    onSuccess: (res) => {
+    onSuccess: (res, request) => {
+      if (!isCurrentScreeningRequest(request)) return;
       setResult(res);
       setStep(4);
       // Capture the screening ID so referrals can link back to it.
@@ -790,36 +819,65 @@ export default function BenefitsScreenerPage() {
         eventType: "benefit_screened",
         eventDomain: "benefits",
         eventTitle: `Benefits screening completed (${eligibleCount} programs eligible)`,
-        eventPayload: { eligibleCount, state: data.state, county: data.county, householdSize: data.householdSize },
+        eventPayload: {
+          eligibleCount,
+          state: request.data.state,
+          county: request.data.county,
+          householdSize: request.data.householdSize,
+        },
         sourcePage: "Benefits Screener",
       });
     },
-    onError: () => toast({ title: "Error", description: "Screening failed. Please try again.", variant: "destructive" }),
+    onError: (_error, request) => {
+      if (!isCurrentScreeningRequest(request)) return;
+      toast({ title: "Error", description: "Screening failed. Please try again.", variant: "destructive" });
+    },
   });
 
+  const screeningMutationIsCurrent =
+    !screeningIdentityChanged &&
+    screenMutation.isPending &&
+    activeScreeningRequestRef.current?.userId === screeningIdentity &&
+    activeScreeningRequestRef.current?.generation === screeningGenerationRef.current;
+
   const canProceed = () => {
-    if (step === 1) return data.county && data.householdSize && data.annualIncome;
-    if (step === 2) return true;
-    if (step === 3) return true;
+    if (displayedStep === 1) return data.county && data.householdSize && data.annualIncome;
+    if (displayedStep === 2) return true;
+    if (displayedStep === 3) return true;
     return true;
   };
 
   const handleNext = () => {
-    if (step === 3) {
-      screenMutation.mutate();
+    if (screeningIdentityChanged) return;
+    if (displayedStep === 3) {
+      const request: ScreeningRequest = {
+        userId: screeningIdentity,
+        generation: screeningGenerationRef.current,
+        data: { ...data, currentBenefits: [...data.currentBenefits] },
+      };
+      activeScreeningRequestRef.current = request;
+      screenMutation.mutate(request);
       return;
     }
-    if (step < STEPS.length - 1) setStep(step + 1);
+    if (displayedStep < STEPS.length - 1) setStep(displayedStep + 1);
   };
 
-  const progress = Math.round(((step + 1) / STEPS.length) * 100);
+  const handleBack = () => {
+    if (screeningMutationIsCurrent) {
+      screeningGenerationRef.current += 1;
+      activeScreeningRequestRef.current = null;
+    }
+    setStep(displayedStep - 1);
+  };
+
+  const progress = Math.round(((displayedStep + 1) / STEPS.length) * 100);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white dark:from-green-950/20 dark:to-background" data-testid="benefits-screener">
       <SendReferralDialog
-        open={!!referralTarget}
-        initial={referralTarget}
-        screeningId={screeningId}
+        open={!!referralTarget && !screeningIdentityChanged}
+        initial={screeningIdentityChanged ? null : referralTarget}
+        screeningId={displayedScreeningId}
         capacityOrgs={capacityOrgs}
         onClose={() => setReferralTarget(null)}
       />
@@ -855,7 +913,7 @@ export default function BenefitsScreenerPage() {
 
         <div className="mb-6">
           <div className="flex justify-between text-xs text-muted-foreground mb-1">
-            <span>Step {step + 1} of {STEPS.length}: {STEPS[step].label}</span>
+            <span>Step {displayedStep + 1} of {STEPS.length}: {STEPS[displayedStep].label}</span>
             <span>{progress}%</span>
           </div>
           <Progress value={progress} className="h-2" />
@@ -863,7 +921,7 @@ export default function BenefitsScreenerPage() {
             {STEPS.map((s, i) => {
               const Icon = s.icon;
               return (
-                <div key={s.key} className={`flex flex-col items-center ${i <= step ? 'text-primary' : 'text-muted-foreground/40'}`}>
+                <div key={s.key} className={`flex flex-col items-center ${i <= displayedStep ? 'text-primary' : 'text-muted-foreground/40'}`}>
                   <Icon className="h-4 w-4" />
                 </div>
               );
@@ -942,7 +1000,7 @@ export default function BenefitsScreenerPage() {
           </div>
         )}
 
-        {step === 0 && (
+        {displayedStep === 0 && (
           <Card data-testid="step-welcome">
             <CardContent className="pt-6 space-y-4">
               <div className="text-center space-y-3">
@@ -985,7 +1043,7 @@ export default function BenefitsScreenerPage() {
           </Card>
         )}
 
-        {step === 1 && (
+        {displayedStep === 1 && (
           <Card data-testid="step-household">
             <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Users className="h-5 w-5" /> About Your Household</CardTitle></CardHeader>
             <CardContent className="space-y-4">
@@ -1089,7 +1147,7 @@ export default function BenefitsScreenerPage() {
           </Card>
         )}
 
-        {step === 2 && (
+        {displayedStep === 2 && (
           <Card data-testid="step-situation">
             <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Heart className="h-5 w-5" /> Your Situation</CardTitle></CardHeader>
             <CardContent className="space-y-4">
@@ -1143,7 +1201,7 @@ export default function BenefitsScreenerPage() {
           </Card>
         )}
 
-        {step === 3 && (
+        {displayedStep === 3 && (
           <Card data-testid="step-current">
             <CardHeader><CardTitle className="text-lg flex items-center gap-2"><ClipboardList className="h-5 w-5" /> What Are You Currently Receiving?</CardTitle></CardHeader>
             <CardContent className="space-y-4">
@@ -1181,7 +1239,7 @@ export default function BenefitsScreenerPage() {
           </Card>
         )}
 
-        {step === 4 && result && (
+        {displayedStep === 4 && displayedResult && (
           <div className="space-y-4" data-testid="step-results">
             <Card className="border-green-500 bg-green-50/50 dark:bg-green-950/20">
               <CardContent className="pt-6 text-center space-y-2">
@@ -1361,7 +1419,7 @@ export default function BenefitsScreenerPage() {
           </div>
         )}
 
-        {step === 5 && (
+        {displayedStep === 5 && (
           <div className="space-y-4" data-testid="step-next">
             <Card className="border-blue-500 bg-blue-50/50 dark:bg-blue-950/20">
               <CardContent className="pt-6 text-center space-y-3">
@@ -1451,25 +1509,25 @@ export default function BenefitsScreenerPage() {
         )}
 
         <div className="flex justify-between mt-6">
-          {step > 0 && step < 4 ? (
-            <Button variant="outline" onClick={() => setStep(step - 1)} data-testid="button-back">
+          {displayedStep > 0 && displayedStep < 4 ? (
+            <Button variant="outline" onClick={handleBack} data-testid="button-back">
               <ChevronLeft className="h-4 w-4 mr-1" /> Back
             </Button>
           ) : <div />}
 
-          {step < 4 && (
+          {displayedStep < 4 && (
             <Button
               onClick={handleNext}
-              disabled={!canProceed() || screenMutation.isPending}
+              disabled={!canProceed() || screeningMutationIsCurrent}
               className="ml-auto"
               size="lg"
               data-testid="button-next"
             >
-              {screenMutation.isPending ? (
+              {screeningMutationIsCurrent ? (
                 <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Checking benefits...</>
-              ) : step === 3 ? (
+              ) : displayedStep === 3 ? (
                 <><Search className="h-4 w-4 mr-2" /> Check My Benefits</>
-              ) : step === 0 ? (
+              ) : displayedStep === 0 ? (
                 <>Let's Get Started <ChevronRight className="h-4 w-4 ml-1" /></>
               ) : (
                 <>Next <ChevronRight className="h-4 w-4 ml-1" /></>
@@ -1477,14 +1535,16 @@ export default function BenefitsScreenerPage() {
             </Button>
           )}
 
-          {step === 4 && (
+          {displayedStep === 4 && (
             <Button onClick={() => setStep(5)} className="ml-auto" size="lg" data-testid="button-next-steps">
               What Do I Do Next? <ArrowRight className="h-4 w-4 ml-1" />
             </Button>
           )}
 
-          {step === 5 && (
+          {displayedStep === 5 && (
             <Button variant="outline" onClick={() => {
+              screeningGenerationRef.current += 1;
+              activeScreeningRequestRef.current = null;
               setStep(0);
               setData(INITIAL_DATA);
               setResult(null);
@@ -1495,6 +1555,7 @@ export default function BenefitsScreenerPage() {
               setHasNavigatorGeography(false);
               setHasNavigatorSituationPrefill(false);
               locationEdits.current.clear();
+              situationEdits.current.clear();
             }} className="ml-auto" data-testid="button-start-over">
               Screen Another Person
             </Button>
