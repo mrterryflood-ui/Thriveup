@@ -881,6 +881,118 @@ test.describe("Benefits Screener Navigator geography prefill", () => {
     await context.close();
   });
 
+  test("isolates capacity organization, empty, and error states across screening resets", async ({ browser }) => {
+    const { context, page } = await openScreener(browser);
+    const capacityRequestUrls: string[] = [];
+
+    await stubScreeningResult(page);
+    await page.route("**/api/directory/capacity*", async (route) => {
+      const requestNumber = capacityRequestUrls.push(route.request().url());
+      const zip = new URL(route.request().url()).searchParams.get("zip");
+
+      if (requestNumber === 1 && zip === "78660") {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            orgs: [{
+              id: "e2e-capacity-first-person",
+              orgId: "org-austin-food-bank",
+              orgName: "Austin Community Food Bank",
+              programCode: "SNAP",
+              status: "open",
+              serviceZips: ["78660"],
+              stale: false,
+            }],
+            count: 1,
+          }),
+        });
+        return;
+      }
+
+      if (requestNumber === 2 && zip === "78613") {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ orgs: [], count: 0 }),
+        });
+        return;
+      }
+
+      if (requestNumber === 3 && zip === "78613") {
+        await route.fulfill({
+          status: 503,
+          contentType: "application/json",
+          body: JSON.stringify({ error: "Capacity service unavailable" }),
+        });
+        return;
+      }
+
+      await route.fulfill({
+        status: 500,
+        contentType: "application/json",
+        body: JSON.stringify({ error: `Unexpected capacity lookup: ${requestNumber} ${zip ?? ""}` }),
+      });
+    });
+
+    const startNextScreening = async () => {
+      await page.getByTestId("button-next-steps").click();
+      await expect(page.getByTestId("step-next")).toBeVisible();
+      await page.getByTestId("button-start-over").click();
+      await expect(page.getByTestId("step-welcome")).toBeVisible();
+      await page.getByTestId("button-next").click();
+      await expect(page.getByTestId("step-household")).toBeVisible();
+      await expect(page.getByTestId("banner-navigator-geography-prefill")).toBeHidden();
+    };
+
+    try {
+      await completeManualScreening(page);
+      await expect(page.getByTestId("capacity-SNAP")).toContainText("Austin Community Food Bank");
+      await expect(page.getByTestId("capacity-lookup-empty")).toBeHidden();
+      await expect(page.getByTestId("capacity-lookup-error")).toBeHidden();
+
+      await startNextScreening();
+      await page.getByTestId("select-county").click();
+      await page.getByRole("option", { name: "Williamson County" }).click();
+      await page.getByTestId("input-zip").fill("78613");
+      await page.getByTestId("select-household-size").click();
+      await page.getByRole("option", { name: "1 person" }).click();
+      await page.getByTestId("input-income").fill("30000");
+      await page.getByTestId("button-next").click();
+      await expect(page.getByTestId("step-situation")).toBeVisible();
+      await page.getByTestId("button-next").click();
+      await expect(page.getByTestId("step-current")).toBeVisible();
+      await page.getByTestId("button-next").click();
+      await expect(page.getByTestId("step-results")).toBeVisible();
+      await expect(page.getByTestId("capacity-lookup-empty")).toBeVisible();
+      await expect(page.getByText("Austin Community Food Bank", { exact: true })).toHaveCount(0);
+      await expect(page.getByTestId("capacity-lookup-error")).toBeHidden();
+
+      await startNextScreening();
+      await page.getByTestId("select-county").click();
+      await page.getByRole("option", { name: "Williamson County" }).click();
+      await page.getByTestId("input-zip").fill("78613");
+      await page.getByTestId("select-household-size").click();
+      await page.getByRole("option", { name: "1 person" }).click();
+      await page.getByTestId("input-income").fill("30000");
+      await page.getByTestId("button-next").click();
+      await expect(page.getByTestId("step-situation")).toBeVisible();
+      await page.getByTestId("button-next").click();
+      await expect(page.getByTestId("step-current")).toBeVisible();
+      await page.getByTestId("button-next").click();
+      await expect(page.getByTestId("step-results")).toBeVisible();
+      await expect(page.getByTestId("capacity-lookup-error")).toBeVisible();
+      await expect(page.getByTestId("capacity-lookup-empty")).toBeHidden();
+      await expect(page.getByText("Austin Community Food Bank", { exact: true })).toHaveCount(0);
+      expect(capacityRequestUrls).toHaveLength(3);
+      expect(capacityRequestUrls[0]).toContain("zip=78660");
+      expect(capacityRequestUrls[1]).toContain("zip=78613");
+      expect(capacityRequestUrls[2]).toContain("zip=78613");
+    } finally {
+      await context.close();
+    }
+  });
+
   test("ignores a screening response after the authenticated account changes", async ({ browser }) => {
     const cookie = await forgeSession(db, {
       userId: TEST_USER_ID,

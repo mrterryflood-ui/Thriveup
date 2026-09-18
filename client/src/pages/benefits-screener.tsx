@@ -922,7 +922,9 @@ export default function BenefitsScreenerPage() {
     rawCapacityZip.length === 0 ? "missing" : capacityZip ? null : "invalid";
   const capacityLookupEnabled = displayedStep === 4 && Boolean(capacityZip);
   const capacityQuery = useQuery<CapacityData>({
-    queryKey: ["/api/directory/capacity", capacityZip, capacityRetryAttempt],
+    // Capacity belongs to this screening attempt as well as its ZIP. A reset
+    // must not reuse a fresh empty/error/org result from the prior person.
+    queryKey: ["/api/directory/capacity", screeningGenerationRef.current, capacityZip, capacityRetryAttempt],
     queryFn: async ({ signal }) => {
       const params = new URLSearchParams();
       params.set("zip", capacityZip);
@@ -1721,6 +1723,7 @@ export default function BenefitsScreenerPage() {
               activeScreeningRequestRef.current = null;
               setStep(0);
               setData(INITIAL_DATA);
+              setCapacityRetryAttempt(0);
               setResult(null);
               setScreeningId(null);
               setNavigatorBanner(null);
