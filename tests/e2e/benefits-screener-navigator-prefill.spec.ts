@@ -334,6 +334,82 @@ test.describe("Benefits Screener Navigator geography prefill", () => {
     }
   });
 
+  test("keeps a successful retry when an older malformed capacity response finishes late", async ({ browser }) => {
+    const { context, page } = await openScreener(browser);
+    let capacityAttempts = 0;
+    let releaseOlderMalformedResponse!: () => void;
+    const olderMalformedResponseReleased = new Promise<void>(resolve => {
+      releaseOlderMalformedResponse = resolve;
+    });
+
+    await stubScreeningResult(page);
+    await page.route("**/api/directory/capacity*", async (route) => {
+      capacityAttempts += 1;
+      if (capacityAttempts === 1) {
+        await route.fulfill({
+          status: 503,
+          contentType: "application/json",
+          body: JSON.stringify({ error: "Capacity service unavailable" }),
+        });
+        return;
+      }
+      if (capacityAttempts === 2) {
+        await olderMalformedResponseReleased;
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: "{not valid JSON",
+        });
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          orgs: [{
+            id: "e2e-capacity-org-after-late-malformed-response",
+            orgId: "org-austin-food-bank",
+            orgName: "Austin Community Food Bank",
+            programCode: "SNAP",
+            status: "open",
+            serviceZips: ["78660"],
+            stale: false,
+          }],
+          count: 1,
+        }),
+      });
+    });
+
+    try {
+      await completeManualScreening(page);
+      const errorNotice = page.getByTestId("capacity-lookup-error");
+      await expect(errorNotice).toBeVisible();
+
+      const olderMalformedResponse = page.evaluate(async () => {
+        const response = await fetch("/api/directory/capacity?zip=78660");
+        return response.text();
+      });
+      await expect.poll(() => capacityAttempts).toBe(2);
+
+      const retryResponse = page.waitForResponse(response =>
+        response.url().includes("/api/directory/capacity") && response.status() === 200,
+      );
+      await page.getByTestId("button-retry-capacity").click();
+      await retryResponse;
+      await expect(page.getByTestId("capacity-SNAP")).toContainText("Austin Community Food Bank");
+      await expect(errorNotice).toBeHidden();
+
+      releaseOlderMalformedResponse();
+      await expect(olderMalformedResponse).resolves.toBe("{not valid JSON");
+      await expect(page.getByTestId("capacity-SNAP")).toContainText("Austin Community Food Bank");
+      await expect(errorNotice).toBeHidden();
+      expect(capacityAttempts).toBe(3);
+    } finally {
+      releaseOlderMalformedResponse();
+      await context.close();
+    }
+  });
+
   test("does not query broad capacity data when no ZIP was provided", async ({ browser }) => {
     const cookie = await forgeSession(db, {
       userId: TEST_USER_ID,

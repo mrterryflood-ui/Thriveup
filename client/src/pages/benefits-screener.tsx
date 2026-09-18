@@ -736,6 +736,7 @@ export default function BenefitsScreenerPage() {
   const [hasNavigatorGeography, setHasNavigatorGeography] = useState(false);
   const [hasNavigatorSituationPrefill, setHasNavigatorSituationPrefill] = useState(false);
   const [navigatorPrefillRetrying, setNavigatorPrefillRetrying] = useState(false);
+  const [capacityRetryAttempt, setCapacityRetryAttempt] = useState(0);
   const prefillAppliedForUser = useRef<string | null>(null);
   const navigatorPrefillDismissedForUser = useRef<string | null>(null);
   const locationEdits = useRef(new Set<"state" | "county" | "zipCode">());
@@ -921,11 +922,11 @@ export default function BenefitsScreenerPage() {
     rawCapacityZip.length === 0 ? "missing" : capacityZip ? null : "invalid";
   const capacityLookupEnabled = displayedStep === 4 && Boolean(capacityZip);
   const capacityQuery = useQuery<CapacityData>({
-    queryKey: ["/api/directory/capacity", capacityZip],
-    queryFn: async () => {
+    queryKey: ["/api/directory/capacity", capacityZip, capacityRetryAttempt],
+    queryFn: async ({ signal }) => {
       const params = new URLSearchParams();
       params.set("zip", capacityZip);
-      const res = await fetch(`/api/directory/capacity?${params}`);
+      const res = await fetch(`/api/directory/capacity?${params}`, { signal });
       if (!res.ok) {
         throw new Error(`Capacity lookup failed with status ${res.status}`);
       }
@@ -1431,7 +1432,7 @@ export default function BenefitsScreenerPage() {
               isLoading={capacityIsLoading}
               isError={capacityLookupFailed}
               isEmpty={capacityLookupEnabled && capacityQuery.isSuccess && !capacityIsLoading && capacityOrgs.length === 0}
-              onRetry={() => { void capacityQuery.refetch(); }}
+              onRetry={() => { setCapacityRetryAttempt(attempt => attempt + 1); }}
             />
 
             {result.gapBenefits?.length > 0 && (
