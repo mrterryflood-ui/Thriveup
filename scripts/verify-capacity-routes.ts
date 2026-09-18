@@ -15,7 +15,10 @@ import { orgCapacity } from "../shared/schema";
 import { eq, inArray } from "drizzle-orm";
 
 const BASE = process.env.E2E_BASE_URL ?? "http://localhost:5000";
-const TEST_ORG_IDS = ["test_cap_001", "test_cap_002", "test_cap_003"];
+const CROWD_ORG_IDS = Array.from({ length: 100 }, (_, index) =>
+  `test_cap_crowd_${String(index).padStart(3, "0")}`,
+);
+const TEST_ORG_IDS = ["test_cap_001", "test_cap_002", "test_cap_003", "test_cap_004", ...CROWD_ORG_IDS];
 
 async function request(path: string) {
   const res = await fetch(`${BASE}${path}`);
@@ -119,7 +122,35 @@ async function run() {
       "ZIP-scoped general org excluded when ZIP doesn't match");
   }
 
-  // Test 6: Summary endpoint
+  // Test 6: Matching rows are not lost when 100 earlier non-matches exist
+  {
+    // Keep the matching row beyond the public route's 100-row cap. The route
+    // must apply program and ZIP filters before limiting, or this org vanishes.
+    for (const [index, orgId] of CROWD_ORG_IDS.entries()) {
+      await seedRow({
+        orgId,
+        orgName: `AAA Capacity Distractor ${String(index).padStart(3, "0")}`,
+        programCode: "OTHER",
+        status: "open",
+        serviceZips: ["99999"],
+      });
+    }
+    await seedRow({
+      orgId: "test_cap_004",
+      orgName: "ZZZ Local SNAP Org",
+      programCode: "SNAP",
+      status: "open",
+      serviceZips: ["78660"],
+    });
+
+    const { orgs } = await request("/api/directory/capacity?program=SNAP&zip=78660");
+    assert(orgs.some((o: any) => o.orgId === "test_cap_004"),
+      "program and ZIP filters run before the 100-row limit");
+    assert(!orgs.some((o: any) => o.orgId === CROWD_ORG_IDS[0]),
+      "non-matching rows remain excluded before limiting");
+  }
+
+  // Test 7: Summary endpoint
   {
     const summary = await request("/api/directory/capacity/summary");
     assert(typeof summary.open === "number" && typeof summary.waitlist === "number" && typeof summary.closed === "number",

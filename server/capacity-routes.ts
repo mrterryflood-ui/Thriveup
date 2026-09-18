@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "./storage";
 import { orgCapacity } from "@shared/schema";
-import { eq, gt, and } from "drizzle-orm";
+import { eq, gt, and, isNull, or, sql, type SQL } from "drizzle-orm";
 import { requirePartnerAuth } from "./partner-api-routes";
 import { validateContactPhone, validateContactUrl } from "@shared/intake-contact-validators";
 
@@ -21,26 +21,45 @@ function rateLimit(req: any, res: any, next: any) {
 // GET /api/directory/capacity — public, filterable by ?zip= and ?program=
 capacityRouter.get("/capacity", rateLimit, async (req, res) => {
   try {
-    const { program, zip } = req.query as Record<string, string>;
+    const programQuery = req.query.program;
+    const zipQuery = req.query.zip;
+    if (
+      (programQuery !== undefined && typeof programQuery !== "string") ||
+      (zipQuery !== undefined && typeof zipQuery !== "string")
+    ) {
+      return res.status(400).json({ error: "program and zip must each be a single query value" });
+    }
+
+    const program = programQuery;
+    const zip = zipQuery;
     const cutoff = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
 
+    const filters: SQL[] = [gt(orgCapacity.updatedAt, cutoff)];
+    if (program) {
+      filters.push(or(
+        eq(orgCapacity.programCode, program),
+        eq(orgCapacity.programCode, "general"),
+      )!);
+    }
+    if (zip) {
+      filters.push(or(
+        isNull(orgCapacity.serviceZips),
+        sql`cardinality(${orgCapacity.serviceZips}) = 0`,
+        sql`${zip} = ANY(${orgCapacity.serviceZips})`,
+      )!);
+    }
+
     const rows = await db.select().from(orgCapacity)
-      .where(gt(orgCapacity.updatedAt, cutoff))
+      .where(and(...filters))
       .orderBy(orgCapacity.orgName)
       .limit(100);
 
-    const filtered = rows
-      .filter((r) => {
-        if (program && r.programCode !== program && r.programCode !== "general") return false;
-        if (zip && r.serviceZips && r.serviceZips.length > 0 && !r.serviceZips.includes(zip)) return false;
-        return true;
-      })
-      .map((r) => ({
+    const filtered = rows.map((r) => ({
         ...r,
         stale: r.updatedAt
           ? Date.now() - new Date(r.updatedAt).getTime() > 7 * 24 * 60 * 60 * 1000
           : true,
-      }));
+    }));
 
     res.json({ orgs: filtered, count: filtered.length });
   } catch (err) {

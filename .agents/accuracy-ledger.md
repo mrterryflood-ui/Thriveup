@@ -313,3 +313,23 @@ fixed and the app restarted cleanly afterward.
 **Class:** Environment/provider drift was caught by direct execution rather than
 startup logs; browser E2E contention remains an unresolved verification gap.
 
+---
+
+## 2026-09-15 — Public capacity directory limit ordering
+
+**Claim:** A public capacity lookup returns a matching organization even when
+100 earlier fresh rows do not match its program or ZIP.
+
+**Verified by:** the live capacity route after workflow restart; a 12/12
+capacity verifier including 100 alphabetically earlier non-matches; configured
+TypeScript/integrated-flow validation; preflight; memory health; and a
+repeated-query HTTP 400 probe.
+
+**Outcome:** Confirmed. The route applies program and ZIP predicates in SQL
+before the existing 100-row cap, while preserving freshness and public
+response semantics.
+
+**Class:** Query/limit ordering gap converted into a permanent boundary
+regression guard. Separate summary, partner-scope, and verifier-isolation
+findings remain outside this task.
+

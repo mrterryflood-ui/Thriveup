@@ -15,3 +15,21 @@
 - Independent angle: six-domain adversarial audit was run in parallel and repeated after fixes. It confirmed the task-439 lifecycle and browser proof; it separately identified pre-existing screening referral-ID, eligibility-analytics, and cache-invalidation mismatches as out of scope.
 - Outcome: task 439 is implemented: late screening success/error callbacks cannot replace a different account, a different screening generation, a changed-back form, or a superseding request.
 - Residuals and reusable guard: the benefits endpoint still has legacy response-shape issues for screening-to-referral linkage and eligibility analytics; shared auth/query caching also retains the prior user until its refetch commits. Follow-up work is proposed separately. The active-request identity must remain paired with account identity and generation whenever screening mutation callbacks are changed.
+
+## Task 442 — Public capacity directory filtering
+
+### Alpha
+
+- End-state: a public capacity lookup must not report an empty result merely because a matching organization sorts after the first 100 fresh rows.
+- In-state evidence: `server/capacity-routes.ts` applied `.limit(100)` before in-memory program and ZIP filtering; `scripts/verify-capacity-routes.ts` covered ordinary filters but not the limit boundary.
+- Authority/boundaries: preserve the public no-auth route, 14-day freshness window, `general` program fallback, ZIP restriction semantics, response shape, and 100-row cap.
+- Plan and acceptance proofs: move program/ZIP predicates into the database query before `.limit(100)`; seed 100 earlier non-matches and a later matching organization in the capacity verifier; run TypeScript, focused verification, preflight, and adversarial review.
+- Unknowns/deferred decisions: no pagination contract is introduced; this task keeps the existing capped response and only changes which rows qualify for the cap.
+
+### Omega
+
+- Diff scrimmage: program and ZIP predicates now run in SQL before the existing 100-row limit; scalar query validation rejects repeated/nested values rather than sending them to SQL. The verifier creates 100 earlier non-matches and confirms a later matching organization is returned.
+- Proofs and gates: focused capacity verification passed 12/12; the configured TypeScript/integrated-flow command passed; preflight passed 9/9; memory health passed; `git diff --check` passed; the restarted workflow served the route; repeated `program` values returned HTTP 400.
+- Independent angle: six read-only adversarial audits confirmed the boundary fix and response compatibility. They identified pre-existing summary accuracy, partner scope, and verifier cleanup hardening as separate residuals. Dedicated architect review was unavailable because subagents are disabled in Free mode.
+- Outcome: Task 442 is implemented: local organizations are filtered before the public 100-row cap, so a matching organization cannot disappear behind unrelated earlier rows.
+- Residuals and reusable guard: summary freshness/aggregation, partner-capacity scopes, and exception-safe isolated verifier fixtures remain separate follow-up work. The permanent guard is the boundary fixture in `scripts/verify-capacity-routes.ts`.
