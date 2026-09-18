@@ -1,5 +1,10 @@
 import type { Express, Request, Response, NextFunction } from "express";
-import { PARTNER_API_CONTRACT, buildDocsEndpointLine, auditRouteRegistration } from "./partner-api-contract";
+import {
+  PARTNER_API_CONTRACT,
+  PARTNER_API_SCOPES,
+  buildDocsEndpointLine,
+  auditRouteRegistration,
+} from "./partner-api-contract";
 import { getLastBriefProbeResult } from "./community-brief-probe";
 import { hasValidCommunityEvidence } from "./community-evidence";
 import { db, storage } from "./storage";
@@ -96,7 +101,7 @@ export async function requirePartnerAuth(req: Request, res: Response, next: Next
     // Ecosystem platforms get all scopes — they are trusted siblings
     (req as any).partnerKey = {
       partnerName: platform.name,
-      scopes: ["content:read","platforms:read","community:read","benefits:read","impact:read","student:read","inbound:write"],
+      scopes: PARTNER_API_SCOPES.map(({ scope }) => scope),
       isEcosystemPlatform: true,
       platformId: platform.id,
     };
@@ -301,19 +306,7 @@ export function registerPartnerApiRoutes(app: Express) {
           setup: "Email terryflood@thrivingcommunitiesforall.com to request a scoped key.",
         },
       },
-      scopes: [
-        { scope: "content:read",    description: "Ecosystem platform list and content export" },
-        { scope: "platforms:read",  description: "Live platform health status and metadata" },
-        { scope: "community:read",  description: "Community impact metrics, service-platform summary, and community brief generation" },
-        { scope: "benefits:read",   description: "Public benefits program catalog" },
-        { scope: "impact:read",     description: "Community intervention impact scores and outcome data" },
-        { scope: "student:read",    description: "AGGREGATE, suppression-floored youth metrics only — no per-student PII. See students/* endpoints." },
-        { scope: "chainweb:read",    description: "Chainweb ROI coefficients, templates, scenarios, calculations, and narratives" },
-        { scope: "yhsi:read",        description: "AGGREGATE, floor-5-suppressed YHSI metrics and outcome summaries" },
-        { scope: "inbound:write",   description: "POST referrals, events, metrics, or alerts into ThriveUp" },
-        { scope: "outcomes:read",   description: "Read aggregated outcome data — trade sim completion counts, employer-ready metrics (no PII, aggregate only)" },
-        { scope: "certs:read",      description: "Verify and read certificate records — check whether a cert ID is valid and retrieve holder/trade/issued info" },
-      ],
+      scopes: PARTNER_API_SCOPES,
       // Generated from the shared contract registry (server/partner-api-contract.ts).
       // Add or remove routes there — this list stays in sync automatically.
       endpoints: PARTNER_API_CONTRACT.map(buildDocsEndpointLine),

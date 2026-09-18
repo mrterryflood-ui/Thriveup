@@ -54,6 +54,8 @@ All partner keys use `x-partner-key: tcaf_...` and are scoped. Available scopes:
 | `inbound:write` | POST data into ThriveUp (referrals, events, metrics, alerts) |
 | `outcomes:read` | Read aggregated outcome data — trade sim completion counts and employer-ready metrics (no PII) |
 | `certs:read` | Verify and read certificate records |
+| `capacity:read` | Read the calling partner's own capacity entries |
+| `capacity:write` | Create or update the calling partner's capacity entries |
 
 Scopes are assigned at key creation time in the admin panel (Ops Center → Partner API tab). A key can have multiple scopes.
 
@@ -204,6 +206,8 @@ path, and `any partner key` means the key does not need a particular scope.
 | GET | `/yhsi/outcomes-summary` | `yhsi:read` |
 | GET | `/outcomes/trade-completions` | `outcomes:read` |
 | GET | `/certificates/verify/:certId` | `certs:read` |
+| GET | `/capacity` | `capacity:read` |
+| PATCH | `/capacity` | `capacity:write` |
 | POST | `/push` | `inbound:write` |
 | POST | `/foster-youth/refer` | `inbound:write` |
 

@@ -37,6 +37,22 @@ export type PartnerRouteEntry = {
   readonly probe?: boolean;
 };
 
+export const PARTNER_API_SCOPES = [
+  { scope: "content:read", description: "Ecosystem platform list and content export" },
+  { scope: "platforms:read", description: "Live platform health status and metadata" },
+  { scope: "community:read", description: "Community impact metrics, service-platform summary, and community brief generation" },
+  { scope: "benefits:read", description: "Public benefits program catalog" },
+  { scope: "impact:read", description: "Community intervention impact scores and outcome data" },
+  { scope: "student:read", description: "AGGREGATE, suppression-floored youth metrics only — no per-student PII. See students/* endpoints." },
+  { scope: "chainweb:read", description: "Chainweb ROI coefficients, templates, scenarios, calculations, and narratives" },
+  { scope: "yhsi:read", description: "AGGREGATE, floor-5-suppressed YHSI metrics and outcome summaries" },
+  { scope: "inbound:write", description: "POST referrals, events, metrics, or alerts into ThriveUp" },
+  { scope: "outcomes:read", description: "Read aggregated outcome data — trade sim completion counts, employer-ready metrics (no PII, aggregate only)" },
+  { scope: "certs:read", description: "Verify and read certificate records — check whether a cert ID is valid and retrieve holder/trade/issued info" },
+  { scope: "capacity:read", description: "Read this partner's own capacity entries" },
+  { scope: "capacity:write", description: "Create or update this partner's capacity entries" },
+] as const;
+
 // These routes intentionally remain registered to return 410 Gone with a
 // privacy-preserving migration message. They are not part of the live public
 // contract and should not be reported as unexpected registration drift.
@@ -275,6 +291,20 @@ export const PARTNER_API_CONTRACT: readonly PartnerRouteEntry[] = [
     path: "/api/partner/v1/certificates/verify/:certId",
     auth: { kind: "partner", scope: "certs:read" },
     description: "verify a trade certificate by ID (certs:read)",
+  },
+
+  // ── capacity:read / capacity:write ────────────────────────────────────────
+  {
+    method: "GET",
+    path: "/api/partner/v1/capacity",
+    auth: { kind: "partner", scope: "capacity:read" },
+    description: "read this partner's capacity entries (capacity:read)",
+  },
+  {
+    method: "PATCH",
+    path: "/api/partner/v1/capacity",
+    auth: { kind: "partner", scope: "capacity:write" },
+    description: "create or update this partner's capacity entries (capacity:write)",
   },
 
   // ── inbound:write ──────────────────────────────────────────────────────────

@@ -12,9 +12,9 @@
  */
 
 import { db } from "../server/storage";
-import { orgCapacity, organizations } from "../shared/schema";
+import { orgCapacity, organizations, partnerApiKeys } from "../shared/schema";
 import { eq, inArray } from "drizzle-orm";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { Client } from "pg";
 
 const BASE = process.env.E2E_BASE_URL ?? "http://localhost:5000";
@@ -39,12 +39,18 @@ const TEST_ORG_IDS = [
   ...CROWD_ORG_IDS,
   ...SUMMARY_CROWD_ORG_IDS,
 ];
+const UNDER_SCOPED_PARTNER_KEY = `tcaf_capacity_scope_test_${randomUUID().replace(/-/g, "")}`;
+const UNDER_SCOPED_PARTNER_KEY_HASH = createHash("sha256").update(UNDER_SCOPED_PARTNER_KEY).digest("hex");
 let lockClient: Client | undefined;
 
-async function request(path: string) {
-  const res = await fetch(`${BASE}${path}`);
+async function request(path: string, init?: RequestInit) {
+  const res = await fetch(`${BASE}${path}`, init);
   if (!res.ok) throw new Error(`${res.status} ${res.statusText} — GET ${path}`);
   return res.json() as Promise<any>;
+}
+
+async function requestRaw(path: string, init?: RequestInit) {
+  return fetch(`${BASE}${path}`, init);
 }
 
 async function seedRow(opts: {
@@ -76,6 +82,7 @@ async function seedRow(opts: {
 
 async function cleanup() {
   await db.delete(orgCapacity).where(inArray(orgCapacity.orgId, TEST_ORG_IDS));
+  await db.delete(partnerApiKeys).where(eq(partnerApiKeys.keyHash, UNDER_SCOPED_PARTNER_KEY_HASH));
 }
 
 function assertDevelopmentTarget() {
@@ -179,6 +186,44 @@ async function run() {
     await assertDevelopmentDatabase();
     await acquireVerifierLock();
     targetValidated = true;
+
+    await db.insert(partnerApiKeys).values({
+      partnerName: `Capacity scope verifier ${RUN}`,
+      keyHash: UNDER_SCOPED_PARTNER_KEY_HASH,
+      keyPrefix: UNDER_SCOPED_PARTNER_KEY.slice(0, 14),
+      scopes: ["content:read"],
+      active: true,
+    });
+
+    // Test 0: A valid partner key without capacity scopes cannot read or write.
+    {
+      const writeResponse = await requestRaw("/api/partner/v1/capacity", {
+        method: "PATCH",
+        headers: {
+          "x-partner-key": UNDER_SCOPED_PARTNER_KEY,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          orgName: `Unauthorized capacity ${RUN}`,
+          programCode: "general",
+          status: "open",
+        }),
+      });
+      assert(writeResponse.status === 403,
+        "valid partner key without capacity:write cannot mutate capacity");
+
+      const readResponse = await requestRaw("/api/partner/v1/capacity", {
+        headers: { "x-partner-key": UNDER_SCOPED_PARTNER_KEY },
+      });
+      assert(readResponse.status === 403,
+        "valid partner key without capacity:read cannot read capacity");
+
+      const unauthorizedRows = await db.select({ orgId: orgCapacity.orgId })
+        .from(orgCapacity)
+        .where(eq(orgCapacity.orgId, `pk_${UNDER_SCOPED_PARTNER_KEY.slice(0, 14)}`));
+      assert(unauthorizedRows.length === 0,
+        "under-scoped capacity write creates no database row");
+    }
 
     // Seed test rows
     await seedRow({ orgId: orgId("001"), orgName: "Open Org",     programCode: "SNAP",    status: "open"     });

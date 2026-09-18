@@ -1,0 +1,17 @@
+# Alpha Omega — 2026-09-18 — Task 446
+
+## Alpha
+
+- End-state: partner capacity reads and writes require separate explicit scopes; the shared Partner API inventory and human docs advertise those requirements; a valid key lacking either scope is rejected for both operations.
+- In-state evidence: `server/capacity-routes.ts` uses `requirePartnerAuth` alone on both partner capacity routes. `server/partner-api-contract.ts` and `docs/api-contract.md` do not list these routes or capacity scopes. The existing capacity verifier seeds database fixtures and can exercise the live development server.
+- Authority/boundaries: `requirePartnerAuth` and `requireScope` are the existing Partner API authorization boundary. Ecosystem keys remain trusted sibling integrations. Public `/api/directory/capacity` routes are out of scope and must stay public.
+- Plan and acceptance proofs: add `capacity:read` and `capacity:write` to the shared route/scope inventory; apply the matching middleware in `server/capacity-routes.ts`; align generated `/docs` and `docs/api-contract.md`; extend the live capacity verifier with a valid database key containing only `content:read`, asserting HTTP 403 for PATCH and GET and cleaning all fixtures; run focused verifier, contract checks, typecheck, preflight, and adversarial audit.
+- Unknowns/deferred decisions: no separate partner capacity consumer is present in the repository, so no existing pinned external key should receive capacity access by default. Existing ecosystem-key behavior continues to grant all declared scopes.
+
+## Omega
+
+- Diff scrimmage: both partner routes now fail closed after key authentication unless their distinct capacity scope is present. Public directory routes were unchanged. The shared scope inventory drives generated `/docs` output and ecosystem-key scope grants; pinned external keys were not broadened.
+- Proofs and gates: `npx tsx scripts/verify-capacity-routes.ts` passed 19/19, including a valid `content:read`-only key receiving 403 for PATCH and GET and creating no capacity row. `npx tsx scripts/preflight.ts` passed 9/9. TypeScript and integrated-flow foundation checks passed. The live development `/api/partner/v1/docs` response exposed both capacity scopes and both method/path entries. Contract probe parsing passed 26/26. `git diff --check` passed. The first full completion validation encountered an upstream AI request abort in the unrelated community-brief pack check; a targeted rerun then passed the full community-brief suite.
+- Independent angle: six read-only adversarial auditors found no critical or high findings and confirmed API, runtime, UI, storage, UX, and full-stack contract alignment. They identified only broader residuals: denied scope attempts are logged as an initial successful auth event, capacity partner routes lack a dedicated rate limit, and forced process termination can leave verifier fixtures.
+- Outcome: Task 446 acceptance criteria are met. Partner capacity mutation and reads now have explicit least-privilege scopes, the route registry and docs agree, ecosystem sibling behavior remains complete, and the live regression proves under-scoped valid keys cannot access or mutate capacity data.
+- Residuals and reusable guard: keep `PARTNER_API_SCOPES`, `PARTNER_API_CONTRACT`, generated `/docs`, and `docs/api-contract.md` aligned when adding partner scopes. Follow-ups cover denied-scope audit attribution, capacity-specific rate limiting, and automatic execution of the new regression in a security gate.

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { db } from "./storage";
 import { orgCapacity } from "@shared/schema";
 import { eq, gt, and, isNull, or, sql, type SQL } from "drizzle-orm";
-import { requirePartnerAuth } from "./partner-api-routes";
+import { requirePartnerAuth, requireScope } from "./partner-api-routes";
 import { validateContactPhone, validateContactUrl } from "@shared/intake-contact-validators";
 
 export const capacityRouter = Router();
@@ -92,9 +92,10 @@ capacityRouter.get("/capacity/summary", rateLimit, async (_req, res) => {
 
 // ── Partner-authenticated capacity PATCH ─────────────────────────────────────
 // PATCH /api/partner/v1/capacity — requires x-partner-key or x-ecosystem-key
+// plus the explicit capacity:write scope.
 export const partnerCapacityRouter = Router();
 
-partnerCapacityRouter.patch("/capacity", requirePartnerAuth, async (req, res) => {
+partnerCapacityRouter.patch("/capacity", requirePartnerAuth, requireScope("capacity:write"), async (req, res) => {
   const key: any = (req as any).partnerKey;
   try {
     const {
@@ -160,8 +161,9 @@ partnerCapacityRouter.patch("/capacity", requirePartnerAuth, async (req, res) =>
   }
 });
 
-// GET /api/partner/v1/capacity — returns this partner's own entries
-partnerCapacityRouter.get("/capacity", requirePartnerAuth, async (req, res) => {
+// GET /api/partner/v1/capacity — returns this partner's own entries and
+// requires the explicit capacity:read scope.
+partnerCapacityRouter.get("/capacity", requirePartnerAuth, requireScope("capacity:read"), async (req, res) => {
   const key: any = (req as any).partnerKey;
   try {
     const orgId = key.isEcosystemPlatform

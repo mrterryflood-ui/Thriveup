@@ -9,7 +9,7 @@ A standardized, authenticated API layer so external partners (Black Praxis Labs,
 ## Key facts
 - Keys: `tcaf_` prefix, SHA-256 hashed at rest, shown plaintext once on creation, never again
 - Auth header: `x-partner-key` (or `Authorization: Bearer tcaf_...`)
-- Scopes: `content:read` (programs + RAG export), `platforms:read` (platform catalog)
+- Scopes are explicit per route and maintained in the shared Partner API contract registry; the public `/docs` inventory is generated from that registry.
 - All calls audit-logged to `partner_api_audit_log` table
 
 ## Endpoints
