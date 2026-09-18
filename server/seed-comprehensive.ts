@@ -138,6 +138,7 @@ export async function seedComprehensive(): Promise<void> {
     await seedPreventionFramework();
     await seedFacilitatorData();
     await seedNsfTechAccessOpportunity();
+    await seedCiscoGlobalImpactOpportunity();
     await seedTexasHubMous();
     await seedTradeSimsAll();
     await seedGisResourceOverlays();
@@ -231,6 +232,36 @@ async function seedNsfTechAccessOpportunity() {
     notes: "TCAF Texas Hub Workbench live at /nsf-techaccess-hub. Adoption kit at shared/nationwide/hub-adoption-kit/. Live AI-grounded state intelligence + LOI generator working for all 56 jurisdictions.",
   });
   console.log("[Seed] NSF 26-508 TechAccess opportunity inserted");
+}
+
+async function seedCiscoGlobalImpactOpportunity() {
+  const id = "cisco-global-impact-cash-grant";
+  const existing = await db.select({ id: grantOpportunities.id }).from(grantOpportunities).where(eq(grantOpportunities.id, id)).limit(1);
+  if (existing.length > 0) return;
+
+  await db.insert(grantOpportunities).values({
+    id,
+    title: "Cisco Foundation Global Impact Cash Grant",
+    agency: "Cisco Foundation",
+    fundingAmount: "First-time requests up to $100,000",
+    description: "Candidate opportunity for technology-enabled service improvement benefiting underserved communities. The program is treated as a rolling/LOI pathway until the official source is refreshed and the applicant's eligibility is documented.",
+    eligibilityCriteria: "Known: nonprofit/NPO/NGO focus, national or multinational operations, and technology-enabled service improvement for underserved communities. Unknown: applicant legal entity, nonprofit status, operating footprint, and current Cisco qualification outcome.",
+    focusAreas: ["education", "economic opportunity", "crisis response", "climate resilience", "technology-enabled services"],
+    grantType: "foundation_cash_grant",
+    sourceUrl: "https://www.cisco.com/site/us/en/about/purpose/community-resilience/cisco-foundation/index.html",
+    discoveryUrl: "https://vacancybridge.com/",
+    status: "verifying",
+    source: "manual",
+    category: "community",
+    deadlineType: "rolling",
+    verificationStatus: "partially_verified",
+    lastVerifiedAt: new Date("2026-09-18T00:00:00Z"),
+    nextAction: "Confirm the applicant legal entity, nonprofit status, national or multinational operating footprint, and fit with Cisco's current official qualification path.",
+    knownRequirements: "Cisco's official program materials indicate a year-round eligibility/LOI pathway, first-time requests up to $100,000, nonprofit/NPO/NGO focus, and technology-enabled service improvement for underserved communities.",
+    unknowns: "Current invitation/qualification mechanics, eligible applicant entity, operating-footprint evidence, and whether the current program pathway is accepting a new request.",
+    notes: "The Cisco source is authoritative for the opportunity. Vacancy Bridge is retained only as discovery evidence and must not be treated as Cisco's application channel. No application or external submission has been made.",
+  }).onConflictDoNothing({ target: grantOpportunities.id });
+  console.log("[Seed] Cisco Global Impact Cash Grant opportunity inserted");
 }
 
 async function seedTexasHubMous() {
