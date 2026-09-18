@@ -4,7 +4,7 @@
  * Organizations type a plain-language prompt and get a full
  * multi-layer community intelligence map with AI synthesis.
  */
-import { useState, lazy, Suspense, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { MapContainer, TileLayer, CircleMarker, Popup, Rectangle, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -12,6 +12,8 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { EvidenceSummary } from "@/components/evidence-label";
 import { AIAugmentationDisclosure } from "@/components/ai-augmentation-disclosure";
+import { VisualIntelligenceShell } from "@/components/gis/VisualIntelligenceShell";
+import { parseVisualIntelligenceState } from "@shared/visual-intelligence";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,10 +27,6 @@ import {
   CheckCircle2, Target, DollarSign, FlaskConical, BookOpen,
   ArrowUpDown, Lightbulb, Star, XCircle,
 } from "lucide-react";
-
-// Three.js 3D — lazy loaded to avoid blocking map render
-const ParticleFlow = lazy(() => import("@/components/viz3d/ParticleFlow"));
-const DomainWeb = lazy(() => import("@/components/viz3d/DomainWeb"));
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -89,6 +87,11 @@ interface AnalysisResult {
     recommendations: string[];
     fundingAngles: string[];
   };
+  evidence?: {
+    geography?: { resolved?: { type?: string; key?: string }; disclosure?: string };
+    sources?: Array<{ publisher?: string; dataset?: string; vintage?: string; status?: string }>;
+    claims?: Record<string, { status?: string; disclosure?: string }>;
+  };
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -129,7 +132,9 @@ function dollar(v?: number) { return v != null ? `$${v.toLocaleString()}` : "—
 // ── Map auto-fit helper ───────────────────────────────────────────────────────
 function MapFocus({ center }: { center: [number, number] }) {
   const map = useMap();
-  map.setView(center, 13, { animate: true });
+  useEffect(() => {
+    map.setView(center, 13, { animate: true });
+  }, [map, center]);
   return null;
 }
 
@@ -138,10 +143,19 @@ function QuadrantOverlay({ quadrants }: { quadrants: AnalysisResult["quadrants"]
   const colors = ["rgba(99,102,241,0.07)", "rgba(16,185,129,0.07)", "rgba(245,158,11,0.07)", "rgba(239,68,68,0.07)"];
   return (
     <>
-      {quadrants.map((q, i) => (
+      {quadrants.filter((q) =>
+        q != null &&
+        Array.isArray(q.bounds) &&
+        q.bounds.length === 2 &&
+        q.bounds.every((point) =>
+          Array.isArray(point) &&
+          point.length === 2 &&
+          point.every((coordinate) => Number.isFinite(coordinate)),
+        ),
+      ).map((q, i) => (
         <Rectangle
           key={q.label}
-          bounds={q.bounds as any}
+          bounds={q.bounds as [[number, number], [number, number]]}
           pathOptions={{ color: colors[i].replace("0.07", "0.5"), weight: 1.5, fillColor: colors[i], fillOpacity: 0.07, dashArray: "6 4" }}
         >
           <Popup>{q.label} quadrant</Popup>
@@ -173,20 +187,6 @@ function MapLegend() {
 }
 
 // ── Domain web data builder (from SVI themes) ────────────────────────────────
-function buildDomainWebData(svi: AnalysisResult["svi"]) {
-  const s = (v?: number) => v != null ? 1 - v : 0.5; // invert: high SVI = low score
-  return {
-    healthAccess:   { score: s(svi.theme2Household) * 100, grade: svi.urgency === "crisis" ? "D" : "C", label: "Health Access", urgency: svi.urgency },
-    mentalHealth:   { score: s(svi.theme1Socioeconomic) * 100, grade: "C", label: "Mental Health", urgency: svi.urgency },
-    benefits:       { score: s(svi.theme1Socioeconomic) * 100, grade: "C", label: "Benefits", urgency: svi.urgency },
-    housing:        { score: s(svi.theme4Housing) * 100, grade: "C", label: "Housing", urgency: svi.urgency },
-    earlyChildhood: { score: 60, grade: "C", label: "Early Childhood", urgency: "watch" },
-    education:      { score: s(svi.theme1Socioeconomic) * 100, grade: "C", label: "Education", urgency: svi.urgency },
-    workforce:      { score: s(svi.theme1Socioeconomic) * 100, grade: "C", label: "Workforce", urgency: svi.urgency },
-    safetyJustice:  { score: s(svi.theme3Minority) * 100, grade: "C", label: "Safety/Justice", urgency: svi.urgency },
-  };
-}
-
 // ── Prompt suggestions ────────────────────────────────────────────────────────
 const PROMPT_SUGGESTIONS = [
   "Show all community service orgs in each quadrant with SDOH hotspots overlaid on CDC SVI data",
@@ -222,18 +222,43 @@ export default function CommunityAnalysisPage() {
   const [zip, setZip] = useState("");
   const [prompt, setPrompt] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
-  const [activeLayer, setActiveLayer] = useState<"svi" | "orgs" | "quadrant" | "all">("all");
-  const [show3D, setShow3D] = useState<"particle" | "domain" | null>(null);
   const [targetZip, setTargetZip] = useState("");
   const [interventionResult, setInterventionResult] = useState<InterventionResult | null>(null);
   const [showInterventions, setShowInterventions] = useState(false);
+  const [visualLayers, setVisualLayers] = useState(["svi", "sdoh", "resources"]);
+
+  const mapLayerEnabled = (layer: "all" | "svi" | "orgs" | "quadrant") => {
+    if (layer === "all") return ["svi", "sdoh", "resources", "relationships"].some((id) => visualLayers.includes(id));
+    if (layer === "svi") return visualLayers.includes("svi") || visualLayers.includes("sdoh");
+    if (layer === "orgs") return visualLayers.includes("resources");
+    return visualLayers.includes("relationships");
+  };
+
+  const toggleMapLayer = (layer: "all" | "svi" | "orgs" | "quadrant") => {
+    if (layer === "all") {
+      setVisualLayers((current) =>
+        ["svi", "sdoh", "resources", "relationships"].every((id) => current.includes(id))
+          ? []
+          : ["svi", "sdoh", "resources", "relationships"],
+      );
+      return;
+    }
+    const ids = layer === "svi" ? ["svi", "sdoh"] : layer === "orgs" ? ["resources"] : ["relationships"];
+    setVisualLayers((current) => {
+      const enabled = ids.some((id) => current.includes(id));
+      return enabled ? current.filter((id) => !ids.includes(id)) : [...current, ...ids.filter((id) => !current.includes(id))];
+    });
+  };
 
   // Pre-fill ZIP from ?zip= query param (set by neighborhood-lookup "Deep Analysis" button)
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const qZip = params.get("zip");
+    const visualState = parseVisualIntelligenceState(window.location.search);
+    const qZip = visualState.geography;
     if (qZip && /^\d{5}$/.test(qZip)) {
       setZip(qZip);
+    }
+    if (visualState.selectedLayers.length > 0) {
+      setVisualLayers(visualState.selectedLayers);
     }
   }, []);
 
@@ -244,14 +269,19 @@ export default function CommunityAnalysisPage() {
         zip,
       });
       if (!resp.ok) {
-        const err = await resp.json();
-        throw new Error(err.error || "Analysis failed");
+        let message = "Analysis failed";
+        try {
+          const err = await resp.json();
+          if (typeof err?.error === "string") message = err.error;
+        } catch {
+          // Preserve the stable fallback when a proxy returns non-JSON.
+        }
+        throw new Error(message);
       }
       return resp.json() as Promise<AnalysisResult>;
     },
     onSuccess: (data) => {
       setResult(data);
-      setShow3D(null);
       setInterventionResult(null);
       setShowInterventions(false);
     },
@@ -264,8 +294,14 @@ export default function CommunityAnalysisPage() {
         targetZip: targetZip.length === 5 ? targetZip : undefined,
       });
       if (!resp.ok) {
-        const err = await resp.json();
-        throw new Error(err.error || "Intervention analysis failed");
+        let message = "Intervention analysis failed";
+        try {
+          const err = await resp.json();
+          if (typeof err?.error === "string") message = err.error;
+        } catch {
+          // Preserve the stable fallback when a proxy returns non-JSON.
+        }
+        throw new Error(message);
       }
       return resp.json() as Promise<InterventionResult>;
     },
@@ -355,6 +391,65 @@ export default function CommunityAnalysisPage() {
       </div>
 
       {/* ── Main content ──────────────────────────────────────────────────── */}
+      <VisualIntelligenceShell
+        activeLens="map"
+        geography={result?.zip || zip}
+        geographyGrain={result ? "Census ZCTA / ZIP request" : "Select a U.S. ZIP or county"}
+        observations={[
+          {
+            id: "community-analysis-observed",
+            label: "Place conditions",
+            evidenceClass: result ? "observed" : "unavailable",
+            geography: result?.evidence?.geography?.resolved?.type || "Requested ZIP",
+            source: result?.evidence?.sources?.map((source) => `${source.publisher || "Source"} · ${source.dataset || "dataset"}`).join("; ") || "Source metadata unavailable",
+            vintage: result?.evidence?.sources?.map((source) => source.vintage).filter(Boolean).join(", ") || "Provider vintage unavailable",
+            status: result?.evidence?.claims?.observed?.status === "available" ? "available" : "unavailable",
+            disclosure: result?.evidence?.claims?.observed?.disclosure || "Run an analysis to load source-backed observations.",
+          },
+          {
+            id: "community-analysis-derived",
+            label: "Evidence relationships",
+            evidenceClass: result ? "derived" : "unavailable",
+            geography: "Same resolved geography",
+            source: "Calculated SVI/SDOH layer relationships and mapped service context",
+            vintage: "Derived from available response",
+            status: result?.evidence?.claims?.derived?.status === "available" ? "available" : "unavailable",
+            uncertainty: "Relationships support investigation; correlation is not causal proof.",
+          },
+          {
+            id: "community-analysis-modeled",
+            label: "Intervention scenarios",
+            evidenceClass: "modeled",
+            geography: "Scenario scope follows the selected place",
+            source: "RPLICE/CFIR intervention analysis and Chainweb decision support",
+            vintage: "Scenario generated on request",
+            status: result && showInterventions ? "available" : "partial",
+            disclosure: "Projected or modeled values must not be read as observed outcomes.",
+          },
+          {
+            id: "community-analysis-time",
+            label: "Time and refresh",
+            evidenceClass: result ? "observed" : "unavailable",
+            geography: "Source-defined geography",
+            source: "The provider-reported vintage is preserved instead of being replaced by the current calendar year.",
+            vintage: result?.evidence?.sources?.map((source) => source.vintage).filter(Boolean).join(", ") || "Not loaded",
+            status: result?.evidence?.sources?.some((source) => source.status === "available") ? "available" : "unavailable",
+            uncertainty: "Historical snapshots are only shown where the source supplies that vintage.",
+          },
+        ]}
+        selectedLayers={visualLayers}
+        onLayerChange={(layerId) => {
+          setVisualLayers((current) =>
+            current.includes(layerId)
+              ? current.filter((id) => id !== layerId)
+              : [...current, layerId],
+          );
+          if (layerId === "scenarios") {
+            setShowInterventions(true);
+          }
+        }}
+      />
+
       {result && (
         <div className="mx-auto max-w-7xl px-4 py-6 space-y-6">
           <EvidenceSummary claims={[{
@@ -400,8 +495,8 @@ export default function CommunityAnalysisPage() {
                   <Button
                     key={layer}
                     size="sm"
-                    variant={activeLayer === layer ? "default" : "outline"}
-                    onClick={() => setActiveLayer(layer)}
+                    variant={mapLayerEnabled(layer) ? "default" : "outline"}
+                    onClick={() => toggleMapLayer(layer)}
                     data-testid={`button-layer-${layer}`}
                   >
                     {layer === "all" ? "All Layers" : layer === "svi" ? "SVI Hotspots" : layer === "orgs" ? "Orgs" : "Quadrants"}
@@ -427,7 +522,7 @@ export default function CommunityAnalysisPage() {
                   <MapFocus center={center} />
 
                   {/* SVI hotspot circle */}
-                  {(activeLayer === "all" || activeLayer === "svi") && result.svi.score != null && (
+                  {mapLayerEnabled("svi") && result.svi.score != null && (
                     <CircleMarker
                       center={center}
                       radius={Math.max(30, (result.svi.score * 60))}
@@ -454,7 +549,7 @@ export default function CommunityAnalysisPage() {
                   )}
 
                   {/* Poverty hotspot overlay */}
-                  {(activeLayer === "all" || activeLayer === "svi") && result.census.povertyRate != null && (
+                  {mapLayerEnabled("svi") && result.census.povertyRate != null && (
                     <CircleMarker
                       center={center}
                       radius={Math.max(15, result.census.povertyRate * 1.8)}
@@ -475,12 +570,12 @@ export default function CommunityAnalysisPage() {
                   )}
 
                   {/* Quadrant overlay */}
-                  {(activeLayer === "all" || activeLayer === "quadrant") && (
+                  {mapLayerEnabled("quadrant") && (
                     <QuadrantOverlay quadrants={result.quadrants} />
                   )}
 
                   {/* Org markers */}
-                  {(activeLayer === "all" || activeLayer === "orgs") && result.orgs.map(org => (
+                  {mapLayerEnabled("orgs") && result.orgs.map(org => (
                     <CircleMarker
                       key={org.id}
                       center={[org.lat, org.lng]}
@@ -680,62 +775,6 @@ export default function CommunityAnalysisPage() {
               </CardContent>
             </Card>
           )}
-
-          {/* ── 3D Visualization section ────────────────────────────────────── */}
-          <div>
-            <div className="flex items-center gap-3 mb-4">
-              <h2 className="text-lg font-semibold text-foreground">3D Intelligence Views</h2>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant={show3D === "particle" ? "default" : "outline"}
-                  onClick={() => setShow3D(show3D === "particle" ? null : "particle")}
-                  data-testid="button-3d-particle"
-                >
-                  <Zap className="h-4 w-4 mr-1" /> Cost of Inaction
-                </Button>
-                <Button
-                  size="sm"
-                  variant={show3D === "domain" ? "default" : "outline"}
-                  onClick={() => setShow3D(show3D === "domain" ? null : "domain")}
-                  data-testid="button-3d-domain"
-                >
-                  <Network className="h-4 w-4 mr-1" /> Domain Web
-                </Button>
-              </div>
-            </div>
-
-            {show3D === "particle" && (
-              <div className="rounded-xl overflow-hidden border" style={{ height: 480 }}>
-                <Suspense fallback={<div className="h-full flex items-center justify-center bg-slate-950 text-slate-400 text-sm"><Loader2 className="h-5 w-5 animate-spin mr-2" /> Loading 3D engine…</div>}>
-                  <ParticleFlow
-                    costOfInaction={
-                      (result.census.population || 10000) *
-                      (result.census.povertyRate || 15) * 1200
-                    }
-                    netSavings={
-                      (result.census.population || 10000) *
-                      (result.census.povertyRate || 15) * 800
-                    }
-                    roi={
-                      result.svi.score
-                        ? ((1 - result.svi.score) * 4 + 1.5).toFixed(1)
-                        : "2.5"
-                    }
-                    populationSize={result.census.population}
-                  />
-                </Suspense>
-              </div>
-            )}
-
-            {show3D === "domain" && (
-              <div className="rounded-xl overflow-hidden border" style={{ height: 480 }}>
-                <Suspense fallback={<div className="h-full flex items-center justify-center bg-slate-950 text-slate-400 text-sm"><Loader2 className="h-5 w-5 animate-spin mr-2" /> Loading 3D engine…</div>}>
-                  <DomainWeb systemsScores={buildDomainWebData(result.svi)} />
-                </Suspense>
-              </div>
-            )}
-          </div>
 
           {/* ── RPLICE Intervention Overlay ──────────────────────────────────── */}
           {result && (

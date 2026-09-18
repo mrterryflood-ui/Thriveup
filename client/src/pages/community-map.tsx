@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -24,6 +24,7 @@ import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaf
 import "leaflet/dist/leaflet.css";
 import jsPDF from "jspdf";
 import { TrainingGuideButton } from "@/components/training-guide";
+import { VisualIntelligenceShell } from "@/components/gis/VisualIntelligenceShell";
 
 const US_STATES = [
   { code: "AL", name: "Alabama" }, { code: "AK", name: "Alaska" }, { code: "AZ", name: "Arizona" },
@@ -524,6 +525,21 @@ export default function CommunityMapPage() {
   const [activeTab, setActiveTab] = useState("map");
   const { toast } = useToast();
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const query = params.get("q") || params.get("geo");
+    if (!query) return;
+    const normalized = query.trim();
+    if (/^[A-Za-z]{2}$/.test(normalized)) {
+      setSelectedState(normalized.toUpperCase());
+      setSearchMode("state");
+      return;
+    }
+    setLocationQuery(normalized);
+    setSearchMode("location");
+    setActiveSearch(normalized);
+  }, []);
+
   const stateSearchQuery = useQuery<SearchResult>({
     queryKey: ["/api/community-map/search/" + selectedState],
     enabled: searchMode === "state" && !!selectedState,
@@ -624,6 +640,54 @@ export default function CommunityMapPage() {
 
   return (
     <div className="flex flex-col h-full" data-testid="page-community-map">
+      <VisualIntelligenceShell
+        activeLens="resources"
+        geography={activeSearch || selectedState}
+        geographyGrain={selectedRecord?.geographyType || (selectedState ? "State search" : "Select a supported geography")}
+        title="Visual Intelligence · Resources and Map"
+        description="Explore aggregate community conditions and source-listed resources while keeping geography, vintage, and refresh state visible."
+        observations={[
+          {
+            id: "map-observed",
+            label: "Community conditions",
+            evidenceClass: searchData?.records?.length ? "observed" : "unavailable",
+            geography: selectedRecord?.geographyType || "State or location search",
+            source: selectedRecord?.dataSource || "GIS context data sources",
+            vintage: selectedRecord?.dataYear ? String(selectedRecord.dataYear) : "Source vintage unavailable",
+            status: searchData?.records?.length ? "available" : "unavailable",
+            disclosure: "Aggregate geography only; values are not resident-level observations.",
+          },
+          {
+            id: "map-resources",
+            label: "Resource coverage",
+            evidenceClass: resourceStateCode ? "derived" : "unavailable",
+            geography: resourceStateCode ? `State catalog: ${resourceStateCode}` : "Select a state",
+            source: "Source-listed resource graph",
+            vintage: "Catalog response",
+            status: resourceStateCode ? "partial" : "unavailable",
+            uncertainty: "Catalog coverage does not prove real-time availability or eligibility.",
+          },
+          {
+            id: "map-derived",
+            label: "Context load",
+            evidenceClass: selectedRecord?.contextLoadIndex != null ? "derived" : "unavailable",
+            geography: selectedRecord?.geographyType || "Selected record",
+            source: "Composite derived from the available GIS context fields",
+            vintage: selectedRecord?.dataYear ? String(selectedRecord.dataYear) : "Unavailable",
+            status: selectedRecord?.contextLoadIndex != null ? "available" : "unavailable",
+            disclosure: "Composite scores are decision support; inspect the underlying measures before acting.",
+          },
+          {
+            id: "map-refresh",
+            label: "Refresh state",
+            evidenceClass: searchLoading ? "derived" : searchError || !searchData ? "unavailable" : "observed",
+            geography: refreshStateCode || "No active geography",
+            source: searchError ? "The selected source did not respond." : "Current GIS response",
+            vintage: ingestMutation.isPending ? "Refreshing" : "Source-defined",
+            status: searchError ? "unavailable" : searchLoading ? "partial" : searchData ? "available" : "unavailable",
+          },
+        ]}
+      />
       <div className="border-b p-4 bg-background">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
@@ -712,7 +776,22 @@ export default function CommunityMapPage() {
 
             <TabsContent value="map" className="flex-1 m-0 p-4">
               <div className="flex gap-4 h-full">
-                <div className="flex-1 rounded-lg overflow-hidden border relative" style={{ minHeight: 400 }}>
+              <div className="flex-1 rounded-lg overflow-hidden border relative" style={{ minHeight: 400 }}>
+                {!searchLoading && (searchError || !searchData) && (
+                  <div className="absolute inset-0 z-[900] flex items-center justify-center bg-background/80 p-6 text-center">
+                    <div className="max-w-sm">
+                      <Search className="mx-auto mb-3 h-8 w-8 text-muted-foreground" aria-hidden="true" />
+                      <p className="text-sm font-semibold">
+                        {searchError ? "Community data is unavailable" : "Search a location to begin"}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {searchError
+                          ? "Retry the request or choose another geography."
+                          : "Enter a city, ZIP code, county, or state above to load source-listed data."}
+                      </p>
+                    </div>
+                  </div>
+                )}
                   {searchLoading && (
                     <div className="absolute inset-0 bg-background/50 z-[1000] flex items-center justify-center">
                       <Loader2 className="h-8 w-8 animate-spin text-primary" />

@@ -8,8 +8,6 @@ import jsPDF from "jspdf";
 
 const SkylineMap         = lazy(() => import("@/components/viz3d/SkylineMap"));
 const CascadeWaterfall   = lazy(() => import("@/components/viz3d/CascadeWaterfall"));
-const DomainWeb          = lazy(() => import("@/components/viz3d/DomainWeb"));
-const ParticleFlow       = lazy(() => import("@/components/viz3d/ParticleFlow"));
 const HistoricalTimeline = lazy(() => import("@/components/viz3d/HistoricalTimeline"));
 const GisNeedHeatMap     = lazy(() => import("@/components/gis/GisNeedHeatMap"));
 import { Button } from "@/components/ui/button";
@@ -20,6 +18,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CommunityEvidencePanel } from "@/components/community-evidence-panel";
 import { EvidenceSummary } from "@/components/evidence-label";
 import { AIAugmentationDisclosure } from "@/components/ai-augmentation-disclosure";
+import { VisualIntelligenceShell } from "@/components/gis/VisualIntelligenceShell";
 import {
   Heart, Brain, Shield, Home, Baby, GraduationCap, Scale, Briefcase,
   Users, MapPin, Globe, Search, AlertTriangle, TrendingDown, TrendingUp,
@@ -139,11 +138,11 @@ function generateInvoicePDF(data: any, locationQuery: string) {
   });
   y += 36;
 
-  // ── Historical receipt table ─────────────────────────────────────────────────
+  // ── Historical modeled estimate table ────────────────────────────────────────
   doc.setFontSize(11);
   doc.setTextColor(15, 23, 42);
   doc.setFont("helvetica", "bold");
-  doc.text("Historical Receipt", margin, y);
+  doc.text("Historical Modeled Estimate", margin, y);
   y += 6;
   doc.setFontSize(8);
   doc.setFont("helvetica", "normal");
@@ -962,9 +961,9 @@ const VIZ_TABS = [
   { id: "skyline",    label: "🏙 Skyline Map",        desc: "Real ZIP scores — height = cost of inaction" },
   { id: "map",        label: "🗺 Geographic Map",      desc: "Need-heat circles by ZIP — size and color show where the crisis is concentrated" },
   { id: "cascade",    label: "🌊 Cascade Waterfall",   desc: "25-year cost chain by life stage" },
-  { id: "web",        label: "🕸 Domain Web",           desc: "How the 10 systems pull on each other" },
-  { id: "particles",  label: "✨ Particle Flow",        desc: "Community population: invest vs. don't" },
-  { id: "historical", label: "📜 Historical Receipt",   desc: "What this community has already paid — ACS multi-vintage 2013–2022" },
+  { id: "web",        label: "🕸 Domain Web",           desc: "Unavailable: this workspace does not render synthetic 3D views" },
+  { id: "particles",  label: "✨ Particle Flow",        desc: "Unavailable: this workspace does not render synthetic 3D views" },
+  { id: "historical", label: "📜 Historical Modeled Estimate",   desc: "Modeled historical estimate using ACS multi-vintage inputs, 2013–2022" },
 ] as const;
 
 type VizTab = typeof VIZ_TABS[number]["id"];
@@ -1389,9 +1388,13 @@ export default function CommunityImpactPage() {
   } : null, [searchState.data]);
 
   useEffect(() => {
-    const queryLocation = new URLSearchParams(window.location.search).get("q")?.trim();
+    const params = new URLSearchParams(window.location.search);
+    const queryLocation = (params.get("q") || params.get("geo"))?.trim();
     if (!queryLocation) return;
     setLocation(queryLocation);
+    const view = params.get("view");
+    if (view === "story") setActiveViz("historical");
+    if (view === "impact") setActiveViz("skyline");
     submitLocation(queryLocation);
     return () => {
       latestBriefRequest.current += 1;
@@ -1432,6 +1435,54 @@ export default function CommunityImpactPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <VisualIntelligenceShell
+        activeLens={new URLSearchParams(window.location.search).get("view") === "story" ? "story" : "impact"}
+        geography={submitted}
+        geographyGrain={data?.evidence?.geography?.resolved?.type?.toUpperCase() || "Source-defined geography"}
+        title="Visual Intelligence · Story and Impact"
+        description="Keep the historical record, current observations, and forward scenarios in one disclosed evidence chain."
+        observations={[
+          {
+            id: "impact-observed",
+            label: "Observed indicators",
+            evidenceClass: data?.evidence?.claims?.observed?.status === "available" ? "observed" : "unavailable",
+            geography: data?.evidence?.geography?.resolved?.type || "Resolved source geography",
+            source: data?.evidence?.sources?.map((source: any) => `${source.publisher} ${source.dataset}`).join("; ") || "Community brief source contract",
+            vintage: data?.evidence?.sources?.map((source: any) => source.vintage).join(", ") || "Source vintage unavailable",
+            status: data?.evidence?.claims?.observed?.status === "available" ? "available" : "unavailable",
+            disclosure: data?.evidence?.geography?.resolved?.coverageWarning || "Observed indicators are aggregate geography estimates.",
+          },
+          {
+            id: "impact-historical",
+            label: "Historical snapshots",
+            evidenceClass: data?.historicalCascade ? "derived" : "unavailable",
+            geography: data?.evidence?.geography?.resolved?.type || "Source-defined geography",
+            source: "ACS vintages are displayed only when the source returned enough distinct years.",
+            vintage: data?.historicalCascade?.vintages?.map((v: any) => v.year).join(", ") || "Unavailable",
+            status: data?.historicalCascade ? "available" : "unavailable",
+            uncertainty: "No interpolation is used to fill unsupported years or geographies.",
+          },
+          {
+            id: "impact-scenario",
+            label: "Forward impact scenario",
+            evidenceClass: data?.cascade ? "modeled" : "unavailable",
+            geography: "Scenario follows the resolved brief geography",
+            source: "TCAF/Chainweb scenario model using disclosed observed inputs",
+            vintage: data?.generatedAt ? `Generated ${new Date(data.generatedAt).toLocaleDateString()}` : "Generated on request",
+            status: data?.cascade ? "available" : "unavailable",
+            disclosure: "Cost, savings, and ROI are model outputs, not Census-verified expenditures.",
+          },
+          {
+            id: "impact-refresh",
+            label: "Refresh state",
+            evidenceClass: data ? "observed" : "unavailable",
+            geography: "Brief request",
+            source: "A source outage is shown as unavailable rather than as zero need.",
+            vintage: data ? "Current response" : "Not loaded",
+            status: data ? "available" : "unavailable",
+          },
+        ]}
+      />
       {/* Hero */}
       <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 text-white">
         <div className="max-w-5xl mx-auto px-4 py-12 md:py-20">
@@ -1554,17 +1605,17 @@ export default function CommunityImpactPage() {
             {/* Life Arc Timeline */}
             {data.cascade?.timeline?.length > 0 && <LifeArcTimeline timeline={data.cascade.timeline} />}
 
-            {/* ── Historical Receipt ─────────────────────────────────────── */}
-            {/* County-level note: show a clear disclosure when Historical Receipt is unavailable for this geography type */}
+            {/* ── Historical Modeled Estimate ─────────────────────────────── */}
+            {/* County-level note: show a clear disclosure when historical estimates are unavailable */}
             {!data.historicalCascade && data.evidence?.claims?.historicalCascade?.status === "unavailable" && (
               <section data-testid="section-historical-receipt-unavailable">
                 <div className="rounded-2xl border border-amber-200 dark:border-amber-800/60 bg-amber-50/40 dark:bg-amber-950/10 px-6 py-5 flex items-start gap-3">
                   <span className="text-2xl mt-0.5 flex-none">🧾</span>
                   <div>
-                    <h2 className="text-base font-bold text-amber-900 dark:text-amber-200">Historical Receipt — Not Available for This Search Type</h2>
+                    <h2 className="text-base font-bold text-amber-900 dark:text-amber-200">Historical Modeled Estimate — Not Available for This Search Type</h2>
                     <p className="text-sm text-amber-800/80 dark:text-amber-300/70 mt-1">
                       {data.evidence.claims.historicalCascade.disclosure
-                        ?? "Multi-vintage historical data is only available for ZIP/ZCTA lookups. Search by ZIP code to see the year-by-year receipt."}
+                            ?? "Multi-vintage historical data is only available for ZIP/ZCTA lookups. Search by ZIP code to see the year-by-year modeled estimate."}
                     </p>
                   </div>
                 </div>
@@ -1666,21 +1717,14 @@ export default function CommunityImpactPage() {
             {/* Research & Intelligence (authed) / sign-in upsell (anon) */}
             <ResearchIntelligenceSection rplice={data.rplice} isAuthenticated={isAuthenticated} />
 
-            {/* ── 3D Visualizations ─────────────────────────────────────── */}
-            <section data-testid="section-3d-viz" className="space-y-0">
-              <div className="flex items-center gap-2 mb-3">
-                <Zap className="w-5 h-5 text-violet-500" />
-                <h2 className="text-xl font-bold">3D Visualizations</h2>
-                <Badge className="bg-violet-500/20 text-violet-300 border-violet-500/30 text-xs">Interactive</Badge>
+            {/* Source-backed visual evidence. Synthetic 3D views remain deliberately unavailable. */}
+            <section data-testid="section-3d-viz" className="space-y-3">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-violet-500" />
+                <h2 className="text-xl font-bold">Evidence Views</h2>
+                <Badge variant="outline" className="text-xs">Source-backed</Badge>
               </div>
-
-              {/* Tab bar */}
-              <div
-                className="flex gap-1 bg-slate-100 dark:bg-slate-800/60 rounded-xl p-1 mb-0 overflow-x-auto"
-                data-testid="viz-tab-bar"
-                role="tablist"
-                aria-label="Community data visualizations"
-              >
+              <div className="flex gap-1 bg-slate-100 dark:bg-slate-800/60 rounded-xl p-1 overflow-x-auto" data-testid="viz-tab-bar" role="tablist" aria-label="Community evidence views">
                 {VIZ_TABS.map((tab) => (
                   <button
                     key={tab.id}
@@ -1689,144 +1733,66 @@ export default function CommunityImpactPage() {
                     role="tab"
                     aria-selected={activeViz === tab.id}
                     aria-controls="viz-tab-panel"
-                    tabIndex={activeViz === tab.id ? 0 : -1}
                     onClick={() => setActiveViz(tab.id)}
                     onKeyDown={(event) => handleVizTabKeyDown(event, tab.id)}
                     data-testid={`viz-tab-${tab.id}`}
-                    className={`flex-shrink-0 px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
-                      activeViz === tab.id
-                        ? "bg-white dark:bg-slate-700 shadow text-foreground"
-                        : "text-muted-foreground hover:text-foreground"
+                    className={`flex-shrink-0 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap ${
+                      activeViz === tab.id ? "bg-white dark:bg-slate-700 shadow text-foreground" : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     {tab.label}
                   </button>
                 ))}
               </div>
-
-              {/* Viz description */}
-              <p id="viz-tab-description" className="text-xs text-muted-foreground px-1 pt-2 pb-3">
-                {VIZ_TABS.find((t) => t.id === activeViz)?.desc}
-                {activeViz === "skyline" && neighborsMut.isPending && " · Loading neighboring ZIPs from Census…"}
+              <p id="viz-tab-description" className="text-xs text-muted-foreground px-1">
+                {VIZ_TABS.find((tab) => tab.id === activeViz)?.desc}
               </p>
-
-              {/* Canvas area */}
               <Card
                 id="viz-tab-panel"
                 role="tabpanel"
                 aria-labelledby={`viz-tab-${activeViz}`}
-                aria-describedby="viz-tab-description"
                 className="overflow-hidden border-slate-200 dark:border-slate-700"
                 style={{ height: 480 }}
               >
-                <Suspense fallback={<div className="w-full h-full flex items-center justify-center bg-slate-900 text-slate-400 text-sm">Loading 3D engine…</div>}>
+                <Suspense fallback={<div className="flex h-full items-center justify-center bg-slate-900 text-slate-400 text-sm">Loading evidence view…</div>}>
                   {activeViz === "skyline" && (
                     neighborsMut.isPending
-                      ? <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-400 gap-3">
-                          <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                          <span className="text-sm">Fetching real Census data for neighboring ZIPs…</span>
-                        </div>
+                      ? <div className="flex h-full flex-col items-center justify-center gap-3 bg-slate-900 text-slate-400"><Loader2 className="h-6 w-6 animate-spin" /><span className="text-sm">Fetching neighboring ZIP evidence…</span></div>
                       : neighborsMut.isError
-                      ? <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-300 gap-3 px-6 text-center">
-                          <AlertTriangle className="w-7 h-7 text-amber-400" />
-                          <span className="text-sm font-semibold">Neighbor map unavailable</span>
-                           <span className="text-xs text-slate-400">The selected community brief is still available. Please try the map again later.</span>
-                           <Button type="button" size="sm" variant="outline" onClick={() => lastNeighborPayload.current && neighborsMut.mutate(lastNeighborPayload.current)} data-testid="button-retry-neighbor-map">Try map again</Button>
-                        </div>
-                       : !neighborResult?.zips?.length ? <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-300 gap-3 px-6 text-center" data-testid="skyline-map-fallback">
-                           <span className="text-sm">Neighbor comparison is unavailable for this geography.</span>
-                           <Button
-                             type="button"
-                             size="sm"
-                             variant="outline"
-                             onClick={() => lastNeighborPayload.current ? neighborsMut.mutate(lastNeighborPayload.current) : submitted && submitLocation(submitted)}
-                             data-testid="button-retry-neighbor-map"
-                           >
-                             {lastNeighborPayload.current ? "Try map again" : "Re-run analysis"}
-                           </Button>
-                         </div> : <SkylineMap
-                          zips={neighborResult.zips ?? []}
-                           centerLat={neighborResult.centerLat}
-                           centerLng={neighborResult.centerLng}
-                        />
+                      ? <div className="flex h-full flex-col items-center justify-center gap-3 bg-slate-900 px-6 text-center text-slate-300"><AlertTriangle className="h-7 w-7 text-amber-400" /><span className="text-sm font-semibold">Neighbor map unavailable</span><Button type="button" size="sm" variant="outline" onClick={() => lastNeighborPayload.current && neighborsMut.mutate(lastNeighborPayload.current)}>Try map again</Button></div>
+                      : !neighborResult?.zips?.length
+                      ? <div className="flex h-full flex-col items-center justify-center gap-3 bg-slate-900 px-6 text-center text-slate-300" data-testid="skyline-map-fallback"><span className="text-sm">Neighbor comparison is unavailable for this geography.</span><Button type="button" size="sm" variant="outline" onClick={() => lastNeighborPayload.current ? neighborsMut.mutate(lastNeighborPayload.current) : submitted && submitLocation(submitted)}>Try again</Button></div>
+                      : <SkylineMap zips={neighborResult.zips ?? []} centerLat={neighborResult.centerLat} centerLng={neighborResult.centerLng} />
                   )}
-                   {activeViz === "cascade" && (
-                     data.cascade?.counterfactualCost != null && data.cascade?.interventionCost != null
-                       ? <CascadeWaterfall
-                           timeline={data.cascade?.timeline ?? []}
-                           totalWithout={data.cascade.counterfactualCost}
-                           totalWith={data.cascade.interventionCost}
-                           geography={data.geography?.displayName ?? submitted}
-                         />
-                        : <div className="w-full h-full flex items-center justify-center bg-slate-900 text-slate-300 text-sm px-6 text-center" data-testid="cascade-waterfall-fallback">Scenario comparison is unavailable for this brief because the required values were not provided.</div>
-                   )}
-                  {activeViz === "web" && (
-                    <DomainWeb systemsScores={data.systemsScores ?? {}} />
-                  )}
-                   {activeViz === "particles" && (
-                     data.cascade?.counterfactualCost != null && data.cascade?.netSavings != null && data.cascade?.roi != null
-                       ? <ParticleFlow
-                           costOfInaction={data.cascade.counterfactualCost}
-                           netSavings={data.cascade.netSavings}
-                           roi={data.cascade.roi}
-                           populationSize={10000}
-                         />
-                        : <div className="w-full h-full flex items-center justify-center bg-slate-900 text-slate-300 text-sm px-6 text-center" data-testid="particle-flow-fallback">Impact-flow visualization is unavailable for this brief because the required values were not provided.</div>
-                   )}
                   {activeViz === "map" && (() => {
-                      const geoPoints = (neighborResult?.zips ?? [])
-                        .filter((z: { lat?: number; lon?: number }) => z.lat != null && z.lon != null)
-                        .map((z: { zip: string; lat: number; lon: number; score: number }) => ({
-                          id: z.zip,
-                          label: `ZIP ${z.zip}`,
-                          lat: z.lat,
-                          lon: z.lon,
-                          needScore: z.score,
-                          metrics: { score: { value: z.score, label: "SDOH Need Score", unit: "/100" } },
-                        }));
-                      return geoPoints.length > 0
-                        ? <GisNeedHeatMap points={geoPoints} height="100%" />
-                        : <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-300 gap-3 px-6 text-center">
-                            <span className="text-4xl">🗺</span>
-                            <div className="font-semibold">Run a community brief first</div>
-                            <p className="text-sm text-muted-foreground max-w-sm">The geographic map plots neighboring ZIPs by SDOH need score. Search a ZIP code above to load the data.</p>
-                          </div>;
-                    })()}
+                    const geoPoints = (neighborResult?.zips ?? [])
+                      .filter((z: { lat?: number; lon?: number }) => z.lat != null && z.lon != null)
+                      .map((z: { zip: string; lat: number; lon: number; score: number }) => ({
+                        id: z.zip, label: `ZIP ${z.zip}`, lat: z.lat, lon: z.lon, needScore: z.score,
+                        metrics: { score: { value: z.score, label: "SDOH Need Score", unit: "/100" } },
+                      }));
+                    return geoPoints.length > 0
+                      ? <GisNeedHeatMap points={geoPoints} height="100%" />
+                      : <div className="flex h-full flex-col items-center justify-center gap-3 bg-slate-900 px-6 text-center text-slate-300"><MapPin className="h-7 w-7" /><span>Geographic evidence is unavailable for this brief.</span></div>;
+                  })()}
+                  {activeViz === "cascade" && (
+                    data.cascade?.counterfactualCost != null && data.cascade?.interventionCost != null
+                      ? <CascadeWaterfall timeline={data.cascade?.timeline ?? []} totalWithout={data.cascade.counterfactualCost} totalWith={data.cascade.interventionCost} geography={data.geography?.displayName ?? submitted} />
+                      : <div className="flex h-full items-center justify-center bg-slate-900 px-6 text-center text-sm text-slate-300" data-testid="cascade-waterfall-fallback">No cascade data available for this brief.</div>
+                  )}
+                  {(activeViz === "web" || activeViz === "particles") && (
+                    <div className="flex h-full items-center justify-center bg-slate-900 px-6 text-center text-sm text-slate-300" data-testid={activeViz === "web" ? "domain-web-fallback" : "particle-flow-fallback"}>
+                      This workspace does not render synthetic 3D views. Use the source-backed map, cascade, or historical evidence tabs.
+                    </div>
+                  )}
                   {activeViz === "historical" && (
-                    data.historicalCascade?.vintages?.length > 0
-                    && data.historicalCascade.totalAccumulatedCost != null
-                    && data.cascade?.counterfactualCost != null
-                    && data.cascade?.interventionCost != null ? (
-                      <HistoricalTimeline
-                        vintages={data.historicalCascade.vintages}
-                        totalAccumulatedCost={data.historicalCascade.totalAccumulatedCost}
-                        trendDirection={data.historicalCascade.trendDirection ?? "stagnant"}
-                        forwardCost={data.cascade?.counterfactualCost}
-                        interventionCost={data.cascade?.interventionCost}
-                        geography={data.geography?.displayName ?? submitted}
-                      />
-                    ) : (
-                       <div className="flex flex-col items-center justify-center h-64 gap-3 text-center px-6" data-testid="historical-timeline-fallback">
-                        <span className="text-4xl">🧾</span>
-                        <div className="text-base font-semibold text-muted-foreground">Historical receipt not available</div>
-                        <p className="text-sm text-muted-foreground max-w-md">
-                          {data.evidence?.claims?.historicalCascade?.disclosure
-                            ?? "Multi-vintage Census ACS data is only available for ZIP/ZCTA lookups. Search by ZIP code to see the year-by-year receipt."}
-                        </p>
-                      </div>
-                    )
+                    data.historicalCascade?.vintages?.length > 0 && data.historicalCascade.totalAccumulatedCost != null && data.cascade?.counterfactualCost != null && data.cascade?.interventionCost != null
+                      ? <HistoricalTimeline vintages={data.historicalCascade.vintages} totalAccumulatedCost={data.historicalCascade.totalAccumulatedCost} trendDirection={data.historicalCascade.trendDirection ?? "stagnant"} forwardCost={data.cascade.counterfactualCost} interventionCost={data.cascade.interventionCost} geography={data.geography?.displayName ?? submitted} />
+                      : <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center" data-testid="historical-timeline-fallback"><FileText className="h-7 w-7" /><div className="text-base font-semibold text-muted-foreground">Historical modeled estimate not available</div><p className="max-w-md text-sm text-muted-foreground">{data.evidence?.claims?.historicalCascade?.disclosure ?? "Multi-vintage source data is unavailable for this geography."}</p></div>
                   )}
                 </Suspense>
               </Card>
-
-              <p className="text-xs text-muted-foreground text-center pt-2">
-                Drag to rotate · scroll to zoom · observed values use U.S. Census ACS 5-Year Estimates; modeled values are labeled separately.
-              </p>
-              <NeighborZipComparison
-                zips={neighborResult?.zips}
-                isLoading={neighborsMut.isPending}
-                isError={neighborsMut.isError}
-              />
+              <NeighborZipComparison zips={neighborResult?.zips} isLoading={neighborsMut.isPending} isError={neighborsMut.isError} />
             </section>
 
             {/* Export strip */}

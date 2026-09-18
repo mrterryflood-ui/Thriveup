@@ -84,6 +84,7 @@
 - [Orchestration spine audit](orchestration-spine-audit.md) — coordinate existing organs through a disclosure-preserving handoff envelope, not a new super-engine.
 - [ChildCORE causal-chain architecture](childcore-causal-chain.md) — ChildCORE attacks 10 interdependent problems simultaneously via a shared journey spine; ThriveUp needs the same pattern: user journey envelope, bidirectional county-metric sync, proactive community context priming.
 - [GIS Maps Architecture](gis-maps-architecture.md) — Leaflet GisNeedHeatMap component; GeoPoint shape; Bezier correlation arcs; wired into community-impact Geographic Map tab; SDOH explorer uses OSM not Google Maps.
+- [Visual intelligence workspace](visual-intelligence-workspace.md) — /community-analysis is the primary evidence-aware GIS shell; legacy routes remain compatibility destinations.
 - [User Journey Spine](user-journey-spine.md) — user_journeys table breaks silo: Navigator writes identifiedNeeds fire-and-forget; personal-context reads first; Benefits Screener/CHW/YHSI write hooks not yet wired.
 - [ChildCORE Inbound County Metrics](childcore-inbound-metrics.md) — POST /api/childcore/county-metrics/ingest; partner-key auth; partnerApiKeys.active (not isActive); batch 500; feeds childcore_county_metrics table.
 - [International surface boundaries](international-surface-boundaries.md) — Community Voice, WPH, and LifeBridge stay domestic until country-specific local contracts and safeguards exist.

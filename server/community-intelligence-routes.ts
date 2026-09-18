@@ -543,6 +543,40 @@ export function registerCommunityIntelligenceRoutes(app: Express) {
         zip: zipStr,
         center,
         county,
+        evidence: {
+          geography: {
+            requested: { type: "ZIP", key: zipStr },
+            resolved: { type: "Census ZCTA", key: zipStr },
+            disclosure: "Aggregate geography only; this response does not contain resident-level information.",
+          },
+          sources: [
+            {
+              publisher: "U.S. Census Bureau / CDC ATSDR",
+              dataset: "ACS/SVI community indicators",
+              vintage: typeof (sviRaw as any)?.vintage === "string" ? (sviRaw as any).vintage : "Provider vintage not returned",
+              status: sviRaw ? "available" : "unavailable",
+            },
+          ],
+          claims: {
+            observed: {
+              evidenceClass: "observed",
+              status: sviRaw ? "available" : "unavailable",
+              disclosure: sviRaw
+                ? "Returned aggregate indicators are source-backed estimates at the resolved ZCTA."
+                : "The community indicator source did not return usable data; no values were substituted.",
+            },
+            derived: {
+              evidenceClass: "derived",
+              status: "available",
+              disclosure: "Relationships and mapped context are calculated decision support, not causal proof.",
+            },
+            modeled: {
+              evidenceClass: "modeled",
+              status: "unavailable",
+              disclosure: "No intervention scenario is included in this response.",
+            },
+          },
+        },
         census: {
           population:              svi.population,
           medianHouseholdIncome:   svi.medianHouseholdIncome,

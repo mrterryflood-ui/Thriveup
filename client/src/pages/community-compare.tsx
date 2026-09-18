@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { VisualIntelligenceShell } from "@/components/gis/VisualIntelligenceShell";
 import {
   Search, AlertTriangle, TrendingDown, TrendingUp, Clock,
   MapPin, ArrowRight, DollarSign, BarChart3, Minus, Plus,
@@ -16,11 +17,13 @@ import jsPDF from "jspdf";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-function fmt$(n: number) {
-  if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`;
-  if (n >= 1e6) return `$${(n / 1e6).toFixed(1)}M`;
-  if (n >= 1e3) return `$${(n / 1e3).toFixed(0)}K`;
-  return `$${n.toFixed(0)}`;
+function fmt$(n: number | null | undefined) {
+  if (!Number.isFinite(n)) return "—";
+  const value = n as number;
+  if (value >= 1e9) return `$${(value / 1e9).toFixed(1)}B`;
+  if (value >= 1e6) return `$${(value / 1e6).toFixed(1)}M`;
+  if (value >= 1e3) return `$${(value / 1e3).toFixed(0)}K`;
+  return `$${value.toFixed(0)}`;
 }
 
 function gradeColor(grade: string) {
@@ -37,10 +40,12 @@ function gradeBg(grade: string) {
   return "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800";
 }
 
-function delta(a: number, b: number, lowerIsBetter = true) {
-  if (!a || !b || a === b) return null;
-  const pct = Math.round(Math.abs((a - b) / Math.max(a, b)) * 100);
-  const aIsBetter = lowerIsBetter ? a < b : a > b;
+function delta(a: number | null | undefined, b: number | null | undefined, lowerIsBetter = true) {
+  if (!Number.isFinite(a) || !Number.isFinite(b) || a === b) return null;
+  const aValue = a as number;
+  const bValue = b as number;
+  const pct = Math.round(Math.abs((aValue - bValue) / Math.max(aValue, bValue)) * 100);
+  const aIsBetter = lowerIsBetter ? aValue < bValue : aValue > bValue;
   return { pct, aIsBetter };
 }
 
@@ -81,19 +86,19 @@ function CommunityColumn({ d, index, totalCols }: { d: any; index: number; total
       <div className="divide-y">
         <div className="px-4 py-3" data-testid={`metric-historical-${index}`}>
           <div className="text-xs text-muted-foreground uppercase tracking-wide font-semibold mb-1">Already Paid · 2013–2022</div>
-          <div className="text-2xl font-black text-amber-600 dark:text-amber-400 tabular-nums">{fmt$(hist.totalAccumulatedCost ?? 0)}</div>
+          <div className="text-2xl font-black text-amber-600 dark:text-amber-400 tabular-nums">{fmt$(hist.totalAccumulatedCost)}</div>
           <div className={`flex items-center gap-1 mt-1 text-xs font-medium ${trendColor}`}>
             {trendIcon}<span>Poverty {trend}</span>
           </div>
         </div>
         <div className="px-4 py-3" data-testid={`metric-forward-${index}`}>
           <div className="text-xs text-muted-foreground uppercase tracking-wide font-semibold mb-1">Next 25 Years · No Action</div>
-          <div className="text-2xl font-black text-red-600 dark:text-red-400 tabular-nums">{fmt$(casc.counterfactualCost ?? 0)}</div>
+          <div className="text-2xl font-black text-red-600 dark:text-red-400 tabular-nums">{fmt$(casc.counterfactualCost)}</div>
           <div className="text-xs text-muted-foreground mt-1">Cascade continues at current rate</div>
         </div>
         <div className="px-4 py-3" data-testid={`metric-savings-${index}`}>
           <div className="text-xs text-muted-foreground uppercase tracking-wide font-semibold mb-1">Savings w/ Investment</div>
-          <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">{fmt$(casc.netSavings ?? 0)}</div>
+          <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">{fmt$(casc.netSavings)}</div>
           <div className="text-xs text-muted-foreground mt-1">{casc.roi ?? "—"}× ROI over 25 years</div>
         </div>
       </div>
@@ -156,10 +161,10 @@ function DeltaStrip({ comparisons }: { comparisons: any[] }) {
   const b = comparisons[1];
 
   const metrics = [
-    { label: "Historical cost", va: a.historicalCascade?.totalAccumulatedCost ?? 0, vb: b.historicalCascade?.totalAccumulatedCost ?? 0, lowerBetter: true, format: fmt$ },
-    { label: "Forward cost (no action)", va: a.cascade?.counterfactualCost ?? 0, vb: b.cascade?.counterfactualCost ?? 0, lowerBetter: true, format: fmt$ },
-    { label: "Savings potential", va: a.cascade?.netSavings ?? 0, vb: b.cascade?.netSavings ?? 0, lowerBetter: false, format: fmt$ },
-    { label: "Overall score", va: a.overallScore ?? 0, vb: b.overallScore ?? 0, lowerBetter: false, format: (n: number) => `${n}/100` },
+    { label: "Historical cost", va: a.historicalCascade?.totalAccumulatedCost, vb: b.historicalCascade?.totalAccumulatedCost, lowerBetter: true, format: fmt$ },
+    { label: "Forward cost (no action)", va: a.cascade?.counterfactualCost, vb: b.cascade?.counterfactualCost, lowerBetter: true, format: fmt$ },
+    { label: "Savings potential", va: a.cascade?.netSavings, vb: b.cascade?.netSavings, lowerBetter: false, format: fmt$ },
+    { label: "Overall score", va: a.overallScore, vb: b.overallScore, lowerBetter: false, format: (n: number | null | undefined) => Number.isFinite(n) ? `${n}/100` : "—" },
   ];
 
   const aName = (a.geography?.displayName || a.location || "A").split(",")[0];
@@ -231,10 +236,10 @@ function generateComparisonPDF(comparisons: any[], locationInputs: string[]) {
 
     const rows = [
       ["Grade", `${d.overallGrade ?? "—"} (${d.overallScore ?? "—"}/100)`],
-      ["Already paid (2013–2022)", fmt$(hist.totalAccumulatedCost ?? 0)],
+      ["Already paid (2013–2022)", fmt$(hist.totalAccumulatedCost)],
       ["Poverty trend", hist.trendDirection ?? "—"],
-      ["Forward cost (25yr, no action)", fmt$(casc.counterfactualCost ?? 0)],
-      ["Savings w/ investment", fmt$(casc.netSavings ?? 0)],
+      ["Forward cost (25yr, no action)", fmt$(casc.counterfactualCost)],
+      ["Savings w/ investment", fmt$(casc.netSavings)],
       ["ROI", `${casc.roi ?? "—"}×`],
     ];
 
@@ -260,9 +265,13 @@ function generateComparisonPDF(comparisons: any[], locationInputs: string[]) {
 export default function CommunityComparePage() {
   const [browserLocation] = useLocation();
   const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
-  const seedA = params.get("a") || "";
+  const sharedGeographies = (params.get("compare") || params.get("geo")?.split(" vs ").join("|") || "")
+    .split("|")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const seedA = params.get("a") || sharedGeographies[0] || "";
 
-  const [inputs, setInputs] = useState<string[]>([seedA, ""]);
+  const [inputs, setInputs] = useState<string[]>([seedA, sharedGeographies[1] || ""]);
   const [submitted, setSubmitted] = useState(false);
 
   const compare = useMutation({
@@ -282,6 +291,56 @@ export default function CommunityComparePage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <VisualIntelligenceShell
+        activeLens="comparison"
+        geography={inputs.filter(Boolean).join(" vs ")}
+        geographyGrain={comparisons.length ? "Each geography at its source-supported grain" : "Enter two supported geographies"}
+        title="Visual Intelligence · Comparison"
+        description="Compare communities without collapsing source grain, vintage, or modeled-versus-observed meaning."
+        observations={[
+          {
+            id: "comparison-observed",
+            label: "Observed comparison inputs",
+            evidenceClass: comparisons.length ? "observed" : "unavailable",
+            geography: "Each requested geography is resolved separately",
+            source: "U.S. Census Bureau ACS 5-Year Estimates",
+            vintage: "2013, 2015, 2019, 2022 where returned",
+            status: comparisons.length ? "available" : "unavailable",
+            disclosure: "A ZIP request is analyzed as its Census ZCTA, not as a citywide or resident-level record.",
+          },
+          {
+            id: "comparison-history",
+            label: "Historical snapshots",
+            evidenceClass: comparisons.some((d: any) => d.historicalCascade) ? "derived" : "unavailable",
+            geography: "Source-defined geography",
+            source: "Distinct ACS vintages returned by the Census endpoint",
+            vintage: comparisons.some((d: any) => d.historicalCascade)
+              ? comparisons.map((d: any) => d.historicalCascade?.vintages?.map((v: any) => v.year).join(", ")).filter(Boolean).join(" · ")
+              : "Unavailable",
+            status: comparisons.some((d: any) => d.historicalCascade) ? "available" : "unavailable",
+            uncertainty: "Unsupported historical geographies remain unavailable instead of being interpolated.",
+          },
+          {
+            id: "comparison-model",
+            label: "Cost and savings model",
+            evidenceClass: comparisons.some((d: any) => d.cascade) ? "modeled" : "unavailable",
+            geography: "Scenario output for each resolved geography",
+            source: "TCAF/Chainweb decision-support model",
+            vintage: "Forward scenario from disclosed baseline",
+            status: comparisons.some((d: any) => d.cascade) ? "available" : "unavailable",
+            disclosure: "Historical cost and forward savings are not observed expenditures or guaranteed outcomes.",
+          },
+          {
+            id: "comparison-refresh",
+            label: "Comparison status",
+            evidenceClass: compare.isError ? "unavailable" : compare.isPending ? "derived" : "observed",
+            geography: "Requested inputs",
+            source: compare.isError ? "One or more sources did not return a usable comparison." : "Current comparison request",
+            vintage: compare.isPending ? "Loading" : "Current response",
+            status: compare.isError ? "unavailable" : compare.isPending ? "partial" : "available",
+          },
+        ]}
+      />
       {/* Hero */}
       <div className="bg-gradient-to-br from-slate-900 via-violet-950 to-indigo-950 text-white">
         <div className="max-w-5xl mx-auto px-4 py-12 md:py-16">
@@ -425,7 +484,7 @@ export default function CommunityComparePage() {
             </p>
             <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto text-left">
               {[
-                { icon: "🧾", title: "Historical Receipt", desc: "What each community has already paid, Census-verified, 2013–2022" },
+                { icon: "🧾", title: "Historical Modeled Estimate", desc: "Modeled historical estimate using ACS multi-vintage inputs, 2013–2022" },
                 { icon: "📉", title: "Forward Cascade", desc: "Side-by-side 25-year projection if nothing changes" },
                 { icon: "📊", title: "Delta Analysis", desc: "Head-to-head percentage difference on every metric" },
               ].map((f) => (

@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { SDOHImpactChain } from "@/components/sdoh-impact-chain";
 import { EvidenceSummary } from "@/components/evidence-label";
+import { VisualIntelligenceShell } from "@/components/gis/VisualIntelligenceShell";
 import { DFCCrossNav, PillarFlowNav } from "@/components/dfc-cross-nav";
 import { JURISDICTIONS } from "@shared/nationwide/jurisdictions";
 import { COUNTIES_BY_STATE } from "@shared/nationwide/counties";
@@ -720,9 +721,53 @@ export default function SDOHExplorerPage() {
 
   const result = data as any;
   const sviSummary = sviSummaryData as any;
+  const visualState = new URLSearchParams(window.location.search);
+  const visualGeography = visualState.get("geo") || visualState.get("zip") || visualState.get("state") || "";
+  const unsupportedIncomingGeography = Boolean(
+    visualGeography && !USPS_TO_STATE_FIPS[visualGeography.toUpperCase()],
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-indigo-50/30 dark:from-blue-950/20 dark:via-background dark:to-indigo-950/10" data-testid="sdoh-explorer-page">
+      <VisualIntelligenceShell
+        activeLens="data"
+        geography={visualGeography}
+        geographyGrain={
+          unsupportedIncomingGeography
+            ? "Unsupported handoff · choose a state or county"
+            : result
+              ? "Census county / tract response"
+              : "Select a state or county"
+        }
+        title="Visual Intelligence · Data"
+        description="Inspect aggregate SDOH conditions with the source geography and Census vintage kept visible."
+        observations={[
+          {
+            id: "sdoh-observed",
+            label: "Census SDOH indicators",
+            evidenceClass: result ? "observed" : "unavailable",
+            geography: result?.geography?.analyticalUnit || "Selected counties and tracts",
+            source: "U.S. Census Bureau ACS 5-Year Estimates",
+            vintage: "2018–2022 provider baseline",
+            status: result ? "available" : "unavailable",
+            disclosure: result
+              ? "Aggregate estimates only; no resident-level records are displayed."
+              : unsupportedIncomingGeography
+                ? "The incoming geography is not a supported state handoff for this county picker. Choose a state or county before requesting data."
+                : "Run an analysis to load source-backed indicators.",
+          },
+          {
+            id: "sdoh-derived",
+            label: "Impact chain relationships",
+            evidenceClass: result ? "derived" : "unavailable",
+            geography: "Same selected county set",
+            source: "Documented SDOH impact-chain calculations",
+            vintage: "Derived from returned response",
+            status: result ? "available" : "unavailable",
+            uncertainty: "Relationships support investigation and are not causal proof.",
+          },
+        ]}
+      />
       <div className="max-w-5xl mx-auto px-4 py-8 md:py-12">
 
         <div className="text-center mb-8">
