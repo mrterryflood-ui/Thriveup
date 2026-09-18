@@ -6,6 +6,7 @@
  *   - stale records (>14 days) are excluded from the public feed
  *   - ZIP restriction: orgs with serviceZips set are excluded when ZIP doesn't match
  *   - general-record fallback: shown only when serviceZips is null/empty
+ *   - summary counts only fresh rows, including more than 200 rows
  *
  * Run standalone:  npx tsx scripts/verify-capacity-routes.ts
  */
@@ -18,7 +19,18 @@ const BASE = process.env.E2E_BASE_URL ?? "http://localhost:5000";
 const CROWD_ORG_IDS = Array.from({ length: 100 }, (_, index) =>
   `test_cap_crowd_${String(index).padStart(3, "0")}`,
 );
-const TEST_ORG_IDS = ["test_cap_001", "test_cap_002", "test_cap_003", "test_cap_004", ...CROWD_ORG_IDS];
+const SUMMARY_CROWD_ORG_IDS = Array.from({ length: 205 }, (_, index) =>
+  `test_cap_summary_${String(index).padStart(3, "0")}`,
+);
+const TEST_ORG_IDS = [
+  "test_cap_001",
+  "test_cap_002",
+  "test_cap_003",
+  "test_cap_004",
+  "test_cap_summary_stale",
+  ...CROWD_ORG_IDS,
+  ...SUMMARY_CROWD_ORG_IDS,
+];
 
 async function request(path: string) {
   const res = await fetch(`${BASE}${path}`);
@@ -150,11 +162,37 @@ async function run() {
       "non-matching rows remain excluded before limiting");
   }
 
-  // Test 7: Summary endpoint
+  // Test 7: Summary endpoint — fresh rows only, with no arbitrary row cap
   {
+    const beforeSummaryRows = await request("/api/directory/capacity/summary");
+
+    for (const [index, orgId] of SUMMARY_CROWD_ORG_IDS.entries()) {
+      await seedRow({
+        orgId,
+        orgName: `Summary Crowd ${String(index).padStart(3, "0")}`,
+        programCode: "general",
+        status: "open",
+      });
+    }
+    await seedRow({
+      orgId: "test_cap_summary_stale",
+      orgName: "Stale Summary Row",
+      programCode: "general",
+      status: "waitlist",
+      ageOffset: 15,
+    });
+
     const summary = await request("/api/directory/capacity/summary");
     assert(typeof summary.open === "number" && typeof summary.waitlist === "number" && typeof summary.closed === "number",
       "summary endpoint returns open/waitlist/closed counts");
+    assert(summary.open - beforeSummaryRows.open === SUMMARY_CROWD_ORG_IDS.length,
+      "summary counts every fresh row beyond the old 200-row cap");
+    assert(summary.waitlist - beforeSummaryRows.waitlist === 0,
+      "summary excludes stale rows from status counts");
+    assert(summary.closed - beforeSummaryRows.closed === 0,
+      "summary leaves unrelated status counts unchanged");
+    assert(summary.lastUpdated !== null,
+      "summary reports the latest fresh capacity update");
   }
 
   await cleanup();

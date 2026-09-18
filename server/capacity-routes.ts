@@ -70,17 +70,23 @@ capacityRouter.get("/capacity", rateLimit, async (req, res) => {
 // GET /api/directory/capacity/summary — public
 capacityRouter.get("/capacity/summary", rateLimit, async (_req, res) => {
   try {
-    const rows = await db.select().from(orgCapacity).limit(200);
-    const open = rows.filter((r) => r.status === "open").length;
-    const waitlist = rows.filter((r) => r.status === "waitlist").length;
-    const closed = rows.filter((r) => r.status === "closed").length;
-    const lastUpdated = rows.reduce(
-      (max: Date | null, r) => (r.updatedAt && (!max || r.updatedAt > max) ? r.updatedAt : max),
-      null
-    );
-    res.json({ open, waitlist, closed, lastUpdated });
-  } catch (_err) {
-    res.json({ open: 0, waitlist: 0, closed: 0, lastUpdated: null });
+    const cutoff = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+    const [summary] = await db.select({
+      open: sql<number>`count(*) filter (where ${orgCapacity.status} = 'open')::int`,
+      waitlist: sql<number>`count(*) filter (where ${orgCapacity.status} = 'waitlist')::int`,
+      closed: sql<number>`count(*) filter (where ${orgCapacity.status} = 'closed')::int`,
+      lastUpdated: sql<Date | null>`max(${orgCapacity.updatedAt})`,
+    }).from(orgCapacity).where(gt(orgCapacity.updatedAt, cutoff));
+
+    res.json({
+      open: summary?.open ?? 0,
+      waitlist: summary?.waitlist ?? 0,
+      closed: summary?.closed ?? 0,
+      lastUpdated: summary?.lastUpdated ?? null,
+    });
+  } catch (err) {
+    console.error("[capacity] summary failed:", err);
+    res.status(500).json({ error: "Failed to load capacity summary" });
   }
 });
 
