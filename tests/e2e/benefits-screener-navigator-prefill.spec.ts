@@ -99,6 +99,66 @@ test.describe("Benefits Screener Navigator geography prefill", () => {
     });
   }
 
+  async function stubMalformedCapacityThenRecovery(page: Page, malformedBody: string) {
+    let capacityAttempts = 0;
+    const capacityRequestUrls: string[] = [];
+    await page.route("**/api/directory/capacity*", async (route) => {
+      capacityAttempts += 1;
+      capacityRequestUrls.push(route.request().url());
+      if (capacityAttempts === 1) {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: malformedBody,
+        });
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          orgs: [{
+            id: "e2e-capacity-org-after-malformed-response",
+            orgId: "org-austin-food-bank",
+            orgName: "Austin Community Food Bank",
+            programCode: "SNAP",
+            status: "open",
+            serviceZips: ["78660"],
+            stale: false,
+          }],
+          count: 1,
+        }),
+      });
+    });
+    return { getCapacityAttempts: () => capacityAttempts, capacityRequestUrls };
+  }
+
+  async function expectCapacityLookupRecovery(
+    page: Page,
+    capacityRequestUrls: string[],
+    getCapacityAttempts: () => number,
+  ) {
+    await completeManualScreening(page);
+    const errorNotice = page.getByTestId("capacity-lookup-error");
+    await expect(errorNotice).toBeVisible();
+    await expect(errorNotice).toHaveAttribute("role", "alert");
+    await expect(errorNotice).toContainText("This does not mean help is unavailable");
+    await expect(page.getByTestId("button-retry-capacity")).toBeVisible();
+    await expect(page.getByTestId("capacity-lookup-empty")).toBeHidden();
+
+    const retryResponse = page.waitForResponse(response =>
+      response.url().includes("/api/directory/capacity") && response.status() === 200,
+    );
+    await page.getByTestId("button-retry-capacity").click();
+    await retryResponse;
+    await expect(page.getByTestId("capacity-SNAP")).toContainText("Austin Community Food Bank");
+    await expect(errorNotice).toBeHidden();
+    expect(getCapacityAttempts()).toBe(2);
+    expect(capacityRequestUrls).toHaveLength(2);
+    expect(capacityRequestUrls[0]).toContain("zip=78660");
+    expect(capacityRequestUrls[1]).toContain("zip=78660");
+  }
+
   test("shows loading while local organization capacity is being checked", async ({ browser }) => {
     const { context, page } = await openScreener(browser);
     let releaseCapacity!: () => void;
@@ -205,6 +265,71 @@ test.describe("Benefits Screener Navigator geography prefill", () => {
       await expect(page.getByTestId("capacity-SNAP")).toContainText("Austin Community Food Bank");
     } finally {
       releaseRetry();
+      await context.close();
+    }
+  });
+
+  test("keeps a malformed JSON capacity response actionable instead of showing no local help", async ({ browser }) => {
+    const { context, page } = await openScreener(browser);
+    await stubScreeningResult(page);
+    const capacityStub = await stubMalformedCapacityThenRecovery(page, "{not valid JSON");
+
+    try {
+      await expectCapacityLookupRecovery(
+        page,
+        capacityStub.capacityRequestUrls,
+        capacityStub.getCapacityAttempts,
+      );
+    } finally {
+      await context.close();
+    }
+  });
+
+  test("keeps a malformed capacity shape actionable instead of showing no local help", async ({ browser }) => {
+    const { context, page } = await openScreener(browser);
+    await stubScreeningResult(page);
+    const capacityStub = await stubMalformedCapacityThenRecovery(
+      page,
+      JSON.stringify({ orgs: { not: "an array" }, count: 0 }),
+    );
+
+    try {
+      await expectCapacityLookupRecovery(
+        page,
+        capacityStub.capacityRequestUrls,
+        capacityStub.getCapacityAttempts,
+      );
+    } finally {
+      await context.close();
+    }
+  });
+
+  test("keeps a malformed capacity ZIP entry actionable instead of showing no local help", async ({ browser }) => {
+    const { context, page } = await openScreener(browser);
+    await stubScreeningResult(page);
+    const capacityStub = await stubMalformedCapacityThenRecovery(
+      page,
+      JSON.stringify({
+        orgs: [{
+          id: "e2e-malformed-zip-org",
+          orgId: "org-austin-food-bank",
+          orgName: "Austin Community Food Bank",
+          programCode: "SNAP",
+          status: "open",
+          serviceZips: [78660],
+          stale: false,
+        }],
+        count: 1,
+      }),
+    );
+
+    try {
+      await expectCapacityLookupRecovery(
+        page,
+        capacityStub.capacityRequestUrls,
+        capacityStub.getCapacityAttempts,
+      );
+    } finally {
       await context.close();
     }
   });
