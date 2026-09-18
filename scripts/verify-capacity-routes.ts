@@ -12,25 +12,34 @@
  */
 
 import { db } from "../server/storage";
-import { orgCapacity } from "../shared/schema";
+import { orgCapacity, organizations } from "../shared/schema";
 import { eq, inArray } from "drizzle-orm";
+import { randomUUID } from "node:crypto";
+import { Client } from "pg";
 
 const BASE = process.env.E2E_BASE_URL ?? "http://localhost:5000";
+const DEVELOPMENT_MANOR_EXTERNAL_KEY = "manor-tx-city";
+const DEVELOPMENT_MANOR_ID = "3aeda19b-9719-4157-8e27-6d6c78444672";
+const VERIFIER_LOCK_KEY = "thriveup:verify-capacity-routes";
+const RUN = randomUUID().replace(/-/g, "").slice(0, 12);
+const ORG_PREFIX = `test_cap_${RUN}`;
+const orgId = (suffix: string) => `${ORG_PREFIX}_${suffix}`;
 const CROWD_ORG_IDS = Array.from({ length: 100 }, (_, index) =>
-  `test_cap_crowd_${String(index).padStart(3, "0")}`,
+  orgId(`crowd_${String(index).padStart(3, "0")}`),
 );
 const SUMMARY_CROWD_ORG_IDS = Array.from({ length: 205 }, (_, index) =>
-  `test_cap_summary_${String(index).padStart(3, "0")}`,
+  orgId(`summary_${String(index).padStart(3, "0")}`),
 );
 const TEST_ORG_IDS = [
-  "test_cap_001",
-  "test_cap_002",
-  "test_cap_003",
-  "test_cap_004",
-  "test_cap_summary_stale",
+  orgId("001"),
+  orgId("002"),
+  orgId("003"),
+  orgId("004"),
+  orgId("summary_stale"),
   ...CROWD_ORG_IDS,
   ...SUMMARY_CROWD_ORG_IDS,
 ];
+let lockClient: Client | undefined;
 
 async function request(path: string) {
   const res = await fetch(`${BASE}${path}`);
@@ -66,7 +75,86 @@ async function seedRow(opts: {
 }
 
 async function cleanup() {
-  await db.delete(orgCapacity).where(inArray(orgCapacity.orgId, TEST_ORG_IDS)).catch(() => {});
+  await db.delete(orgCapacity).where(inArray(orgCapacity.orgId, TEST_ORG_IDS));
+}
+
+function assertDevelopmentTarget() {
+  let base: URL;
+  try {
+    base = new URL(BASE);
+  } catch {
+    throw new Error(`Refusing capacity verification with invalid E2E_BASE_URL: ${BASE}`);
+  }
+
+  const localHost = ["localhost", "127.0.0.1", "::1"].includes(base.hostname);
+  const configuredDevHost = !!process.env.REPLIT_DEV_DOMAIN && base.hostname === process.env.REPLIT_DEV_DOMAIN;
+  if ((!localHost && !configuredDevHost) || process.env.NODE_ENV === "production" || process.env.REPLIT_DEPLOYMENT) {
+    throw new Error("Refusing capacity verification outside a development HTTP target");
+  }
+}
+
+async function assertDevelopmentDatabase() {
+  const [sentinel] = await db
+    .select({
+      id: organizations.id,
+      externalKey: organizations.externalKey,
+      isIntegrationOwned: organizations.isIntegrationOwned,
+      userId: organizations.userId,
+    })
+    .from(organizations)
+    .where(eq(organizations.externalKey, DEVELOPMENT_MANOR_EXTERNAL_KEY))
+    .limit(1);
+
+  if (
+    !sentinel
+    || sentinel.id !== DEVELOPMENT_MANOR_ID
+    || sentinel.externalKey !== DEVELOPMENT_MANOR_EXTERNAL_KEY
+    || sentinel.isIntegrationOwned !== true
+    || sentinel.userId !== null
+  ) {
+    throw new Error("Refusing capacity verification: DATABASE_URL is not the known development database");
+  }
+}
+
+async function acquireVerifierLock() {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) throw new Error("Refusing capacity verification without DATABASE_URL");
+
+  const client = new Client({ connectionString });
+  try {
+    await client.connect();
+    await client.query("SELECT pg_advisory_lock(hashtext($1))", [VERIFIER_LOCK_KEY]);
+    lockClient = client;
+  } catch (error) {
+    try {
+      await client.end();
+    } catch (closeError) {
+      console.error("Capacity verifier lock connection close failed:", closeError);
+    }
+    throw error;
+  }
+}
+
+async function releaseVerifierLock() {
+  const client = lockClient;
+  lockClient = undefined;
+  if (!client) return;
+
+  let unlockError: unknown;
+  try {
+    await client.query("SELECT pg_advisory_unlock(hashtext($1))", [VERIFIER_LOCK_KEY]);
+  } catch (error) {
+    unlockError = error;
+  }
+
+  try {
+    await client.end();
+  } catch (error) {
+    console.error("Capacity verifier lock connection close failed:", error);
+    unlockError ??= error;
+  }
+
+  if (unlockError) throw unlockError;
 }
 
 let passed = 0;
@@ -83,125 +171,149 @@ function assert(condition: boolean, label: string) {
 }
 
 async function run() {
-  await cleanup();
+  let cleanupError: unknown;
+  let targetValidated = false;
+  console.log(`Capacity verification fixture namespace: ${ORG_PREFIX}`);
+  try {
+    assertDevelopmentTarget();
+    await assertDevelopmentDatabase();
+    await acquireVerifierLock();
+    targetValidated = true;
 
-  // Seed test rows
-  await seedRow({ orgId: "test_cap_001", orgName: "Open Org",     programCode: "SNAP",    status: "open"     });
-  await seedRow({ orgId: "test_cap_001", orgName: "Open Org",     programCode: "Medicaid", status: "waitlist", waitWeeks: 3 });
-  await seedRow({ orgId: "test_cap_002", orgName: "Closed Org",   programCode: "WIC",     status: "closed"   });
-  // Stale row — older than 14 days, should not appear in public feed
-  await seedRow({ orgId: "test_cap_002", orgName: "Stale Org",    programCode: "SNAP",    status: "open", ageOffset: 15 });
-  // ZIP-scoped general org (serves 78660 only)
-  await seedRow({ orgId: "test_cap_003", orgName: "Zip Org",      programCode: "general", status: "open", serviceZips: ["78660"] });
+    // Seed test rows
+    await seedRow({ orgId: orgId("001"), orgName: "Open Org",     programCode: "SNAP",    status: "open"     });
+    await seedRow({ orgId: orgId("001"), orgName: "Open Org",     programCode: "Medicaid", status: "waitlist", waitWeeks: 3 });
+    await seedRow({ orgId: orgId("002"), orgName: "Closed Org",   programCode: "WIC",     status: "closed"   });
+    // Stale row — older than 14 days, should not appear in public feed
+    await seedRow({ orgId: orgId("002"), orgName: "Stale Org",    programCode: "SNAP",    status: "open", ageOffset: 15 });
+    // ZIP-scoped general org (serves 78660 only)
+    await seedRow({ orgId: orgId("003"), orgName: "Zip Org",      programCode: "general", status: "open", serviceZips: ["78660"] });
 
-  // Test 1: All fresh records returned without filter
-  {
-    const { orgs } = await request("/api/directory/capacity");
-    assert(orgs.some((o: any) => o.orgId === "test_cap_001" && o.programCode === "SNAP" && o.status === "open"),
-      "open SNAP record appears in public feed");
-    assert(orgs.some((o: any) => o.orgId === "test_cap_001" && o.programCode === "Medicaid" && o.status === "waitlist"),
-      "waitlist Medicaid record appears");
-    assert(orgs.some((o: any) => o.orgId === "test_cap_002" && o.programCode === "WIC" && o.status === "closed"),
-      "closed WIC record appears");
-  }
-
-  // Test 2: Stale rows (>14 days) excluded from public feed
-  {
-    const { orgs } = await request("/api/directory/capacity");
-    const staleRow = orgs.find((o: any) => o.orgId === "test_cap_002" && o.programCode === "SNAP");
-    assert(!staleRow, "stale row (>14 days) is excluded from public feed");
-  }
-
-  // Test 3: Program filter — ?program=SNAP excludes non-SNAP rows
-  {
-    const { orgs } = await request("/api/directory/capacity?program=SNAP");
-    assert(orgs.some((o: any) => o.programCode === "SNAP"),   "SNAP filter returns SNAP records");
-    assert(!orgs.some((o: any) => o.programCode === "WIC"),   "SNAP filter excludes WIC records");
-    assert(!orgs.some((o: any) => o.programCode === "Medicaid"), "SNAP filter excludes Medicaid records");
-  }
-
-  // Test 4: ZIP filter — ?zip=78660 includes ZIP-scoped org
-  {
-    const { orgs } = await request("/api/directory/capacity?zip=78660");
-    assert(orgs.some((o: any) => o.orgId === "test_cap_003"),
-      "ZIP-scoped general org appears when matching ZIP queried");
-  }
-
-  // Test 5: ZIP filter — ?zip=99999 excludes ZIP-scoped org
-  {
-    const { orgs } = await request("/api/directory/capacity?zip=99999");
-    assert(!orgs.some((o: any) => o.orgId === "test_cap_003"),
-      "ZIP-scoped general org excluded when ZIP doesn't match");
-  }
-
-  // Test 6: Matching rows are not lost when 100 earlier non-matches exist
-  {
-    // Keep the matching row beyond the public route's 100-row cap. The route
-    // must apply program and ZIP filters before limiting, or this org vanishes.
-    for (const [index, orgId] of CROWD_ORG_IDS.entries()) {
-      await seedRow({
-        orgId,
-        orgName: `AAA Capacity Distractor ${String(index).padStart(3, "0")}`,
-        programCode: "OTHER",
-        status: "open",
-        serviceZips: ["99999"],
-      });
+    // Test 1: All fresh records returned without filter
+    {
+      const { orgs } = await request("/api/directory/capacity");
+      assert(orgs.some((o: any) => o.orgId === orgId("001") && o.programCode === "SNAP" && o.status === "open"),
+        "open SNAP record appears in public feed");
+      assert(orgs.some((o: any) => o.orgId === orgId("001") && o.programCode === "Medicaid" && o.status === "waitlist"),
+        "waitlist Medicaid record appears");
+      assert(orgs.some((o: any) => o.orgId === orgId("002") && o.programCode === "WIC" && o.status === "closed"),
+        "closed WIC record appears");
     }
-    await seedRow({
-      orgId: "test_cap_004",
-      orgName: "ZZZ Local SNAP Org",
-      programCode: "SNAP",
-      status: "open",
-      serviceZips: ["78660"],
-    });
 
-    const { orgs } = await request("/api/directory/capacity?program=SNAP&zip=78660");
-    assert(orgs.some((o: any) => o.orgId === "test_cap_004"),
-      "program and ZIP filters run before the 100-row limit");
-    assert(!orgs.some((o: any) => o.orgId === CROWD_ORG_IDS[0]),
-      "non-matching rows remain excluded before limiting");
-  }
+    // Test 2: Stale rows (>14 days) excluded from public feed
+    {
+      const { orgs } = await request("/api/directory/capacity");
+      const staleRow = orgs.find((o: any) => o.orgId === orgId("002") && o.programCode === "SNAP");
+      assert(!staleRow, "stale row (>14 days) is excluded from public feed");
+    }
 
-  // Test 7: Summary endpoint — fresh rows only, with no arbitrary row cap
-  {
-    const beforeSummaryRows = await request("/api/directory/capacity/summary");
+    // Test 3: Program filter — ?program=SNAP excludes non-SNAP rows
+    {
+      const { orgs } = await request("/api/directory/capacity?program=SNAP");
+      assert(orgs.some((o: any) => o.programCode === "SNAP"),   "SNAP filter returns SNAP records");
+      assert(!orgs.some((o: any) => o.programCode === "WIC"),   "SNAP filter excludes WIC records");
+      assert(!orgs.some((o: any) => o.programCode === "Medicaid"), "SNAP filter excludes Medicaid records");
+    }
 
-    for (const [index, orgId] of SUMMARY_CROWD_ORG_IDS.entries()) {
+    // Test 4: ZIP filter — ?zip=78660 includes ZIP-scoped org
+    {
+      const { orgs } = await request("/api/directory/capacity?zip=78660");
+      assert(orgs.some((o: any) => o.orgId === orgId("003")),
+        "ZIP-scoped general org appears when matching ZIP queried");
+    }
+
+    // Test 5: ZIP filter — ?zip=99999 excludes ZIP-scoped org
+    {
+      const { orgs } = await request("/api/directory/capacity?zip=99999");
+      assert(!orgs.some((o: any) => o.orgId === orgId("003")),
+        "ZIP-scoped general org excluded when ZIP doesn't match");
+    }
+
+    // Test 6: Matching rows are not lost when 100 earlier non-matches exist
+    {
+      // Keep the matching row beyond the public route's 100-row cap. The route
+      // must apply program and ZIP filters before limiting, or this org vanishes.
+      for (const [index, crowdOrgId] of CROWD_ORG_IDS.entries()) {
+        await seedRow({
+          orgId: crowdOrgId,
+          orgName: `AAA Capacity Distractor ${String(index).padStart(3, "0")}`,
+          programCode: "OTHER",
+          status: "open",
+          serviceZips: ["99999"],
+        });
+      }
       await seedRow({
-        orgId,
-        orgName: `Summary Crowd ${String(index).padStart(3, "0")}`,
+        orgId: orgId("004"),
+        orgName: "ZZZ Local SNAP Org",
+        programCode: "SNAP",
+        status: "open",
+        serviceZips: ["78660"],
+      });
+
+      const { orgs } = await request("/api/directory/capacity?program=SNAP&zip=78660");
+      assert(orgs.some((o: any) => o.orgId === orgId("004")),
+        "program and ZIP filters run before the 100-row limit");
+      assert(!orgs.some((o: any) => o.orgId === CROWD_ORG_IDS[0]),
+        "non-matching rows remain excluded before limiting");
+    }
+
+    // Test 7: Summary endpoint — fresh rows only, with no arbitrary row cap
+    {
+      const beforeSummaryRows = await request("/api/directory/capacity/summary");
+
+      for (const [index, summaryOrgId] of SUMMARY_CROWD_ORG_IDS.entries()) {
+        await seedRow({
+          orgId: summaryOrgId,
+          orgName: `Summary Crowd ${String(index).padStart(3, "0")}`,
+          programCode: "general",
+          status: "open",
+        });
+      }
+      await seedRow({
+        orgId: orgId("summary_stale"),
+        orgName: "Stale Summary Row",
         programCode: "general",
-        status: "open",
+        status: "waitlist",
+        ageOffset: 15,
       });
-    }
-    await seedRow({
-      orgId: "test_cap_summary_stale",
-      orgName: "Stale Summary Row",
-      programCode: "general",
-      status: "waitlist",
-      ageOffset: 15,
-    });
 
-    const summary = await request("/api/directory/capacity/summary");
-    assert(typeof summary.open === "number" && typeof summary.waitlist === "number" && typeof summary.closed === "number",
-      "summary endpoint returns open/waitlist/closed counts");
-    assert(summary.open - beforeSummaryRows.open === SUMMARY_CROWD_ORG_IDS.length,
-      "summary counts every fresh row beyond the old 200-row cap");
-    assert(summary.waitlist - beforeSummaryRows.waitlist === 0,
-      "summary excludes stale rows from status counts");
-    assert(summary.closed - beforeSummaryRows.closed === 0,
-      "summary leaves unrelated status counts unchanged");
-    assert(summary.lastUpdated !== null,
-      "summary reports the latest fresh capacity update");
+      const summary = await request("/api/directory/capacity/summary");
+      assert(typeof summary.open === "number" && typeof summary.waitlist === "number" && typeof summary.closed === "number",
+        "summary endpoint returns open/waitlist/closed counts");
+      assert(summary.open - beforeSummaryRows.open === SUMMARY_CROWD_ORG_IDS.length,
+        "summary counts every fresh row beyond the old 200-row cap");
+      assert(summary.waitlist - beforeSummaryRows.waitlist === 0,
+        "summary excludes stale rows from status counts");
+      assert(summary.closed - beforeSummaryRows.closed === 0,
+        "summary leaves unrelated status counts unchanged");
+      assert(summary.lastUpdated !== null,
+        "summary reports the latest fresh capacity update");
+    }
+  } finally {
+    if (targetValidated) {
+      try {
+        await cleanup();
+      } catch (error) {
+        cleanupError = error;
+        failed++;
+        console.error(`  ✗ fixture cleanup failed for ${ORG_PREFIX}:`, error instanceof Error ? error.message : error);
+      }
+      try {
+        await releaseVerifierLock();
+      } catch (error) {
+        cleanupError = error;
+        failed++;
+        console.error(`  ✗ verifier lock release failed for ${ORG_PREFIX}:`, error instanceof Error ? error.message : error);
+      }
+    }
   }
 
-  await cleanup();
-
-  console.log(`\nCapacity route checks: ${passed} passed, ${failed} failed`);
-  if (failed > 0) process.exit(1);
+  console.log(`\nCapacity route checks (${ORG_PREFIX}): ${passed} passed, ${failed} failed`);
+  if (cleanupError) throw new Error("Capacity verification cleanup failed");
+  if (failed > 0) throw new Error("Capacity route checks failed");
 }
 
 run().catch((err) => {
-  console.error("Capacity verification error:", err.message || err);
-  process.exit(1);
+  console.error("Capacity verification error:", err instanceof Error ? err.message : err);
+  process.exitCode = 1;
 });
