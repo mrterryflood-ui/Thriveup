@@ -52,7 +52,7 @@ All partner keys use `x-partner-key: tcaf_...` and are scoped. Available scopes:
 | `student:read` | Aggregate, suppression-floored student progress metrics only; no per-student records or thrive-score detail |
 | `chainweb:read` | Chainweb ROI coefficients, templates, scenarios, calculations, and narratives |
 | `yhsi:read` | Aggregate, floor-5-suppressed YHSI metrics and outcome summaries |
-| `inbound:write` | POST data into ThriveUp (referrals, events, metrics, alerts) |
+| `inbound:write` | POST governed aggregate/event data into ThriveUp; person-level referral writes are closed |
 | `outcomes:read` | Read aggregated outcome data — trade sim completion counts and employer-ready metrics (no PII) |
 | `certs:read` | Verify and read certificate records |
 | `capacity:read` | Read the calling partner's own capacity entries |
@@ -212,7 +212,53 @@ path, and `any partner key` means the key does not need a particular scope.
 | GET | `/capacity` | `capacity:read` |
 | PATCH | `/capacity` | `capacity:write` |
 | POST | `/push` | `inbound:write` |
-| POST | `/foster-youth/refer` | `inbound:write` |
+
+### Referral push boundary
+
+`dataType: "referral"` is currently reserved but closed. The Partner API does
+not accept or persist person-level referral payloads until ThriveUp publishes
+all of the following as one governed contract:
+
+- required request fields and consent representation;
+- an idempotency key and duplicate-handling rule;
+- a durable receipt identifier and acceptance state;
+- correction and revocation semantics;
+- retryable versus terminal error codes; and
+- linkage between the accepted referral and later outcomes.
+
+Until that contract is published, a referral push returns:
+
+HTTP `422 Unprocessable Entity`:
+
+```json
+{
+  "accepted": false,
+  "error": "The governed referral request schema, idempotency rules, durable receipt state, correction/revocation semantics, and outcome linkage are not published.",
+  "status": "unavailable",
+  "code": "REFERRAL_CONTRACT_UNAVAILABLE",
+  "reason": "The governed referral request schema, idempotency rules, durable receipt state, correction/revocation semantics, and outcome linkage are not published.",
+  "retryable": false,
+  "corrections": [
+    {
+      "field": "dataType",
+      "problem": "referral writes are not enabled",
+      "expected": "a published governed referral contract"
+    }
+  ]
+}
+```
+
+This is a terminal response and must not be retried. A non-object payload
+returns HTTP `400` with code `INVALID_PUSH_PAYLOAD`. An unexpected persistence
+failure returns HTTP `500` with code `PARTNER_PUSH_PROCESSING_ERROR`; callers
+must not retry that response because this generic push route has no idempotency
+contract.
+
+No person-level referral row is created by this data type.
+
+The legacy `POST /foster-youth/refer` partner route is also closed and returns
+HTTP `410 Gone` with `FOSTER_REFERRAL_CONTRACT_UNAVAILABLE`. It does not create
+an intake or return an access token.
 
 ---
 

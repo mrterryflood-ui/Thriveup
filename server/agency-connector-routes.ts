@@ -136,21 +136,6 @@ export const PARTNER_ENDPOINTS: EndpointDef[] = [
     weight: 2,
   },
   {
-    id: "foster-refer",
-    label: "Foster Youth Referral",
-    method: "POST",
-    path: "/api/partner/v1/foster-youth/refer",
-    scope: "inbound:write",
-    description: "Submit a foster youth intake referral into ThriveUp's YHSI system — first name, state, immediate needs, and caseworker email. Returns a secure intake link.",
-    returnsSummary: "intakeId, intakeUrl (secure access-token link), partnerReference",
-    keywords: [
-      "foster", "child welfare", "dcfs", "dfps", "cps", "foster care",
-      "youth in care", "aging out", "transitional age youth", "TAY", "homelessness",
-      "housing", "independent living", "extended foster care", "kinship",
-    ],
-    weight: 3,
-  },
-  {
     id: "push",
     label: "Inbound Data Push (Grant Outcomes)",
     method: "POST",
@@ -228,7 +213,6 @@ function buildRationale(ep: EndpointDef, matched: string[]): string {
     "community-story": `Grant writers and advocates use the community-story endpoint to build data-backed narratives fast. Your mission mentions "${top3}".`,
     students: `Youth-serving language ("${top3}") in your mission aligns with the aggregate student analytics endpoint.`,
     "early-warnings": `Early-intervention focus ("${top3}") maps to the youth early-warning system.`,
-    "foster-refer": `Child welfare and foster-youth language ("${top3}") maps to the foster intake referral endpoint.`,
     push: `Grant management work ("${top3}") pairs with the inbound push endpoint so ThriveUp intelligence stays in sync with your award data.`,
     "embed-portal": `Any org with a public website benefits from the embed widget. One script tag puts your community portal live without any API key.`,
   };
@@ -253,7 +237,6 @@ async function previewEndpoint(endpointId: string, location: string): Promise<{ 
     "community-story": `/api/partner/v1/community-story?location=${encodeURIComponent(location || "28472")}`,
     students:         "/api/partner/v1/students/overview",
     "early-warnings": "/api/partner/v1/early-warnings",
-    "foster-refer":   null as any, // POST — skip live preview
     push:             null as any, // POST — skip live preview
     "embed-portal":   null as any, // widget JS — skip live preview
   };
@@ -311,13 +294,6 @@ function generateJs(endpoints: EndpointDef[], orgName: string, location: string)
       lines.push(`async function get${toPascal(ep.id)}() {`);
       lines.push(`  return tcafFetch(\`${pathWithLoc}\`);`);
       lines.push(`}`);
-    } else if (ep.id === "foster-refer") {
-      lines.push(`async function submitFosterReferral(youthFirstName, stateCode, immediateNeeds, caseworkerEmail) {`);
-      lines.push(`  return tcafFetch("${ep.path}", {`);
-      lines.push(`    method: "POST",`);
-      lines.push(`    body: JSON.stringify({ firstName: youthFirstName, stateCode, immediateNeeds, caseworkerEmail }),`);
-      lines.push(`  });`);
-      lines.push(`}`);
     } else if (ep.id === "push") {
       lines.push(`async function pushGrantOutcome(grantId, grantTitle, status, awardAmount) {`);
       lines.push(`  return tcafFetch("${ep.path}", {`);
@@ -370,13 +346,6 @@ function generatePython(endpoints: EndpointDef[], orgName: string, location: str
       lines.push(`    r = requests.get(TCAF_BASE + ${pathWithLoc}, headers=HEADERS, timeout=30)`);
       lines.push(`    r.raise_for_status()`);
       lines.push(`    return r.json()`);
-    } else if (ep.id === "foster-refer") {
-      lines.push(`def submit_foster_referral(first_name, state_code, immediate_needs, caseworker_email):`);
-      lines.push(`    payload = {"firstName": first_name, "stateCode": state_code,`);
-      lines.push(`               "immediateNeeds": immediate_needs, "caseworkerEmail": caseworker_email}`);
-      lines.push(`    r = requests.post(TCAF_BASE + "${ep.path}", json=payload, headers=HEADERS, timeout=30)`);
-      lines.push(`    r.raise_for_status()`);
-      lines.push(`    return r.json()`);
     } else if (ep.id === "push") {
       lines.push(`def push_grant_outcome(grant_id, grant_title, status, award_amount):`);
       lines.push(`    payload = {"dataType": "grant_outcome",`);
@@ -411,10 +380,6 @@ function generateCurl(endpoints: EndpointDef[], location: string): string {
         : ep.path;
       lines.push(`curl -s -H "x-partner-key: $TCAF_KEY" \\`);
       lines.push(`  "$TCAF_BASE${pathWithLoc}" | jq .`);
-    } else if (ep.id === "foster-refer") {
-      lines.push(`curl -s -X POST -H "x-partner-key: $TCAF_KEY" -H "Content-Type: application/json" \\`);
-      lines.push(`  -d '{"firstName":"Alex","stateCode":"NC","immediateNeeds":["housing","food"],"caseworkerEmail":"case@agency.org"}' \\`);
-      lines.push(`  "$TCAF_BASE${ep.path}" | jq .`);
     } else if (ep.id === "push") {
       lines.push(`curl -s -X POST -H "x-partner-key: $TCAF_KEY" -H "Content-Type: application/json" \\`);
       lines.push(`  -d '{"dataType":"grant_outcome","payload":{"grantId":"GR-2026-001","grantTitle":"Workforce Dev Grant","status":"awarded","awardAmount":75000}}' \\`);

@@ -250,13 +250,6 @@ const API_ENDPOINTS: ApiEndpoint[] = [
     scope: "inbound:write",
     category: "Partner operations",
   },
-  {
-    method: "POST",
-    path: `${PARTNER_API_BASE_PATH}/foster-youth/refer`,
-    description: "Create a foster youth intake referral",
-    scope: "inbound:write",
-    category: "Partner operations",
-  },
 ];
 
 const API_EXAMPLES: ApiExample[] = [

@@ -13,7 +13,7 @@ import {
   programs, partnerOutcomeSubmissions,
   studentProgress, academyPantherPower, pathwayPlans,
   attendanceLogs, earlyWarningFlags,
-  partnerWebhooks, fosterYouthIntakes,
+  partnerWebhooks,
   certificates, briefSubscriptions,
   tradeSimsLessonProgress, tradeSimsLessons, tradeSimsTrades,
   inboundVerificationLog,
@@ -29,7 +29,7 @@ import { eq, desc, and, sql, gte } from "drizzle-orm";
 import { AI_TRANSLATION_LANGUAGE_COUNT, GEOGRAPHIC_REACH } from "@shared/canonical-claims";
 import { SUPPRESSION_FLOOR, suppress } from "./yhsi-routes";
 import { fireWebhook } from "./webhook-dispatcher";
-import crypto, { randomUUID, randomBytes } from "crypto";
+import crypto, { randomBytes } from "crypto";
 import { verifyInboundPayload, hasBlockingRejection, recordInboundVerification, rejectionsToCorrectionNote, type InboundSchema } from "./inbound-verification";
 import { getMsEcosystemDirectory, searchMsProviders } from "./ms-provider-intelligence";
 
@@ -68,6 +68,51 @@ const PARTNER_PUSH_SCHEMAS: Record<string, InboundSchema> = {
   },
 };
 
+const REFERRAL_PUSH_CONTRACT = {
+  status: "unavailable" as const,
+  code: "REFERRAL_CONTRACT_UNAVAILABLE",
+  reason: "The governed referral request schema, idempotency rules, durable receipt state, correction/revocation semantics, and outcome linkage are not published.",
+  retryable: false,
+};
+
+const MAX_PARTNER_PUSH_PAYLOAD_BYTES = 64 * 1024;
+const MAX_PARTNER_PUSH_DEPTH = 8;
+const MAX_PARTNER_PUSH_KEYS = 500;
+const MAX_PARTNER_PUSH_ARRAY_ITEMS = 100;
+const MAX_PARTNER_PUSH_STRING_LENGTH = 10_000;
+
+function getPartnerPushBudgetError(value: unknown, depth = 0, state = { keys: 0 }): string | null {
+  if (depth > MAX_PARTNER_PUSH_DEPTH) return `payload nesting must be ${MAX_PARTNER_PUSH_DEPTH} levels or fewer`;
+  if (typeof value === "string" && value.length > MAX_PARTNER_PUSH_STRING_LENGTH) {
+    return `payload strings must be ${MAX_PARTNER_PUSH_STRING_LENGTH} characters or fewer`;
+  }
+  if (Array.isArray(value)) {
+    if (value.length > MAX_PARTNER_PUSH_ARRAY_ITEMS) {
+      return `payload arrays must contain ${MAX_PARTNER_PUSH_ARRAY_ITEMS} items or fewer`;
+    }
+    for (const item of value) {
+      const error = getPartnerPushBudgetError(item, depth + 1, state);
+      if (error) return error;
+    }
+    return null;
+  }
+  if (value && typeof value === "object") {
+    const entries = Object.entries(value);
+    state.keys += entries.length;
+    if (state.keys > MAX_PARTNER_PUSH_KEYS) {
+      return `payload must contain ${MAX_PARTNER_PUSH_KEYS} keys or fewer`;
+    }
+    for (const [key, item] of entries) {
+      if (key === "__proto__" || key === "constructor" || key === "prototype") {
+        return "payload contains a forbidden object key";
+      }
+      const error = getPartnerPushBudgetError(item, depth + 1, state);
+      if (error) return error;
+    }
+  }
+  return null;
+}
+
 // Minimum cell floor for aggregate suppression (mirrors conductor MIN_AGGREGATE_CELL)
 const MIN_AGGREGATE_CELL = 5;
 
@@ -94,12 +139,18 @@ export async function requirePartnerAuth(req: Request, res: Response, next: Next
 
   // ── Path A: Ecosystem sibling platform (your own platforms) ─────────────
   if (ecosystemKey) {
-    const [platform] = await db.select({
-      id: ecosystemPlatforms.id,
-      name: ecosystemPlatforms.name,
-      domain: ecosystemPlatforms.domain,
-      role: ecosystemPlatforms.role,
-    }).from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, ecosystemKey));
+    let platform;
+    try {
+      [platform] = await db.select({
+        id: ecosystemPlatforms.id,
+        name: ecosystemPlatforms.name,
+        domain: ecosystemPlatforms.domain,
+        role: ecosystemPlatforms.role,
+      }).from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, ecosystemKey));
+    } catch (error) {
+      console.error("[PartnerAPI] ecosystem key lookup failed:", error);
+      return res.status(503).json({ error: "Partner authentication service temporarily unavailable." });
+    }
 
     if (!platform) {
       return res.status(401).json({ error: "Invalid ecosystem key." });
@@ -155,7 +206,13 @@ export async function requirePartnerAuth(req: Request, res: Response, next: Next
   }
 
   const hash = hashKey(partnerKeyRaw);
-  const [key] = await db.select().from(partnerApiKeys).where(and(eq(partnerApiKeys.keyHash, hash), eq(partnerApiKeys.active, true)));
+  let key;
+  try {
+    [key] = await db.select().from(partnerApiKeys).where(and(eq(partnerApiKeys.keyHash, hash), eq(partnerApiKeys.active, true)));
+  } catch (error) {
+    console.error("[PartnerAPI] partner key lookup failed:", error);
+    return res.status(503).json({ error: "Partner authentication service temporarily unavailable." });
+  }
   if (!key) {
     return res.status(401).json({ error: "Invalid or revoked partner key." });
   }
@@ -358,6 +415,11 @@ export function registerPartnerApiRoutes(app: Express) {
       // Generated from the shared contract registry (server/partner-api-contract.ts).
       // Add or remove routes there — this list stays in sync automatically.
       endpoints: PARTNER_API_CONTRACT.map(buildDocsEndpointLine),
+      inboundPushContract: {
+        acceptedDataTypes: ["content", "event", "insight", "update", "metric", "alert", "grant_outcome", "intervention"],
+        referral: REFERRAL_PUSH_CONTRACT,
+        note: "The referral dataType is reserved but closed. ThriveUp does not accept or persist person-level referral payloads until the governed request and receipt contract is published.",
+      },
       exampleRequests: {
         communityBrief: {
           description: "A county health dept queries a community brief for their service area",
@@ -1166,80 +1228,151 @@ export function registerPartnerApiRoutes(app: Express) {
 
   app.post("/api/partner/v1/push", requirePartnerAuth, requireScope("inbound:write"), async (req, res) => {
     const key: any = (req as any).partnerKey;
-    const { dataType, payload } = req.body;
-    if (!dataType || !payload) {
-      return res.status(400).json({ error: "dataType and payload are required." });
-    }
-    const ALLOWED_TYPES = ["content", "event", "insight", "update", "metric", "referral", "alert", "grant_outcome", "intervention"];
-    if (!ALLOWED_TYPES.includes(dataType)) {
-      return res.status(400).json({ error: `dataType must be one of: ${ALLOWED_TYPES.join(", ")}` });
-    }
-
-    // grant_outcome: validate required fields before storing
-    if (dataType === "grant_outcome") {
-      const { grantId, grantTitle } = payload as any;
-      if (!grantId && !grantTitle) {
-        return res.status(400).json({ error: "grant_outcome payload must include at least grantId or grantTitle." });
+    try {
+      const { dataType, payload } = req.body ?? {};
+      if (!dataType || payload === undefined || payload === null) {
+        return res.status(400).json({ error: "dataType and payload are required." });
       }
-    }
-
-    // Schema-validate the fields this endpoint actually knows the shape of.
-    // A partner-declared dataType with no known schema is still stored (its
-    // payload is opaque partner content we don't interpret), but a known
-    // dataType with a bad enum/out-of-range field is corrected, not stored
-    // as-is and trusted downstream (grant_outcome status/awardAmount feed
-    // the compliance matrix; metric values can feed dashboards).
-    const schema = PARTNER_PUSH_SCHEMAS[dataType];
-    let cleanedPayload = payload;
-    let corrections: ReturnType<typeof rejectionsToCorrectionNote> = [];
-    if (schema) {
-      const { clean, rejections } = verifyInboundPayload<any>(payload, schema);
-      if (rejections.length) {
-        await recordInboundVerification("partner-api-push", `/api/partner/v1/push (${key.partnerName})`, rejections);
-        corrections = rejectionsToCorrectionNote(rejections);
+      const ALLOWED_TYPES = ["content", "event", "insight", "update", "metric", "referral", "alert", "grant_outcome", "intervention"];
+      if (!ALLOWED_TYPES.includes(dataType)) {
+        return res.status(400).json({ error: `dataType must be one of: ${ALLOWED_TYPES.join(", ")}` });
       }
-      if (dataType === "grant_outcome" && !clean.status) {
+      if (typeof payload !== "object" || Array.isArray(payload)) {
         return res.status(400).json({
-          error: "grant_outcome payload must include a valid status field (awarded, submitted, declined, pending, withdrawn).",
-          corrections,
+          error: "payload must be a JSON object.",
+          code: "INVALID_PUSH_PAYLOAD",
+          corrections: [{ field: "payload", problem: "wrong type", expected: "a JSON object" }],
         });
       }
-      // Merge validated fields back over the raw payload — invalid fields
-      // (nulled by verifyInboundPayload) are dropped, everything else the
-      // partner sent that isn't in our schema passes through untouched.
-      cleanedPayload = { ...payload, ...clean };
-    }
+      const serializedPayload = JSON.stringify(payload);
+      if (Buffer.byteLength(serializedPayload, "utf8") > MAX_PARTNER_PUSH_PAYLOAD_BYTES) {
+        return res.status(413).json({
+          error: `payload must be ${MAX_PARTNER_PUSH_PAYLOAD_BYTES} bytes or smaller.`,
+          code: "PUSH_PAYLOAD_TOO_LARGE",
+          retryable: false,
+        });
+      }
+      const budgetError = getPartnerPushBudgetError(payload);
+      if (budgetError) {
+        return res.status(422).json({
+          error: budgetError,
+          code: "PUSH_PAYLOAD_LIMIT_EXCEEDED",
+          retryable: false,
+        });
+      }
 
-    const [row] = await db.insert(partnerInboundData).values({
-      keyId: key.id,
-      partnerName: key.partnerName,
-      dataType,
-      payload: cleanedPayload,
-    }).returning({ id: partnerInboundData.id, receivedAt: partnerInboundData.receivedAt });
+      // Referral writes are intentionally closed until the external contract
+      // defines the person-level fields, idempotency key, durable acceptance
+      // receipt, correction/revocation behavior, and outcome linkage. Do not
+      // store an opaque referral object: accepting it would create a receipt
+      // that cannot be reconciled or safely retried.
+      if (dataType === "referral") {
+        return res.status(422).json({
+          accepted: false,
+          error: REFERRAL_PUSH_CONTRACT.reason,
+          ...REFERRAL_PUSH_CONTRACT,
+          corrections: [{
+            field: "dataType",
+            problem: "referral writes are not enabled",
+            expected: "a published governed referral contract",
+          }],
+        });
+      }
 
-    const response: Record<string, unknown> = {
-      received: true,
-      id: row.id,
-      partner: key.partnerName,
-      dataType,
-      receivedAt: row.receivedAt,
-      ...(corrections.length ? { corrections } : {}),
-    };
+      // Ecosystem keys intentionally do not receive an inbound DB key ID.
+      // Reject this write path explicitly instead of allowing a NOT NULL
+      // insert failure to surface as an opaque 500.
+      if (key?.isEcosystemPlatform) {
+        return res.status(403).json({
+          error: "Inbound writes require a scoped partner key.",
+          code: "SCOPED_PARTNER_KEY_REQUIRED",
+          retryable: false,
+        });
+      }
 
-    // Echo a grant_outcome acknowledgement so the caller knows what was captured
-    if (dataType === "grant_outcome") {
-      const p = cleanedPayload as any;
-      response.grantOutcomeAck = {
-        grantId: p.grantId ?? null,
-        grantTitle: p.grantTitle ?? null,
-        status: p.status,
-        awardAmount: p.awardAmount ?? null,
-        nextStep: "Outcome stored. ThriveUp team will log this in the grant compliance matrix.",
+      // Schema-validate the fields this endpoint actually knows the shape of.
+      // A partner-declared dataType with no known schema is still stored (its
+      // payload is opaque partner content we don't interpret), but a known
+      // dataType with a bad enum/out-of-range field is corrected, not stored
+      // as-is and trusted downstream (grant_outcome status/awardAmount feed
+      // the compliance matrix; metric values can feed dashboards).
+      const schema = PARTNER_PUSH_SCHEMAS[dataType];
+      let cleanedPayload = payload;
+      let corrections: ReturnType<typeof rejectionsToCorrectionNote> = [];
+      if (schema) {
+        const { clean, rejections } = verifyInboundPayload<any>(payload, schema);
+        if (rejections.length) {
+          await recordInboundVerification("partner-api-push", `/api/partner/v1/push (${key.partnerName})`, rejections);
+          corrections = rejectionsToCorrectionNote(rejections);
+        }
+        if (dataType === "grant_outcome" && !clean.status) {
+          return res.status(400).json({
+            error: "grant_outcome payload must include a valid status field (awarded, submitted, declined, pending, withdrawn).",
+            corrections,
+          });
+        }
+        if (dataType === "grant_outcome") {
+          const grantId = typeof clean.grantId === "string" ? clean.grantId.trim() : "";
+          const grantTitle = typeof clean.grantTitle === "string" ? clean.grantTitle.trim() : "";
+          if (!grantId && !grantTitle) {
+            return res.status(400).json({
+              error: "grant_outcome payload must include at least one valid nonblank grantId or grantTitle.",
+              corrections,
+            });
+          }
+        }
+        // Store only the schema-approved fields. Unknown keys can contain
+        // untrusted or person-level content and must not bypass the boundary.
+        cleanedPayload = clean;
+      }
+
+      if (!key?.id) {
+        return res.status(503).json({
+          accepted: false,
+          error: "Partner receipt service temporarily unavailable.",
+          code: "PARTNER_RECEIPT_UNAVAILABLE",
+          retryable: false,
+        });
+      }
+      const [row] = await db.insert(partnerInboundData).values({
+        keyId: key.id,
+        partnerName: key.partnerName,
+        dataType,
+        payload: cleanedPayload,
+      }).returning({ id: partnerInboundData.id, receivedAt: partnerInboundData.receivedAt });
+
+      const response: Record<string, unknown> = {
+        received: true,
+        id: row.id,
+        partner: key.partnerName,
+        dataType,
+        receivedAt: row.receivedAt,
+        ...(corrections.length ? { corrections } : {}),
       };
-      console.log(`[PartnerAPI] Grant outcome received from ${key.partnerName}: ${p.grantTitle || p.grantId} — ${p.status}`);
-    }
 
-    res.json(response);
+      // Echo a grant_outcome acknowledgement so the caller knows what was captured
+      if (dataType === "grant_outcome") {
+        const p = cleanedPayload as any;
+        response.grantOutcomeAck = {
+          grantId: p.grantId ?? null,
+          grantTitle: p.grantTitle ?? null,
+          status: p.status,
+          awardAmount: p.awardAmount ?? null,
+          nextStep: "Outcome stored. ThriveUp team will log this in the grant compliance matrix.",
+        };
+        console.log(`[PartnerAPI] Grant outcome received from ${key.partnerName}: ${p.grantTitle || p.grantId} — ${p.status}`);
+      }
+
+      res.json(response);
+    } catch (error) {
+      console.error("[PartnerAPI] push processing failed:", error);
+      return res.status(500).json({
+        accepted: false,
+        error: "Partner push could not be processed.",
+        code: "PARTNER_PUSH_PROCESSING_ERROR",
+        retryable: false,
+      });
+    }
   });
 
   // ── Partner webhook management (any scope) ───────────────────────────────
@@ -1349,88 +1482,20 @@ export function registerPartnerApiRoutes(app: Express) {
     }
   });
 
-  // ── Inbound: partner-referred foster youth intake (inbound:write) ─────────
-
-  // POST /api/partner/v1/foster-youth/refer
-  // Partners create a foster youth intake on behalf of a youth.
-  // Sets referralOrgId to the calling partner key's id.
-  // Returns { intakeId, intakeUrl, accessToken } so the partner can give the youth a direct link.
+  // ── Deprecated: partner-referred foster youth intake ───────────────────────
+  // This legacy route remains registered only to return a clear terminal
+  // response. It must not create person-level intake records until the same
+  // governed contract required for referral pushes is published.
   app.post(
     "/api/partner/v1/foster-youth/refer",
     requirePartnerAuth,
     requireScope("inbound:write"),
-    async (req, res) => {
-      try {
-        const key: any = (req as any).partnerKey;
-        const keyId = key.id as string;
-
-        const body = (req.body ?? {}) as Record<string, unknown>;
-        const { firstName, stateCode, immediateNeeds, caseworkerEmail, partnerReference } = body as {
-          firstName?: string;
-          stateCode?: string;
-          immediateNeeds?: string[];
-          caseworkerEmail?: string;
-          partnerReference?: string;
-        };
-
-        if (!stateCode || typeof stateCode !== "string") {
-          return res.status(400).json({ error: "stateCode is required." });
-        }
-
-        // Validate immediateNeeds if provided
-        const cleanNeeds = Array.isArray(immediateNeeds)
-          ? immediateNeeds.filter((x): x is string => typeof x === "string").slice(0, 20)
-          : [];
-
-        // Validate caseworkerEmail if provided
-        let cleanEmail: string | null = null;
-        if (caseworkerEmail && typeof caseworkerEmail === "string") {
-          const trimmed = caseworkerEmail.trim();
-          if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed) && trimmed.length <= 254) {
-            cleanEmail = trimmed;
-          }
-        }
-
-        const id = randomUUID();
-        const accessToken = randomBytes(24).toString("base64url");
-
-        const [row] = await db
-          .insert(fosterYouthIntakes)
-          .values({
-            id,
-            cohort: "foster-youth",
-            accessToken,
-            firstName: typeof firstName === "string" ? firstName.slice(0, 120) : null,
-            stateCode: stateCode.slice(0, 2).toUpperCase(),
-            immediateNeeds: cleanNeeds.length > 0 ? cleanNeeds : null,
-            caseworkerEmail: cleanEmail,
-            referredBy: key.partnerName as string,
-            referralOrgId: keyId,
-            createdBy: `partner:${key.partnerName}`,
-          })
-          .returning({ id: fosterYouthIntakes.id });
-
-        const intakeId = row.id;
-        const protocol = req.headers["x-forwarded-proto"] || "https";
-        const host = req.headers.host || "thrivingcommunitiesforall.com";
-        const intakeUrl = `${protocol}://${host}/foster-youth/intake?id=${intakeId}&ref=${encodeURIComponent(partnerReference ?? "")}`;
-
-        console.log(
-          `[PartnerAPI] Partner-referred intake created: partner=${key.partnerName} intakeId=${intakeId} partnerRef=${partnerReference ?? "(none)"}`,
-        );
-
-        res.status(201).json({
-          intakeId,
-          intakeUrl,
-          accessToken,
-          warning: "Share accessToken securely with the youth — it is their only credential to access this intake.",
-          partnerReference: partnerReference ?? null,
-        });
-      } catch (err: any) {
-        console.error("[PartnerAPI] foster-youth/refer failed:", err);
-        res.status(500).json({ error: err.message ?? "Failed to create referred intake." });
-      }
-    },
+    (_req, res) => res.status(410).json({
+      accepted: false,
+      error: "Partner foster-youth referrals are unavailable until the governed person-level referral contract is published.",
+      code: "FOSTER_REFERRAL_CONTRACT_UNAVAILABLE",
+      retryable: false,
+    }),
   );
 
   // ── Community brief (community:read) — partners call TCAF's conductor logic ─

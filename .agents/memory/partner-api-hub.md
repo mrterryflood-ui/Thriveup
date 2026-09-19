@@ -43,6 +43,24 @@ during a publication check.
 `PUBLISHED_BASE_URL` after every Partner API publication and treat any nonzero
 exit as deployment drift.
 
+## Person-level inbound boundary
+
+Generic `inbound:write` authorization is not sufficient to open person-level
+referral or intake writes. Those paths remain closed until the receiving
+contract defines required fields and consent, durable receipts, idempotency and
+duplicate handling, correction/revocation, retry classification, and outcome
+linkage. A reserved referral type must return a terminal structured response
+and must not persist an opaque payload.
+
+**Why:** An empty synthetic referral was previously accepted as an opaque
+inbound row, while the receiving platform had no way to reconcile, correct, or
+revoke it safely.
+
+**How to apply:** Treat person-level referral capability as a separate
+contract gate from scope provisioning; keep route, registry, docs, connector
+catalog, and client API docs closed together until the receiving contract is
+approved and tested.
+
 ## Files
 - `server/partner-api-routes.ts` — all logic
 - `shared/schema.ts` — `partnerApiKeys` + `partnerApiAuditLog` tables

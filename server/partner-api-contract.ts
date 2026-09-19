@@ -47,7 +47,7 @@ export const PARTNER_API_SCOPES = [
   { scope: "student:read", description: "AGGREGATE, suppression-floored youth metrics only — no per-student PII. See students/* endpoints." },
   { scope: "chainweb:read", description: "Chainweb ROI coefficients, templates, scenarios, calculations, and narratives" },
   { scope: "yhsi:read", description: "AGGREGATE, floor-5-suppressed YHSI metrics and outcome summaries" },
-  { scope: "inbound:write", description: "POST referrals, events, metrics, or alerts into ThriveUp" },
+  { scope: "inbound:write", description: "POST governed aggregate/event data into ThriveUp; person-level referral writes are closed" },
   { scope: "outcomes:read", description: "Read aggregated outcome data — trade sim completion counts, employer-ready metrics (no PII, aggregate only)" },
   { scope: "certs:read", description: "Verify and read certificate records — check whether a cert ID is valid and retrieve holder/trade/issued info" },
   { scope: "capacity:read", description: "Read this partner's own capacity entries" },
@@ -62,6 +62,7 @@ const DEPRECATED_PARTNER_API_PATHS = new Set([
   "/api/partner/v1/students/:userId/assessments",
   "/api/partner/v1/students/:userId/pathway",
   "/api/partner/v1/students/reflections",
+  "/api/partner/v1/foster-youth/refer",
 ]);
 
 export const PARTNER_API_CONTRACT: readonly PartnerRouteEntry[] = [
@@ -321,12 +322,6 @@ export const PARTNER_API_CONTRACT: readonly PartnerRouteEntry[] = [
     path: "/api/partner/v1/push",
     auth: { kind: "partner", scope: "inbound:write" },
     description: "push data to ThriveUp (inbound:write)",
-  },
-  {
-    method: "POST",
-    path: "/api/partner/v1/foster-youth/refer",
-    auth: { kind: "partner", scope: "inbound:write" },
-    description: "create foster youth intake on behalf of a youth (inbound:write)",
   },
 ] as const;
 

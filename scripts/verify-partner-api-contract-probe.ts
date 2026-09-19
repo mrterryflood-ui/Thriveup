@@ -32,6 +32,7 @@ function assert(label: string, condition: boolean, detail?: string): void {
 
 const SAMPLE_DOCS_ENTRIES: string[] = [
   "GET  /api/partner/v1/chainweb/coefficients   — evidence coefficients for ROI scenarios (chainweb:read)",
+  "GET  /api/partner/v1/ms/intelligence — MS provider leads, public health-platform URLs, national sources, and RPLICE MS links (health:read); query: location?, focus?",
   "GET  /api/partner/v1/community/brief — compatibility alias for community-brief (community:read); query: location (required), populationSize?, timeHorizon?",
   "GET  /api/partner/v1/chainweb/templates      — quick-start ROI scenario templates (chainweb:read)",
   "POST /api/partner/v1/chainweb/scenarios — create a partner-owned ROI scenario (chainweb:read)",
