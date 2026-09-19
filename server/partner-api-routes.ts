@@ -256,6 +256,14 @@ export function registerPartnerApiRoutes(app: Express) {
         requireTcafPrefix?: boolean;
       }> = [
         {
+          envVar: "MS_PARTNER_KEY",
+          partnerName: "MS Platform",
+          partnerEmail: "terryflood@thrivingcommunitiesforall.com",
+          scopes: ["health:read"],
+          notes: "MS provider-intelligence key — auto-provisioned from MS_PARTNER_KEY secret",
+          requireTcafPrefix: false,
+        },
+        {
           envVar: "THRIVEUP_PARTNER_KEY",
           partnerName: "GrantPathPro",
           partnerEmail: "terryflood@thrivingcommunitiesforall.com",
