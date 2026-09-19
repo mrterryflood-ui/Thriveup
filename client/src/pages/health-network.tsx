@@ -1,7 +1,6 @@
-import { ExternalLink, Heart, Brain, Baby, Pill, Shield, Activity, Users, Stethoscope, Eye, Dna, Ribbon } from "lucide-react";
+import { ExternalLink, Heart, Brain, Baby, Pill, Shield, Activity, Users, Stethoscope, Eye, Dna, Ribbon, Microscope } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 interface HealthPlatform {
   id: string;
@@ -11,6 +10,7 @@ interface HealthPlatform {
   badges: string[];
   description: string;
   color: string;
+  status?: "configured" | "evidence_surface" | "offline";
 }
 
 const healthPlatforms: HealthPlatform[] = [
@@ -20,7 +20,7 @@ const healthPlatforms: HealthPlatform[] = [
     url: "https://herhealthmatters2.com",
     icon: <Ribbon className="w-8 h-8" />,
     badges: ["Cancer", "Cardiovascular", "Autoimmune", "Reproductive", "Mental Health", "Metabolic", "Infectious", "70 Conditions", "Nia AI Navigator"],
-    description: "Comprehensive women's health navigation platform covering 70 conditions across 7 specialized domains — cancer, cardiovascular, autoimmune, mental health, reproductive, metabolic, and infectious disease. Powered by Nia, a Perplexity-driven AI navigator delivering culturally responsive health guidance, screening pathways, and provider matching. Serves as the anchor health platform for CDMRP, NIH, and foundation grant submissions with SDOH-first design and P2P mesh architecture.",
+    description: "Comprehensive women's health navigation platform covering 70 conditions across 7 specialized domains — cancer, cardiovascular, autoimmune, mental health, reproductive, metabolic, and infectious disease. Powered by Nia, a Perplexity-driven AI navigator delivering culturally responsive health guidance, screening pathways, and provider-navigation information.",
     color: "from-pink-500 to-rose-600",
   },
   {
@@ -29,7 +29,7 @@ const healthPlatforms: HealthPlatform[] = [
     url: "https://mentalwellnesssupport.net",
     icon: <Heart className="w-8 h-8" />,
     badges: ["C-SSRS", "PHQ-9", "GAD-7", "PCL-5", "AUDIT-C", "DAST-10", "Safety Plans", "20,670+ Resources"],
-    description: "Central clinical hub and connective tissue for the entire 15-service-platform ecosystem delivering 6 validated screenings — C-SSRS (suicide), PHQ-9 (depression), GAD-7 (anxiety), PCL-5 (PTSD), AUDIT-C (alcohol), and DAST-10 (drugs). Auto-escalation to 988 Veterans Crisis Line, individualized safety plans, and Reach a Vet crisis pathway with 20,670+ curated resources. Every platform routes crisis, referral, and assessment data through this hub.",
+    description: "Central health-navigation hub for the ecosystem delivering 6 validated screenings — C-SSRS (suicide), PHQ-9 (depression), GAD-7 (anxiety), PCL-5 (PTSD), AUDIT-C (alcohol), and DAST-10 (drugs). Includes crisis resources, safety-plan support, and Reach a Vet pathways with 20,670+ curated resources. This public link does not establish a completed referral or clinical-data exchange.",
     color: "from-violet-500 to-purple-600",
   },
   {
@@ -64,8 +64,8 @@ const healthPlatforms: HealthPlatform[] = [
     name: "HerHealth Matters",
     url: "https://herhealthmatters2.com",
     icon: <Stethoscope className="w-8 h-8" />,
-    badges: ["Reproductive Health", "OB/GYN", "Cancer Screening", "Menopause", "Provider Matching"],
-    description: "Women's health platform covering reproductive health education, hormonal wellness, preventive screening, cervical and breast health, menopause support, provider matching, and maternal pathways.",
+    badges: ["Reproductive Health", "OB/GYN", "Cancer Screening", "Menopause", "Provider Navigation"],
+    description: "Women's health platform covering reproductive health education, hormonal wellness, preventive screening, cervical and breast health, menopause support, provider-navigation information, and maternal pathways.",
     color: "from-fuchsia-500 to-purple-600",
   },
   {
@@ -83,7 +83,7 @@ const healthPlatforms: HealthPlatform[] = [
     url: "https://herhealthmatters2.com",
     icon: <Dna className="w-8 h-8" />,
     badges: ["Women's Health", "Chronic Disease Navigation", "Preventive Care", "Cultural Responsiveness", "Longitudinal Data"],
-    description: "Women's health navigation, preventive care, chronic-disease support, symptom tracking, medication support, and warm handoffs to clinical partners.",
+    description: "Women's health navigation, preventive care, chronic-disease support, symptom tracking, medication support, and pointers to potential clinical resources that require direct confirmation.",
     color: "from-teal-500 to-emerald-600",
   },
   {
@@ -122,6 +122,26 @@ const healthPlatforms: HealthPlatform[] = [
     description: "Full-spectrum military-to-civilian transition platform with dedicated veteran health pathways — MOS career translation, VA benefits navigation, and proactive outreach during the first 12 months post-separation. Integrates with Whole-Person Health for crisis routing and MaleHealth Matters for men's health navigation.",
     color: "from-green-600 to-emerald-700",
   },
+  {
+    id: "betterscience-ms-center",
+    name: "RPLICE MS Center",
+    url: "https://www.bettersciencelab.com/ms-center",
+    icon: <Microscope className="w-8 h-8" />,
+    badges: ["MS Center Evidence Surface", "Implementation Science", "Research Evidence"],
+    description: "RPLICE evidence and implementation-intelligence surface for the MS Center lane. It is an evidence and learning resource, not a verified provider directory or referral receipt.",
+    color: "from-slate-600 to-indigo-700",
+    status: "evidence_surface",
+  },
+  {
+    id: "autoimmune-thrive",
+    name: "Autoimmune Center of Excellence",
+    url: "https://autoimmunethrive.com",
+    icon: <Dna className="w-8 h-8" />,
+    badges: ["Autoimmune Care", "Symptom Tracking", "Flare Support"],
+    description: "The catalog-configured autoimmune platform relevant to MS navigation. Its current catalog health flag must be checked before treating it as reachable; a configured URL is not proof of live service.",
+    color: "from-blue-600 to-cyan-700",
+    status: "offline",
+  },
 ];
 
 export default function HealthNetworkPage() {
@@ -130,20 +150,20 @@ export default function HealthNetworkPage() {
       <div className="max-w-6xl mx-auto px-4 py-8 sm:py-12">
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
-            <Heart className="w-4 h-4" />
-            13 Connected Health Platforms
+             <Heart className="w-4 h-4" aria-hidden="true" />
+             Ecosystem Health Platforms
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold mb-3" data-testid="text-page-title">
             ThriveUp Health Network
           </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-base sm:text-lg">
-            A connected ecosystem of health platforms serving under-resourced communities across Central Texas. 
-            Every platform is free for individuals. Every screening is validated. Every resource is verified.
+            <p className="text-muted-foreground max-w-2xl mx-auto text-base sm:text-lg">
+             Public links to the community and healthcare platforms in the ecosystem, plus the RPLICE MS Center evidence surface.
+             These cards are a catalog snapshot; reachability and provider verification are shown only when the source supports them.
           </p>
           <div className="flex flex-wrap justify-center gap-2 mt-5">
             <Badge variant="outline" className="text-xs">70+ Women's Health Conditions</Badge>
             <Badge variant="outline" className="text-xs">15 Men's Health Domains</Badge>
-            <Badge variant="outline" className="text-xs">80+ Autoimmune Conditions</Badge>
+             <Badge variant="outline" className="text-xs">MS Evidence Surface</Badge>
             <Badge variant="outline" className="text-xs">6 Validated Screenings</Badge>
             <Badge variant="outline" className="text-xs">20,670+ Resources</Badge>
             <Badge variant="outline" className="text-xs">SDOH-First Design</Badge>
@@ -169,6 +189,16 @@ export default function HealthNetworkPage() {
                       {platform.name}
                     </h3>
                     <p className="text-xs text-muted-foreground truncate mt-0.5">{platform.url.replace("https://", "")}</p>
+                     <Badge
+                       variant={platform.status === "offline" ? "destructive" : "outline"}
+                       className="mt-1 text-[10px] px-1.5 py-0"
+                     >
+                       {platform.status === "offline"
+                         ? "Catalog snapshot — offline at last sync"
+                         : platform.status === "evidence_surface"
+                           ? "Public evidence surface"
+                           : "Catalog snapshot — configured link"}
+                     </Badge>
                   </div>
                 </div>
 
@@ -188,20 +218,15 @@ export default function HealthNetworkPage() {
                   {platform.description}
                 </p>
 
-                <a
+                 <a
                   href={platform.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   data-testid={`link-visit-${platform.id}`}
+                   className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-md border border-input bg-background px-3 text-xs font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full gap-2 text-xs"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    Visit {platform.name.split(" ")[0]}
-                  </Button>
+                   <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+                   Visit {platform.name.split(" ")[0]}
                 </a>
               </CardContent>
             </Card>
@@ -212,8 +237,7 @@ export default function HealthNetworkPage() {
           <Card className="inline-block border-dashed">
             <CardContent className="p-5 text-sm text-muted-foreground">
               <p className="font-medium text-foreground mb-1">Ecosystem Integration</p>
-              <p>All platforms share validated screening data, crisis routing, and resource navigation through the Whole-Person Health hub. 
-              Every platform includes 988 Veterans Crisis Line access and SDOH Location Intelligence.</p>
+              <p>These links expose public platform surfaces. The MS intelligence handoff keeps platform configuration, reachability, RPLICE evidence, and AI-discovered provider leads as separate states; none of those states alone means a referral was accepted or completed.</p>
             </CardContent>
           </Card>
         </div>

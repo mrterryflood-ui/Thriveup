@@ -40,6 +40,7 @@ export type PartnerRouteEntry = {
 export const PARTNER_API_SCOPES = [
   { scope: "content:read", description: "Ecosystem platform list and content export" },
   { scope: "platforms:read", description: "Live platform health status and metadata" },
+  { scope: "health:read", description: "MS provider intelligence, public health-platform URLs, and RPLICE MS evidence links" },
   { scope: "community:read", description: "Community impact metrics, service-platform summary, and community brief generation" },
   { scope: "benefits:read", description: "Public benefits program catalog" },
   { scope: "impact:read", description: "Community intervention impact scores and outcome data" },
@@ -119,6 +120,13 @@ export const PARTNER_API_CONTRACT: readonly PartnerRouteEntry[] = [
     path: "/api/partner/v1/platforms",
     auth: { kind: "partner", scope: "platforms:read" },
     description: "live platform list (platforms:read)",
+  },
+  {
+    method: "GET",
+    path: "/api/partner/v1/ms/intelligence",
+    auth: { kind: "partner", scope: "health:read" },
+    description: "MS provider leads, public health-platform URLs, national sources, and RPLICE MS links (health:read); query: location?, focus?",
+    probe: true,
   },
 
   // ── community:read ─────────────────────────────────────────────────────────

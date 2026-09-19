@@ -1,0 +1,816 @@
+You are correct: **IoT means Internet of Things**. I corrected the project doctrine and durable project memory.
+
+Going forward:
+
+- **IoT** is the connective system: devices, sensors, health systems, service platforms, research systems, community networks, and operational tools exchanging governed data.
+- **ILT** is the learning system: sense → question → understand → diagnose → decide → act → measure → learn → adapt.
+- The target architecture combines them: **IoT supplies connected evidence and actions; ILT turns those interactions into accountable learning and continuous improvement.**
+
+I also recorded that Surviving & Thriving, ThriveUp, the healthcare/tracking platform, caregiver services, clinicians, community services, research, nonprofit operations, and MS Center of Excellence workflows are intended to be **one connected ecosystem**. “Discovery only” is now explicitly documented as a temporary implementation condition—not a permanent product rule.
+
+# What is broken or inadequate now
+
+## 1. Cross-platform integration is deliberately disabled in code
+
+The current connection route hard-codes a `discovery_only` mode. It disables or omits:
+
+- Person-level exchange
+- Referral creation
+- Referral status updates
+- Outcome exchange
+- Corrections
+- Consent revocation propagation
+- Deletion propagation
+- Health-data exchange
+- Research exchange
+- Community participation exchange
+- Benefits and nonprofit case exchange
+
+This is not an external technical necessity. It is a local implementation constraint that must be replaced.
+
+However, we should not simply delete the restriction and start transmitting sensitive data. First, we need the consent, identity, audit, authorization, and delivery infrastructure that makes live exchange safe and accountable.
+
+## 2. ThriveUp’s contracts are inconsistent
+
+The reviewed handoff material describes several possible integration surfaces:
+
+- A partner-facing push endpoint
+- Internal event APIs
+- Directive APIs
+- Resource and community data
+- Referral-related concepts
+
+But these are not yet one reliable contract. The unresolved issues include:
+
+- Different operation names in different documents
+- Unclear canonical endpoint ownership
+- No final event envelope
+- No stable tenant or ecosystem identifier
+- No canonical person-linking method
+- No referral receipt and status contract
+- No correction or revocation protocol
+- No authoritative error and retry semantics
+- No webhook signing and replay-protection agreement
+- No contract versioning policy
+- No clear distinction between accepted, delivered, acted upon, and completed
+
+The proposed broad ecosystem credential is also too powerful. We need granular OAuth scopes or equivalent least-privilege credentials—not one unrestricted key.
+
+## 3. The healthcare platform is described but not connected
+
+The documents discuss healthcare tracking and FHIR-related capabilities, but this repository has no active implementation for:
+
+- SMART on FHIR authorization
+- FHIR patient matching
+- FHIR observations
+- Conditions
+- Medication statements or requests
+- Care plans
+- Encounters
+- Diagnostic reports
+- Document references
+- Questionnaires and responses
+- Provenance resources
+- Subscriptions or event notifications
+- Clinician acknowledgement
+- Clinical corrections
+- Center of Excellence queues
+- Wearable or home-device ingestion
+- Remote patient-generated health-data exchange
+
+The current MS application therefore cannot truthfully claim healthcare-platform integration.
+
+## 4. Consent is too weak for the intended ecosystem
+
+The current consent model is essentially:
+
+- Policy name
+- Version
+- Acceptance timestamp
+- Revocation timestamp
+
+That is not sufficient for a connected healthcare, caregiver, community, research, and IoT ecosystem.
+
+Consent must answer:
+
+- Who is authorizing?
+- Who or what is receiving access?
+- What data categories are covered?
+- For what purpose?
+- For how long?
+- In which jurisdiction?
+- Can onward sharing occur?
+- Can the recipient write or propose corrections?
+- Does the authorization cover AI processing?
+- Does it cover caregiver access?
+- Does it cover clinical exchange?
+- Does it cover research?
+- Does it cover device data?
+- What happens after revocation?
+- Which previously transmitted records must be deleted or restricted?
+- Which records must legally remain as an audit trail?
+
+There is also an observed mismatch between the `data_processing` consent presented in My Story and the `neuro` authorization expected for durable Neuro messages. That must be reconciled before durable Neuro consent can be considered reliable.
+
+## 5. Caregiver authorization is not real yet
+
+The current caregiver-related flow does not establish a complete delegated-access system. A supplied consent identifier is not enough.
+
+Missing capabilities include:
+
+- Caregiver invitation
+- Identity verification
+- Patient approval
+- Permission scopes
+- Expiration
+- Emergency-access policy
+- Read versus propose versus act permissions
+- Separate permissions for medications, appointments, symptoms, records, and community participation
+- Revocation
+- Access history
+- Caregiver burden and respite support
+- Disagreement and correction workflows
+- Transition when a caregiver changes
+- Protection from coercive or unauthorized access
+
+Caregivers also need their own learning experience: MS education, symptom context, medication and appointment guidance, communication coaching, warning-sign education, respite resources, benefits navigation, and answers grounded in the patient’s consented context.
+
+## 6. Clinical collaboration is not operational
+
+The platform can generate preparation materials, but it does not yet establish that:
+
+- A clinician received the packet
+- The correct clinician received it
+- The patient approved what was shared
+- The clinician acknowledged it
+- A correction was proposed
+- The patient accepted or contested a correction
+- An action was assigned
+- Follow-up occurred
+- The care plan changed
+- The outcome was measured
+
+“Packet generated” is not “care coordinated.”
+
+## 7. Resource search is not referral completion
+
+Current care discovery can identify potential resources. It does not provide a complete service journey:
+
+1. Need identified
+2. Eligibility assessed
+3. Consent obtained
+4. Referral transmitted
+5. Referral received
+6. Responsible organization accepts or rejects it
+7. Appointment or service scheduled
+8. Patient receives reminders
+9. Barrier or failure detected
+10. Alternative service identified
+11. Service delivered
+12. Outcome recorded
+13. Patient experience collected
+14. Results feed ILT learning
+
+An AI-generated resource list must not be treated as a successful referral.
+
+## 8. Research is not integrated
+
+Current research support consists mainly of:
+
+- Public ClinicalTrials.gov navigation
+- A locally stored listening-study response
+- A local withdrawal capability
+
+It does not yet provide:
+
+- Structured trial search
+- Trial-location matching
+- Eligibility pre-screening
+- Investigator contact
+- Enrollment status
+- Research-specific consent
+- Consent version history
+- Withdrawal propagation
+- Data-use restrictions
+- Study-specific permissions
+- De-identification or pseudonymization
+- Research dataset generation
+- Participant result return
+- Adverse-event routing
+- IRB governance
+- Provenance and correction handling
+- Implementation-science evaluation
+
+Research consent must never be represented by arbitrary client-supplied text.
+
+## 9. The current data model is too dependent on free text
+
+Free text is useful for preserving a person’s story, but it is insufficient for reliable automation.
+
+The ecosystem needs both:
+
+- A narrative record that preserves lived experience
+- Structured, source-linked data for safe automation
+
+Required structured domains include:
+
+- Symptoms
+- Severity
+- Functional effects
+- Fatigue
+- Cognition
+- Mobility
+- Vision
+- Pain
+- Sleep
+- Mood
+- Temperature sensitivity
+- Medications
+- Infusions
+- Allergies
+- Diagnoses
+- Comorbidities
+- Appointments
+- Tests
+- Imaging
+- Laboratory results
+- Patient-reported outcomes
+- Goals
+- Barriers
+- Social needs
+- Caregiver observations
+- Devices and measurements
+- Source and confidence
+- Correction status
+- Clinical validation status
+
+## 10. There is no reliable cross-platform event backbone
+
+The repository lacks the machinery needed for dependable integration:
+
+- Transactional outbox
+- Durable inbox
+- Idempotency
+- Event receipts
+- Delivery retries
+- Dead-letter queues
+- Replay protection
+- Signed webhooks
+- Event reconciliation
+- Schema versioning
+- Correction events
+- Consent-revocation events
+- Deletion events
+- Data lineage
+- Cross-platform trace identifiers
+
+Without these, platforms can silently disagree about whether something was delivered or completed.
+
+## 11. Peer support is intake, not a managed service
+
+A peer-support request can be stored, but the platform does not yet automate:
+
+- Triage
+- Matching
+- Moderator review
+- Availability
+- Safety screening
+- Scheduling
+- Consent
+- Contact exchange
+- Follow-up
+- Outcome
+- Rematching
+- Escalation
+- Program-quality measurement
+
+## 12. Static content is not a learning platform
+
+Educational content must become contextual and adaptive:
+
+- Appropriate to diagnosis stage
+- Appropriate to symptoms and concerns
+- Appropriate to caregiver role
+- Appropriate to health literacy
+- Appropriate to language and culture
+- Connected to current goals and appointments
+- Updated when evidence changes
+- Measured for comprehension
+- Followed by suggested actions
+- Correctable
+- Traceable to sources
+- Able to identify unanswered questions
+
+“Dynamic” must not mean that AI invents personalized medical advice. It means the system selects, explains, sequences, and measures evidence-bound education using consented context.
+
+# Corrected target architecture
+
+Every important journey should use the same shared spine:
+
+> Need or observation → identity → context → authorization → evidence → recommendation → decision → action → receipt → status → outcome → correction → learning → adaptation
+
+That spine supports different role-specific experiences without fragmenting the underlying truth.
+
+## Core roles
+
+- Patient
+- Caregiver or family member
+- Clinician
+- MS Center of Excellence staff
+- Navigator
+- Community partner
+- Peer supporter
+- Moderator
+- Research participant
+- Researcher
+- Nonprofit operator
+- Program evaluator
+- Administrator
+- Integration service account
+
+Each role must have explicit authority rather than simply being “logged in.”
+
+# Comprehensive implementation plan
+
+## Phase 0 — Governance and integration contract alignment
+
+Before person-level exchange, establish:
+
+- Product owner
+- Privacy owner
+- Security owner
+- Clinical safety owner
+- Research governance owner
+- Community safety owner
+- Integration owner for every platform
+- Operational queue owner
+- Incident owner
+- Correction authority
+- Escalation authority
+- Data-retention rules
+- BAA and HIPAA applicability
+- Research and IRB requirements
+- Jurisdiction-specific privacy rules
+- Model and algorithm transparency requirements
+- Service-level expectations
+
+This is not documentation instead of implementation. It identifies who must respond when automation detects a problem.
+
+## Phase 1 — Shared ecosystem spine
+
+Build this first because every later journey depends on it.
+
+### Identity and linking
+
+- Stable ecosystem person identifier
+- Platform-local identifiers
+- Privacy-preserving identity mapping
+- Tenant and organization identifiers
+- Relationship records
+- Caregiver delegation
+- Clinician affiliation
+- Research-study identity separation
+- Account merging and correction
+
+### Authorization
+
+- Role-based and attribute-based access
+- Patient-controlled delegated grants
+- Purpose-bound consent
+- Data-category scopes
+- Expiration
+- Revocation
+- Emergency-access rules
+- Jurisdiction
+- AI-processing permission
+- Research-specific permission
+- Device-data permission
+
+### Evidence and accountability
+
+- Provenance
+- Revision history
+- Append-only access audit
+- Correction workflow
+- Disputed-data state
+- Source freshness
+- Evidence status
+- Actor and purpose
+- Receipt and acknowledgement
+- Outcome state
+
+### Integration transport
+
+- Versioned event envelope
+- Transactional outbox and inbox
+- Signed webhooks
+- Idempotency keys
+- Replay prevention
+- Retry policy
+- Dead-letter handling
+- Reconciliation jobs
+- Platform capability registry
+- Connection-health monitoring
+
+## Phase 2 — Patient and household wizard
+
+Replace fragmented forms with a fatigue-aware guided journey:
+
+1. What brought you here?
+2. What is most difficult today?
+3. Is anything urgent?
+4. What has changed?
+5. What does the patient already know?
+6. Who is part of the support circle?
+7. What permissions should each person have?
+8. Which healthcare team is involved?
+9. What resources or services are needed?
+10. What should happen next?
+11. Who owns each next action?
+12. When should the system check again?
+
+The wizard must support:
+
+- Pause and resume
+- Plain language
+- Voice and accessible input
+- Reuse of verified information
+- Progressive disclosure
+- Patient correction
+- Caregiver-assisted completion
+- Multilingual support
+- Next-best action
+- Automated reminders
+- Visible status
+
+## Phase 3 — ThriveUp resource and referral integration
+
+Build the complete vertical slice:
+
+1. Patient need is identified
+2. Eligibility and geography are resolved
+3. Relevant services are returned
+4. Patient selects or authorizes a recommendation
+5. Referral is created
+6. ThriveUp returns a receipt
+7. Responsible organization accepts or rejects it
+8. Status updates return automatically
+9. Delays trigger reminders or escalation
+10. Failure produces alternatives
+11. Delivery and outcome are recorded
+12. Equity, burden, completion, and satisfaction feed ILT
+
+This replaces resource-list navigation with closed-loop service coordination.
+
+## Phase 4 — Health tracking and IoT
+
+Create a structured longitudinal model for:
+
+- Symptoms
+- Medications and infusions
+- Patient-reported outcomes
+- Functional changes
+- Appointments
+- Tests
+- Imaging
+- Laboratory results
+- Device observations
+- Wearables
+- Environmental triggers
+- Sleep
+- Mobility
+- Cognition
+- Fatigue
+- Caregiver observations
+- Treatment effects
+- Side effects
+- Goals and barriers
+
+Every observation needs:
+
+- Source
+- Time observed
+- Time received
+- Device or human actor
+- Units
+- Confidence
+- Verification state
+- Correction state
+- Intended use
+- Consent basis
+
+Automation can detect changes, prepare questions, identify missing follow-up, suggest education, and organize care. It cannot independently diagnose or change treatment.
+
+## Phase 5 — Clinician and MS Center of Excellence workflow
+
+Implement:
+
+- SMART on FHIR authorization
+- Patient matching
+- Health-data import
+- Patient-reviewed summaries
+- Pre-visit packet transmission
+- Delivery receipt
+- Clinician acknowledgement
+- Proposed correction
+- Action assignment
+- Follow-up status
+- Care-plan reconciliation
+- Center of Excellence intake
+- Consult and referral lifecycle
+- Patient-visible status
+- Clinical escalation queue
+
+The platform should reduce manual packet work while preserving clinician authority.
+
+## Phase 6 — Caregiver and family system
+
+Provide:
+
+- Invitation and verified relationship
+- Granular patient-controlled permissions
+- Caregiver learning path
+- Patient-specific education within consent
+- Question-answering grounded in verified context
+- Shared task and appointment planning
+- Medication and symptom observation proposals
+- Communication preparation
+- Burden screening
+- Respite and benefits referrals
+- Emergency preparation
+- Revocation and transition
+- Caregiver outcome measurement
+
+A caregiver observation should be distinguishable from patient-reported information and clinically verified information.
+
+## Phase 7 — Community and peer support
+
+Implement:
+
+- Consent-based profile and matching
+- Geography and accessibility
+- Lived-experience preferences
+- Language
+- Moderation
+- Safety controls
+- Community guidelines
+- Scheduling
+- Group and one-to-one participation
+- Escalation
+- Experience reporting
+- Misinformation correction
+- Outcome and belonging measures
+- Moderator and nonprofit operational queues
+
+Community data must not silently become clinical data or research data. Any reuse requires explicit purpose and consent.
+
+## Phase 8 — Research and trial participation
+
+Implement:
+
+- Live ClinicalTrials.gov ingestion
+- Location and travel matching
+- Structured eligibility pre-screening
+- Patient-controlled investigator contact
+- Enrollment status
+- Study-specific e-consent
+- Consent versions
+- Withdrawal propagation
+- Data minimization
+- Pseudonymization
+- Dataset provenance
+- Study export
+- Participant result return
+- Adverse-event routing
+- IRB and protocol metadata
+- Trial and study outcomes
+- Equity and reach measurement
+
+This is the immediate correction to the current research boundary: trial discovery, participation, consent, exchange, and outcome learning must become one governed lifecycle.
+
+## Phase 9 — Nonprofit operations and implementation science
+
+Every service should generate an implementation record:
+
+- Who was reached?
+- Who was not reached?
+- What need was identified?
+- Which intervention was selected?
+- Who accepted responsibility?
+- Was it delivered?
+- How long did it take?
+- What barriers appeared?
+- Was the intervention used as intended?
+- What did it cost?
+- What burden did it create?
+- What outcome changed?
+- Did results vary across populations?
+- What adaptation occurred?
+- Did the adaptation improve performance?
+
+Support continuous, weekly, monthly, quarterly, and event-triggered review.
+
+## Phase 10 — Automation and reliability hardening
+
+Automate:
+
+- Reminders
+- Referral follow-up
+- Consent renewal
+- Stale-data detection
+- Missing-result detection
+- Failed-delivery reconciliation
+- Alternative-resource routing
+- Caregiver invitations
+- Packet preparation
+- Appointment preparation
+- Research withdrawal propagation
+- Correction propagation
+- Content freshness review
+- Queue escalation
+- Integration-health alerts
+- Outcome collection
+- ILT review products
+
+“No manual work” should mean **no avoidable manual transfer, duplicate entry, status chasing, or disconnected handoff**. Human judgment must remain where clinical decisions, research authorization, safeguarding, ethics, or consequential ambiguity require accountable human authority.
+
+# What I need from ThriveUp
+
+Send the ThriveUp team this request:
+
+## API and sandbox
+
+- Current OpenAPI specification
+- Current AsyncAPI or event specification
+- Sandbox base URL
+- Test tenant
+- Test organizations
+- Synthetic test people
+- Resource catalog endpoints
+- Eligibility endpoints
+- Referral creation
+- Referral receipt
+- Acceptance and rejection
+- Scheduling
+- Status
+- Outcome
+- Correction
+- Cancellation
+- Revocation
+- Deletion
+- Community matching
+- Benefits navigation
+- Nonprofit case management
+- Webhook registration
+- Webhook replay
+- Dead-letter retrieval
+- Health and capability status
+
+## Identity and authorization
+
+- Stable platform ID
+- Stable tenant and organization IDs
+- OAuth2 configuration
+- Audiences
+- Granular scopes
+- Service-account rules
+- User-delegated authorization rules
+- Credential rotation
+- Caregiver and partner roles
+- Negative-authorization tests
+
+## Event contract
+
+- Event envelope
+- Event identifiers
+- Correlation identifiers
+- Subject-linking method
+- Schema versions
+- Source timestamps
+- Receipt timestamps
+- Idempotency rules
+- Signature headers
+- Replay window
+- Ordering semantics
+- Retry rules
+- Terminal-state definitions
+- Correction behavior
+- Revocation behavior
+- Deletion behavior
+
+## Operations
+
+- Referral operations owner
+- Community safety owner
+- Escalation queue
+- Incident-response contact
+- Service-level targets
+- Status vocabulary
+- Outcome vocabulary
+- Production-change notifications
+- Downtime behavior
+- Audit availability
+
+# What I need from the healthcare/tracking platform
+
+## FHIR and clinical exchange
+
+- FHIR version and implementation guide
+- SMART on FHIR metadata
+- Authorization endpoints
+- Supported scopes
+- Patient matching
+- Bulk versus patient-level access
+- Supported resources
+- Write support
+- Provenance support
+- Subscription support
+- Document exchange
+- Questionnaire exchange
+- Care-plan exchange
+- Correction and reconciliation process
+- Sandbox and synthetic patients
+- EHR vendor constraints
+
+At minimum, clarify support for:
+
+- Patient
+- Practitioner
+- Organization
+- RelatedPerson
+- Consent
+- Observation
+- Condition
+- MedicationStatement
+- MedicationRequest
+- AllergyIntolerance
+- CarePlan
+- Goal
+- Encounter
+- Appointment
+- DiagnosticReport
+- DocumentReference
+- Questionnaire
+- QuestionnaireResponse
+- ServiceRequest
+- Task
+- Communication
+- Provenance
+- AuditEvent
+- Subscription
+
+## Device and IoT exchange
+
+- Supported device providers
+- Device registration
+- Observation schema
+- Units
+- Sampling frequency
+- Time synchronization
+- Data-quality flags
+- Source reliability
+- Duplicate handling
+- Corrections
+- Offline buffering
+- Subscription or streaming interface
+- Patient device consent
+- Device removal
+- Data-retention rules
+
+## Clinical operations
+
+- Clinical acknowledgement endpoint
+- Clinician correction endpoint
+- Center of Excellence intake
+- Consult lifecycle
+- Referral status
+- Clinical escalation queue
+- Named clinical owner
+- On-call or urgent-routing boundaries
+- Patient-visible status
+- Care-plan reconciliation
+- Safety-review process
+
+# Non-negotiable acceptance criteria
+
+The integration is not complete until:
+
+- Every sensitive read and write is checked against active role and consent.
+- Every exchanged record contains source, actor, time, purpose, schema version, and provenance.
+- Every event is idempotent, signed, traceable, and reconcilable.
+- Revocation and corrections propagate to every affected platform.
+- Every referral reaches a verified terminal state or produces an actionable failure path.
+- Every queue has an accountable owner and escalation threshold.
+- Every emergency record displays source and freshness.
+- Every patient, caregiver, clinician, community, and research journey can be completed without direct database intervention.
+- Dashboards are generated from audited operational events rather than manually maintained status.
+- Static content is source-linked, versioned, reviewed, and contextually delivered.
+- Outcome, fidelity, burden, equity, and unintended effects are measured.
+- The platform clearly separates patient reports, caregiver observations, device data, AI inferences, and clinician-validated information.
+- Current live capability matches the capability represented to users.
+
+## Bottom line
+
+Nothing in the reviewed evidence requires these owned platforms to remain disconnected. The current restriction is primarily an incomplete implementation and contract problem.
+
+We should remove the discovery-only boundary by **replacing it with a complete governed integration backbone**, not by bypassing privacy and safety. The first build unit should be the shared identity, consent, delegation, provenance, audit, and event spine followed immediately by one real closed-loop ThriveUp referral journey. That establishes the pattern the health, caregiver, clinical, research, community, and IoT journeys can reuse.

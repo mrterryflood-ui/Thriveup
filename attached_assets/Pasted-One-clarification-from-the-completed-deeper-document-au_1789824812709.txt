@@ -1,0 +1,67 @@
+One clarification from the completed deeper document audit:
+
+## “ILT of everything” status
+
+The exact phrase **“ILT of everything architecture”** does not appear in the build book or holistic-plan documents. The closest formal architecture is:
+
+- **the person’s story as the spine**
+- **nine connected lines of effort**
+- **one evidence standard**
+- **one delivery rhythm**
+- **one funding logic**
+- feedback from community, navigation, caregiving, care delivery, research, and operations into organizational learning
+
+Therefore, ILT should currently be treated as the name for that integrated learning-and-transformation interpretation—not as an already implemented technical subsystem.
+
+## Confirmed implementation boundary
+
+The deeper audit confirms the earlier conclusion:
+
+### Implemented
+
+- Patient-local toolkit and tracking
+- Public source-linked resource catalog
+- Neuro orientation
+- Basic consent records
+- Peer-support request intake
+- Listening-study response storage and withdrawal
+- Public integration-contract discovery
+
+### Specified but not implemented
+
+- Referral completion tracking
+- Clinician acknowledgement and reconciliation
+- Provenance and immutable corrections
+- Caregiver delegation and permissions
+- Outcome and equity measurement
+- Access history
+- Content-review and correction pipelines
+- Community moderation and learning
+- Trial enrollment and participation
+- MS Center of Excellence operating workflows
+- Implementation events and fidelity measures
+- Weekly/monthly/quarterly operating data products
+- External healthcare, research, or person-level exchange
+
+## Precise ILT gap
+
+The intended loop is:
+
+> Person’s story → service response → delivery status → outcome → evidence review → organizational learning → adaptation → renewed service delivery
+
+The current executable loop generally stops at:
+
+> Person’s story → preparation artifact or external pathway
+
+It does not yet systematically record:
+
+- who accepted responsibility
+- whether the service was delivered
+- whether the intended outcome occurred
+- why delivery failed
+- what was learned
+- what changed as a result
+- whether that adaptation worked
+- whether results differed across stakeholder groups
+
+That is the principal architecture gap—not the absence of more informational pages.

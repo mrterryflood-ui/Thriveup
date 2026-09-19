@@ -31,6 +31,7 @@ import { SUPPRESSION_FLOOR, suppress } from "./yhsi-routes";
 import { fireWebhook } from "./webhook-dispatcher";
 import crypto, { randomUUID, randomBytes } from "crypto";
 import { verifyInboundPayload, hasBlockingRejection, recordInboundVerification, rejectionsToCorrectionNote, type InboundSchema } from "./inbound-verification";
+import { getMsEcosystemDirectory, searchMsProviders } from "./ms-provider-intelligence";
 
 // Schema for POST /api/partner/v1/heartbeat.
 // message: optional free-text status note (max 500 chars)
@@ -258,7 +259,7 @@ export function registerPartnerApiRoutes(app: Express) {
           envVar: "THRIVEUP_PARTNER_KEY",
           partnerName: "GrantPathPro",
           partnerEmail: "terryflood@thrivingcommunitiesforall.com",
-          scopes: ["community:read", "impact:read", "benefits:read", "inbound:write", "capacity:read", "capacity:write"],
+          scopes: ["community:read", "impact:read", "benefits:read", "health:read", "inbound:write", "capacity:read", "capacity:write"],
           notes: "Pinned key — auto-provisioned from THRIVEUP_PARTNER_KEY secret",
           requireTcafPrefix: true,
         },
@@ -269,7 +270,7 @@ export function registerPartnerApiRoutes(app: Express) {
           envVar: "THRIVEUP_API_KEY",
           partnerName: "ChildCORE",
           partnerEmail: "terryflood@thrivingcommunitiesforall.com",
-          scopes: ["community:read", "impact:read", "inbound:write", "student:read", "chainweb:read", "yhsi:read", "capacity:read", "capacity:write"],
+          scopes: ["community:read", "impact:read", "health:read", "inbound:write", "student:read", "chainweb:read", "yhsi:read", "capacity:read", "capacity:write"],
           notes: "ChildCORE bidirectional key — auto-provisioned from THRIVEUP_API_KEY secret",
           requireTcafPrefix: false,
         },
@@ -647,6 +648,69 @@ export function registerPartnerApiRoutes(app: Express) {
       res.json({ count: platforms.length, platforms });
     } catch (err) {
       res.status(500).json({ error: "Failed to fetch platforms." });
+    }
+  });
+
+  // ── Multiple-sclerosis intelligence (health:read) ───────────────────────
+  // This is the MS platform handoff: catalog URLs and RPLICE links are
+  // deterministic; provider search is current web research and explicitly
+  // remains an unverified lead list until a human confirms it.
+  app.get("/api/partner/v1/ms/intelligence", requirePartnerAuth, requireScope("health:read"), async (req, res) => {
+    try {
+      const key = (req as any).partnerKey;
+      const callerKey = String(key?.platformId || key?.id || key?.keyPrefix || "partner");
+      const directory = await getMsEcosystemDirectory(Boolean(key?.isEcosystemPlatform));
+      const rawLocation = req.query.location;
+      const rawFocus = req.query.focus;
+      if (rawLocation !== undefined && typeof rawLocation !== "string") {
+        return res.status(400).json({ error: "location query parameter must be a single string" });
+      }
+      if (rawFocus !== undefined && typeof rawFocus !== "string") {
+        return res.status(400).json({ error: "focus query parameter must be a single string" });
+      }
+      const location = rawLocation as string | undefined;
+      const focus = rawFocus as string | undefined;
+
+      if (location === undefined) {
+        if (focus !== undefined) {
+          return res.status(400).json({ error: "location query parameter is required when focus is provided" });
+        }
+        return res.json({
+          ...directory,
+          providerSearch: {
+            endpoint: "/api/partner/v1/ms/intelligence?location=<city%2C%20state>&focus=<care%20focus>",
+            requiredScope: "health:read",
+            sourceStatus: "not_run",
+          },
+          generatedAt: new Date().toISOString(),
+        });
+      }
+
+      const providerSearch = await searchMsProviders(location, focus, callerKey);
+      if ("rateLimited" in providerSearch) {
+        res.setHeader("Retry-After", String(providerSearch.retryAfterSeconds));
+        return res.status(429).json({
+          error: "MS provider search rate limit reached. Try again later or use the cached directory links.",
+          retryAfterSeconds: providerSearch.retryAfterSeconds,
+        });
+      }
+
+      res.json({
+        ...directory,
+        providerSearch,
+        generatedAt: new Date().toISOString(),
+      });
+    } catch (err: any) {
+      console.error("[PartnerAPI] MS intelligence error:", err);
+      const isInputError = typeof err?.message === "string" && /query parameter/.test(err.message);
+      const upstreamStatus = err?.statusCode === 429 ? 429 : err?.statusCode === 503 ? 503 : null;
+      if (upstreamStatus === 429) res.setHeader("Retry-After", "60");
+      const message = isInputError
+        ? err.message
+        : upstreamStatus
+          ? "MS provider research is temporarily unavailable."
+          : "MS intelligence is temporarily unavailable.";
+      res.status(isInputError ? 400 : upstreamStatus ?? 500).json({ error: message });
     }
   });
 

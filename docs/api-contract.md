@@ -45,6 +45,7 @@ All partner keys use `x-partner-key: tcaf_...` and are scoped. Available scopes:
 |---|---|
 | `content:read` | Ecosystem platform list and content export |
 | `platforms:read` | Live platform health status and metadata |
+| `health:read` | MS provider intelligence, public health-platform URLs, and RPLICE MS evidence links |
 | `community:read` | Community impact metrics and SDOH summary by ZIP/county |
 | `benefits:read` | Public benefits program catalog |
 | `impact:read` | Community intervention impact scores and outcome data |
@@ -58,6 +59,7 @@ All partner keys use `x-partner-key: tcaf_...` and are scoped. Available scopes:
 | `capacity:write` | Create or update the calling partner's capacity entries |
 
 Scopes are assigned at key creation time in the admin panel (Ops Center → Partner API tab). A key can have multiple scopes.
+The `health:read` scope is explicitly listed for the pinned ecosystem partner credentials and must be retained when provisioning other keys that consume the MS handoff.
 
 ### Post-publish contract gate (automatic + manual)
 
@@ -183,6 +185,7 @@ path, and `any partner key` means the key does not need a particular scope.
 | DELETE | `/webhooks/:id` | Any partner key |
 | GET | `/export` | `content:read` |
 | GET | `/platforms` | `platforms:read` |
+| GET | `/ms/intelligence` | `health:read` |
 | GET | `/community` | `community:read` |
 | GET | `/community-brief` | `community:read` |
 | GET | `/community/brief` | `community:read` |
