@@ -259,8 +259,8 @@ export function registerPartnerApiRoutes(app: Express) {
           envVar: "MS_PARTNER_KEY",
           partnerName: "MS Platform",
           partnerEmail: "terryflood@thrivingcommunitiesforall.com",
-          scopes: ["health:read"],
-          notes: "MS provider-intelligence key — auto-provisioned from MS_PARTNER_KEY secret",
+          scopes: ["health:read", "inbound:write"],
+          notes: "MS platform key — health and governed inbound capability; referral outbox remains fail-closed until the production receipt contract is verified",
           requireTcafPrefix: false,
         },
         {
