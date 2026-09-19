@@ -22,6 +22,8 @@
  * No partner credentials or payloads are sent.
  */
 
+import { getVerifierProbes } from "./partner-api-contract";
+
 const SETTLE_DELAY_MS = 90_000;
 const REQUEST_TIMEOUT_MS = 12_000;
 const MAX_BODY_BYTES = 512_000;
@@ -30,22 +32,14 @@ const MAX_BODY_BYTES = 512_000;
 // Mirrors the regex used in scripts/verify-published-partner-api-contract.ts.
 const ROUTE_RE = /^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+(\S+)/;
 
-export const EXPECTED_ENDPOINTS = [
-  { method: "GET" as const, path: "/api/partner/v1/chainweb/coefficients", scope: "chainweb:read" },
-  { method: "GET" as const, path: "/api/partner/v1/community/brief", scope: "community:read" },
-  { method: "GET" as const, path: "/api/partner/v1/chainweb/templates", scope: "chainweb:read" },
-  { method: "POST" as const, path: "/api/partner/v1/chainweb/scenarios", scope: "chainweb:read" },
-  { method: "GET" as const, path: "/api/partner/v1/chainweb/scenarios/:id", scope: "chainweb:read" },
-  { method: "POST" as const, path: "/api/partner/v1/chainweb/scenarios/:id/calculate", scope: "chainweb:read" },
-  { method: "POST" as const, path: "/api/partner/v1/chainweb/calculations/:id/narratives", scope: "chainweb:read" },
-  { method: "GET" as const, path: "/api/partner/v1/yhsi/metrics", scope: "yhsi:read" },
-  { method: "GET" as const, path: "/api/partner/v1/yhsi/outcomes-summary", scope: "yhsi:read" },
-  { method: "GET" as const, path: "/api/partner/v1/students/overview", scope: "student:read" },
-  { method: "GET" as const, path: "/api/partner/v1/attendance/summary", scope: "student:read" },
-  { method: "GET" as const, path: "/api/partner/v1/early-warnings", scope: "student:read" },
-  { method: "GET" as const, path: "/api/partner/v1/pathways/overview", scope: "student:read" },
-  { method: "POST" as const, path: "/api/partner/v1/heartbeat", scope: null },
-] as const;
+/** Startup probes are derived from the contract registry; no second route list can drift. */
+export const EXPECTED_ENDPOINTS = getVerifierProbes();
+
+/** Replace Express placeholders only for HTTP probes; docs/contract keys stay literal. */
+function concreteProbePath(path: string): string {
+  return path
+    .replace(/:scenarioId|:id\b|:calculationId|:userId|:certId|:param\b/g, "00000000-0000-0000-0000-000000000000");
+}
 
 // ── Docs parsing (exported for tests) ────────────────────────────────────────
 
@@ -214,7 +208,8 @@ export async function runContractCheck(
 
   // 2. Protected route probes (credential-free)
   for (const ep of EXPECTED_ENDPOINTS) {
-    const resp = await safeFetch(`${origin}${ep.path}`, { method: ep.method });
+    const probePath = concreteProbePath(ep.path);
+    const resp = await safeFetch(`${origin}${probePath}`, { method: ep.method });
     if (!resp) {
       fail(`${ep.method} ${ep.path} unreachable`);
     } else if (resp.status === 401 || resp.status === 403) {

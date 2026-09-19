@@ -50,6 +50,9 @@ let publicProbeCache: {
   result: Awaited<ReturnType<typeof probeChildCORE>>;
 } | null = null;
 const PUBLIC_PROBE_CACHE_MS = 15_000;
+const countyMetricsHits = new Map<string, { count: number; resetAt: number }>();
+const COUNTY_METRICS_WINDOW_MS = 60_000;
+const COUNTY_METRICS_MAX_REQUESTS = 20;
 
 function getUserId(req: Request): string | undefined {
   const user = (req as unknown as { user?: { claims?: { sub?: string }; id?: string } }).user;
@@ -82,7 +85,7 @@ function rateLimitPublicConfig(req: Request, res: Response, next: NextFunction):
     for (const [key, entry] of publicConfigHits) {
       if (entry.resetAt <= now) publicConfigHits.delete(key);
     }
-    while (publicConfigHits.size > 10_000) {
+    while (publicConfigHits.size >= 10_000) {
       const oldest = publicConfigHits.keys().next().value;
       if (typeof oldest !== "string") break;
       publicConfigHits.delete(oldest);
@@ -108,6 +111,32 @@ function hashPartnerKey(plaintext: string): string {
   return createHash("sha256").update(plaintext).digest("hex");
 }
 
+function rateLimitCountyMetrics(req: Request, res: Response): boolean {
+  const ip = req.ip || "unknown";
+  const now = Date.now();
+  if (countyMetricsHits.size > 1024) {
+    for (const [key, entry] of countyMetricsHits) {
+      if (entry.resetAt <= now) countyMetricsHits.delete(key);
+    }
+  }
+  const current = countyMetricsHits.get(ip);
+  if (!current || current.resetAt <= now) {
+    if (countyMetricsHits.size >= 10_000) {
+      res.status(429).json({ error: "Too many requests" });
+      return false;
+    }
+    countyMetricsHits.set(ip, { count: 1, resetAt: now + COUNTY_METRICS_WINDOW_MS });
+    return true;
+  }
+  if (current.count >= COUNTY_METRICS_MAX_REQUESTS) {
+    res.setHeader("Retry-After", String(Math.max(1, Math.ceil((current.resetAt - now) / 1000))));
+    res.status(429).json({ error: "Too many requests" });
+    return false;
+  }
+  current.count++;
+  return true;
+}
+
 // ── Partner-key auth for inbound pushes ────────────────────────────────────────
 // ChildCORE stores ThriveUp's THRIVEUP_API_KEY and sends it as
 // Authorization: Bearer <key> on inbound county-metrics pushes.
@@ -115,7 +144,7 @@ function hashPartnerKey(plaintext: string): string {
 async function resolveInboundPartnerKey(
   req: Request,
   res: Response,
-): Promise<{ keyId: string; partnerName: string; keyPrefix: string; scopes: string[] } | null> {
+): Promise<{ keyId: string; keyHash: string; partnerName: string; keyPrefix: string; scopes: string[] } | null> {
   const authHeader = req.headers.authorization ?? "";
   const raw = authHeader.startsWith("Bearer ")
     ? authHeader.slice(7).trim()
@@ -142,6 +171,7 @@ async function resolveInboundPartnerKey(
   }
   return {
     keyId: key.id,
+    keyHash: hashed,
     partnerName: key.partnerName,
     keyPrefix: key.keyPrefix,
     scopes: Array.isArray(key.scopes) ? key.scopes as string[] : [],
@@ -277,10 +307,13 @@ export function registerChildCORERoutes(router: Router): void {
   router.post("/childcore/push", async (req, res) => {
     if (!(await requireSettingsAdmin(req, res))) return;
     const { event, zip, data } = req.body ?? {};
-    if (!event || typeof event !== "string") {
+    if (typeof event !== "string" || event.length === 0 || event.length > 100) {
       return res.status(400).json({ error: "event is required" });
     }
-    if (data !== undefined && typeof data !== "object") {
+    if (zip !== undefined && (typeof zip !== "string" || !/^\d{5}$/.test(zip))) {
+      return res.status(400).json({ error: "zip must be a 5-digit ZIP code" });
+    }
+    if (data !== undefined && (typeof data !== "object" || data === null || Array.isArray(data) || JSON.stringify(data).length > 50_000)) {
       return res.status(400).json({ error: "data must be an object" });
     }
     const result = await pushToChildCORE({ event, zip, data: data ?? {} });
@@ -319,7 +352,19 @@ export function registerChildCORERoutes(router: Router): void {
   router.get("/childcore/events", async (req, res) => {
     if (!(await requireSettingsAdmin(req, res))) return;
     try {
-      const limit = Math.min(parseInt((req.query.limit as string) || "100", 10), 200);
+      const rawLimit = req.query.limit;
+      if (rawLimit !== undefined && typeof rawLimit !== "string") {
+        return res.status(400).json({ error: "limit must be a single positive integer" });
+      }
+      const limitText = (rawLimit as string | undefined) ?? "100";
+      if (!/^[1-9]\d*$/.test(limitText)) {
+        return res.status(400).json({ error: "limit must be a positive integer" });
+      }
+      const parsedLimit = Number(limitText);
+      if (!Number.isSafeInteger(parsedLimit)) {
+        return res.status(400).json({ error: "limit must be a safe integer" });
+      }
+      const limit = Math.min(parsedLimit, 200);
       const rows = await db
         .select({
           id: partnerApiAuditLog.id,
@@ -521,14 +566,29 @@ export function registerChildCORERoutes(router: Router): void {
   // Scope required: inbound:write — prevents read-only partner keys from injecting
   // or poisoning county-level metrics data.
   router.post("/childcore/county-metrics/ingest", async (req, res) => {
+    if (!rateLimitCountyMetrics(req, res)) return;
     const partner = await resolveInboundPartnerKey(req, res);
     if (!partner) return;
+    const configuredChildCoreKey = process.env.THRIVEUP_API_KEY?.trim();
+    const configuredChildCoreHash = configuredChildCoreKey ? hashPartnerKey(configuredChildCoreKey) : "";
+    if (
+      partner.partnerName.trim().toLowerCase() !== "childcore" ||
+      !configuredChildCoreHash ||
+      partner.keyHash !== configuredChildCoreHash
+    ) {
+      res.status(403).json({ error: "This endpoint only accepts the ChildCORE partner identity" });
+      return;
+    }
     if (!partner.scopes.includes("inbound:write")) {
       res.status(403).json({ error: "inbound:write scope required for county metrics ingestion" });
       return;
     }
 
-    const { records } = req.body as { records?: unknown[] };
+    if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
+      return res.status(400).json({ error: "Request body must be an object" });
+    }
+    const records = (req.body as { records?: unknown }).records;
+    const batchSnapshotValue = (req.body as { snapshotAt?: unknown }).snapshotAt;
     if (!Array.isArray(records) || records.length === 0) {
       return res.status(400).json({ error: "'records' must be a non-empty array" });
     }
@@ -538,34 +598,141 @@ export function registerChildCORERoutes(router: Router): void {
 
     const accepted: string[] = [];
     const rejected: Array<{ index: number; reason: string }> = [];
+    const pendingRows: Array<{ index: number; row: typeof childcoreCountyMetrics.$inferInsert }> = [];
+    const seenFips = new Set<string>();
 
     for (let i = 0; i < records.length; i++) {
-      const raw = records[i] as Record<string, unknown>;
-      const fipsCode = String(raw.fipsCode ?? raw.fips_code ?? "").trim();
+      const candidate = records[i];
+      if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) {
+        rejected.push({ index: i, reason: "record must be an object" });
+        continue;
+      }
+      const raw = candidate as Record<string, unknown>;
+      const fipsValue = raw.fipsCode ?? raw.fips_code;
+      const fipsCode = typeof fipsValue === "string" ? fipsValue.trim() : "";
       if (!fipsCode || !/^\d{5}$/.test(fipsCode)) {
         rejected.push({ index: i, reason: "fipsCode must be a 5-digit string" });
         continue;
       }
+      if (seenFips.has(fipsCode)) {
+        rejected.push({ index: i, reason: "duplicate fipsCode in batch" });
+        continue;
+      }
+      seenFips.add(fipsCode);
+      const rateFields = [
+        "desertRate", "prekEnrollmentRate", "kindergartenReadiness",
+        "subsidyAccessRate", "childPovertyRate", "staffTurnoverRate",
+      ];
+      const invalidRate = rateFields.find((field) => {
+        const value = raw[field];
+        return value !== undefined && (typeof value !== "number" || !Number.isFinite(value) || value < 0 || value > 100);
+      });
+      if (invalidRate) {
+        rejected.push({ index: i, reason: `${invalidRate} must be a finite number between 0 and 100` });
+        continue;
+      }
+      if (raw.countyName !== undefined &&
+          (typeof raw.countyName !== "string" || raw.countyName.length > 100)) {
+        rejected.push({ index: i, reason: "countyName must be a string of at most 100 characters" });
+        continue;
+      }
+      const snapshotValue = raw.snapshotAt ?? batchSnapshotValue;
+      if (typeof snapshotValue !== "string") {
+        rejected.push({ index: i, reason: "snapshotAt is required as an ISO timestamp" });
+        continue;
+      }
+      if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/.test(snapshotValue)) {
+        rejected.push({ index: i, reason: "snapshotAt must be an ISO-8601 UTC timestamp" });
+        continue;
+      }
+      const snapshotAt = new Date(snapshotValue);
+      if (!Number.isFinite(snapshotAt.getTime())) {
+        rejected.push({ index: i, reason: "snapshotAt must be a valid ISO timestamp" });
+        continue;
+      }
+      if (snapshotAt.getTime() > Date.now() + 5 * 60 * 1000) {
+        rejected.push({ index: i, reason: "snapshotAt cannot be more than 5 minutes in the future" });
+        continue;
+      }
       try {
+        const boundedRate = (field: string): number | null => {
+          const value = raw[field];
+          return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100 ? value : null;
+        };
+        const boundedString = (field: string, max: number): string | null => {
+          const value = raw[field];
+          return value == null ? null : typeof value === "string" && value.length <= max ? value.trim() : null;
+        };
+        const rawMetricsValue = raw.rawMetrics;
+        let rawMetrics: Record<string, number> | null = null;
+        if (rawMetricsValue !== undefined) {
+          if (!rawMetricsValue || typeof rawMetricsValue !== "object" || Array.isArray(rawMetricsValue) ||
+              Object.keys(rawMetricsValue).length > 50 ||
+              Object.entries(rawMetricsValue).some(([key, value]) =>
+                key.length > 64 || typeof value !== "number" || !Number.isFinite(value) || Math.abs(value) > 1_000_000_000)) {
+            rejected.push({ index: i, reason: "rawMetrics must contain at most 50 bounded finite numeric fields" });
+            continue;
+          }
+          rawMetrics = rawMetricsValue as Record<string, number>;
+        }
         const row = {
           fipsCode,
-          countyName: raw.countyName != null ? String(raw.countyName) : null,
+          countyName: boundedString("countyName", 100),
           stateFips: fipsCode.slice(0, 2),
-          desertRate: typeof raw.desertRate === "number" ? raw.desertRate : null,
-          prekEnrollmentRate: typeof raw.prekEnrollmentRate === "number" ? raw.prekEnrollmentRate : null,
-          kindergartenReadiness: typeof raw.kindergartenReadiness === "number" ? raw.kindergartenReadiness : null,
-          subsidyAccessRate: typeof raw.subsidyAccessRate === "number" ? raw.subsidyAccessRate : null,
-          childPovertyRate: typeof raw.childPovertyRate === "number" ? raw.childPovertyRate : null,
-          staffTurnoverRate: typeof raw.staffTurnoverRate === "number" ? raw.staffTurnoverRate : null,
-          rawMetrics: typeof raw.rawMetrics === "object" && raw.rawMetrics !== null
-            ? (raw.rawMetrics as Record<string, number>)
-            : null,
+          desertRate: boundedRate("desertRate"),
+          prekEnrollmentRate: boundedRate("prekEnrollmentRate"),
+          kindergartenReadiness: boundedRate("kindergartenReadiness"),
+          subsidyAccessRate: boundedRate("subsidyAccessRate"),
+          childPovertyRate: boundedRate("childPovertyRate"),
+          staffTurnoverRate: boundedRate("staffTurnoverRate"),
+          rawMetrics,
+          receivedAt: snapshotAt,
           pushedBy: partner.partnerName ?? "childcore",
         };
-        await db.insert(childcoreCountyMetrics).values(row);
-        accepted.push(fipsCode);
+        pendingRows.push({ index: i, row });
       } catch (err: any) {
         rejected.push({ index: i, reason: err.message ?? "DB insert failed" });
+      }
+    }
+    let storageFailure = false;
+    if (pendingRows.length > 0) {
+      try {
+        // The unique FIPS index plus one bulk upsert makes concurrent 30-minute
+        // snapshots safe and avoids one database round trip per county.
+        const persisted = await db.insert(childcoreCountyMetrics)
+          .values(pendingRows.map(({ row }) => row))
+          .onConflictDoUpdate({
+            target: childcoreCountyMetrics.fipsCode,
+            set: {
+              countyName: sql`excluded.county_name`,
+              stateFips: sql`excluded.state_fips`,
+              desertRate: sql`excluded.desert_rate`,
+              prekEnrollmentRate: sql`excluded.prek_enrollment_rate`,
+              kindergartenReadiness: sql`excluded.kindergarten_readiness`,
+              subsidyAccessRate: sql`excluded.subsidy_access_rate`,
+              childPovertyRate: sql`excluded.child_poverty_rate`,
+              staffTurnoverRate: sql`excluded.staff_turnover_rate`,
+              rawMetrics: sql`excluded.raw_metrics`,
+              receivedAt: sql`excluded.received_at`,
+              pushedBy: sql`excluded.pushed_by`,
+            },
+            // Delayed retries must never replace a newer source snapshot.
+            targetWhere: sql`${childcoreCountyMetrics.receivedAt} <= excluded.received_at`,
+          })
+          .returning({ fipsCode: childcoreCountyMetrics.fipsCode });
+        const persistedFips = new Set(persisted.map(({ fipsCode }) => fipsCode));
+        for (const { index, row } of pendingRows) {
+          if (persistedFips.has(row.fipsCode)) {
+            accepted.push(row.fipsCode);
+          } else {
+            rejected.push({ index, reason: "stale snapshot was not applied" });
+          }
+        }
+      } catch (err: any) {
+        storageFailure = true;
+        for (const { index } of pendingRows) {
+          rejected.push({ index, reason: err?.message ?? "Database upsert failed" });
+        }
       }
     }
 
@@ -577,13 +744,13 @@ export function registerChildCORERoutes(router: Router): void {
         partnerName: partner.partnerName,
         endpoint: "POST /api/childcore/county-metrics/ingest",
         method: "POST",
-        statusCode: rejected.length === records.length ? 400 : 202,
-        ip: (req.headers["x-forwarded-for"] as string | undefined) ?? req.ip ?? "",
+        statusCode: storageFailure ? 503 : rejected.length === records.length ? 400 : 202,
+        ip: req.ip ?? "",
         userAgent: req.headers["user-agent"] ?? null,
       });
     } catch { /* audit failure is non-blocking */ }
 
-    res.status(202).json({
+    res.status(storageFailure ? 503 : 202).json({
       received: records.length,
       accepted: accepted.length,
       rejected: rejected.length,

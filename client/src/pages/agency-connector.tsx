@@ -75,12 +75,19 @@ const ORG_TYPES = [
 ];
 
 // ── Clipboard helper ──────────────────────────────────────────────────────────
+function copyText(text: string): Promise<void> {
+  if (typeof navigator === "undefined" || !navigator.clipboard?.writeText) {
+    return Promise.reject(new Error("Clipboard API unavailable"));
+  }
+  return navigator.clipboard.writeText(text);
+}
+
 function CodeBlock({ code, lang }: { code: string; lang: string }) {
   const { toast } = useToast();
   const copy = () => {
-    navigator.clipboard.writeText(code).then(() =>
-      toast({ title: "Copied!", description: `${lang} snippet copied to clipboard.` })
-    );
+    copyText(code)
+      .then(() => toast({ title: "Copied!", description: `${lang} snippet copied to clipboard.` }))
+      .catch(() => toast({ title: "Copy failed", description: "Select the snippet and copy it manually.", variant: "destructive" }));
   };
   return (
     <div className="relative">
@@ -124,9 +131,9 @@ function GapBanner({ gap }: { gap: string }) {
             variant="outline"
             className="mt-2 h-7 text-xs border-amber-300 text-amber-800 hover:bg-amber-100"
             onClick={() => {
-              navigator.clipboard.writeText(MEDIAN_EARNINGS_NOTE).then(() =>
-                toast({ title: "Note copied", description: "Paste it into an email to ThriveUp." })
-              );
+              copyText(MEDIAN_EARNINGS_NOTE)
+                .then(() => toast({ title: "Note copied", description: "Paste it into an email to ThriveUp." }))
+                .catch(() => toast({ title: "Copy failed", description: "Select the note and copy it manually.", variant: "destructive" }));
             }}
           >
             <Copy className="h-3 w-3 mr-1" /> Copy note to send ThriveUp
@@ -443,6 +450,15 @@ export default function AgencyConnectorPage() {
                   <div
                     key={rec.id}
                     onClick={() => toggleEndpoint(rec.id)}
+                    role="checkbox"
+                    aria-checked={isSelected}
+                    tabIndex={0}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        toggleEndpoint(rec.id);
+                      }
+                    }}
                     className={`rounded-xl border-2 p-4 cursor-pointer transition-all ${
                       isSelected
                         ? "border-blue-500 bg-blue-50"
@@ -583,8 +599,11 @@ export default function AgencyConnectorPage() {
                             setLoadingPreviews(prev => new Set([...prev, rec.id]));
                             try {
                               const res = await fetch(`/api/agency-connector/preview/${rec.id}?location=${encodeURIComponent(location || "28472")}`);
+                              if (!res.ok) throw new Error(`Preview request failed (${res.status})`);
                               const data = await res.json();
                               setPreviews(prev => ({ ...prev, [rec.id]: data }));
+                            } catch {
+                              setPreviews(prev => ({ ...prev, [rec.id]: { ok: false, error: "Preview unavailable" } }));
                             } finally {
                               setLoadingPreviews(prev => { const n = new Set(prev); n.delete(rec.id); return n; });
                             }
@@ -659,8 +678,9 @@ export default function AgencyConnectorPage() {
                       variant="outline"
                       className="absolute top-2 right-2 h-7 text-xs border-emerald-300 text-emerald-800 hover:bg-emerald-100"
                       onClick={() => {
-                        navigator.clipboard.writeText(issuedKey);
-                        toast({ title: "Key copied!", description: "Paste it in place of YOUR_TCAF_PARTNER_KEY." });
+                        copyText(issuedKey)
+                          .then(() => toast({ title: "Key copied!", description: "Paste it in place of YOUR_TCAF_PARTNER_KEY." }))
+                          .catch(() => toast({ title: "Copy failed", description: "Select the key and copy it manually.", variant: "destructive" }));
                       }}
                     >
                       <Copy className="h-3 w-3 mr-1" /> Copy
@@ -818,8 +838,9 @@ export default function AgencyConnectorPage() {
                 variant="outline"
                 onClick={() => {
                   const allCode = `${code.javascript}\n\n---\n\n${code.curl}`;
-                  navigator.clipboard.writeText(allCode);
-                  toast({ title: "All code copied!", description: "JS + curl snippets copied." });
+                  copyText(allCode)
+                    .then(() => toast({ title: "All code copied!", description: "JS + curl snippets copied." }))
+                    .catch(() => toast({ title: "Copy failed", description: "Select the code and copy it manually.", variant: "destructive" }));
                 }}
               >
                 <Copy className="h-4 w-4 mr-1" /> Copy all

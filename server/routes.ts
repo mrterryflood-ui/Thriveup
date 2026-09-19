@@ -548,6 +548,12 @@ export async function registerRoutes(
   registerProposalAuthoringRoutes(app);
   registerEditorDraftsRoutes(app);
   registerCedsRoutes(app);
+  app.use("/api/directory", capacityRouter);
+  app.use("/api/partner/v1", partnerCapacityRouter);
+  (app as any).locals.partnerMountedRoutes = [
+    "GET /api/partner/v1/capacity",
+    "PATCH /api/partner/v1/capacity",
+  ];
   registerPartnerApiRoutes(app);
   registerHealthFederationRoutes(app);
   registerEcosystemDataRoutes(app);
@@ -1232,6 +1238,14 @@ export async function registerRoutes(
     try {
       const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() || req.socket.remoteAddress || "unknown";
       const now = Date.now();
+      if (lessonLabRateLimit.size >= 10_000 && !lessonLabRateLimit.has(ip)) {
+        for (const [key, entry] of lessonLabRateLimit) {
+          if (entry.resetAt <= now) lessonLabRateLimit.delete(key);
+        }
+        if (lessonLabRateLimit.size >= 10_000) {
+          return res.status(429).json({ error: "Rate limiter capacity reached; try again later." });
+        }
+      }
       const rl = lessonLabRateLimit.get(ip);
       if (rl) {
         if (now < rl.resetAt && rl.count >= 20) {
@@ -1292,6 +1306,14 @@ export async function registerRoutes(
     try {
       const rateLimitUserId = getUserId(req)!;
       const now = Date.now();
+      if (chatRateLimit.size >= 10_000 && !chatRateLimit.has(rateLimitUserId)) {
+        for (const [key, entry] of chatRateLimit) {
+          if (entry.resetAt <= now) chatRateLimit.delete(key);
+        }
+        if (chatRateLimit.size >= 10_000) {
+          return res.status(429).json({ error: "Rate limiter capacity reached; try again later." });
+        }
+      }
       const userLimit = chatRateLimit.get(rateLimitUserId);
       if (userLimit && now < userLimit.resetAt) {
         if (userLimit.count >= 20) {
@@ -4888,6 +4910,14 @@ export async function registerRoutes(
 
       // ----- Per-user rate limit (20 generations / minute) -----
       const now = Date.now();
+      if (aiToolRunRateLimit.size >= 10_000 && !aiToolRunRateLimit.has(userId)) {
+        for (const [key, entry] of aiToolRunRateLimit) {
+          if (entry.resetAt <= now) aiToolRunRateLimit.delete(key);
+        }
+        if (aiToolRunRateLimit.size >= 10_000) {
+          return res.status(429).json({ error: "Rate limiter capacity reached; try again later." });
+        }
+      }
       const rl = aiToolRunRateLimit.get(userId);
       if (rl && now < rl.resetAt) {
         if (rl.count >= 20) {
@@ -6799,8 +6829,6 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
   app.use("/api/research", researchReportRouter);
   app.use("/api/grant-conduit", grantConduitRouter);
   app.use("/api/member-engagement", memberEngagementRouter);
-  app.use("/api/directory", capacityRouter);
-  app.use("/api/partner/v1", partnerCapacityRouter);
   app.use("/api/funder", funderRouter);
 
   // ── Embed widget routes — no auth, must be before SPA catch-all ──────────

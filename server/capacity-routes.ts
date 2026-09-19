@@ -8,14 +8,58 @@ import { validateContactPhone, validateContactUrl } from "@shared/intake-contact
 export const capacityRouter = Router();
 
 const ipHits = new Map<string, number[]>();
+const MAX_IP_BUCKETS = 10_000;
 function rateLimit(req: any, res: any, next: any) {
   const ip = (req.ip || "").replace(/^::ffff:/, "");
   const now = Date.now();
+  if (ipHits.size >= MAX_IP_BUCKETS && !ipHits.has(ip)) {
+    const cutoff = now - 60 * 60 * 1000;
+    for (const [storedIp, timestamps] of ipHits) {
+      if (!timestamps.some((timestamp) => timestamp > cutoff)) ipHits.delete(storedIp);
+    }
+    if (ipHits.size >= MAX_IP_BUCKETS) {
+      return res.status(429).json({ error: "Rate limit capacity reached; try again later" });
+    }
+  }
   const hits = (ipHits.get(ip) || []).filter((t: number) => now - t < 60 * 60 * 1000);
+  if (hits.length >= 30) return res.status(429).json({ error: "Rate limit exceeded" });
   hits.push(now);
   ipHits.set(ip, hits);
-  if (hits.length > 30) return res.status(429).json({ error: "Rate limit exceeded" });
   next();
+}
+
+const partnerCapacityHits = new Map<string, { count: number; resetAt: number }>();
+const MAX_PARTNER_CAPACITY_BUCKETS = 10_000;
+function partnerCapacityRateLimit(req: any, res: any, next: any) {
+  const partnerKey = req.partnerKey;
+  const identity = partnerKey?.isEcosystemPlatform
+    ? partnerKey?.platformId
+    : partnerKey?.id;
+  if (typeof identity !== "string" || !identity || identity.length > 100) {
+    return res.status(403).json({ error: "Partner identity is not available for capacity access" });
+  }
+  const ip = (req.ip || "").replace(/^::ffff:/, "");
+  const bucketKey = `${identity}:${ip}`;
+  const now = Date.now();
+  if (partnerCapacityHits.size >= MAX_PARTNER_CAPACITY_BUCKETS && !partnerCapacityHits.has(bucketKey)) {
+    for (const [storedKey, bucket] of partnerCapacityHits) {
+      if (bucket.resetAt <= now) partnerCapacityHits.delete(storedKey);
+    }
+    if (partnerCapacityHits.size >= MAX_PARTNER_CAPACITY_BUCKETS) {
+      return res.status(429).json({ error: "Capacity rate limit capacity reached; try again later" });
+    }
+  }
+  const current = partnerCapacityHits.get(bucketKey);
+  if (!current || current.resetAt <= now) {
+    partnerCapacityHits.set(bucketKey, { count: 1, resetAt: now + 60 * 60 * 1000 });
+    return next();
+  }
+  if (current.count >= 120) {
+    res.setHeader("Retry-After", String(Math.ceil((current.resetAt - now) / 1000)));
+    return res.status(429).json({ error: "Capacity update rate limit exceeded" });
+  }
+  current.count += 1;
+  return next();
 }
 
 // GET /api/directory/capacity — public, filterable by ?zip= and ?program=
@@ -32,6 +76,12 @@ capacityRouter.get("/capacity", rateLimit, async (req, res) => {
 
     const program = programQuery;
     const zip = zipQuery;
+    if (program && (program.length > 100 || !/^[A-Za-z0-9:_-]+$/.test(program))) {
+      return res.status(400).json({ error: "Invalid program filter" });
+    }
+    if (zip && !/^\d{5}$/.test(zip)) {
+      return res.status(400).json({ error: "ZIP must be 5 digits" });
+    }
     const cutoff = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
 
     const filters: SQL[] = [gt(orgCapacity.updatedAt, cutoff)];
@@ -55,10 +105,18 @@ capacityRouter.get("/capacity", rateLimit, async (req, res) => {
       .limit(100);
 
     const filtered = rows.map((r) => ({
-        ...r,
-        stale: r.updatedAt
-          ? Date.now() - new Date(r.updatedAt).getTime() > 7 * 24 * 60 * 60 * 1000
-          : true,
+      orgId: r.orgId,
+      orgName: r.orgName,
+      programCode: r.programCode,
+      status: r.status,
+      waitWeeks: r.waitWeeks,
+      contactPhone: r.contactPhone,
+      contactUrl: r.contactUrl,
+      serviceZips: r.serviceZips,
+      updatedAt: r.updatedAt,
+      stale: r.updatedAt
+        ? Date.now() - new Date(r.updatedAt).getTime() > 7 * 24 * 60 * 60 * 1000
+        : true,
     }));
 
     res.json({ orgs: filtered, count: filtered.length });
@@ -95,9 +153,16 @@ capacityRouter.get("/capacity/summary", rateLimit, async (_req, res) => {
 // plus the explicit capacity:write scope.
 export const partnerCapacityRouter = Router();
 
-partnerCapacityRouter.patch("/capacity", requirePartnerAuth, requireScope("capacity:write"), async (req, res) => {
+partnerCapacityRouter.patch("/capacity", requirePartnerAuth, requireScope("capacity:write"), partnerCapacityRateLimit, async (req, res) => {
   const key: any = (req as any).partnerKey;
   try {
+    const identity = key?.isEcosystemPlatform ? key?.platformId : key?.id;
+    if (typeof identity !== "string" || !identity || identity.length > 100) {
+      return res.status(403).json({ error: "Partner identity is not available for capacity access" });
+    }
+    if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
+      return res.status(400).json({ error: "Request body must be an object" });
+    }
     const {
       orgName,
       programCode = "general",
@@ -109,9 +174,26 @@ partnerCapacityRouter.patch("/capacity", requirePartnerAuth, requireScope("capac
       serviceZips,
     } = req.body;
 
-    if (!orgName) return res.status(400).json({ error: "orgName required" });
+    if (typeof orgName !== "string" || !orgName.trim() || orgName.length > 200) {
+      return res.status(400).json({ error: "orgName is required and must be at most 200 characters" });
+    }
+    if (typeof programCode !== "string" || !/^[A-Za-z0-9:_-]{1,100}$/.test(programCode)) {
+      return res.status(400).json({ error: "programCode must be 1-100 letters, numbers, or _:- characters" });
+    }
     if (!["open", "waitlist", "closed"].includes(status)) {
       return res.status(400).json({ error: "status must be open|waitlist|closed" });
+    }
+    if (waitWeeks !== undefined && waitWeeks !== null &&
+      (!Number.isInteger(waitWeeks) || waitWeeks < 0 || waitWeeks > 52)) {
+      return res.status(400).json({ error: "waitWeeks must be an integer from 0 to 52" });
+    }
+    if (note !== undefined && note !== null && (typeof note !== "string" || note.length > 1000)) {
+      return res.status(400).json({ error: "note must be at most 1000 characters" });
+    }
+    if (serviceZips !== undefined && serviceZips !== null &&
+      (!Array.isArray(serviceZips) || serviceZips.length > 100 ||
+        serviceZips.some((z: unknown) => typeof z !== "string" || !/^\d{5}$/.test(z)))) {
+      return res.status(400).json({ error: "serviceZips must contain at most 100 five-digit ZIP codes" });
     }
 
     const phoneCheck = validateContactPhone(contactPhone);
@@ -122,8 +204,8 @@ partnerCapacityRouter.patch("/capacity", requirePartnerAuth, requireScope("capac
 
     // Derive a stable orgId from the partner key identity
     const orgId = key.isEcosystemPlatform
-      ? `eco_${key.platformId?.slice(0, 10) ?? "unknown"}`
-      : `pk_${key.keyPrefix ?? "unknown"}`;
+      ? `eco_${key.platformId}`
+      : `pk_${key.id}`;
 
     await db
       .insert(orgCapacity)
@@ -163,12 +245,16 @@ partnerCapacityRouter.patch("/capacity", requirePartnerAuth, requireScope("capac
 
 // GET /api/partner/v1/capacity — returns this partner's own entries and
 // requires the explicit capacity:read scope.
-partnerCapacityRouter.get("/capacity", requirePartnerAuth, requireScope("capacity:read"), async (req, res) => {
+partnerCapacityRouter.get("/capacity", requirePartnerAuth, requireScope("capacity:read"), partnerCapacityRateLimit, async (req, res) => {
   const key: any = (req as any).partnerKey;
   try {
+    const identity = key?.isEcosystemPlatform ? key?.platformId : key?.id;
+    if (typeof identity !== "string" || !identity || identity.length > 100) {
+      return res.status(403).json({ error: "Partner identity is not available for capacity access" });
+    }
     const orgId = key.isEcosystemPlatform
-      ? `eco_${key.platformId?.slice(0, 10) ?? "unknown"}`
-      : `pk_${key.keyPrefix ?? "unknown"}`;
+      ? `eco_${key.platformId}`
+      : `pk_${key.id}`;
 
     const rows = await db.select().from(orgCapacity)
       .where(eq(orgCapacity.orgId, orgId))

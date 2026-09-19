@@ -2,7 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { computeEligibility, BENEFIT_NAVIGATION } from "./benefits-screener-fix";
 import { getBenefitNav } from "./benefits-local-nav";
 import { APPLY_PROGRAM_META, getApplyStages } from "@shared/benefits-apply-guides";
-import { db } from "./storage";
+import { db, storage } from "./storage";
 import {
   benefitsEnrollmentData, benefitsPartners, benefitsChwNetwork,
   benefitsScreenings, benefitsRenewals, benefitsApplications,
@@ -154,6 +154,69 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
     return res.status(401).json({ error: "Authentication required" });
   }
   next();
+}
+
+const BENEFITS_STAFF_ROLES = new Set([
+  "admin", "staff", "chw", "youth_staff", "hub_staff",
+  "teacher", "case_manager", "facilitator",
+]);
+
+/** Screening records contain PII; authentication alone is not an authorization decision. */
+async function requireBenefitsStaff(req: Request, res: Response, next: NextFunction) {
+  try {
+    if (!(req as any).isAuthenticated?.() && !(req as any).user) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    const userId = getUserId(req);
+    const user = userId ? await storage.getUser(userId) : null;
+    if (!user || !BENEFITS_STAFF_ROLES.has(user.role)) {
+      return res.status(403).json({ error: "Staff access required to read screening records" });
+    }
+    next();
+  } catch (error) {
+    console.error("[Benefits] screening authorization check failed:", error);
+    res.status(500).json({ error: "Unable to verify staff authorization" });
+  }
+}
+
+function toPublicBenefitsPartner(partner: typeof benefitsPartners.$inferSelect) {
+  return {
+    id: partner.id,
+    name: partner.name,
+    organizationType: partner.organizationType,
+    county: partner.county,
+    coverageZips: partner.coverageZips,
+    servicesOffered: partner.servicesOffered,
+    benefitTypes: partner.benefitTypes,
+    languages: partner.languages,
+    address: partner.address,
+    latitude: partner.latitude,
+    longitude: partner.longitude,
+    isVitaSite: partner.isVitaSite,
+    isActive: partner.isActive,
+    stDavidsListed: partner.stDavidsListed,
+    updatedAt: partner.updatedAt,
+  };
+}
+
+function toPublicBenefitsChw(chw: typeof benefitsChwNetwork.$inferSelect) {
+  return {
+    id: chw.id,
+    name: chw.name,
+    role: chw.role,
+    county: chw.county,
+    assignedZips: chw.assignedZips,
+    languages: chw.languages,
+    culturalCompetencies: chw.culturalCompetencies,
+    certifications: chw.certifications,
+    affiliatedOrg: chw.affiliatedOrg,
+    capacity: chw.capacity,
+    specializations: chw.specializations,
+    latitude: chw.latitude,
+    longitude: chw.longitude,
+    isActive: chw.isActive,
+    updatedAt: chw.updatedAt,
+  };
 }
 
 // Bounded, self-expiring per-IP rate limiter for public endpoints.
@@ -395,60 +458,57 @@ async function ingestBenefitsDataForCounty(countyFips: string): Promise<number> 
       participationRate = clamp(participationRate * 100) / 100;
       const participationGap = clamp((1 - participationRate) * 100);
 
-      const existing = await db.select().from(benefitsEnrollmentData)
-        .where(and(
-          eq(benefitsEnrollmentData.countyFips, countyFips),
-          eq(benefitsEnrollmentData.benefitType, benefitType)
-        )).limit(1);
-
-      if (existing.length > 0) {
-        await db.update(benefitsEnrollmentData).set({
-          countyName: county.name,
-          eligiblePopulation: eligiblePop,
-          enrolledPopulation: enrolledPop,
-          participationRate: participationRate * 100,
-          participationGap,
-          barrierIndex,
-          limitedEnglishPct,
-          noVehiclePct,
-          noBroadbandPct,
-          nonCitizenPct,
-          povertyRate,
-          totalPopulation: totalPop,
-          medianIncome,
-          latitude: county.lat,
-          longitude: county.lng,
-          rawCensusData: { totalPop, medianIncome, belowPoverty, snapRecipients, uninsuredTotal },
-          dataSource: "census_acs_2022",
-          dataYear: 2022,
-          updatedAt: new Date(),
-        }).where(eq(benefitsEnrollmentData.id, existing[0].id));
-      } else {
-        await db.insert(benefitsEnrollmentData).values({
-          countyFips,
-          countyName: county.name,
-          benefitType,
-          eligiblePopulation: eligiblePop,
-          enrolledPopulation: enrolledPop,
-          participationRate: participationRate * 100,
-          participationGap,
-          renewalsPending: Math.round(enrolledPop * 0.08),
-          renewalsAtRisk: Math.round(enrolledPop * 0.03),
-          barrierIndex,
-          limitedEnglishPct,
-          noVehiclePct,
-          noBroadbandPct,
-          nonCitizenPct,
-          povertyRate,
-          totalPopulation: totalPop,
-          medianIncome,
-          latitude: county.lat,
-          longitude: county.lng,
-          rawCensusData: { totalPop, medianIncome, belowPoverty, snapRecipients, uninsuredTotal },
-          dataSource: "census_acs_2022",
-          dataYear: 2022,
-        });
-      }
+      const values = {
+        countyFips,
+        countyName: county.name,
+        benefitType,
+        eligiblePopulation: eligiblePop,
+        enrolledPopulation: enrolledPop,
+        participationRate: participationRate * 100,
+        participationGap,
+        renewalsPending: Math.round(enrolledPop * 0.08),
+        renewalsAtRisk: Math.round(enrolledPop * 0.03),
+        barrierIndex,
+        limitedEnglishPct,
+        noVehiclePct,
+        noBroadbandPct,
+        nonCitizenPct,
+        povertyRate,
+        totalPopulation: totalPop,
+        medianIncome,
+        latitude: county.lat,
+        longitude: county.lng,
+        rawCensusData: { totalPop, medianIncome, belowPoverty, snapRecipients, uninsuredTotal },
+        dataSource: "census_acs_2022",
+        dataYear: 2022,
+        updatedAt: new Date(),
+      };
+      await db.insert(benefitsEnrollmentData).values(values).onConflictDoUpdate({
+        target: [benefitsEnrollmentData.countyFips, benefitsEnrollmentData.benefitType],
+        set: {
+          countyName: values.countyName,
+          eligiblePopulation: values.eligiblePopulation,
+          enrolledPopulation: values.enrolledPopulation,
+          participationRate: values.participationRate,
+          participationGap: values.participationGap,
+          renewalsPending: values.renewalsPending,
+          renewalsAtRisk: values.renewalsAtRisk,
+          barrierIndex: values.barrierIndex,
+          limitedEnglishPct: values.limitedEnglishPct,
+          noVehiclePct: values.noVehiclePct,
+          noBroadbandPct: values.noBroadbandPct,
+          nonCitizenPct: values.nonCitizenPct,
+          povertyRate: values.povertyRate,
+          totalPopulation: values.totalPopulation,
+          medianIncome: values.medianIncome,
+          latitude: values.latitude,
+          longitude: values.longitude,
+          rawCensusData: values.rawCensusData,
+          dataSource: values.dataSource,
+          dataYear: values.dataYear,
+          updatedAt: values.updatedAt,
+        },
+      });
       upsertCount++;
     }
 
@@ -469,11 +529,14 @@ export async function ensureBenefitsScreeningColumns(): Promise<void> {
   await db.execute(sql`ALTER TABLE benefits_screenings ADD COLUMN IF NOT EXISTS navigation_guides jsonb`);
 }
 
+let benefitsScreeningColumnsReady: Promise<void> | null = null;
+
 export function registerBenefitsRoutes(app: Express) {
-  // Fire-and-log: a migration failure must be loud (screenings would 500),
-  // but must not prevent the rest of the server from booting.
-  ensureBenefitsScreeningColumns().catch((err) => {
-    console.error("[benefits] FAILED to ensure benefits_screenings columns — public screener inserts may fail:", err?.message || err);
+  // Keep the server bootable, but make screening requests wait for this
+  // idempotent migration instead of racing the ALTER TABLE on first use.
+  benefitsScreeningColumnsReady = ensureBenefitsScreeningColumns().catch((err) => {
+    console.error("[benefits] FAILED to ensure benefits_screenings columns:", err?.message || err);
+    throw err;
   });
 
   app.get("/api/benefits/counties", async (_req, res) => {
@@ -490,10 +553,39 @@ export function registerBenefitsRoutes(app: Express) {
   app.get("/api/benefits/enrollment-data", async (req, res) => {
     try {
       const { countyFips, benefitType } = req.query;
-      let query = db.select().from(benefitsEnrollmentData);
+      if (countyFips !== undefined && (typeof countyFips !== "string" || !/^\d{5}$/.test(countyFips))) {
+        return res.status(400).json({ error: "countyFips must be a single 5-digit value" });
+      }
+      if (benefitType !== undefined && (typeof benefitType !== "string" || benefitType.length > 100)) {
+        return res.status(400).json({ error: "benefitType must be a single bounded value" });
+      }
+      const query = db.select({
+        id: benefitsEnrollmentData.id,
+        countyFips: benefitsEnrollmentData.countyFips,
+        countyName: benefitsEnrollmentData.countyName,
+        benefitType: benefitsEnrollmentData.benefitType,
+        eligiblePopulation: benefitsEnrollmentData.eligiblePopulation,
+        enrolledPopulation: benefitsEnrollmentData.enrolledPopulation,
+        participationRate: benefitsEnrollmentData.participationRate,
+        participationGap: benefitsEnrollmentData.participationGap,
+        renewalsPending: benefitsEnrollmentData.renewalsPending,
+        renewalsAtRisk: benefitsEnrollmentData.renewalsAtRisk,
+        barrierIndex: benefitsEnrollmentData.barrierIndex,
+        limitedEnglishPct: benefitsEnrollmentData.limitedEnglishPct,
+        noVehiclePct: benefitsEnrollmentData.noVehiclePct,
+        noBroadbandPct: benefitsEnrollmentData.noBroadbandPct,
+        povertyRate: benefitsEnrollmentData.povertyRate,
+        totalPopulation: benefitsEnrollmentData.totalPopulation,
+        medianIncome: benefitsEnrollmentData.medianIncome,
+        latitude: benefitsEnrollmentData.latitude,
+        longitude: benefitsEnrollmentData.longitude,
+        dataSource: benefitsEnrollmentData.dataSource,
+        dataYear: benefitsEnrollmentData.dataYear,
+        updatedAt: benefitsEnrollmentData.updatedAt,
+      }).from(benefitsEnrollmentData);
       const conditions = [];
-      if (countyFips) conditions.push(eq(benefitsEnrollmentData.countyFips, countyFips as string));
-      if (benefitType) conditions.push(eq(benefitsEnrollmentData.benefitType, benefitType as string));
+      if (countyFips) conditions.push(eq(benefitsEnrollmentData.countyFips, countyFips));
+      if (benefitType) conditions.push(eq(benefitsEnrollmentData.benefitType, benefitType));
 
       const data = conditions.length > 0
         ? await query.where(and(...conditions)).orderBy(benefitsEnrollmentData.countyName)
@@ -504,7 +596,7 @@ export function registerBenefitsRoutes(app: Express) {
     }
   });
 
-  app.post("/api/benefits/ingest", requireAuth, async (req, res) => {
+  app.post("/api/benefits/ingest", requireBenefitsStaff, async (req, res) => {
     try {
       const { countyFips } = req.body;
       if (countyFips) {
@@ -586,6 +678,13 @@ export function registerBenefitsRoutes(app: Express) {
           demoRows,
           sourcedRows: enrollmentData.length - demoRows,
           hasDemoData: demoRows > 0,
+          interpretation: "modeled county-level eligibility and participation proxy; not administrative enrollment records",
+          source: "Census ACS 2022 with program participation assumptions",
+          dataYear: 2022,
+          latestUpdatedAt: enrollmentData.reduce<Date | null>((latest, row) => {
+            if (!row.updatedAt) return latest;
+            return !latest || row.updatedAt > latest ? row.updatedAt : latest;
+          }, null),
         },
       });
     } catch (error) {
@@ -635,11 +734,14 @@ export function registerBenefitsRoutes(app: Express) {
     try {
       const facilitators = COMMUNITY_FACILITATORS[req.params.countyFips] || [];
       const partners = await db.select().from(benefitsPartners)
-        .where(eq(benefitsPartners.county, ST_DAVIDS_COUNTIES[req.params.countyFips]?.name || ""));
+        .where(and(
+          eq(benefitsPartners.county, ST_DAVIDS_COUNTIES[req.params.countyFips]?.name || ""),
+          eq(benefitsPartners.isActive, true),
+        ));
 
       res.json({
         knownFacilitators: facilitators,
-        registeredPartners: partners,
+        registeredPartners: partners.map(toPublicBenefitsPartner),
         stDavidsResourceMapUrl: "https://stdavidsfoundation.org/impact/community-resources/",
         totalAssets: facilitators.length + partners.length,
       });
@@ -650,14 +752,16 @@ export function registerBenefitsRoutes(app: Express) {
 
   app.get("/api/benefits/partners", async (_req, res) => {
     try {
-      const partners = await db.select().from(benefitsPartners).orderBy(desc(benefitsPartners.createdAt));
-      res.json(partners);
+      const partners = await db.select().from(benefitsPartners)
+        .where(eq(benefitsPartners.isActive, true))
+        .orderBy(desc(benefitsPartners.createdAt));
+      res.json(partners.map(toPublicBenefitsPartner));
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch partners" });
     }
   });
 
-  app.post("/api/benefits/partners", requireAuth, async (req, res) => {
+  app.post("/api/benefits/partners", requireBenefitsStaff, async (req, res) => {
     try {
       const parsed = insertBenefitsPartnerSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -670,14 +774,16 @@ export function registerBenefitsRoutes(app: Express) {
 
   app.get("/api/benefits/chw-network", async (_req, res) => {
     try {
-      const chws = await db.select().from(benefitsChwNetwork).orderBy(desc(benefitsChwNetwork.createdAt));
-      res.json(chws);
+      const chws = await db.select().from(benefitsChwNetwork)
+        .where(eq(benefitsChwNetwork.isActive, true))
+        .orderBy(desc(benefitsChwNetwork.createdAt));
+      res.json(chws.map(toPublicBenefitsChw));
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch CHW network" });
     }
   });
 
-  app.post("/api/benefits/chw-network", requireAuth, async (req, res) => {
+  app.post("/api/benefits/chw-network", requireBenefitsStaff, async (req, res) => {
     try {
       const parsed = insertBenefitsChwSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -691,7 +797,7 @@ export function registerBenefitsRoutes(app: Express) {
   // Screening records contain applicant PII (income, contact info, household detail).
   // The POST endpoint is intentionally public for the crisis intake flow, but reads
   // must be staff-only — never expose stored screenings to unauthenticated callers.
-  app.get("/api/benefits/screenings", requireAuth, async (_req, res) => {
+  app.get("/api/benefits/screenings", requireBenefitsStaff, async (_req, res) => {
     try {
       const screenings = await db.select().from(benefitsScreenings).orderBy(desc(benefitsScreenings.createdAt)).limit(100);
       res.json(screenings);
@@ -702,15 +808,42 @@ export function registerBenefitsRoutes(app: Express) {
 
   app.post("/api/benefits/screenings", publicScreenerRateLimit, async (req, res) => {
     try {
+      await benefitsScreeningColumnsReady;
       const parsed = insertBenefitsScreeningSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
 
       const isAuthed = (req as any).isAuthenticated?.() || (req as any).user;
-      const data = isAuthed
+      let isStaffUser = false;
+      if (isAuthed) {
+        try {
+          const userId = getUserId(req);
+          const user = userId ? await storage.getUser(userId) : null;
+          isStaffUser = Boolean(user && BENEFITS_STAFF_ROLES.has(user.role));
+        } catch (error) {
+          console.error("[Benefits] screener role lookup failed; applying public field allowlist:", error);
+        }
+      }
+      const data = isStaffUser
         ? parsed.data
         : {
-            ...parsed.data,
+            // Anonymous screening is deliberately an allowlisted projection:
+            // callers cannot set workflow, eligibility, navigation, or referral
+            // fields merely by supplying them in the public request.
+            countyFips: parsed.data.countyFips,
+            zipCode: parsed.data.zipCode,
             screeningType: "public_demo",
+            householdSize: parsed.data.householdSize,
+            annualIncome: parsed.data.annualIncome,
+            hasChildren: parsed.data.hasChildren,
+            isPregnant: parsed.data.isPregnant,
+            isDisabled: parsed.data.isDisabled,
+            isElderly: parsed.data.isElderly,
+            isVeteran: parsed.data.isVeteran,
+            isSingleParent: parsed.data.isSingleParent,
+            isUnemployed: parsed.data.isUnemployed,
+            hadWorkplaceInjury: parsed.data.hadWorkplaceInjury,
+            citizenshipStatus: parsed.data.citizenshipStatus,
+            currentBenefits: parsed.data.currentBenefits,
             referredToChwId: null,
             referredToPartnerId: null,
             handoffType: null,
@@ -868,7 +1001,7 @@ RULES:
     }
   });
 
-  app.get("/api/benefits/renewals", requireAuth, async (_req, res) => {
+  app.get("/api/benefits/renewals", requireBenefitsStaff, async (_req, res) => {
     try {
       const renewals = await db.select().from(benefitsRenewals).orderBy(desc(benefitsRenewals.createdAt)).limit(100);
       res.json(renewals);
@@ -877,7 +1010,7 @@ RULES:
     }
   });
 
-  app.post("/api/benefits/renewals", requireAuth, async (req, res) => {
+  app.post("/api/benefits/renewals", requireBenefitsStaff, async (req, res) => {
     try {
       const parsed = insertBenefitsRenewalSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -3308,7 +3441,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
     }
   });
 
-  app.get("/api/benefits/applications", requireAuth, async (req, res) => {
+  app.get("/api/benefits/applications", requireBenefitsStaff, async (req, res) => {
     try {
       const { county, benefit, status, source } = req.query as Record<string, string>;
       const conditions: any[] = [];
@@ -3327,7 +3460,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
     }
   });
 
-  app.post("/api/benefits/applications", requireAuth, async (req, res) => {
+  app.post("/api/benefits/applications", requireBenefitsStaff, async (req, res) => {
     try {
       const parsed = insertBenefitsApplicationSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -3385,7 +3518,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
     }
   });
 
-  app.patch("/api/benefits/applications/:id", requireAuth, async (req, res) => {
+  app.patch("/api/benefits/applications/:id", requireBenefitsStaff, async (req, res) => {
     try {
       const id = String(req.params.id);
       const updates: any = { ...req.body, updatedAt: new Date() };
@@ -3400,7 +3533,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
     }
   });
 
-  app.get("/api/benefits/wab2/dashboard", requireAuth, async (_req, res) => {
+  app.get("/api/benefits/wab2/dashboard", requireBenefitsStaff, async (_req, res) => {
     try {
       const apps = await db.select().from(benefitsApplications).where(eq(benefitsApplications.source, "wab2"));
       const Y1_TARGETS = { SNAP: 200, Medicaid: 150, CHIP: 0, EITC: 100, WIC: 50, Other: 50 };
@@ -3544,6 +3677,14 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
     eligibilityScreenedCounts: {},
     catalogUpdates: [],
   };
+  const MAX_RPLICE_COUNTIES = 5_000;
+  const MAX_RPLICE_COUNTERS = 10_000;
+  function boundedRecordSet<T>(record: Record<string, T>, key: string, value: T, maxKeys: number): void {
+    if (!Object.prototype.hasOwnProperty.call(record, key) && Object.keys(record).length >= maxKeys) {
+      delete record[Object.keys(record)[0]];
+    }
+    record[key] = value;
+  }
 
   const SELF_PLATFORM_ID = "thriveup";
   // Peer platforms that should receive mirrored events. Add more as the network grows.
@@ -3556,7 +3697,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
     cur.events += 1;
     cur.lastEventAt = at;
     cur.lastEventType = eventType;
-    rpliceCache.originCounters[origin] = cur;
+    boundedRecordSet(rpliceCache.originCounters, origin, cur, MAX_RPLICE_COUNTERS);
   }
 
   async function mirrorToPeers(eventType: string, payload: any, origin: string) {
@@ -3584,20 +3725,28 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
       switch (type) {
         case "county.profile.updated": {
           const { countyFips, fplOverride, specialThresholds } = payload || {};
-          if (!countyFips) throw new Error("countyFips required");
-          rpliceCache.countyProfiles[countyFips] = { fplOverride, specialThresholds, updatedAt: at, origin };
+          if (typeof countyFips !== "string" || !/^\d{5}$/.test(countyFips)) throw new Error("countyFips must be a 5-digit string");
+          if (fplOverride !== undefined && (typeof fplOverride !== "number" || !Number.isFinite(fplOverride) || fplOverride < 0 || fplOverride > 100)) {
+            throw new Error("fplOverride must be a finite percentage from 0 to 100");
+          }
+          if (JSON.stringify(specialThresholds ?? null).length > 10_000) throw new Error("specialThresholds is too large");
+          boundedRecordSet(rpliceCache.countyProfiles, countyFips, { fplOverride, specialThresholds, updatedAt: at, origin }, MAX_RPLICE_COUNTIES);
           break;
         }
         case "mapgap.refreshed": {
           const { countyFips, prioritizedPrograms } = payload || {};
-          if (!countyFips || !Array.isArray(prioritizedPrograms)) throw new Error("countyFips + prioritizedPrograms[] required");
-          rpliceCache.mapgapPriority[countyFips] = { programs: prioritizedPrograms, updatedAt: at, origin };
+          if (typeof countyFips !== "string" || !/^\d{5}$/.test(countyFips) || !Array.isArray(prioritizedPrograms) || prioritizedPrograms.length > 50 || prioritizedPrograms.some((p: unknown) => typeof p !== "string" || p.length > 100)) {
+            throw new Error("countyFips must be valid and prioritizedPrograms must contain at most 50 short strings");
+          }
+          boundedRecordSet(rpliceCache.mapgapPriority, countyFips, { programs: prioritizedPrograms, updatedAt: at, origin }, MAX_RPLICE_COUNTIES);
           break;
         }
         case "partners.updated": {
           const { countyFips, partners } = payload || {};
-          if (!countyFips || !Array.isArray(partners)) throw new Error("countyFips + partners[] required");
-          rpliceCache.partners[countyFips] = { items: partners, updatedAt: at, origin };
+          if (typeof countyFips !== "string" || !/^\d{5}$/.test(countyFips) || !Array.isArray(partners) || partners.length > 100 || JSON.stringify(partners).length > 50_000) {
+            throw new Error("countyFips must be valid and partners must be a bounded array");
+          }
+          boundedRecordSet(rpliceCache.partners, countyFips, { items: partners, updatedAt: at, origin }, MAX_RPLICE_COUNTIES);
           break;
         }
         case "program.alert": {
@@ -3685,6 +3834,15 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
               grantPartnerId: p.grantPartnerId ?? derived.grantPartnerId,
               grantPartnerName: p.grantPartnerName ?? derived.grantPartnerName,
               grantReportingTags: p.grantReportingTags || derived.grantReportingTags,
+            }).onConflictDoUpdate({
+              target: [benefitsApplications.externalId, benefitsApplications.peerPlatform],
+              set: {
+                status: normalizedStatus || "intake",
+                stage: p.stage || "registered",
+                outcome: p.outcome ?? null,
+                confirmationNumber: p.confirmationNumber ?? null,
+                updatedAt: new Date(),
+              },
             });
           }
           break;
@@ -3693,8 +3851,17 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
           // Anonymous funnel signal — tracks demand by county × area even when
           // the user doesn't finish the wizard. Stored in in-memory counters.
           const p = payload || {};
+          const dimensions = [p.state, p.county, p.area, p.programSlug, p.result];
+          if (dimensions.some((value) => typeof value !== "string" || value.length > 100)) {
+            throw new Error("eligibility dimensions must be bounded strings");
+          }
           const key = `${p.state || "?"}|${p.county || "?"}|${p.area || "?"}|${p.programSlug || "?"}|${p.result || "?"}`;
-          rpliceCache.eligibilityScreenedCounts[key] = (rpliceCache.eligibilityScreenedCounts[key] || 0) + 1;
+          boundedRecordSet(
+            rpliceCache.eligibilityScreenedCounts,
+            key,
+            (rpliceCache.eligibilityScreenedCounts[key] || 0) + 1,
+            MAX_RPLICE_COUNTERS,
+          );
           break;
         }
         case "benefitProgram.updated": {
@@ -3760,21 +3927,25 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
   }
 
   // Shared-secret gate for inbound RPLICE traffic.
-  // If THRIVEUP_SHARED_SECRET is set, we require x-rplice-secret to match.
-  // If unset, we log a warning and allow through (backward compatible).
+  // Fail closed when the shared secret is not configured; this endpoint mutates
+  // in-memory partner state and must never be publicly writable.
   function rpliceSharedSecretOk(req: Request): boolean {
     const expected = process.env.THRIVEUP_SHARED_SECRET;
-    if (!expected) return true;
+    if (!expected) return false;
     const got = (req.headers["x-rplice-secret"] as string) || (req.body?.sharedSecret as string) || "";
     return got === expected;
   }
 
   app.post("/api/rplice/inbound-event", async (req, res) => {
     try {
+      if (!process.env.THRIVEUP_SHARED_SECRET) {
+        return res.status(503).json({ error: "RPLICE inbound integration is not configured" });
+      }
       if (!rpliceSharedSecretOk(req)) return res.status(401).json({ error: "invalid shared secret" });
       const { type, payload } = req.body || {};
-      if (!type) return res.status(400).json({ error: "type required" });
+      if (typeof type !== "string" || type.length === 0 || type.length > 100) return res.status(400).json({ error: "type must be a bounded string" });
       const origin = (req.headers["x-rplice-origin"] as string) || (req.body?.origin as string) || "betterscience";
+      if (typeof origin !== "string" || origin.length === 0 || origin.length > 100) return res.status(400).json({ error: "origin must be a bounded string" });
       const result = await applyEvent(type, payload, origin);
       if (!result.ok) return res.status(400).json({ error: result.error });
       // Mirror to peers (don't await — fire-and-forget so the caller isn't blocked).

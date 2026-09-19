@@ -18,6 +18,11 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
+function authUserId(req: Request): string {
+  const user = (req as any).user;
+  return String(user?.id || user?.claims?.sub || "");
+}
+
 const JOURNEY_TEMPLATES = [
   {
     name: "Returning Citizen Onboarding",
@@ -265,8 +270,17 @@ export function registerOnboardingRoutes(app: Express) {
   app.post("/api/onboarding/journeys", requireAuth, async (req: Request, res: Response) => {
     try {
       const { participantId, templateId, participantName, population, userId } = req.body;
-      if (!participantId || !templateId || !participantName || !population) {
+      const callerId = authUserId(req);
+      if (!callerId || typeof participantId !== "string" || participantId.length > 100 ||
+          typeof templateId !== "string" || templateId.length > 100 ||
+          typeof participantName !== "string" || participantName.trim().length === 0 || participantName.length > 255 ||
+          typeof population !== "string" || population.length > 100 ||
+          (userId !== undefined && userId !== callerId) || participantId !== callerId) {
         return res.status(400).json({ error: "Missing required fields" });
+      }
+      const template = await storage.getOnboardingTemplate(templateId);
+      if (!template || template.population !== population) {
+        return res.status(400).json({ error: "Template does not match the requested population" });
       }
       const existing = await storage.getOnboardingJourneyByParticipant(participantId);
       if (existing) return res.status(409).json({ error: "Journey already exists for this participant", journey: existing });
@@ -275,7 +289,7 @@ export function registerOnboardingRoutes(app: Express) {
       const endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
       const journey = await storage.createOnboardingJourney({
         participantId,
-        userId: userId || null,
+        userId: callerId,
         templateId,
         participantName,
         population,
@@ -290,19 +304,20 @@ export function registerOnboardingRoutes(app: Express) {
     }
   });
 
-  app.get("/api/onboarding/journeys", async (_req: Request, res: Response) => {
+  app.get("/api/onboarding/journeys", requireAuth, async (req: Request, res: Response) => {
     try {
-      const journeys = await storage.getAllOnboardingJourneys();
+      const journeys = (await storage.getAllOnboardingJourneys()).filter(j => j.userId === authUserId(req));
       res.json(journeys);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
   });
 
-  app.get("/api/onboarding/journeys/:id", async (req: Request, res: Response) => {
+  app.get("/api/onboarding/journeys/:id", requireAuth, async (req: Request, res: Response) => {
     try {
       const journey = await storage.getOnboardingJourney(req.params.id as string);
       if (!journey) return res.status(404).json({ error: "Journey not found" });
+      if (journey.userId !== authUserId(req)) return res.status(403).json({ error: "You do not have access to this journey" });
       const template = await storage.getOnboardingTemplate(journey.templateId);
       const phases = template ? await storage.getOnboardingPhases(template.id) : [];
       const milestones = template ? await storage.getOnboardingMilestones(template.id) : [];
@@ -314,10 +329,11 @@ export function registerOnboardingRoutes(app: Express) {
     }
   });
 
-  app.get("/api/onboarding/journeys/participant/:participantId", async (req: Request, res: Response) => {
+  app.get("/api/onboarding/journeys/participant/:participantId", requireAuth, async (req: Request, res: Response) => {
     try {
       const journey = await storage.getOnboardingJourneyByParticipant(req.params.participantId as string);
       if (!journey) return res.status(404).json({ error: "No journey found" });
+      if (journey.userId !== authUserId(req)) return res.status(403).json({ error: "You do not have access to this journey" });
       const template = await storage.getOnboardingTemplate(journey.templateId);
       const phases = template ? await storage.getOnboardingPhases(template.id) : [];
       const milestones = template ? await storage.getOnboardingMilestones(template.id) : [];
@@ -331,10 +347,16 @@ export function registerOnboardingRoutes(app: Express) {
   app.post("/api/onboarding/journeys/:journeyId/milestones/:milestoneId/complete", requireAuth, async (req: Request, res: Response) => {
     try {
       const { journeyId, milestoneId } = req.params as Record<string, string>;
-      const { completedBy, completedByName, notes } = req.body;
+      const { notes } = req.body;
 
       const journey = await storage.getOnboardingJourney(journeyId);
       if (!journey) return res.status(404).json({ error: "Journey not found" });
+      if (journey.userId !== authUserId(req)) return res.status(403).json({ error: "You do not have access to this journey" });
+      if (journey.userId !== authUserId(req)) return res.status(403).json({ error: "You do not have access to this journey" });
+      if (notes !== undefined && (typeof notes !== "string" || notes.length > 2_000)) {
+        return res.status(400).json({ error: "notes must be a string of at most 2000 characters" });
+      }
+      const actorId = authUserId(req);
 
       const existingCompletions = await storage.getMilestoneCompletions(journeyId);
       const alreadyCompleted = existingCompletions.find(c => c.milestoneId === milestoneId);
@@ -351,7 +373,7 @@ export function registerOnboardingRoutes(app: Express) {
             participantId: journey.participantId,
             serviceCategory: milestone.serviceCategory || "Onboarding",
             serviceType: `Onboarding: ${milestone.title}`,
-            providerName: completedByName || "System",
+            providerName: "Authenticated user",
             serviceDate: new Date().toISOString().split("T")[0],
             durationMinutes: Math.round((milestone.serviceHoursCredit || 0) * 60),
             notes: `30-Day Onboarding milestone: ${milestone.title}`,
@@ -368,8 +390,8 @@ export function registerOnboardingRoutes(app: Express) {
         journeyId,
         milestoneId,
         participantId: journey.participantId,
-        completedBy: completedBy || null,
-        completedByName: completedByName || null,
+        completedBy: actorId,
+        completedByName: "Authenticated user",
         notes: notes || null,
         serviceRecordId: serviceRecordId || null,
       });
@@ -435,9 +457,9 @@ export function registerOnboardingRoutes(app: Express) {
     }
   });
 
-  app.get("/api/onboarding/cohort-progress", async (_req: Request, res: Response) => {
+  app.get("/api/onboarding/cohort-progress", requireAuth, async (req: Request, res: Response) => {
     try {
-      const journeys = await storage.getAllOnboardingJourneys();
+      const journeys = (await storage.getAllOnboardingJourneys()).filter(j => j.userId === authUserId(req));
       const result = [];
 
       for (const journey of journeys) {
@@ -500,10 +522,21 @@ export function registerOnboardingRoutes(app: Express) {
     try {
       const journey = await storage.getOnboardingJourney(req.params.id as string);
       if (!journey) return res.status(404).json({ error: "Journey not found" });
+      if (journey.userId !== authUserId(req)) return res.status(403).json({ error: "You do not have access to this journey" });
       const allowedFields = ["status", "currentPhaseWeek", "notes"] as const;
       const sanitized: Record<string, any> = {};
       for (const key of allowedFields) {
         if (key in req.body) sanitized[key] = req.body[key];
+      }
+      if (sanitized.status !== undefined && !["active", "completed", "paused"].includes(sanitized.status)) {
+        return res.status(400).json({ error: "Invalid journey status" });
+      }
+      if (sanitized.currentPhaseWeek !== undefined &&
+          (!Number.isInteger(sanitized.currentPhaseWeek) || sanitized.currentPhaseWeek < 1 || sanitized.currentPhaseWeek > 5)) {
+        return res.status(400).json({ error: "currentPhaseWeek must be an integer from 1 to 5" });
+      }
+      if (sanitized.notes !== undefined && (typeof sanitized.notes !== "string" || sanitized.notes.length > 2_000)) {
+        return res.status(400).json({ error: "notes must be at most 2000 characters" });
       }
       if (Object.keys(sanitized).length === 0) return res.status(400).json({ error: "No valid fields to update" });
       const updated = await storage.updateOnboardingJourney(req.params.id as string, sanitized);

@@ -48,9 +48,15 @@ async function main() {
   // Seed a referral directly in the DB (as an authed CHW would create it) so
   // the rest of the loop — org-confirm, default value, immutability — is
   // exercised over HTTP with a real capability token.
+  const freshTokenExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
   const [seeded] = await db
     .insert(referrals)
-    .values({ programCode: "SNAP", orgName: "Verify Script Org" })
+    .values({
+      programCode: "SNAP",
+      orgName: "Verify Script Org",
+      statusTokenExpiresAt: freshTokenExpiry,
+      orgConfirmTokenExpiresAt: freshTokenExpiry,
+    })
     .returning();
   const referralId = seeded.id;
 

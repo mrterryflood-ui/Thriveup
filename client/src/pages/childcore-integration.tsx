@@ -32,6 +32,10 @@ import {
 } from "lucide-react";
 
 // ─── Shared helpers ───────────────────────────────────────────────────────────
+function isSafeExternalUrl(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  try { return new URL(value).protocol === "https:"; } catch { return false; }
+}
 
 function StatusDot({ ok, checking }: { ok: boolean; checking?: boolean }) {
   if (checking) return <span className="inline-block w-2 h-2 rounded-full bg-muted-foreground animate-pulse" />;
@@ -71,10 +75,10 @@ function ConnectionTab() {
     refetchInterval: 60_000,
   });
 
-  const { data: status, isLoading: statusLoading, refetch: refetchStatus } = useQuery<any>({
+  const { data: status, isLoading: statusLoading, isError: statusError, refetch: refetchStatus } = useQuery<any>({
     queryKey: ["/api/childcore/status"],
   });
-  const { data: capabilities, isLoading: capabilitiesLoading, refetch: refetchCapabilities } = useQuery<any>({
+  const { data: capabilities, isLoading: capabilitiesLoading, isError: capabilitiesError, refetch: refetchCapabilities } = useQuery<any>({
     queryKey: ["/api/childcore/capabilities"],
   });
 
@@ -161,12 +165,16 @@ function ConnectionTab() {
             <Row label="Community data" ok={ping?.authenticated} loading={pinging}
                  note={!ping?.authenticated ? "403 — key needs community scope on ChildCORE admin side" : undefined} />
             <div className="pt-2 border-t text-xs text-muted-foreground space-y-1">
-              {status?.baseUrl ? (
+                   {statusError ? (
+                 <div className="text-amber-600" role="alert" data-testid="text-childcore-status-error">
+                   Integration status unavailable. <button type="button" className="text-primary underline" onClick={() => void refetchStatus()}>Retry</button>
+                 </div>
+               ) : status?.baseUrl ? (
                 <div>Base URL: <code className="font-mono">{status.baseUrl}</code></div>
               ) : (
                 <div data-testid="text-childcore-metadata-unavailable">Integration metadata unavailable.</div>
               )}
-              {status?.docsUrl ? (
+              {status?.docsUrl && isSafeExternalUrl(status.docsUrl) ? (
                 <div>
                   <a href={status.docsUrl} target="_blank" rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-primary hover:underline">
@@ -192,10 +200,11 @@ function ConnectionTab() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
-            <Row label="Key provisioned" ok={true} />
-            <Row label="Partner API health" ok={true}
-                 note="Verified HTTP 200 · partner: ChildCORE" />
-            <Row label="Scopes active" ok={capabilities?.keyActive}
+            <Row label="Key provisioned" ok={capabilities?.keyFound} status={capabilitiesError ? "unknown" : undefined} loading={capabilitiesLoading}
+                 note={capabilitiesLoading ? undefined : capabilitiesError ? "Live key metadata unavailable" : capabilities?.keyFound ? "Live key record found" : "No matching live key record"} />
+            <Row label="Partner API health" status="unknown"
+                 note="Live inbound health probe is unavailable; key metadata alone does not prove endpoint health." />
+            <Row label="Scopes active" ok={capabilities?.keyActive} status={capabilitiesError ? "unknown" : undefined}
                  loading={capabilitiesLoading}
                  note={capabilities?.keyActive ? `${SCOPES.filter(({ scope }) => scopeIsActive(scope)).length}/${SCOPES.length} scopes` : "Live key record is not active"} />
             <div className="pt-2 border-t text-xs text-muted-foreground">
@@ -261,7 +270,9 @@ function ConnectionTab() {
   );
 }
 
-function Row({ label, ok, loading, note }: { label: string; ok: boolean | undefined; loading?: boolean; note?: string }) {
+function Row({ label, ok, status, loading, note }: {
+  label: string; ok?: boolean; status?: "unknown"; loading?: boolean; note?: string;
+}) {
   return (
     <div className="flex items-start justify-between gap-2">
       <div>
@@ -270,6 +281,8 @@ function Row({ label, ok, loading, note }: { label: string; ok: boolean | undefi
       </div>
       {loading ? (
         <Skeleton className="w-16 h-4" />
+      ) : status === "unknown" ? (
+        <span className="inline-flex items-center gap-1 text-muted-foreground text-xs font-medium shrink-0"><AlertTriangle className="h-3.5 w-3.5" />Unavailable</span>
       ) : ok ? (
         <span className="inline-flex items-center gap-1 text-emerald-600 text-xs font-medium shrink-0"><CheckCircle2 className="h-3.5 w-3.5" />Yes</span>
       ) : (
@@ -379,7 +392,7 @@ function RagContextTab() {
   const [zip, setZip] = useState("78701");
   const [fetchZip, setFetchZip] = useState<string | null>(null);
 
-  const { data, isLoading } = useQuery<any>({
+  const { data, isLoading, isError, error, refetch } = useQuery<any>({
     queryKey: ["/api/childcore/rag-preview", fetchZip],
     queryFn: async () => {
       const res = await apiRequest("GET", `/api/childcore/rag-preview?zip=${fetchZip}`);
@@ -432,6 +445,21 @@ function RagContextTab() {
       </Card>
 
       {isLoading && <Skeleton className="h-64" />}
+
+      {isError && !isLoading && (
+        <Card role="alert" data-testid="card-rag-error">
+          <CardContent className="py-8 text-center space-y-3">
+            <AlertTriangle className="h-8 w-8 text-amber-600 mx-auto" />
+            <p className="text-sm font-medium">RAG context could not be loaded.</p>
+            <p className="text-xs text-muted-foreground">
+              ChildCORE or another community source did not return a usable context{error instanceof Error && error.message.includes("503") ? " (service unavailable)." : "."}
+            </p>
+            <Button type="button" variant="outline" size="sm" onClick={() => void refetch()} data-testid="button-rag-retry">
+              <RefreshCw className="h-4 w-4 mr-1" /> Retry
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {data && !isLoading && (
         <div className="space-y-4">
@@ -1021,7 +1049,7 @@ export default function ChildCOREIntegrationPage() {
         <span>·</span>
         {statusLoading ? (
           <span data-testid="text-childcore-header-docs-checking">Partner API docs: checking…</span>
-        ) : status?.docsUrl ? (
+        ) : status?.docsUrl && isSafeExternalUrl(status.docsUrl) ? (
           <a href={status.docsUrl} target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-1 text-primary hover:underline">
             <ExternalLink className="h-3 w-3" /> Partner API docs

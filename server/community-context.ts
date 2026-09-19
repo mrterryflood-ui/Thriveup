@@ -20,7 +20,7 @@
 
 import type { Request, Response, NextFunction } from "express";
 import { AsyncLocalStorage } from "async_hooks";
-import { buildCommunityAIContext } from "./rplice-intelligence";
+import { buildCommunityAIContext, buildCommunityAIContextWithStatus } from "./rplice-intelligence";
 
 // ─── AsyncLocalStorage (the wire) ─────────────────────────────────────────────
 const communityStorage = new AsyncLocalStorage<string>();
@@ -44,6 +44,7 @@ const cache = new Map<string, CacheEntry>();
 const inFlight = new Map<string, Promise<string>>();
 const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
 const MAX_ENTRIES = 80;               // cap memory
+const MAX_IN_FLIGHT = 100;
 
 function evictOldest() {
   if (cache.size < MAX_ENTRIES) return;
@@ -55,6 +56,7 @@ function evictOldest() {
 export function getCommunityContextSync(zip: string): string {
   const entry = cache.get(zip);
   if (entry && entry.expiresAt > Date.now()) return entry.context;
+  if (entry) cache.delete(zip);
   return "";
 }
 
@@ -62,13 +64,25 @@ export function getCommunityContextSync(zip: string): string {
 export async function warmCommunityContext(zip: string): Promise<string> {
   const cached = cache.get(zip);
   if (cached && cached.expiresAt > Date.now()) return cached.context;
+  if (cached) cache.delete(zip);
 
   if (inFlight.has(zip)) return inFlight.get(zip)!;
+  if (inFlight.size >= MAX_IN_FLIGHT) {
+    console.warn("[CommunityContext] in-flight capacity reached; skipping warm");
+    return "";
+  }
 
-  const promise = buildCommunityAIContext({ zip })
-    .then(ctx => {
+  const promise = buildCommunityAIContextWithStatus({ zip })
+    .then(result => {
+      const ctx = result.content;
+      if (!ctx) {
+        inFlight.delete(zip);
+        return "";
+      }
       evictOldest();
-      cache.set(zip, { context: ctx, expiresAt: Date.now() + CACHE_TTL_MS });
+      const hasFailedSource = Object.values(result.sources).includes("failed");
+      const ttl = hasFailedSource ? 5 * 60 * 1000 : CACHE_TTL_MS;
+      cache.set(zip, { context: ctx, expiresAt: Date.now() + ttl });
       inFlight.delete(zip);
       return ctx;
     })

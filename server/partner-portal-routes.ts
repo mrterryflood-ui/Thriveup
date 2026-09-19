@@ -10,20 +10,103 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
+const capacityWriteHits = new Map<string, { count: number; resetAt: number }>();
+function capacityWriteRateLimit(req: Request, res: Response, next: NextFunction) {
+  const userId = (req as any).user?.claims?.sub ?? "unknown";
+  const orgId = typeof req.headers["x-org-id"] === "string" ? req.headers["x-org-id"] : "default";
+  const key = `${userId}:${orgId}`;
+  const now = Date.now();
+  if (capacityWriteHits.size > 10_000) {
+    for (const [storedKey, bucket] of capacityWriteHits) {
+      if (bucket.resetAt <= now) capacityWriteHits.delete(storedKey);
+    }
+  }
+  const current = capacityWriteHits.get(key);
+  if (!current || current.resetAt <= now) {
+    capacityWriteHits.set(key, { count: 1, resetAt: now + 60 * 60 * 1000 });
+    return next();
+  }
+  if (current.count >= 60) {
+    res.setHeader("Retry-After", String(Math.ceil((current.resetAt - now) / 1000)));
+    return res.status(429).json({ error: "Capacity update rate limit exceeded" });
+  }
+  current.count += 1;
+  return next();
+}
+
+async function findAuthorizedOrg(userId: string, requestedOrgId: string | null) {
+  const [org] = requestedOrgId
+    ? await db.select().from(organizations).where(eq(organizations.id, requestedOrgId)).limit(1)
+    : await db.select().from(organizations).where(eq(organizations.userId, userId)).limit(1);
+  if (org && requestedOrgId && org.userId !== userId) {
+    const [membership] = await db.select({ userId: organizationMembers.userId }).from(organizationMembers)
+      .where(and(eq(organizationMembers.orgId, requestedOrgId), eq(organizationMembers.userId, userId))).limit(1);
+    if (!membership) return { org: null, unauthorized: true };
+  }
+  return { org, unauthorized: false };
+}
+
+function validateCapacityPayload(body: unknown): { ok: true; value: {
+  programCode: string;
+  status: string;
+  waitWeeks: number | null;
+  note: string | null;
+  contactPhone: string | null;
+  contactUrl: string | null;
+  serviceZips: string[] | null;
+} } | { ok: false; error: string } {
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return { ok: false, error: "Request body must be an object" };
+  }
+  const { programCode = "general", status = "open", waitWeeks, note, contactPhone, contactUrl, serviceZips } =
+    body as Record<string, unknown>;
+  if (typeof programCode !== "string" || !/^[A-Za-z0-9:_-]{1,100}$/.test(programCode)) {
+    return { ok: false, error: "programCode must be 1-100 letters, numbers, or _:- characters" };
+  }
+  if (typeof status !== "string" || !["open", "waitlist", "closed"].includes(status)) {
+    return { ok: false, error: "status must be open|waitlist|closed" };
+  }
+  if (waitWeeks !== undefined && waitWeeks !== null &&
+      (!Number.isInteger(waitWeeks) || (waitWeeks as number) < 0 || (waitWeeks as number) > 52)) {
+    return { ok: false, error: "waitWeeks must be an integer from 0 to 52" };
+  }
+  if (note !== undefined && note !== null &&
+      (typeof note !== "string" || note.length > 1000)) {
+    return { ok: false, error: "note must be at most 1000 characters" };
+  }
+  if (contactPhone !== undefined && contactPhone !== null && typeof contactPhone !== "string") {
+    return { ok: false, error: "contactPhone must be a string" };
+  }
+  if (contactUrl !== undefined && contactUrl !== null && typeof contactUrl !== "string") {
+    return { ok: false, error: "contactUrl must be a string" };
+  }
+  if (serviceZips !== undefined && serviceZips !== null &&
+      (!Array.isArray(serviceZips) || serviceZips.length > 100 ||
+        serviceZips.some((zip) => typeof zip !== "string" || !/^\d{5}$/.test(zip)))) {
+    return { ok: false, error: "serviceZips must contain at most 100 five-digit ZIP codes" };
+  }
+  return {
+    ok: true,
+    value: {
+      programCode,
+      status,
+      waitWeeks: waitWeeks === undefined || waitWeeks === null ? null : waitWeeks as number,
+      note: note === undefined || note === null ? null : note as string,
+      contactPhone: contactPhone === undefined || contactPhone === null ? null : contactPhone,
+      contactUrl: contactUrl === undefined || contactUrl === null ? null : contactUrl,
+      serviceZips: serviceZips === undefined || serviceZips === null ? null : serviceZips as string[],
+    },
+  };
+}
+
 export function registerPartnerPortalRoutes(app: Express) {
   // GET /api/partner-portal/capacity — session-authenticated: org's own capacity entries
   app.get("/api/partner-portal/capacity", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const requestedOrgId = typeof req.headers["x-org-id"] === "string" ? req.headers["x-org-id"] : null;
-      const [org] = requestedOrgId
-        ? await db.select({ id: organizations.id, name: organizations.name, userId: organizations.userId }).from(organizations).where(eq(organizations.id, requestedOrgId)).limit(1)
-        : await db.select({ id: organizations.id, name: organizations.name, userId: organizations.userId }).from(organizations).where(eq(organizations.userId, userId)).limit(1);
-      if (requestedOrgId && org && org.userId !== userId) {
-        const [membership] = await db.select({ userId: organizationMembers.userId }).from(organizationMembers)
-          .where(and(eq(organizationMembers.orgId, requestedOrgId), eq(organizationMembers.userId, userId))).limit(1);
-        if (!membership) return res.status(403).json({ error: "You are not authorized for this organization." });
-      }
+      const { org, unauthorized } = await findAuthorizedOrg(userId, requestedOrgId);
+      if (unauthorized) return res.status(403).json({ error: "You are not authorized for this organization." });
 
       if (!org) return res.json({ entries: [], orgId: null });
 
@@ -45,25 +128,17 @@ export function registerPartnerPortalRoutes(app: Express) {
   });
 
   // PATCH /api/partner-portal/capacity — session-authenticated: upsert org capacity
-  app.patch("/api/partner-portal/capacity", requireAuth, async (req: any, res) => {
+  app.patch("/api/partner-portal/capacity", requireAuth, capacityWriteRateLimit, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const requestedOrgId = typeof req.headers["x-org-id"] === "string" ? req.headers["x-org-id"] : null;
-      const [org] = requestedOrgId
-        ? await db.select({ id: organizations.id, name: organizations.name, userId: organizations.userId }).from(organizations).where(eq(organizations.id, requestedOrgId)).limit(1)
-        : await db.select({ id: organizations.id, name: organizations.name, userId: organizations.userId }).from(organizations).where(eq(organizations.userId, userId)).limit(1);
-
+      const { org, unauthorized } = await findAuthorizedOrg(userId, requestedOrgId);
+      if (unauthorized) return res.status(403).json({ error: "You are not authorized for this organization." });
       if (!org) return res.status(400).json({ error: "No organization found for your account" });
-      if (requestedOrgId && org.userId !== userId) {
-        const [membership] = await db.select({ userId: organizationMembers.userId }).from(organizationMembers)
-          .where(and(eq(organizationMembers.orgId, requestedOrgId), eq(organizationMembers.userId, userId))).limit(1);
-        if (!membership) return res.status(403).json({ error: "You are not authorized for this organization." });
-      }
 
-      const { programCode = "general", status = "open", waitWeeks, note, contactPhone, contactUrl, serviceZips } = req.body;
-      if (!["open", "waitlist", "closed"].includes(status)) {
-        return res.status(400).json({ error: "status must be open|waitlist|closed" });
-      }
+      const parsed = validateCapacityPayload(req.body);
+      if (!parsed.ok) return res.status(400).json({ error: parsed.error });
+      const { programCode, status, waitWeeks, note, contactPhone, contactUrl, serviceZips } = parsed.value;
 
       const phoneCheck = validateContactPhone(contactPhone);
       if (!phoneCheck.ok) return res.status(400).json({ error: phoneCheck.message });
@@ -109,11 +184,9 @@ export function registerPartnerPortalRoutes(app: Express) {
     try {
       const userId = req.user.claims.sub;
 
-      const [org] = await db
-        .select()
-        .from(organizations)
-        .where(eq(organizations.userId, userId))
-        .limit(1);
+      const requestedOrgId = typeof req.headers["x-org-id"] === "string" ? req.headers["x-org-id"] : null;
+      const { org, unauthorized } = await findAuthorizedOrg(userId, requestedOrgId);
+      if (unauthorized) return res.status(403).json({ error: "You are not authorized for this organization." });
 
       if (!org) {
         return res.json({ org: null, onboarding: buildEmptyOnboarding(), stats: null });

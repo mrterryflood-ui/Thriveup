@@ -183,6 +183,10 @@ try {
     !!doneEvent?.gunViolenceContext,
   );
   check(
+    "done event exposes source/grounding metadata",
+    !!doneEvent?.sourceMetadata?.gunViolence,
+  );
+  check(
     "Response content is non-empty (got a grounded answer)",
     allContent.length > 50,
   );

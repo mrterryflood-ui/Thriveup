@@ -22,6 +22,7 @@ async function migrate() {
       resolved_at TIMESTAMP
     )
   `);
+  await db.execute(sql`ALTER TABLE referrals ADD COLUMN IF NOT EXISTS outcome_notes TEXT`);
   await db.execute(sql`
     CREATE TABLE IF NOT EXISTS org_capacity (
       id TEXT PRIMARY KEY,

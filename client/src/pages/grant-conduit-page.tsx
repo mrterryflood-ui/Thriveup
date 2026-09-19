@@ -50,6 +50,16 @@ const US_STATES = [
   "VA","WA","WV","WI","WY","DC",
 ];
 
+function isSafeSourceUrl(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  if (value.startsWith("/") && !value.startsWith("//")) return true;
+  try {
+    return new URL(value).protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 function GradeChip({ grade }: { grade: string }) {
   const color = grade === "A" ? "bg-emerald-100 text-emerald-700 border-emerald-300"
     : grade === "B" ? "bg-blue-100 text-blue-700 border-blue-300"
@@ -58,8 +68,9 @@ function GradeChip({ grade }: { grade: string }) {
   return <Badge variant="outline" className={`text-lg font-bold px-3 py-1 ${color}`}>{grade}</Badge>;
 }
 
-function copyText(text: string) {
-  navigator.clipboard.writeText(text).catch(() => {});
+function copyText(text: string): Promise<void> {
+  if (!navigator.clipboard) return Promise.reject(new Error("Clipboard is unavailable"));
+  return navigator.clipboard.writeText(text);
 }
 
 export default function GrantConduitPage() {
@@ -103,6 +114,7 @@ export default function GrantConduitPage() {
       setResult(data);
       toast({ title: "Package ready", description: "Your intelligence package has been assembled." });
     },
+    onMutate: () => setResult(null),
     onError: (err: Error) => {
       toast({ title: "Failed", description: err.message, variant: "destructive" });
     },
@@ -136,9 +148,9 @@ export default function GrantConduitPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-1.5">
-                <Label>Organization type *</Label>
+                <Label htmlFor="grant-org-type">Organization type *</Label>
                 <Select value={orgType} onValueChange={setOrgType}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger id="grant-org-type" aria-label="Organization type"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {ORG_TYPES.map(t => (
                       <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
@@ -165,9 +177,9 @@ export default function GrantConduitPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-1.5">
-                <Label>State *</Label>
+                <Label htmlFor="grant-state">State *</Label>
                 <Select value={state} onValueChange={setState}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger id="grant-state" aria-label="State"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {US_STATES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                   </SelectContent>
@@ -175,7 +187,8 @@ export default function GrantConduitPage() {
               </div>
               <div className="space-y-1.5">
                 <Label>ZIP <span className="text-muted-foreground">(optional — refines violence data)</span></Label>
-                <Input placeholder="78702" maxLength={5} value={zip} onChange={e => setZip(e.target.value.replace(/\D/g, ""))} />
+                  <Input placeholder="78702" maxLength={5} value={zip} aria-invalid={zip.length > 0 && zip.length !== 5}
+                    onChange={e => setZip(e.target.value.replace(/\D/g, ""))} />
               </div>
             </CardContent>
           </Card>
@@ -193,6 +206,8 @@ export default function GrantConduitPage() {
                     key={area}
                     type="button"
                     onClick={() => toggleFocus(area)}
+                    aria-pressed={focusAreas.includes(area)}
+                    aria-label={`${focusAreas.includes(area) ? "Remove" : "Add"} ${area} focus area`}
                     className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
                       focusAreas.includes(area)
                         ? "bg-primary text-primary-foreground border-primary"
@@ -355,21 +370,23 @@ export default function GrantConduitPage() {
                         </div>
                         {g.description && <p className="text-xs text-muted-foreground line-clamp-2">{g.description}</p>}
                         <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                          {g.maxAward && <span>Up to ${Number(g.maxAward).toLocaleString()}</span>}
+                          {g.awardCeiling && <span>Up to ${Number(g.awardCeiling).toLocaleString()}</span>}
                           {g.deadline && <span>Due {g.deadline}</span>}
                           {g.grantType && <Badge variant="secondary" className="text-[10px]">{g.grantType}</Badge>}
                         </div>
-                        {g.programUrl && (
-                          <a href={g.programUrl} target="_blank" rel="noopener noreferrer"
+                        {g.sourceUrl && isSafeSourceUrl(g.sourceUrl) ? (
+                          <a href={g.sourceUrl} target="_blank" rel="noopener noreferrer"
                             className="text-xs text-primary flex items-center gap-1 hover:underline">
                             View opportunity <ExternalLink className="h-3 w-3" />
                           </a>
-                        )}
+                        ) : g.sourceUrl ? (
+                          <span className="text-xs text-muted-foreground">Source link unavailable</span>
+                        ) : null}
                       </CardContent>
                     </Card>
                   ))
                 )}
-                {result.violenceGrantCategories?.triggeredGrantCategories?.length > 0 && (
+                {result.gunViolence?.triggeredGrantCategories?.length > 0 && (
                   <Card className="border-rose-200 dark:border-rose-800">
                     <CardHeader>
                       <CardTitle className="text-sm text-rose-700 dark:text-rose-300 flex items-center gap-2">
@@ -394,9 +411,9 @@ export default function GrantConduitPage() {
                   <>
                     <div className="grid grid-cols-3 gap-3">
                       {[
-                        { label: "Incidents (90d)", value: result.gunViolence.incidents, accent: "" },
-                        { label: "Victims (90d)", value: result.gunViolence.victims, accent: "" },
-                        { label: "Fatalities (90d)", value: result.gunViolence.fatalities, accent: "text-rose-600" },
+                        { label: "Incidents (90d)", value: result.gunViolence.suppressed ? "Suppressed" : result.gunViolence.incidents, accent: "" },
+                        { label: "Victims (90d)", value: result.gunViolence.suppressed ? "Suppressed" : result.gunViolence.victims, accent: "" },
+                        { label: "Fatalities (90d)", value: result.gunViolence.suppressed ? "Suppressed" : result.gunViolence.fatalities, accent: "text-rose-600" },
                       ].map(s => (
                         <div key={s.label} className="rounded-xl border bg-card p-3 text-center">
                           <p className="text-xs text-muted-foreground">{s.label}</p>
@@ -404,7 +421,16 @@ export default function GrantConduitPage() {
                         </div>
                       ))}
                     </div>
-                    {result.gunViolence.incidents > 0 ? (
+                    {result.gunViolence.suppressed ? (
+                      <Card className="border-amber-200 dark:border-amber-800">
+                        <CardContent className="pt-4 text-sm">
+                          <p className="font-medium text-amber-700 dark:text-amber-300">Small counts are suppressed</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            The registry suppresses counts below {result.gunViolence.suppressionFloor ?? 5} incidents to protect privacy. Do not infer a zero.
+                          </p>
+                        </CardContent>
+                      </Card>
+                    ) : result.gunViolence.incidents > 0 ? (
                       <Card className="border-amber-200 dark:border-amber-800">
                         <CardContent className="pt-4 text-sm space-y-2">
                           <p className="font-medium text-amber-700 dark:text-amber-300">
@@ -414,10 +440,10 @@ export default function GrantConduitPage() {
                             Source: TCAF Gun Violence Registry — verified incident-level data,
                             not estimates. Include as Exhibit A in DOJ, CDC/NCIPC, and SAMHSA applications.
                           </p>
-                          <a href={result.gunViolence.policyTimelineEndpoint} target="_blank"
+                          {isSafeSourceUrl(result.gunViolence.policyTimelineEndpoint) ? <a href={result.gunViolence.policyTimelineEndpoint} target="_blank" rel="noopener noreferrer"
                             className="text-xs text-primary flex items-center gap-1 hover:underline">
                             View policy timeline <ExternalLink className="h-3 w-3" />
-                          </a>
+                          </a> : <span className="text-xs text-muted-foreground">Policy timeline link unavailable</span>}
                         </CardContent>
                       </Card>
                     ) : (
@@ -434,10 +460,10 @@ export default function GrantConduitPage() {
                                 <div className="flex-1 bg-muted rounded-full h-1.5 overflow-hidden">
                                   <div
                                     className="h-full bg-rose-400 rounded-full"
-                                    style={{ width: `${Math.min(100, (m.incidents / Math.max(...(result.gunViolence.monthlyTrend as any[]).map((x:any) => x.incidents), 1)) * 100)}%` }}
+                                    style={{ width: `${m.suppressed ? 0 : Math.min(100, (m.incidents / Math.max(...(result.gunViolence.monthlyTrend as any[]).map((x:any) => Number(x.incidents) || 0), 1)) * 100)}%` }}
                                   />
                                 </div>
-                                <span className="w-8 text-right tabular-nums">{m.incidents}</span>
+                                <span className="w-16 text-right tabular-nums">{m.suppressed ? "Suppressed" : m.incidents}</span>
                               </div>
                             ))}
                           </div>
@@ -461,6 +487,8 @@ export default function GrantConduitPage() {
                           { label: "Fidelity Score", value: result.rpliceEvidence.fidelityScore != null ? `${result.rpliceEvidence.fidelityScore}/100` : "—" },
                           { label: "CFIR Coverage", value: result.rpliceEvidence.cfirConstructsCovered != null ? `${result.rpliceEvidence.cfirConstructsCovered} constructs` : "—" },
                           { label: "RE-AIM Domains", value: (result.rpliceEvidence.reaimDomainsCovered ?? []).join(", ") || "—" },
+                          { label: "CFIR Assessment", value: result.rpliceEvidence.cifrAssessment ?? "—" },
+                          { label: "RE-AIM Assessment", value: result.rpliceEvidence.reaimEvaluation ?? "—" },
                         ].map(item => (
                           <div key={item.label} className="rounded border p-2">
                             <p className="text-xs text-muted-foreground">{item.label}</p>
@@ -480,7 +508,12 @@ export default function GrantConduitPage() {
 
               {/* Narratives */}
               <TabsContent value="narratives" className="space-y-4">
-                {!missionText.trim() ? (
+                {result.narratives && (
+                  <p className="text-xs rounded border border-amber-200 bg-amber-50 p-3 text-amber-900">
+                    AI-drafted content: review every figure, source, and claim against the cited evidence before submission.
+                  </p>
+                )}
+                {!result.narratives && !missionText.trim() ? (
                   <div className="rounded-xl border-2 border-dashed p-8 text-center">
                     <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                     <p className="text-sm text-muted-foreground">
@@ -496,7 +529,11 @@ export default function GrantConduitPage() {
                         <CardTitle className="text-sm capitalize flex items-center justify-between">
                           {key.replace(/([A-Z])/g, " $1").trim()}
                           <Button variant="ghost" size="icon" className="h-6 w-6"
-                            onClick={() => { copyText(value?.body ?? value ?? ""); toast({ title: "Copied" }); }}>
+                            onClick={() => {
+                              void copyText(value?.body ?? value ?? "")
+                                .then(() => toast({ title: "Copied" }))
+                                .catch(() => toast({ title: "Copy failed", description: "Select the text and copy it manually.", variant: "destructive" }));
+                            }}>
                             <Copy className="h-3.5 w-3.5" />
                           </Button>
                         </CardTitle>
@@ -527,20 +564,21 @@ export default function GrantConduitPage() {
               {/* Platform Outcomes */}
               <TabsContent value="outcomes" className="space-y-4">
                 <Card>
-                  <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Activity className="h-4 w-4" /> Verified Platform Outcomes</CardTitle></CardHeader>
+                  <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Activity className="h-4 w-4" /> Approved Partner Outcomes &amp; Platform Totals</CardTitle></CardHeader>
                   <CardContent className="space-y-3">
                     <p className="text-xs text-muted-foreground">
-                      Real numbers from live platform enrollments. Not projections.
-                      Use these in every application as Exhibit B.
+                      Approved partner outcomes are reported and reviewed data, not projections.
+                      Platform placement totals are a separate all-records measure and must not be
+                      interpreted as part of the approved partner cohort.
                     </p>
-                    {result.platformOutcomes && (
+                    {result.outcomeMetrics && (
                       <div className="grid grid-cols-2 gap-3">
                         {[
-                          { label: "Participants served", value: result.platformOutcomes.participantsServed?.toLocaleString() ?? "—" },
-                          { label: "Employment rate", value: result.platformOutcomes.employmentRate != null ? `${result.platformOutcomes.employmentRate}%` : "—" },
-                          { label: "Credentials attained", value: result.platformOutcomes.credentialsAttained?.toLocaleString() ?? "—" },
-                          { label: "Job placements", value: result.platformOutcomes.jobPlacementsTotal?.toLocaleString() ?? "—" },
-                          { label: "Median earnings", value: result.platformOutcomes.medianEarnings ? `$${result.platformOutcomes.medianEarnings.toLocaleString()}` : "—" },
+                          { label: "Participants served", value: result.outcomeMetrics.participantsServed?.toLocaleString() ?? "—" },
+                          { label: "Employment rate", value: result.outcomeMetrics.employmentRate != null ? `${result.outcomeMetrics.employmentRate}%` : "—" },
+                          { label: "Credentials attained", value: result.outcomeMetrics.credentialsAttained?.toLocaleString() ?? "—" },
+                          { label: "Platform job placements (all records)", value: result.outcomeMetrics.platformTotals?.jobPlacements?.toLocaleString() ?? "—" },
+                          { label: "Median earnings", value: result.outcomeMetrics.medianEarnings == null ? "Not reported" : `$${result.outcomeMetrics.medianEarnings.toLocaleString()}` },
                         ].map(s => (
                           <div key={s.label} className="rounded border p-2">
                             <p className="text-xs text-muted-foreground">{s.label}</p>

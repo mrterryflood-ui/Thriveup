@@ -7,14 +7,16 @@ import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { CheckCircle2, Clock, XCircle, AlertCircle, Heart } from "lucide-react";
 
 interface ReferralStatus {
   orgName: string;
   programCode: string;
   status: string;
-  notes: string | null;
 }
+
+type StatusError = Error & { status?: number; retryAfter?: number };
 
 const PROGRAM_LABELS: Record<string, string> = {
   SNAP: "SNAP (Food Benefits)",
@@ -92,13 +94,24 @@ function StatusDisplay({ status }: { status: string }) {
 export default function ReferralStatusPage() {
   const { token } = useParams<{ token: string }>();
 
-  const { data, isLoading, error } = useQuery<ReferralStatus>({
+  const { data, isLoading, error, refetch } = useQuery<ReferralStatus>({
     queryKey: ["/api/referrals/status", token],
     queryFn: async ({ signal }) => {
-      const res = await fetch(`/api/referrals/status/${token}`, {
+      const res = await fetch(`/api/referrals/status/${encodeURIComponent(token ?? "")}`, {
         signal: AbortSignal.any([signal!, AbortSignal.timeout(15_000)]),
       });
-      if (!res.ok) throw new Error("Referral not found");
+      if (!res.ok) {
+        const error = new Error(
+          res.status === 404 ? "This referral link is invalid or has expired." :
+          res.status === 429 ? "Too many checks. Please wait before trying again." :
+          res.status >= 500 ? "The referral status service is temporarily unavailable." :
+          "We could not look up this referral.",
+        ) as StatusError;
+        error.status = res.status;
+        const retryAfter = Number(res.headers.get("Retry-After"));
+        if (Number.isFinite(retryAfter) && retryAfter > 0) error.retryAfter = retryAfter;
+        throw error;
+      }
       return res.json();
     },
     enabled: !!token,
@@ -108,10 +121,18 @@ export default function ReferralStatusPage() {
     // manually reload — a stale badge here is the exact failure this page
     // exists to prevent.
     staleTime: 15 * 1000,
-    refetchInterval: 15 * 1000,
+    refetchInterval: (query) => {
+      if (query.state.error) return false;
+      const currentStatus = query.state.data?.status;
+      return currentStatus === "accepted" || currentStatus === "enrolled" || currentStatus === "withdrew" || currentStatus === "ineligible"
+        ? false
+        : 15 * 1000;
+    },
     refetchOnWindowFocus: true,
     refetchOnMount: "always",
   });
+
+  const statusError = error as StatusError | null;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white dark:from-green-950/20 dark:to-background flex items-center justify-center p-4">
@@ -136,12 +157,26 @@ export default function ReferralStatusPage() {
 
         {error && (
           <Card className="border-destructive">
-            <CardContent className="pt-6 text-center space-y-2">
+            <CardContent className="pt-6 text-center space-y-2" role="alert" aria-live="assertive">
               <XCircle className="h-10 w-10 text-destructive mx-auto" />
-              <p className="font-medium">Referral not found</p>
-              <p className="text-sm text-muted-foreground">
-                This link may have expired or be incorrect. Call <strong>2-1-1</strong> for free navigation help.
+              <p className="font-medium">
+                {statusError?.status === 404 ? "Referral not found" :
+                 statusError?.status === 429 ? "Please wait before trying again" :
+                 statusError?.status && statusError.status >= 500 ? "Status temporarily unavailable" :
+                 "Unable to check referral status"}
               </p>
+              <p className="text-sm text-muted-foreground">
+                {statusError?.status === 404
+                  ? <>This link may have expired or be incorrect. Call <strong>2-1-1</strong> for free navigation help.</>
+                  : statusError?.status === 429
+                    ? <>Please wait {statusError.retryAfter ? `${statusError.retryAfter} seconds ` : ""}and try again.</>
+                    : <>Please try again shortly. If the problem continues, call <strong>2-1-1</strong> for free navigation help.</>}
+              </p>
+               {statusError?.status !== 404 && (
+                 <Button variant="outline" size="sm" onClick={() => void refetch()}>
+                   Try again
+                 </Button>
+               )}
             </CardContent>
           </Card>
         )}
@@ -156,12 +191,6 @@ export default function ReferralStatusPage() {
             </CardHeader>
             <CardContent>
               <StatusDisplay status={data.status} />
-              {data.notes && (
-                <div className="mt-4 p-3 rounded-lg bg-muted/50 text-sm text-muted-foreground">
-                  <strong className="text-foreground">Note from organization:</strong>{" "}
-                  {data.notes}
-                </div>
-              )}
             </CardContent>
           </Card>
         )}

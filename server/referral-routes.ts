@@ -18,7 +18,7 @@ function requireStaffOrPartnerInbound(req: Request, res: Response, next: NextFun
   // Try partner key first (x-partner-key / Authorization: Bearer tcaf_...).
   const partnerKeyRaw =
     (req.headers["x-partner-key"] as string) ||
-    (req.headers["authorization"] || "").replace(/^Bearer /i, "");
+    String(req.headers["authorization"] || "").replace(/^Bearer\s+/i, "");
   const ecosystemKey = req.headers["x-ecosystem-key"] as string;
 
   if (ecosystemKey || (partnerKeyRaw && partnerKeyRaw.startsWith("tcaf_"))) {
@@ -37,14 +37,43 @@ function requireStaffOrPartnerInbound(req: Request, res: Response, next: NextFun
 export const referralRouter = Router();
 
 const VALID_STATUSES = ["enrolled", "ineligible", "withdrew", "accepted"];
+const MAX_NOTE_LENGTH = 2000;
+const MAX_NAME_LENGTH = 200;
+const REFERRAL_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+function validateOutcomePayload(body: unknown): { status: string; benefitValueEstimate?: number; notes?: string } | { error: string } {
+  if (!body || typeof body !== "object" || Array.isArray(body)) return { error: "Request body must be an object" };
+  const { status, benefitValueEstimate, notes } = body as Record<string, unknown>;
+  if (typeof status !== "string" || !VALID_STATUSES.includes(status)) return { error: "Invalid status" };
+  const normalizedValue = benefitValueEstimate === undefined || benefitValueEstimate === null || benefitValueEstimate === ""
+    ? undefined : Number(benefitValueEstimate);
+  if (normalizedValue !== undefined &&
+      (typeof benefitValueEstimate === "boolean" || !Number.isFinite(normalizedValue) ||
+       !Number.isInteger(normalizedValue) || normalizedValue < 0 || normalizedValue > 1_000_000_000)) {
+    return { error: "benefitValueEstimate must be a whole number from 0 to 1000000000" };
+  }
+  if (notes !== undefined && notes !== null && notes !== "" &&
+      (typeof notes !== "string" || notes.length > MAX_NOTE_LENGTH)) {
+    return { error: `notes must be at most ${MAX_NOTE_LENGTH} characters` };
+  }
+  return { status, ...(normalizedValue !== undefined ? { benefitValueEstimate: normalizedValue } : {}), ...(typeof notes === "string" && notes ? { notes: notes.trim() } : {}) };
+}
 
 // ── In-memory rate limiter for the public org-confirm endpoint ────────────────
 // Same trust model / pattern as yhsi-routes.ts: req.ip is reliable because
 // trust proxy is set at boot; we never read x-forwarded-for.
 type Bucket = { count: number; resetAt: number };
 const buckets = new Map<string, Bucket>();
+const MAX_RATE_LIMIT_BUCKETS = 10_000;
 function consume(key: string, max: number, windowMs: number): { allowed: boolean; retryAfterSec: number } {
   const now = Date.now();
+  if (buckets.size >= MAX_RATE_LIMIT_BUCKETS && !buckets.has(key)) {
+    for (const [storedKey, bucket] of buckets) {
+      if (bucket.resetAt < now) buckets.delete(storedKey);
+    }
+    if (buckets.size >= MAX_RATE_LIMIT_BUCKETS) {
+      return { allowed: false, retryAfterSec: Math.ceil(windowMs / 1000) };
+    }
+  }
   const b = buckets.get(key);
   if (!b || b.resetAt < now) {
     buckets.set(key, { count: 1, resetAt: now + windowMs });
@@ -166,8 +195,18 @@ async function lookupCapacity(
 // public dashboard and pump the outcome webhook. Rate-limited defense-in-depth.
 referralRouter.post("/", requireStaff, rateLimit("referral-create", 60, 60 * 60 * 1000), async (req, res) => {
   try {
+    if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) return res.status(400).json({ error: "Request body must be an object" });
     const { programCode, orgName, orgId, clientDisplayName, clientPhone, screeningId, funderId, notes, waitlistAcknowledged, navigatorConversationId, navigatorContext } = req.body;
-    if (!programCode || !orgName) return res.status(400).json({ error: "programCode and orgName required" });
+    if (typeof programCode !== "string" || !/^[A-Za-z0-9:_-]{1,100}$/.test(programCode) ||
+        typeof orgName !== "string" || !orgName.trim() || orgName.length > MAX_NAME_LENGTH) {
+      return res.status(400).json({ error: "programCode and orgName are invalid or oversized" });
+    }
+    for (const [value, field, max] of [[clientDisplayName, "clientDisplayName", 200], [funderId, "funderId", 200], [orgId, "orgId", 200], [notes, "notes", MAX_NOTE_LENGTH]] as const) {
+      if (value !== undefined && value !== null && (typeof value !== "string" || value.length > max)) return res.status(400).json({ error: `${field} is invalid or oversized` });
+    }
+    if (clientPhone !== undefined && clientPhone !== null && (typeof clientPhone !== "string" || clientPhone.length > 50)) return res.status(400).json({ error: "clientPhone is invalid or oversized" });
+    if (waitlistAcknowledged !== undefined && typeof waitlistAcknowledged !== "boolean") return res.status(400).json({ error: "waitlistAcknowledged must be boolean" });
+    if (screeningId !== undefined && screeningId !== null && (!/^\d+$/.test(String(screeningId)) || Number(screeningId) > 2_147_483_647)) return res.status(400).json({ error: "screeningId is invalid" });
     if (navigatorContext !== undefined && navigatorContext !== null) {
       return res.status(400).json({ error: "Navigator context is server-managed" });
     }
@@ -225,6 +264,8 @@ referralRouter.post("/", requireStaff, rateLimit("referral-create", 60, 60 * 60 
       notes: notes || null,
       navigatorConversationId: ownedNavigatorConversationId,
       navigatorContext: null,
+      statusTokenExpiresAt: new Date(Date.now() + REFERRAL_TOKEN_TTL_MS),
+      orgConfirmTokenExpiresAt: new Date(Date.now() + REFERRAL_TOKEN_TTL_MS),
     }).returning();
 
     // FEATURE 3: fire-and-forget referral.created. Never awaited; zero
@@ -289,12 +330,16 @@ referralRouter.post("/", requireStaff, rateLimit("referral-create", 60, 60 * 60 
 // GET /api/referrals/status/:token — public client status check via capability token
 referralRouter.get("/status/:token", rateLimit("referral-status", 30, 60 * 1000), async (req, res) => {
   try {
+    const token = String(req.params.token ?? "");
+    if (!/^[A-Za-z0-9_-]{16,64}$/.test(token)) return res.status(404).json({ error: "Referral not found" });
     const [r] = await db.select({
       orgName: referrals.orgName,
       programCode: referrals.programCode,
       status: referrals.status,
-      notes: referrals.notes,
-    }).from(referrals).where(eq(referrals.statusToken, req.params.token as string));
+    }).from(referrals).where(and(
+      eq(referrals.statusToken, token),
+      gt(referrals.statusTokenExpiresAt, new Date()),
+    ));
 
     if (!r) return res.status(404).json({ error: "Referral not found" });
     res.json(r);
@@ -309,24 +354,26 @@ referralRouter.get("/status/:token", rateLimit("referral-status", 30, 60 * 1000)
 // using their tcaf_ API key, without needing a ThriveUp staff account.
 referralRouter.patch("/:id/outcome", requireStaffOrPartnerInbound, async (req: Request, res: Response) => {
   try {
-      const { status, benefitValueEstimate, notes } = req.body;
-
-const VALID_STATUSES = ["enrolled", "ineligible", "withdrew", "accepted"];
-      if (!VALID_STATUSES.includes(status)) return res.status(400).json({ error: "Invalid status" });
+       const parsed = validateOutcomePayload(req.body);
+       if ("error" in parsed) return res.status(400).json({ error: parsed.error });
+       const { status, benefitValueEstimate, notes } = parsed;
 
       const referralId = (req.params.id as string).trim();
       if (!referralId) return res.status(400).json({ error: "Invalid referral id" });
 
+       const partnerKey = (req as any).partnerKey as { partnerName?: string } | undefined;
       const [existing] = await db
         .select()
         .from(referrals)
-        .where(eq(referrals.id, referralId));
+         .where(and(
+           eq(referrals.id, referralId),
+           ...(partnerKey ? [gt(referrals.orgConfirmTokenExpiresAt, new Date())] : []),
+         ));
       if (!existing) return res.status(404).json({ error: "Referral not found" });
 
       // Org binding: if the caller is a partner key (not a staff session), verify
       // their partnerName matches the referral's orgName. This prevents a key
       // provisioned for Org A from resolving a referral sent to Org B.
-      const partnerKey = (req as any).partnerKey as { partnerName?: string } | undefined;
       if (partnerKey) {
         const keyOrg = (partnerKey.partnerName ?? "").trim().toLowerCase().replace(/\s+/g, " ");
         const refOrg = (existing.orgName ?? "").trim().toLowerCase().replace(/\s+/g, " ");
@@ -354,7 +401,7 @@ const VALID_STATUSES = ["enrolled", "ineligible", "withdrew", "accepted"];
           status,
           benefitValueEstimate: bve,
           valueSource,
-          notes: notes || null,
+           outcomeNotes: notes || null,
           resolvedAt: new Date(),
         })
         .where(and(eq(referrals.id, existing.id), isNull(referrals.resolvedAt)))
@@ -384,7 +431,8 @@ const VALID_STATUSES = ["enrolled", "ineligible", "withdrew", "accepted"];
 
     // Outcome-driven grant scoring: bump fit scores on matching grants.
     if (updated.status === "enrolled") {
-      onReferralEnrolled(updated.id, existing.orgId ?? "", existing.programCode ?? "").catch(() => {});
+      onReferralEnrolled(updated.id, existing.orgId ?? "", existing.programCode ?? "")
+        .catch((error) => console.error("[referral] grant scoring failed after outcome update:", error));
     }
 
     res.json(updated);
@@ -407,16 +455,28 @@ referralRouter.post(
         res.setHeader("Retry-After", String(blockedForSec));
         return res.status(429).json({ error: `Too many invalid attempts. Try again in ${blockedForSec}s.` });
       }
+      const orgToken = String(req.params.orgToken ?? "");
+      if (!/^[A-Za-z0-9_-]{20,64}$/.test(orgToken)) {
+        orgConfirmEnumerationGuard.recordMiss(req);
+        return res.status(404).json({ error: "Referral not found" });
+      }
 
-      const { status, benefitValueEstimate, notes } = req.body;
-
-const VALID_STATUSES = ["enrolled", "ineligible", "withdrew", "accepted"];
-      if (!VALID_STATUSES.includes(status)) return res.status(400).json({ error: "Invalid status" });
+      const parsed = validateOutcomePayload(req.body);
+       if ("error" in parsed) {
+         // A malformed body is not evidence of token enumeration. Once the
+         // capability token is valid, keep this recipient usable and return a
+         // bounded validation error without spending the invalid-token budget.
+         return res.status(400).json({ error: parsed.error });
+       }
+      const { status, benefitValueEstimate, notes } = parsed;
 
       const [existing] = await db
         .select()
         .from(referrals)
-        .where(eq(referrals.orgConfirmToken, req.params.orgToken as string));
+        .where(and(
+          eq(referrals.orgConfirmToken, orgToken),
+          gt(referrals.orgConfirmTokenExpiresAt, new Date()),
+        ));
       if (!existing) {
         // Only invalid/guessed tokens count against the anti-enumeration
         // budget — a legitimate org confirming many real referrals never
@@ -442,7 +502,7 @@ const VALID_STATUSES = ["enrolled", "ineligible", "withdrew", "accepted"];
           status,
           benefitValueEstimate: bve,
           valueSource,
-          notes: notes || null,
+           outcomeNotes: notes || null,
           resolvedAt: new Date(),
         })
         .where(and(eq(referrals.id, existing.id), isNull(referrals.resolvedAt)))
@@ -474,7 +534,8 @@ const VALID_STATUSES = ["enrolled", "ineligible", "withdrew", "accepted"];
 
       // Outcome-driven grant scoring.
       if (updated.status === "enrolled") {
-        onReferralEnrolled(updated.id, existing.orgId ?? "", existing.programCode ?? "").catch(() => {});
+        onReferralEnrolled(updated.id, existing.orgId ?? "", existing.programCode ?? "")
+          .catch((error) => console.error("[referral] grant scoring failed after org confirmation:", error));
       }
 
       res.json(updated);

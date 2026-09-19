@@ -35,6 +35,7 @@ import {
 import { desc, sql, eq, ilike, or, and, gte } from "drizzle-orm";
 import { generateAIJSON, withEthicalPreamble } from "./ai-provider";
 import { getLatestRpliceEvidence } from "./rplice-inbound-routes";
+import { z } from "zod";
 
 // ── Org-type → funder eligibility keyword map ─────────────────────────────────
 // These are the terms funders use in eligibilityCriteria for each applicant type.
@@ -47,6 +48,25 @@ const ORG_ELIGIBILITY_KEYWORDS: Record<string, string[]> = {
   faith:       ["faith-based", "religious organization", "faith community", "congregation", "church", "faith-based organization"],
   coalition:   ["coalition", "consortium", "partnership", "collaborative", "intermediary", "backbone organization", "pass-through"],
 };
+
+const grantPackageRequestSchema = z.object({
+  orgType: z.enum(["nonprofit", "university", "government", "rural", "tribal", "faith", "coalition"]).default("nonprofit"),
+  orgName: z.string().trim().min(1).max(200).optional(),
+  ein: z.string().trim().max(20).optional(),
+  uei: z.string().trim().max(20).optional(),
+  is501c3: z.boolean().optional(),
+  geography: z.object({
+    zip: z.string().trim().regex(/^\d{5}$/, "zip must be a 5-digit ZIP code").optional(),
+    state: z.string().trim().regex(/^[A-Za-z]{2}$/, "state must be a two-letter code"),
+    county: z.string().trim().max(100).optional(),
+    city: z.string().trim().max(100).optional(),
+  }).strict(),
+  populationsServed: z.array(z.string().trim().min(1).max(100)).max(20).default([]),
+  missionText: z.string().trim().max(5000).optional(),
+  focusAreas: z.array(z.string().trim().min(1).max(100)).max(20).default([]),
+  targetGrantTypes: z.array(z.enum(["federal", "foundation", "state", "city"])).max(10).optional(),
+  generateNarratives: z.boolean().default(true),
+}).strict();
 
 // Priority grant domains by org type — drives narrative framing + AI context
 const ORG_GRANT_DOMAINS: Record<string, string[]> = {
@@ -91,6 +111,9 @@ function buildRpliceEvidence() {
     frameworksApplied:  allFrameworks,
     cifrAssessment:     cifrEvent?.finding ?? null,
     reaimEvaluation:    reaimEvent?.finding ?? null,
+    cfirConstructsCovered: (cifrEvent as any)?.payload?.constructsCovered ?? (cifrEvent as any)?.payload?.constructs ?? null,
+    reaimDomainsCovered: (reaimEvent as any)?.payload?.domainsCovered ?? (reaimEvent as any)?.payload?.domains ?? [],
+    narrative:           latest.finding ?? null,
     strongFindings:     strongEvidence.map(e => e.finding).filter(Boolean) as string[],
     citations:          allCitations as string[],
     lastUpdated:        latest.receivedAt,
@@ -128,10 +151,17 @@ function computeReadiness(opts: {
 
 // ── Rate limiting for /package (AI + DB intensive) ───────────────────────────
 const packageRateMap = new Map<string, { count: number; resetAt: number }>();
+const MAX_PACKAGE_RATE_KEYS = 10_000;
 function checkPackageRate(ip: string): boolean {
   const now = Date.now();
   const window = 60_000; // 1 minute
   const limit = 10;
+  if (packageRateMap.size >= MAX_PACKAGE_RATE_KEYS && !packageRateMap.has(ip)) {
+    for (const [key, value] of packageRateMap) {
+      if (value.resetAt <= now) packageRateMap.delete(key);
+    }
+    if (packageRateMap.size >= MAX_PACKAGE_RATE_KEYS) return false;
+  }
   let entry = packageRateMap.get(ip);
   if (!entry || now > entry.resetAt) {
     entry = { count: 0, resetAt: now + window };
@@ -162,8 +192,16 @@ grantConduitRouter.get("/org-types", (_req: Request, res: Response) => {
 
 // ── GET /readiness ────────────────────────────────────────────────────────────
 grantConduitRouter.get("/readiness", async (req: Request, res: Response) => {
-  const { zip, state } = req.query as { zip?: string; state?: string };
-  if (!state) return res.status(400).json({ error: "state query param is required" });
+  const rawZip = req.query.zip;
+  const rawState = req.query.state;
+  if ((rawZip !== undefined && typeof rawZip !== "string") || typeof rawState !== "string") {
+    return res.status(400).json({ error: "state and zip must be single strings" });
+  }
+  const zip = (rawZip as string | undefined)?.trim();
+  const state = (rawState as string).trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(state) || (zip !== undefined && zip !== "" && !/^\d{5}$/.test(zip))) {
+    return res.status(400).json({ error: "state must be a two-letter code and zip must be five digits" });
+  }
 
     const [region] = await db.select().from(cedsRegions)
       .where(eq(cedsRegions.state, state)).limit(1);
@@ -174,8 +212,8 @@ grantConduitRouter.get("/readiness", async (req: Request, res: Response) => {
       participantsServed:  sql<number>`coalesce(sum(${partnerOutcomeSubmissions.participantsServed}), 0)`,
       enteredEmployment:   sql<number>`coalesce(sum(${partnerOutcomeSubmissions.enteredEmployment}), 0)`,
       credentialsAttained: sql<number>`coalesce(sum(${partnerOutcomeSubmissions.credentialsAttained}), 0)`,
-      medianEarnings:      sql<number>`coalesce(avg(${partnerOutcomeSubmissions.medianEarnings}), 0)`,
-    }).from(partnerOutcomeSubmissions);
+      medianEarnings:      sql<number | null>`percentile_cont(0.5) within group (order by ${partnerOutcomeSubmissions.medianEarnings})`,
+    }).from(partnerOutcomeSubmissions).where(eq(partnerOutcomeSubmissions.status, "approved"));
 
     const pServedCount = Number(outcomeRow?.participantsServed ?? 0);
     const readiness = computeReadiness({
@@ -206,6 +244,16 @@ grantConduitRouter.post("/package", async (req: Request, res: Response) => {
     return res.status(429).json({ error: "Rate limit: 10 package requests per minute per IP." });
   }
   try {
+    const parsedRequest = grantPackageRequestSchema.safeParse(req.body);
+    if (!parsedRequest.success) {
+      return res.status(400).json({
+        error: "Invalid grant package request",
+        corrections: parsedRequest.error.issues.map((issue) => ({
+          field: issue.path.join("."),
+          problem: issue.message,
+        })),
+      });
+    }
     const {
       orgType          = "nonprofit",
       orgName,
@@ -218,21 +266,7 @@ grantConduitRouter.post("/package", async (req: Request, res: Response) => {
       focusAreas        = [],
       targetGrantTypes,           // optional: ["federal","foundation","state","city"]
       generateNarratives = true,
-    } = req.body as {
-      orgType?:          string;
-      orgName?:          string;
-      ein?:              string;
-      uei?:              string;
-      is501c3?:          boolean;
-      geography:         { zip?: string; state: string; county?: string; city?: string };
-      populationsServed?: string[];
-      missionText?:      string;
-      focusAreas?:       string[];
-      targetGrantTypes?: string[];
-      generateNarratives?: boolean;
-    };
-
-    if (!geography?.state) return res.status(400).json({ error: "geography.state is required" });
+    } = parsedRequest.data;
     const state = geography.state.toUpperCase();
 
     // ── 1. CEDS regional intelligence ─────────────────────────────────────────
@@ -329,10 +363,16 @@ grantConduitRouter.post("/package", async (req: Request, res: Response) => {
     const gvIncidents = Number(gvTotals?.incidents ?? 0);
     const gvVictims   = Number(gvTotals?.victims   ?? 0);
     const gvFatal     = Number(gvTotals?.fatalities ?? 0);
+    const gvSuppressed = gvIncidents > 0 && gvIncidents < 5;
+    const gvPublicTrend = gvTrend.map((row) => (
+      Number(row.incidents) > 0 && Number(row.incidents) < 5
+        ? { ...row, incidents: null, victims: null, fatalities: null, suppressed: true }
+        : row
+    ));
 
     // Violence-triggered grant categories — when incident counts are non-zero,
     // surface these funder categories explicitly so nonprofits don't miss them.
-    const violenceGrantCategories = gvIncidents > 0 ? [
+    const violenceGrantCategories = !gvSuppressed && gvIncidents > 0 ? [
       { agency: "DOJ / OJJDP", program: "Second Chance Act", cfda: "16.812", reason: "Reentry + violence prevention for returning citizens" },
       { agency: "CDC / NCIPC", program: "Violence Prevention", cfda: "93.136", reason: "Community-based violence intervention programs" },
       { agency: "DOJ / BJA", program: "Byrne JAG", cfda: "16.738", reason: "Local law enforcement + community violence programs" },
@@ -344,8 +384,8 @@ grantConduitRouter.post("/package", async (req: Request, res: Response) => {
       participantsServed:  sql<number>`coalesce(sum(${partnerOutcomeSubmissions.participantsServed}), 0)`,
       enteredEmployment:   sql<number>`coalesce(sum(${partnerOutcomeSubmissions.enteredEmployment}), 0)`,
       credentialsAttained: sql<number>`coalesce(sum(${partnerOutcomeSubmissions.credentialsAttained}), 0)`,
-      medianEarnings:      sql<number>`coalesce(avg(${partnerOutcomeSubmissions.medianEarnings}), 0)`,
-    }).from(partnerOutcomeSubmissions);
+      medianEarnings:      sql<number | null>`percentile_cont(0.5) within group (order by ${partnerOutcomeSubmissions.medianEarnings})`,
+    }).from(partnerOutcomeSubmissions).where(eq(partnerOutcomeSubmissions.status, "approved"));
 
     const [placementsRow] = await db.select({ total: sql<number>`count(*)` }).from(jobPlacements);
     const [certsRow]      = await db.select({ total: sql<number>`count(*)` }).from(certificates);
@@ -356,9 +396,14 @@ grantConduitRouter.post("/package", async (req: Request, res: Response) => {
       participantsServed:  pServed,
       enteredEmployment:   pEmployed,
       credentialsAttained: Number(outcomeRow?.credentialsAttained ?? 0),
-      medianEarnings:      Math.round(Number(outcomeRow?.medianEarnings ?? 0)),
-      jobPlacementsTotal:  Number(placementsRow?.total ?? 0),
-      certificatesEarned:  Number(certsRow?.total ?? 0),
+      medianEarnings:      outcomeRow?.medianEarnings == null
+        ? null
+        : Math.round(Number(outcomeRow.medianEarnings) / 100),
+      platformTotals: {
+        jobPlacements: Number(placementsRow?.total ?? 0),
+        certificates: Number(certsRow?.total ?? 0),
+        scope: "all platform records; not limited to approved partner submissions",
+      },
       employmentRate:      pServed > 0 ? Math.round((pEmployed / pServed) * 100) : 0,
     };
 
@@ -396,8 +441,11 @@ grantConduitRouter.post("/package", async (req: Request, res: Response) => {
               rpliceEvidence.citations.length ? `Citations: ${rpliceEvidence.citations.slice(0, 5).join("; ")}` : "",
             ].filter(Boolean).join(" ")
           : "RESEARCH EVIDENCE: RPLICE implementation science assessment in progress.",
-        `PLATFORM OUTCOMES (verified): ${pServed.toLocaleString()} participants served | ${outcomes.employmentRate}% employment rate | ${outcomes.credentialsAttained.toLocaleString()} credentials attained | ${outcomes.jobPlacementsTotal.toLocaleString()} job placements | Median earnings: $${outcomes.medianEarnings.toLocaleString()}`,
-        gvIncidents > 0
+        `APPROVED PARTNER OUTCOMES (verified): ${pServed.toLocaleString()} participants served | ${outcomes.employmentRate}% employment rate | ${outcomes.credentialsAttained.toLocaleString()} credentials attained | Median earnings: ${outcomes.medianEarnings == null ? "not reported" : `$${outcomes.medianEarnings.toLocaleString()}`}`,
+        `GLOBAL PLATFORM TOTALS (separate scope, all records): ${outcomes.platformTotals.jobPlacements.toLocaleString()} job placements | ${outcomes.platformTotals.certificates.toLocaleString()} certificates earned. Do not treat these totals as approved partner-submission outcomes.`,
+        gvSuppressed
+          ? `GUN VIOLENCE REGISTRY (last 90 days, ${state}${geography.zip ? ` ZIP ${geography.zip}` : ""}): incident counts are suppressed because the observed cell is below the privacy floor. Do not infer, reconstruct, or cite a numeric count; use a general violence-prevention framing only.`
+          : gvIncidents > 0
           ? `GUN VIOLENCE REGISTRY (last 90 days, ${state}${geography.zip ? ` ZIP ${geography.zip}` : ""}): ${gvIncidents} incidents | ${gvVictims} victims | ${gvFatal} fatalities. This is verified incident-level data from the TCAF Gun Violence Registry — cite it directly in the needs statement. Priority grant programs triggered: DOJ/OJJDP Second Chance Act (CFDA 16.812), CDC Violence Prevention (CFDA 93.136), DOJ/BJA Byrne JAG (CFDA 16.738), SAMHSA Community Mental Health (CFDA 93.958).`
           : "GUN VIOLENCE REGISTRY: No incidents on record for this geography in the last 90 days.",
         `FUNDING LANDSCAPE: ${topGrants.length} matched grant opportunities identified. Top agencies: ${[...new Set(topGrants.slice(0, 5).map(g => g.agency).filter(Boolean))].join(", ")}.`,
@@ -491,16 +539,20 @@ Return ONLY valid JSON (no markdown, no code fences, no explanation) with exactl
         windowDays: 90,
         geography: { state, zip: geography.zip ?? null },
         scopeLabel: gvScopeLabel,
-        incidents:  gvIncidents,
-        victims:    gvVictims,
-        fatalities: gvFatal,
+        incidents:  gvSuppressed ? null : gvIncidents,
+        victims:    gvSuppressed ? null : gvVictims,
+        fatalities: gvSuppressed ? null : gvFatal,
+        suppressed: gvSuppressed,
+        suppressionFloor: 5,
         // monthlyTrend is scoped identically to the totals above (same ZIP
         // filter when present) so the two numbers can never describe
         // different geographies.
-        monthlyTrend: gvTrend,
+        monthlyTrend: gvPublicTrend,
         triggeredGrantCategories: violenceGrantCategories,
         policyTimelineEndpoint: `/api/gun-violence/policy-timeline?state=${state}${geography.zip ? `&zip=${geography.zip}` : ""}`,
-        note: gvIncidents > 0
+        note: gvSuppressed
+          ? "Counts below 5 incidents are suppressed to protect privacy."
+          : gvIncidents > 0
           ? `Violence data is drawn from the TCAF Gun Violence Registry for ${gvScopeLabel}. Cite directly in needs statements — verified incident-level data, not estimates.`
           : `No incidents on record for ${gvScopeLabel} in the last 90 days. Omit violence context from narratives.`,
       },
@@ -537,29 +589,49 @@ Return ONLY valid JSON (no markdown, no code fences, no explanation) with exactl
 grantConduitRouter.post("/push-to-gpp", requireStaff, async (req: Request, res: Response) => {
   const gppUrl = process.env.GPP_API_URL;
   const gppKey = process.env.THRIVE_GPP_API_KEY;
-
-  // Build the intelligence package first (same logic as /package)
-  const packageRes = await fetch(`http://localhost:5000/api/grant-conduit/package`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(req.body),
-  });
-  const pkg = await packageRes.json();
-
-  if (!gppUrl) {
-    return res.json({ sent: false, preview: pkg, note: "GPP_API_URL not set — returning preview payload." });
-  }
+  let pkg: any = null;
 
   try {
+    if (gppUrl && !gppKey) {
+      return res.status(503).json({ sent: false, error: "GrantPathPro delivery is not configured with a credential" });
+    }
+    // Build the intelligence package first (same logic as /package). Use the
+    // current request origin so this remains valid on published ports.
+    const localOrigin = `${req.protocol}://${req.get("host")}`;
+    const packageRes = await fetch(`${localOrigin}/api/grant-conduit/package`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(req.body),
+      signal: AbortSignal.timeout(30_000),
+    });
+    pkg = await packageRes.json().catch(() => null);
+    if (!packageRes.ok || !pkg) {
+      return res.status(502).json({ error: "Grant package generation failed", status: packageRes.status });
+    }
+
+    if (!gppUrl) {
+      return res.json({ sent: false, preview: pkg, note: "GPP_API_URL not set — returning preview payload." });
+    }
+
     const r = await fetch(`${gppUrl}/api/inbound/conduit-package`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${gppKey ?? ""}` },
       body: JSON.stringify({ source: "thriveup-grant-conduit", sentAt: new Date().toISOString(), package: pkg }),
       signal: AbortSignal.timeout(15_000),
     });
-    const response = r.ok ? await r.json().catch(() => ({ status: r.status })) : { status: r.status, statusText: r.statusText };
+    const responseText = await r.text();
+    let response: unknown;
+    try { response = JSON.parse(responseText); } catch {
+      console.error("[GrantConduit] GPP returned non-JSON response", { status: r.status });
+      return res.status(502).json({ sent: false, error: "GrantPathPro returned an invalid response", status: r.status });
+    }
+    if (!r.ok) {
+      console.error("[GrantConduit] GPP rejected package", { status: r.status });
+      return res.status(502).json({ sent: false, error: "GrantPathPro rejected the package", status: r.status, response });
+    }
     return res.json({ sent: true, response, packageReadiness: pkg.readiness });
   } catch (e: any) {
-    return res.json({ sent: false, error: e.message, preview: pkg });
+    console.error("[GrantConduit] push-to-gpp failed", { message: e?.message ?? String(e) });
+    return res.status(502).json({ sent: false, error: "GrantPathPro delivery failed", preview: pkg });
   }
 });

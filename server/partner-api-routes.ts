@@ -83,7 +83,13 @@ function generateKey(): { plaintext: string; prefix: string; hash: string } {
 
 export async function requirePartnerAuth(req: Request, res: Response, next: NextFunction) {
   const ecosystemKey = req.headers["x-ecosystem-key"] as string;
-  const partnerKeyRaw = (req.headers["x-partner-key"] as string) || (req.headers["authorization"] || "").replace("Bearer ", "");
+  // RFC 7235 auth schemes are case-insensitive; tolerate normal whitespace
+  // after Bearer without accepting arbitrary text as a bearer credential.
+  const partnerKeyRaw = (req.headers["x-partner-key"] as string) ||
+    String(req.headers["authorization"] || "").replace(/^Bearer\s+/i, "");
+  if (typeof ecosystemKey === "string" && ecosystemKey.length > 512) {
+    return res.status(401).json({ error: "Invalid ecosystem key." });
+  }
 
   // ── Path A: Ecosystem sibling platform (your own platforms) ─────────────
   if (ecosystemKey) {
@@ -106,16 +112,29 @@ export async function requirePartnerAuth(req: Request, res: Response, next: Next
       platformId: platform.id,
     };
 
-    await db.insert(partnerApiAuditLog).values({
-      keyId: platform.id,
-      keyPrefix: `eco_${platform.id.slice(0, 10)}`,
-      partnerName: platform.name,
-      endpoint: req.path,
-      method: req.method,
-      statusCode: 200,
-      ip: (req.headers["x-forwarded-for"] as string) || req.ip || "unknown",
-      userAgent: (req.headers["user-agent"] || "").slice(0, 299),
-    }).catch(() => {});
+    let auditRow: { id: string } | undefined;
+    try {
+      [auditRow] = await db.insert(partnerApiAuditLog).values({
+        keyId: platform.id,
+        keyPrefix: `eco_${platform.id.slice(0, 10)}`,
+        partnerName: platform.name,
+        endpoint: req.path,
+        method: req.method,
+        statusCode: null,
+        ip: (req.headers["x-forwarded-for"] as string) || req.ip || "unknown",
+        userAgent: (req.headers["user-agent"] || "").slice(0, 299),
+      }).returning({ id: partnerApiAuditLog.id });
+    } catch (error) {
+      console.error("[PartnerAPI] audit log write failed; rejecting request:", error);
+      return res.status(503).json({ error: "Partner audit service temporarily unavailable" });
+    }
+    res.once("finish", () => {
+      if (!auditRow) return;
+      void db.update(partnerApiAuditLog)
+        .set({ statusCode: res.statusCode })
+        .where(eq(partnerApiAuditLog.id, auditRow.id))
+        .catch((error) => console.error("[PartnerAPI] final audit status update failed:", error));
+    });
 
     return next();
   }
@@ -130,6 +149,9 @@ export async function requirePartnerAuth(req: Request, res: Response, next: Next
       error: "Authentication required. Include x-ecosystem-key or x-partner-key.",
     });
   }
+  if (typeof partnerKeyRaw !== "string" || partnerKeyRaw.length > 512) {
+    return res.status(401).json({ error: "Invalid or revoked partner key." });
+  }
 
   const hash = hashKey(partnerKeyRaw);
   const [key] = await db.select().from(partnerApiKeys).where(and(eq(partnerApiKeys.keyHash, hash), eq(partnerApiKeys.active, true)));
@@ -139,21 +161,38 @@ export async function requirePartnerAuth(req: Request, res: Response, next: Next
 
   (req as any).partnerKey = key;
 
-  await db.insert(partnerApiAuditLog).values({
-    keyId: key.id,
-    keyPrefix: key.keyPrefix,
-    partnerName: key.partnerName,
-    endpoint: req.path,
-    method: req.method,
-    statusCode: 200,
-    ip: (req.headers["x-forwarded-for"] as string) || req.ip || "unknown",
-    userAgent: (req.headers["user-agent"] || "").slice(0, 299),
-  }).catch(() => {});
+  let auditRow: { id: string } | undefined;
+  try {
+    [auditRow] = await db.insert(partnerApiAuditLog).values({
+      keyId: key.id,
+      keyPrefix: key.keyPrefix,
+      partnerName: key.partnerName,
+      endpoint: req.path,
+      method: req.method,
+      statusCode: null,
+      ip: (req.headers["x-forwarded-for"] as string) || req.ip || "unknown",
+      userAgent: (req.headers["user-agent"] || "").slice(0, 299),
+    }).returning({ id: partnerApiAuditLog.id });
+  } catch (error) {
+    console.error("[PartnerAPI] audit log write failed; rejecting request:", error);
+    return res.status(503).json({ error: "Partner audit service temporarily unavailable" });
+  }
+  res.once("finish", () => {
+    if (!auditRow) return;
+    void db.update(partnerApiAuditLog)
+      .set({ statusCode: res.statusCode })
+      .where(eq(partnerApiAuditLog.id, auditRow.id))
+      .catch((error) => console.error("[PartnerAPI] final audit status update failed:", error));
+  });
 
-  await db.update(partnerApiKeys)
-    .set({ usageCount: key.usageCount + 1, lastUsedAt: new Date() })
-    .where(eq(partnerApiKeys.id, key.id))
-    .catch(() => {});
+  try {
+    await db.update(partnerApiKeys)
+      .set({ usageCount: sql`coalesce(${partnerApiKeys.usageCount}, 0) + 1`, lastUsedAt: new Date() })
+      .where(eq(partnerApiKeys.id, key.id));
+  } catch (error) {
+    console.error("[PartnerAPI] usage counter update failed; rejecting request:", error);
+    return res.status(503).json({ error: "Partner usage service temporarily unavailable" });
+  }
 
   next();
 }
@@ -219,7 +258,7 @@ export function registerPartnerApiRoutes(app: Express) {
           envVar: "THRIVEUP_PARTNER_KEY",
           partnerName: "GrantPathPro",
           partnerEmail: "terryflood@thrivingcommunitiesforall.com",
-          scopes: ["community:read", "impact:read", "benefits:read", "inbound:write"],
+          scopes: ["community:read", "impact:read", "benefits:read", "inbound:write", "capacity:read", "capacity:write"],
           notes: "Pinned key — auto-provisioned from THRIVEUP_PARTNER_KEY secret",
           requireTcafPrefix: true,
         },
@@ -230,7 +269,7 @@ export function registerPartnerApiRoutes(app: Express) {
           envVar: "THRIVEUP_API_KEY",
           partnerName: "ChildCORE",
           partnerEmail: "terryflood@thrivingcommunitiesforall.com",
-          scopes: ["community:read", "impact:read", "inbound:write", "student:read", "chainweb:read", "yhsi:read"],
+          scopes: ["community:read", "impact:read", "inbound:write", "student:read", "chainweb:read", "yhsi:read", "capacity:read", "capacity:write"],
           notes: "ChildCORE bidirectional key — auto-provisioned from THRIVEUP_API_KEY secret",
           requireTcafPrefix: false,
         },
@@ -654,7 +693,19 @@ export function registerPartnerApiRoutes(app: Express) {
 
   app.get("/api/partner/v1/benefits", requirePartnerAuth, requireScope("benefits:read"), async (req, res) => {
     try {
-      const limit = Math.min(parseInt((req.query.limit as string) || "100", 10), 500);
+      const rawLimit = req.query.limit;
+      if (rawLimit !== undefined && typeof rawLimit !== "string") {
+        return res.status(400).json({ error: "limit must be a single positive integer" });
+      }
+      const limitText = (rawLimit as string | undefined) ?? "100";
+      if (!/^[1-9]\d*$/.test(limitText)) {
+        return res.status(400).json({ error: "limit must be a positive integer" });
+      }
+      const parsedLimit = Number(limitText);
+      if (!Number.isSafeInteger(parsedLimit)) {
+        return res.status(400).json({ error: "limit must be a safe integer" });
+      }
+      const limit = Math.min(parsedLimit, 500);
       const catalog = await db.select({
         id: programs.id,
         title: programs.title,
@@ -674,7 +725,19 @@ export function registerPartnerApiRoutes(app: Express) {
 
   app.get("/api/partner/v1/impact", requirePartnerAuth, requireScope("impact:read"), async (req, res) => {
     try {
-      const limit = Math.min(parseInt((req.query.limit as string) || "50", 10), 200);
+      const rawLimit = req.query.limit;
+      if (rawLimit !== undefined && typeof rawLimit !== "string") {
+        return res.status(400).json({ error: "limit must be a single positive integer" });
+      }
+      const limitText = (rawLimit as string | undefined) ?? "50";
+      if (!/^[1-9]\d*$/.test(limitText)) {
+        return res.status(400).json({ error: "limit must be a positive integer" });
+      }
+      const parsedLimit = Number(limitText);
+      if (!Number.isSafeInteger(parsedLimit)) {
+        return res.status(400).json({ error: "limit must be a safe integer" });
+      }
+      const limit = Math.min(parsedLimit, 200);
       const outcomes = await db.select({
         orgName: partnerOutcomeSubmissions.orgName,
         programName: partnerOutcomeSubmissions.programName,
@@ -685,17 +748,41 @@ export function registerPartnerApiRoutes(app: Express) {
         enteredEmployment: partnerOutcomeSubmissions.enteredEmployment,
         retainedEmployment6mo: partnerOutcomeSubmissions.retainedEmployment6mo,
         credentialsAttained: partnerOutcomeSubmissions.credentialsAttained,
+        medianEarningsCents: partnerOutcomeSubmissions.medianEarnings,
         cfirFidelityScore: partnerOutcomeSubmissions.cfirFidelityScore,
         countyFips: partnerOutcomeSubmissions.countyFips,
-      }).from(partnerOutcomeSubmissions).orderBy(desc(partnerOutcomeSubmissions.id)).limit(limit);
+      }).from(partnerOutcomeSubmissions)
+        .where(eq(partnerOutcomeSubmissions.status, "approved"))
+        .orderBy(desc(partnerOutcomeSubmissions.id))
+        .limit(limit);
 
       const totals = outcomes.reduce((acc, o) => ({
         participantsServed: acc.participantsServed + (o.participantsServed || 0),
         enteredEmployment: acc.enteredEmployment + (o.enteredEmployment || 0),
         credentialsAttained: acc.credentialsAttained + (o.credentialsAttained || 0),
       }), { participantsServed: 0, enteredEmployment: 0, credentialsAttained: 0 });
+      const reportedEarnings = outcomes
+        .map((outcome) => outcome.medianEarningsCents)
+        .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+      const medianEarnings = reportedEarnings.length > 0
+        ? (() => {
+            const sorted = reportedEarnings.sort((a, b) => a - b);
+            const upper = Math.floor(sorted.length / 2);
+            const lower = Math.ceil(sorted.length / 2) - 1;
+            return Math.round(((sorted[lower] + sorted[upper]) / 2) / 100);
+          })()
+        : null;
 
-      res.json({ totals, count: outcomes.length, outcomes, exportedAt: new Date().toISOString() });
+      res.json({
+        totals,
+        medianEarnings,
+        medianEarningsSource: medianEarnings === null
+          ? "unavailable — no partner-reported wage outcomes were supplied"
+          : "partner-reported median earnings, aggregated across returned outcome records",
+        count: outcomes.length,
+        outcomes,
+        exportedAt: new Date().toISOString(),
+      });
     } catch (err) {
       res.status(500).json({ error: "Failed to fetch impact metrics." });
     }
@@ -1286,11 +1373,20 @@ export function registerPartnerApiRoutes(app: Express) {
   function checkBriefRateLimit(keyId: string): boolean {
     const now = Date.now();
     const cutoff = now - BRIEF_RATE_WINDOW_MS;
+    if (communityBriefHits.size >= 10_000 && !communityBriefHits.has(keyId)) {
+      for (const [storedKey, timestamps] of communityBriefHits) {
+        if (!timestamps.some((timestamp) => timestamp > cutoff)) {
+          communityBriefHits.delete(storedKey);
+        }
+      }
+      if (communityBriefHits.size >= 10_000) return false;
+    }
     const hits = (communityBriefHits.get(keyId) || []).filter((t) => t > cutoff);
     if (hits.length >= BRIEF_RATE_LIMIT) {
       communityBriefHits.set(keyId, hits);
       return false;
     }
+    if (hits.length === 0) communityBriefHits.delete(keyId);
     hits.push(now);
     communityBriefHits.set(keyId, hits);
     return true;
@@ -2099,20 +2195,25 @@ export function registerPartnerApiRoutes(app: Express) {
   // Logs warnings for any drift so a developer who starts the server sees it
   // immediately.  Does not throw — the server must be able to start even if
   // there is a temporary registry discrepancy during a refactor.
-  const drift = auditRouteRegistration(app as any);
-  if (drift.missing.length > 0) {
-    console.warn(
-      "[partner-api-contract] ⚠ Routes in registry but NOT registered in Express:\n" +
-        drift.missing.map((r) => `  - ${r}`).join("\n"),
-    );
-  }
-  if (drift.extra.length > 0) {
-    console.warn(
-      "[partner-api-contract] ⚠ /api/partner/v1/* routes registered in Express but NOT in registry:\n" +
-        drift.extra.map((r) => `  + ${r}`).join("\n"),
-    );
-  }
-  if (drift.missing.length === 0 && drift.extra.length === 0) {
-    console.log("[partner-api-contract] ✓ Route registration matches contract registry.");
-  }
+  // Capacity routes are mounted by the aggregate route registrar immediately
+  // after this function returns. Defer the audit one turn so the registry is
+  // checked against the complete Express stack rather than a partial stack.
+  setImmediate(() => {
+    const drift = auditRouteRegistration(app as any);
+    if (drift.missing.length > 0) {
+      console.warn(
+        "[partner-api-contract] ⚠ Routes in registry but NOT registered in Express:\n" +
+          drift.missing.map((r) => `  - ${r}`).join("\n"),
+      );
+    }
+    if (drift.extra.length > 0) {
+      console.warn(
+        "[partner-api-contract] ⚠ /api/partner/v1/* routes registered in Express but NOT in registry:\n" +
+          drift.extra.map((r) => `  + ${r}`).join("\n"),
+      );
+    }
+    if (drift.missing.length === 0 && drift.extra.length === 0) {
+      console.log("[partner-api-contract] ✓ Route registration matches contract registry.");
+    }
+  });
 }

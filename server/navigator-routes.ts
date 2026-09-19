@@ -191,8 +191,13 @@ const deepThinkResultStore = new Map<
     engineId: string;
     timeMs: number;
     expiresAt: number;
+    ownerUserId?: string;
   }
 >();
+const MAX_DEEP_THINK_JOBS = 2;
+const DEEP_THINK_TTL_MS = 10 * 60 * 1000;
+let activeDeepThinkJobs = 0;
+const deepThinkAdmissionTimers = new Map<string, ReturnType<typeof setTimeout>>();
 setInterval(
   () => {
     const now = Date.now();
@@ -202,6 +207,26 @@ setInterval(
   },
   5 * 60 * 1000,
 );
+
+function admitDeepThinkJob(jobId: string): boolean {
+  if (activeDeepThinkJobs >= MAX_DEEP_THINK_JOBS) return false;
+  activeDeepThinkJobs++;
+  const timer = setTimeout(() => {
+    deepThinkAdmissionTimers.delete(jobId);
+    activeDeepThinkJobs = Math.max(0, activeDeepThinkJobs - 1);
+  }, DEEP_THINK_TTL_MS);
+  deepThinkAdmissionTimers.set(jobId, timer);
+  return true;
+}
+
+function releaseDeepThinkJob(jobId: string): void {
+  const timer = deepThinkAdmissionTimers.get(jobId);
+  if (timer) clearTimeout(timer);
+  if (timer) {
+    deepThinkAdmissionTimers.delete(jobId);
+    activeDeepThinkJobs = Math.max(0, activeDeepThinkJobs - 1);
+  }
+}
 
 function getUserId(req: Request): string | undefined {
   const user = (req as any).user;
@@ -1519,11 +1544,54 @@ export function registerNavigatorRoutes(app: Express) {
       });
     }
 
+    // Attach disconnect handling before context assembly so an abandoned
+    // request is observed while GIS/data lookups are still in flight.
+    let clientDisconnected = false;
+    let responseCompleted = false;
+    const requestAbortController = new AbortController();
+    res.on("close", () => {
+      clientDisconnected = true;
+      if (!responseCompleted) requestAbortController.abort();
+    });
+    req.on("aborted", () => {
+      clientDisconnected = true;
+      requestAbortController.abort();
+    });
+    const ensureClientConnected = () => {
+      if (requestAbortController.signal.aborted || clientDisconnected || res.destroyed || res.writableEnded) {
+        throw new Error("Navigator client disconnected before provider work");
+      }
+    };
+
+    let contextResult: Awaited<ReturnType<typeof assembleContext>>;
+    try {
+      contextResult = await Promise.race([
+        assembleContext(req, message),
+        new Promise<Awaited<ReturnType<typeof assembleContext>>>((_, reject) => {
+          requestAbortController.signal.addEventListener(
+            "abort",
+            () => reject(new Error("Navigator request cancelled during context assembly")),
+            { once: true },
+          );
+        }),
+      ]);
+    } catch (error) {
+      if (requestAbortController.signal.aborted) return;
+      throw error;
+    }
     const {
       context: contextData,
       censusIndicators: navigatorCensusIndicators,
       gvTotals: navigatorGvTotals,
-    } = await assembleContext(req, message);
+    } = contextResult;
+    // A client can disconnect while GIS/provider context is assembling. Stop
+    // before grant search or any model/provider work, and guard every later SSE
+    // write so late callbacks cannot write to a dead socket.
+    try {
+      ensureClientConnected();
+    } catch {
+      return;
+    }
     // Recompute (cheap, regex-only) in this handler's scope so the "Continue
     // in Tell-a-Story" carry-over (#216) can reference it — assembleContext's
     // internal detection variables are local to that function.
@@ -1570,6 +1638,18 @@ export function registerNavigatorRoutes(app: Express) {
     // This is SEPARATE from activeConversationId — anonymous users get no DB
     // conversation but still need a key so R1 results can be polled.
     const deepThinkJobId = randomUUID();
+    // Deep reasoning is optional work. Do not start an unbounded collection of
+    // background jobs when providers are slow or clients abandon requests.
+    const deepThinkAdmitted =
+      Boolean(
+        process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY &&
+          process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
+      ) && admitDeepThinkJob(deepThinkJobId);
+    requestAbortController.signal.addEventListener(
+      "abort",
+      () => releaseDeepThinkJob(deepThinkJobId),
+      { once: true },
+    );
 
     if (!userId && conversationId) {
       return res.status(403).json({
@@ -1705,8 +1785,13 @@ export function registerNavigatorRoutes(app: Express) {
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
     res.setHeader("X-Conversation-Id", activeConversationId || "");
+    const safeWrite = (payload: string): boolean => {
+      if (clientDisconnected || res.destroyed || res.writableEnded) return false;
+      res.write(payload);
+      return true;
+    };
 
-    res.write(
+    safeWrite(
       `data: ${JSON.stringify({ conversationId: activeConversationId })}\n\n`,
     );
 
@@ -1753,7 +1838,7 @@ export function registerNavigatorRoutes(app: Express) {
     const urlMatches = message.match(/https?:\/\/[^\s\]]+/g);
     let augmentedMessage = message;
     if (urlMatches && urlMatches.length > 0) {
-      res.write(
+      safeWrite(
         `data: ${JSON.stringify({
           urlFetchWarning:
             "For safety, Navigator cannot retrieve pasted web links. Please paste the relevant text or attach a document instead.",
@@ -1765,6 +1850,11 @@ export function registerNavigatorRoutes(app: Express) {
     // Fires when user says "find grants for [org]", "hunt for grants for City of Manor", etc.
     // Runs the full AI Hunt engine inline and injects ranked results + alignment framing
     // into the context so the AI tells the story, not just lists the grants.
+    try {
+      ensureClientConnected();
+    } catch {
+      return;
+    }
     const grantHuntMatch =
       /(?:find|search|hunt|look\s+for|get|show\s+me|discover|pull)\s+(?:a\s+)?grants?\s+for\s+(?:the\s+)?(.+?)(?:\s*[.?!]?\s*$)/i.exec(
         message.trim(),
@@ -1781,11 +1871,12 @@ export function registerNavigatorRoutes(app: Express) {
       try {
         console.log(`[Navigator] Grant hunt intent for: "${orgDesc}"`);
         // Immediately signal the frontend so the user sees activity, not a frozen spinner
-        res.write(
+        safeWrite(
           `data: ${JSON.stringify({ grantHuntProgress: { org: orgDesc, step: "querying", message: `Hunting Grants.gov for "${orgDesc}"…` } })}\n\n`,
         );
 
         // Step 1 — AI generates targeted queries
+        ensureClientConnected();
         const queryPlan = await generateAIJSON<{
           queries: string[];
           orgType: string;
@@ -1814,7 +1905,10 @@ export function registerNavigatorRoutes(app: Express) {
                   oppStatuses: "posted",
                   rows: 8,
                 }),
-                signal: AbortSignal.timeout(10000),
+                signal: AbortSignal.any([
+                  requestAbortController.signal,
+                  AbortSignal.timeout(10000),
+                ]),
               },
             );
             if (!r.ok) return [];
@@ -1851,6 +1945,7 @@ export function registerNavigatorRoutes(app: Express) {
         let scored = allHits.slice(0, 20);
         if (scored.length > 0) {
           try {
+            ensureClientConnected();
             const scoreResult = await generateAIJSON<{
               scores: Array<{ index: number; score: number; reason: string }>;
             }>(
@@ -1916,7 +2011,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
         // can't restate a different total than what the hunt actually found).
         navigatorGrantHuntTotal = allHits.length;
         // Emit structured grant cards BEFORE the text stream — frontend renders them with "Add to Pipeline" buttons
-        res.write(
+        safeWrite(
           `data: ${JSON.stringify({ grantHuntResults: scored, grantOrgName: orgDesc, totalFound: allHits.length })}\n\n`,
         );
         console.log(
@@ -1973,6 +2068,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
       if (candidate) {
         try {
           const blocks: string[] = [];
+          ensureClientConnected();
           const profile = await fetchNonprofitProfile(candidate);
           if (profile) {
             blocks.push(formatNonprofitProfileBlock(profile, candidate));
@@ -1982,6 +2078,8 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
               const research = await perplexityResearch(
                 `What does the organization "${candidate}" do (mission, programs, who they serve)? Where are they located, and what is their official website? If you cannot find reliable current information, say so plainly rather than guessing.`,
                 "You are a careful researcher supporting a case worker. Cite your sources. Never invent a website, phone number, program detail, or funder you cannot verify.",
+                undefined,
+                requestAbortController.signal,
               );
               blocks.push(
                 `\n\n[LIVE WEB RESEARCH for "${candidate}"]\n${research.text}${research.citations.length ? `\nSources: ${research.citations.join(", ")}` : ""}`,
@@ -2012,6 +2110,26 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
     msgs.push({ role: "user", content: augmentedMessage });
 
     let fullResponse = "";
+    const sourceMetadata = {
+      census: {
+        status: navigatorCensusIndicators ? "available" : "unavailable",
+        geography: navigatorCensusIndicators?.zip ?? null,
+        disclosure: navigatorCensusIndicators
+          ? "Aggregate Census indicators were available for the requested ZIP."
+          : "Census indicators were unavailable; no substitute values were used.",
+      },
+      gunViolence: gunViolenceContext.injected
+        ? {
+            status: navigatorGvTotals &&
+              Object.values(navigatorGvTotals).some((value) => typeof value === "number")
+              ? "available"
+              : "unavailable",
+            geography: gunViolenceContext.geography,
+            state: gunViolenceContext.state,
+            disclosure: "Gun-violence source fields remain unavailable when the upstream registry does not return them.",
+          }
+        : { status: "not_requested", geography: null, state: null },
+    };
 
     // Detect whether the user attached documents — if so we skip RAG retrieval
     // (the document IS the relevant context) and route to Claude's 200K window.
@@ -2026,7 +2144,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
         report: 16000,
       };
       const modeTokens = tokensByMode[responseMode] || 5000;
-      await collaborativeStream({
+      await collaborativeStream(({
         prompt: augmentedMessage,
         systemPrompt: msgs.find((m) => m.role === "system")?.content,
         maxTokens: hasAttachedDocuments ? 8000 : modeTokens,
@@ -2034,7 +2152,10 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
         // Navigator has its own comprehensive system prompt — suppress RPLICE/MAP-GAP
         // framework injection that causes consulting-speak "MEASURE Phase" output.
         noFrameworkInjection: !hasAttachedDocuments,
-        onChunk: (content) => {
+        // Keep request cancellation available at the orchestration boundary;
+        // fallback/provider work below uses the same signal.
+        signal: requestAbortController.signal,
+        onChunk: (content: string) => {
           // Buffer server-side — grounding must run before the response
           // reaches the client. SSE content events are emitted all at once
           // inside onDone after the grounded text has been produced.
@@ -2042,19 +2163,20 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
           // carry no claimable content) so the client still sees early signals.
           fullResponse += content;
         },
-        onMeta: (meta) => {
-          res.write(
+        onMeta: (meta: any) => {
+          safeWrite(
             `data: ${JSON.stringify({ meta: { engines: meta.engines, ragSources: meta.ragSources.length, frameworks: meta.frameworks } })}\n\n`,
           );
         },
         onSynthesisComplete: () => {
-          res.write(`data: ${JSON.stringify({ synthesisComplete: true })}\n\n`);
+          safeWrite(`data: ${JSON.stringify({ synthesisComplete: true })}\n\n`);
         },
         onKeepAlive: () => {
           // SSE comment — keeps the proxy / mobile connection alive during R1 wait
-          res.write(`: keepalive\n\n`);
+          safeWrite(`: keepalive\n\n`);
         },
-        onDeepThinking: (text, engineId, timeMs) => {
+        onDeepThinking: deepThinkAdmitted ? (text: string, engineId: string, timeMs: number) => {
+          releaseDeepThinkJob(deepThinkJobId);
           // SSE is already closed when this fires (Phase 2 is background).
           // Strip <think>...</think> tags then store for client polling.
           // Key by deepThinkJobId (not activeConversationId) so anonymous
@@ -2065,14 +2187,16 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
               text: cleaned,
               engineId,
               timeMs,
-              expiresAt: Date.now() + 10 * 60 * 1000,
+              expiresAt: Date.now() + DEEP_THINK_TTL_MS,
+              ownerUserId: userId,
             });
             console.log(
               `[Navigator] R1 stored for poll — job: ${deepThinkJobId} (${timeMs}ms)`,
             );
           }
-        },
-        onDone: async (result) => {
+        } : undefined,
+        onDone: async (result: any) => {
+          if (clientDisconnected || res.destroyed || res.writableEnded) return;
           // ── Pre-client grounding enforcement ────────────────────────────────
           // fullResponse is the full buffered AI output. Run it through the
           // shared grounding helper BEFORE writing to SSE or the DB. Ungrounded
@@ -2091,7 +2215,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
           // The response was buffered (not streamed live) so the client receives
           // only the verified, grounded text.
           if (groundedResponse.length > 0) {
-            res.write(
+            safeWrite(
               `data: ${JSON.stringify({ content: groundedResponse })}\n\n`,
             );
           }
@@ -2122,12 +2246,13 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
 
           // Always send deepThinkJobId (per-request UUID) so both authenticated
           // and anonymous users can poll for the DeepSeek R1 result.
-          res.write(
-            `data: ${JSON.stringify({ done: true, deepThinkJobId, gunViolenceContext: gunViolenceContext.injected ? { geography: gunViolenceContext.geography, state: gunViolenceContext.state } : null, collaborative: { engines: result.engines.filter((e) => !e.error).map((e) => e.engine), consensusMethod: result.consensusMethod, ragChunks: result.ragContext.chunkCount, timeMs: result.totalTimeMs } })}\n\n`,
+          safeWrite(
+            `data: ${JSON.stringify({ done: true, deepThinkJobId, sourceMetadata, gunViolenceContext: gunViolenceContext.injected ? { geography: gunViolenceContext.geography, state: gunViolenceContext.state } : null, collaborative: { engines: result.engines.filter((e: any) => !e.error).map((e: any) => e.engine), consensusMethod: result.consensusMethod, ragChunks: result.ragContext.chunkCount, timeMs: result.totalTimeMs } })}\n\n`,
           );
+          responseCompleted = true;
           res.end();
         },
-        onError: async (error) => {
+        onError: async (error: Error) => {
           console.error("[Navigator] AI error:", error);
           // All collaborative engines failed — stream directly from OpenRouter
           // (fast, streaming, no multi-provider waterfall delay).
@@ -2145,9 +2270,10 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
                 messages: msgs as any,
                 max_tokens: 2000,
                 stream: true,
-              });
+              }, { signal: requestAbortController.signal } as any);
               let fallbackResponse = "";
               for await (const chunk of orStream) {
+                ensureClientConnected();
                 const content = chunk.choices[0]?.delta?.content || "";
                 if (content) fallbackResponse += content;
               }
@@ -2160,22 +2286,24 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
                 navigatorGrantHuntTotal,
               );
               if (fallbackGrounded.length > 0) {
-                res.write(
+                safeWrite(
                   `data: ${JSON.stringify({ content: fallbackGrounded })}\n\n`,
                 );
               }
-              res.write(
+              safeWrite(
                 `data: ${JSON.stringify({ synthesisComplete: true })}\n\n`,
               );
-              res.write(
-                `data: ${JSON.stringify({ done: true, gunViolenceContext: gunViolenceContext.injected ? { geography: gunViolenceContext.geography, state: gunViolenceContext.state } : null, collaborative: { engines: ["fallback-openrouter"], consensusMethod: "single-engine-fallback", ragChunks: 0, timeMs: 0 } })}\n\n`,
+              safeWrite(
+                `data: ${JSON.stringify({ done: true, sourceMetadata, gunViolenceContext: gunViolenceContext.injected ? { geography: gunViolenceContext.geography, state: gunViolenceContext.state } : null, collaborative: { engines: ["fallback-openrouter"], consensusMethod: "single-engine-fallback", ragChunks: 0, timeMs: 0 } })}\n\n`,
               );
+              responseCompleted = true;
               res.end();
             } else {
               // No OR key — last-resort waterfall (slow but better than nothing)
               let lastResortResponse = "";
               await streamAIResponse({
                 messages: msgs,
+                signal: requestAbortController.signal,
                 onChunk: (content) => {
                   lastResortResponse += content;
                 },
@@ -2188,39 +2316,46 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
                     navigatorGrantHuntTotal,
                   );
                   if (lastResortGrounded.length > 0) {
-                    res.write(
+                    safeWrite(
                       `data: ${JSON.stringify({ content: lastResortGrounded })}\n\n`,
                     );
                   }
-                  res.write(
+                  safeWrite(
                     `data: ${JSON.stringify({ synthesisComplete: true })}\n\n`,
                   );
-                  res.write(
-                    `data: ${JSON.stringify({ done: true, gunViolenceContext: gunViolenceContext.injected ? { geography: gunViolenceContext.geography, state: gunViolenceContext.state } : null, collaborative: { engines: ["fallback"], consensusMethod: "single-engine-fallback", ragChunks: 0, timeMs: 0 } })}\n\n`,
+                  safeWrite(
+                    `data: ${JSON.stringify({ done: true, sourceMetadata, gunViolenceContext: gunViolenceContext.injected ? { geography: gunViolenceContext.geography, state: gunViolenceContext.state } : null, collaborative: { engines: ["fallback"], consensusMethod: "single-engine-fallback", ragChunks: 0, timeMs: 0 } })}\n\n`,
                   );
+                  responseCompleted = true;
                   res.end();
                 },
                 onError: (err) => {
                   console.error("[navigator] stream error:", err);
+                  responseCompleted = true;
                   res.end();
                 },
               });
             }
           } catch (fallbackErr) {
+            releaseDeepThinkJob(deepThinkJobId);
+            if (requestAbortController.signal.aborted) return;
             console.error("[Navigator] Fallback also failed:", fallbackErr);
-            res.write(
+            safeWrite(
               `data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`,
             );
+            responseCompleted = true;
             res.end();
           }
         },
-      });
+      }) as any);
     } catch (error) {
+      releaseDeepThinkJob(deepThinkJobId);
+      if (requestAbortController.signal.aborted) return;
       console.error("[Navigator] Stream error:", error);
       if (!res.headersSent) {
         res.status(500).json({ error: "Failed to generate response" });
       } else {
-        res.write(
+        safeWrite(
           `data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`,
         );
         res.end();
@@ -2237,6 +2372,12 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
   app.get("/api/navigator/deep-think/:jobId", (req, res) => {
     const jobId = req.params.jobId as string;
     const entry = deepThinkResultStore.get(jobId);
+    // Authenticated jobs are private to their owner. Anonymous jobs retain
+    // UUID possession semantics for compatibility with the public chat flow.
+    const pollingUserId = getUserId(req);
+    if (entry?.ownerUserId && entry.ownerUserId !== pollingUserId) {
+      return res.status(403).json({ error: "Deep-think job access denied" });
+    }
     if (entry && entry.expiresAt > Date.now()) {
       deepThinkResultStore.delete(jobId); // one-time delivery — consume on read
       return res.json({

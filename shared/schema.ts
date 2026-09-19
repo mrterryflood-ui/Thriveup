@@ -3010,7 +3010,9 @@ export const onboardingMilestoneCompletions = pgTable("onboarding_milestone_comp
   notes: text("notes"),
   serviceRecordId: varchar("service_record_id", { length: 100 }),
   completedAt: timestamp("completed_at").defaultNow(),
-});
+}, (t) => ({
+  journeyMilestoneUq: uniqueIndex("onboarding_milestone_completions_journey_milestone_uq").on(t.journeyId, t.milestoneId),
+}));
 
 export const insertOnboardingMilestoneCompletionSchema = createInsertSchema(onboardingMilestoneCompletions).omit({ id: true, completedAt: true });
 export type InsertOnboardingMilestoneCompletion = z.infer<typeof insertOnboardingMilestoneCompletionSchema>;
@@ -4194,7 +4196,9 @@ export const benefitsEnrollmentData = pgTable("benefits_enrollment_data", {
   longitude: real("longitude"),
   updatedAt: timestamp("updated_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (t) => ({
+  countyBenefitUq: uniqueIndex("benefits_enrollment_data_county_benefit_uq").on(t.countyFips, t.benefitType),
+}));
 
 export const insertBenefitsEnrollmentDataSchema = createInsertSchema(benefitsEnrollmentData).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertBenefitsEnrollmentData = z.infer<typeof insertBenefitsEnrollmentDataSchema>;
@@ -4363,7 +4367,9 @@ export const benefitsApplications = pgTable("benefits_applications", {
   grantReportingTags: text("grant_reporting_tags").array(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
+}, (t) => ({
+  externalPeerUq: uniqueIndex("benefits_applications_external_peer_uq").on(t.externalId, t.peerPlatform),
+}));
 
 export const grantPartners = pgTable("grant_partners", {
   id: varchar("id", { length: 100 }).primaryKey(),
@@ -7618,12 +7624,16 @@ export const referrals = pgTable("referrals", {
   // Public capability token that lets an org confirm an enrollment outcome
   // WITHOUT a staff login. Same random-default pattern as statusToken.
   orgConfirmToken: varchar("org_confirm_token").unique().$defaultFn(() => nanoid(24)),
+  statusTokenExpiresAt: timestamp("status_token_expires_at").notNull(),
+  orgConfirmTokenExpiresAt: timestamp("org_confirm_token_expires_at").notNull(),
   status: text("status").notNull().default("sent"),
   benefitValueEstimate: integer("benefit_value_estimate"),
   // Provenance of benefitValueEstimate: 'default' when a program default was
   // applied because the org confirmed enrollment without a dollar estimate.
   valueSource: varchar("value_source"),
   notes: text("notes"),
+  // CHW referral context is private; organization outcome notes are separate.
+  outcomeNotes: text("outcome_notes"),
   funderId: text("funder_id"),
   // Context bridge: CHW can link a referral to the Navigator conversation that
   // identified the need, so the full journey is traceable and the org receives
@@ -8614,6 +8624,7 @@ export const childcoreCountyMetrics = pgTable("childcore_county_metrics", {
   pushedBy: varchar("pushed_by", { length: 100 }).default("childcore"),
 }, (t) => [
   index("childcore_county_metrics_fips_idx").on(t.fipsCode),
+  uniqueIndex("childcore_county_metrics_fips_unique").on(t.fipsCode),
   index("childcore_county_metrics_received_idx").on(t.receivedAt),
 ]);
 

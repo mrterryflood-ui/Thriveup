@@ -31,6 +31,7 @@ const STATUS_OPTIONS = [
   { value: "ineligible", label: "Ineligible — did not qualify" },
   { value: "withdrew", label: "Withdrew — client declined or dropped out" },
 ];
+const MAX_NOTES = 2000;
 
 type SubmitState =
   | { kind: "idle" }
@@ -38,6 +39,8 @@ type SubmitState =
   | { kind: "success" }
   | { kind: "not_found" }
   | { kind: "conflict" }
+  | { kind: "rate_limited"; retryAfter?: number }
+  | { kind: "unavailable" }
   | { kind: "error"; message: string };
 
 export default function OrgConfirmPage() {
@@ -54,14 +57,25 @@ export default function OrgConfirmPage() {
   }, []);
 
   async function handleSubmit() {
-    if (!status) return;
+    if (!STATUS_OPTIONS.some((option) => option.value === status)) {
+      setState({ kind: "error", message: "Choose a valid outcome." });
+      return;
+    }
     setState({ kind: "submitting" });
     try {
       const body: Record<string, unknown> = { status };
       const trimmedValue = benefitValueEstimate.trim();
       if (trimmedValue !== "") {
         const parsed = Number(trimmedValue);
-        if (!Number.isNaN(parsed)) body.benefitValueEstimate = parsed;
+        if (!Number.isInteger(parsed) || parsed < 0 || parsed > 1_000_000_000) {
+          setState({ kind: "error", message: "Enter a whole-dollar value from $0 to $1,000,000,000." });
+          return;
+        }
+        body.benefitValueEstimate = parsed;
+      }
+      if (notes.length > MAX_NOTES) {
+        setState({ kind: "error", message: `Notes must be ${MAX_NOTES} characters or fewer.` });
+        return;
       }
       if (notes.trim() !== "") body.notes = notes.trim();
 
@@ -83,6 +97,15 @@ export default function OrgConfirmPage() {
         setState({ kind: "conflict" });
         return;
       }
+      if (res.status === 429) {
+        const retryAfter = Number(res.headers.get("Retry-After"));
+        setState({ kind: "rate_limited", ...(Number.isFinite(retryAfter) && retryAfter > 0 ? { retryAfter } : {}) });
+        return;
+      }
+      if (res.status >= 500) {
+        setState({ kind: "unavailable" });
+        return;
+      }
       const errBody = await res.json().catch(() => ({}));
       setState({
         kind: "error",
@@ -100,7 +123,7 @@ export default function OrgConfirmPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-teal-50 to-white dark:from-teal-950/20 dark:to-background p-4 sm:p-6 flex items-start justify-center">
-      <div className="w-full max-w-lg mx-auto pt-6 sm:pt-12" data-testid="org-confirm-page">
+      <div className="w-full max-w-lg mx-auto pt-6 sm:pt-12" data-testid="org-confirm-page" aria-live="polite">
         <div className="flex items-center gap-2 mb-4">
           <div className="rounded-md p-2 bg-teal-100 dark:bg-teal-900/30">
             <Building2 className="h-5 w-5 text-teal-600 dark:text-teal-400" />
@@ -139,6 +162,32 @@ export default function OrgConfirmPage() {
                 This referral outcome has already been recorded and is final. No further changes
                 are needed. If you believe this is a mistake, contact the referring worker.
               </p>
+            </CardContent>
+          </Card>
+        ) : state.kind === "rate_limited" ? (
+          <Card data-testid="state-rate-limited">
+            <CardContent className="pt-8 pb-8 text-center" role="alert" aria-live="assertive">
+              <AlertTriangle className="h-12 w-12 mx-auto text-amber-500 mb-3" />
+              <h1 className="text-lg font-bold mb-1">Please wait before trying again</h1>
+              <p className="text-sm text-muted-foreground">
+                Too many invalid link attempts were made. Please wait {state.retryAfter ? `${state.retryAfter} seconds` : "a moment"} and try again.
+              </p>
+              <Button variant="outline" className="mt-4" onClick={() => setState({ kind: "idle" })}>
+                Try again
+              </Button>
+            </CardContent>
+          </Card>
+        ) : state.kind === "unavailable" ? (
+          <Card data-testid="state-unavailable">
+            <CardContent className="pt-8 pb-8 text-center" role="alert" aria-live="assertive">
+              <AlertTriangle className="h-12 w-12 mx-auto text-amber-500 mb-3" />
+              <h1 className="text-lg font-bold mb-1">Service temporarily unavailable</h1>
+              <p className="text-sm text-muted-foreground">
+                Your referral was not changed. Please try again shortly.
+              </p>
+              <Button variant="outline" className="mt-4" onClick={() => setState({ kind: "idle" })}>
+                Try again
+              </Button>
             </CardContent>
           </Card>
         ) : (
@@ -199,7 +248,7 @@ export default function OrgConfirmPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="org-confirm-notes">
-                  Notes <span className="text-muted-foreground font-normal">(optional)</span>
+                  Notes for the referring worker <span className="text-muted-foreground font-normal">(optional)</span>
                 </Label>
                 <Textarea
                   id="org-confirm-notes"
@@ -210,12 +259,15 @@ export default function OrgConfirmPage() {
                   disabled={isSubmitting}
                   data-testid="input-notes"
                 />
+                <p className="text-xs text-muted-foreground">{notes.length}/{MAX_NOTES}</p>
               </div>
 
               {state.kind === "error" && (
                 <div
                   className="flex items-start gap-2 text-sm text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded p-3"
                   data-testid="state-error"
+                  role="alert"
+                  aria-live="assertive"
                 >
                   <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
                   <span>{state.message}</span>

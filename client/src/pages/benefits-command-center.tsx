@@ -64,7 +64,7 @@ function getBarrierColor(index: number): string {
 
 function CommandDashboard() {
   const { toast } = useToast();
-  const { data: stats, isLoading } = useQuery<any>({ queryKey: ["/api/benefits/command-center/stats"] });
+  const { data: stats, isLoading, isError, refetch } = useQuery<any>({ queryKey: ["/api/benefits/command-center/stats"] });
 
   const ingestMutation = useMutation({
     mutationFn: async () => {
@@ -86,6 +86,17 @@ function CommandDashboard() {
           {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-40" />)}
         </div>
       </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Card className="p-8 text-center border-destructive" role="alert">
+        <AlertTriangle className="h-10 w-10 mx-auto text-destructive mb-3" />
+        <h3 className="text-lg font-semibold">Benefits data is temporarily unavailable</h3>
+        <p className="text-sm text-muted-foreground mt-2">The existing data was not replaced. Try again shortly.</p>
+        <Button variant="outline" className="mt-4" onClick={() => void refetch()}>Retry</Button>
+      </Card>
     );
   }
 
@@ -137,7 +148,7 @@ function CommandDashboard() {
           <div className="flex flex-col items-center text-center gap-1">
             <Users className="h-5 w-5 text-blue-500" />
             <span className="text-2xl font-bold">{(stats.totals.totalEligible || 0).toLocaleString()}</span>
-            <span className="text-xs text-muted-foreground">Total Eligible</span>
+            <span className="text-xs text-muted-foreground">Estimated eligible population</span>
           </div>
         </Card>
         <Card className="p-4" data-testid="stat-partners">
@@ -159,12 +170,13 @@ function CommandDashboard() {
         claims={[{
           value: stats.totals.totalEligible || 0,
           unit: "eligible residents",
-          source: "TCAF Platform Administrative Records",
+          source: stats.dataProvenance?.source ?? "Census ACS 2022 with participation assumptions",
           sourceId: "platform-program-enrollment",
-          asOfDate: null,
+          asOfDate: stats.dataProvenance?.latestUpdatedAt ?? null,
           geographyKey: "Central Texas 5-county region",
-          confidence: "verified",
-          decisionCaption: "Use enrollment-gap totals to prioritize benefits outreach and renewal support.",
+          confidence: "modeled",
+          methodology: stats.dataProvenance?.interpretation,
+          decisionCaption: "Use this modeled gap to prioritize outreach; do not treat it as confirmed enrollment.",
         }]}
       />
 
@@ -193,11 +205,11 @@ function CommandDashboard() {
                   <span className="font-medium">{(county.population || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Eligible</span>
+                  <span className="text-muted-foreground">Estimated eligible</span>
                   <span className="font-medium">{(county.totalEligible || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Enrolled</span>
+                  <span className="text-muted-foreground">Modeled enrolled</span>
                   <span className="font-medium">{(county.totalEnrolled || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
@@ -212,7 +224,7 @@ function CommandDashboard() {
                 </div>
               </div>
               <Progress value={county.overallParticipationRate} className="h-1.5" />
-              <p className="text-xs text-center text-muted-foreground">{county.overallParticipationRate}% participation</p>
+              <p className="text-xs text-center text-muted-foreground">{county.overallParticipationRate}% modeled participation</p>
             </CardContent>
           </Card>
         ))}
@@ -269,7 +281,7 @@ function CommandDashboard() {
 }
 
 function GisMapPanel() {
-  const { data: stats } = useQuery<any>({ queryKey: ["/api/benefits/command-center/stats"] });
+  const { data: stats, isError: statsError, refetch: refetchStats } = useQuery<any>({ queryKey: ["/api/benefits/command-center/stats"] });
   const { data: counties } = useQuery<any[]>({ queryKey: ["/api/benefits/counties"] });
   const [mapLayer, setMapLayer] = useState<"gaps" | "barriers" | "facilitators">("gaps");
   const [selectedCounty, setSelectedCounty] = useState<string | null>(null);
@@ -277,7 +289,7 @@ function GisMapPanel() {
     queryKey: ["/api/benefits/facilitators", selectedCounty],
     enabled: !!selectedCounty && mapLayer === "facilitators",
   });
-  const { data: barriers } = useQuery<any>({
+  const { data: barriers, isError: barriersError, refetch: refetchBarriers } = useQuery<any>({
     queryKey: ["/api/benefits/barriers", selectedCounty],
     enabled: !!selectedCounty && mapLayer === "barriers",
   });
@@ -315,6 +327,15 @@ function GisMapPanel() {
         ))}
       </div>
 
+      {statsError && (
+        <Card className="border-destructive" role="alert">
+          <CardContent className="flex items-center justify-between gap-3 p-4">
+            <p className="text-sm text-destructive">County GIS statistics are temporarily unavailable.</p>
+            <Button size="sm" variant="outline" onClick={() => refetchStats()}>Retry</Button>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2">
           <Card className="overflow-hidden" data-testid="card-gis-map">
@@ -351,8 +372,8 @@ function GisMapPanel() {
                         <p>Population: {(county.population || 0).toLocaleString()}</p>
                         <p>Enrollment Gap: <strong style={{ color: getGapColor(county.averageGap) }}>{county.averageGap}%</strong></p>
                         <p>Barrier Index: <strong style={{ color: getBarrierColor(county.averageBarrierIndex) }}>{county.averageBarrierIndex}</strong></p>
-                        <p>Eligible: {(county.totalEligible || 0).toLocaleString()}</p>
-                        <p>Enrolled: {(county.totalEnrolled || 0).toLocaleString()}</p>
+                        <p>Estimated eligible: {(county.totalEligible || 0).toLocaleString()}</p>
+                        <p>Modeled enrolled: {(county.totalEnrolled || 0).toLocaleString()}</p>
                         <p>Strategy: <em>{county.strategy}</em></p>
                       </div>
                     </Popup>
@@ -437,9 +458,34 @@ function GisMapPanel() {
                   ))}
                 </>
               )}
+              {mapLayer !== "facilitators" && (
+                <div className="mt-3 space-y-1 border-t pt-3">
+                  <p className="text-xs text-muted-foreground">Select a county from the map or this keyboard-accessible list.</p>
+                  {(counties || []).map((c: any) => (
+                    <Button
+                      key={`accessible-${c.fips}`}
+                      size="sm"
+                      variant={selectedCounty === c.fips ? "default" : "outline"}
+                      className="w-full justify-start text-xs"
+                      onClick={() => setSelectedCounty(c.fips)}
+                      aria-label={`Select ${c.name} county`}
+                    >
+                      {c.name}
+                    </Button>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
 
+          {barriersError && mapLayer === "barriers" && (
+            <Card className="border-destructive" role="alert">
+              <CardContent className="flex items-center justify-between gap-3 p-4">
+                <p className="text-sm text-destructive">Barrier data is temporarily unavailable.</p>
+                <Button size="sm" variant="outline" onClick={() => refetchBarriers()}>Retry</Button>
+              </CardContent>
+            </Card>
+          )}
           {selectedCounty && barriers && mapLayer === "barriers" && (
             <Card>
               <CardHeader className="pb-2">
@@ -463,8 +509,8 @@ function GisMapPanel() {
               </CardHeader>
               <CardContent className="space-y-1 text-xs">
                 <div className="flex justify-between"><span>Gap</span><span className="font-bold">{stats.countySummaries[selectedCounty].averageGap}%</span></div>
-                <div className="flex justify-between"><span>Eligible</span><span>{stats.countySummaries[selectedCounty].totalEligible?.toLocaleString()}</span></div>
-                <div className="flex justify-between"><span>Enrolled</span><span>{stats.countySummaries[selectedCounty].totalEnrolled?.toLocaleString()}</span></div>
+                <div className="flex justify-between"><span>Estimated eligible</span><span>{stats.countySummaries[selectedCounty].totalEligible?.toLocaleString()}</span></div>
+                <div className="flex justify-between"><span>Modeled enrolled</span><span>{stats.countySummaries[selectedCounty].totalEnrolled?.toLocaleString()}</span></div>
                 <div className="flex justify-between"><span>Renewals At Risk</span><span className="text-orange-500">{stats.countySummaries[selectedCounty].renewalsAtRisk}</span></div>
               </CardContent>
             </Card>
@@ -478,7 +524,7 @@ function GisMapPanel() {
 function BarriersPanel() {
   const [selectedCounty, setSelectedCounty] = useState("48453");
   const { data: counties } = useQuery<any[]>({ queryKey: ["/api/benefits/counties"] });
-  const { data: barriers, isLoading } = useQuery<any>({
+  const { data: barriers, isLoading, isError, refetch } = useQuery<any>({
     queryKey: ["/api/benefits/barriers", selectedCounty],
     enabled: !!selectedCounty,
   });
@@ -498,7 +544,14 @@ function BarriersPanel() {
         </Select>
       </div>
 
-      {isLoading ? (
+      {isError ? (
+        <Card className="border-destructive" role="alert">
+          <CardContent className="flex items-center justify-between gap-3 p-4">
+            <p className="text-sm text-destructive">Barrier data is temporarily unavailable.</p>
+            <Button size="sm" variant="outline" onClick={() => refetch()}>Retry</Button>
+          </CardContent>
+        </Card>
+      ) : isLoading ? (
         <div className="space-y-3">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-16" />)}</div>
       ) : barriers ? (
         <div className="space-y-6">
@@ -545,7 +598,9 @@ function BarriersPanel() {
                         <span className="text-sm font-bold" style={{ color: getBarrierColor(b.value) }}>
                           {b.value?.toFixed(1)}%
                         </span>
-                        <Badge variant="outline" className="text-xs">weight: {(b.weight * 100).toFixed(0)}%</Badge>
+                        <Badge variant="outline" className="text-xs">
+                          {Number.isFinite(Number(b.weight)) ? `weight: ${(Number(b.weight) * 100).toFixed(0)}%` : "weight unavailable"}
+                        </Badge>
                       </div>
                     </div>
                     <Progress value={b.value} className="h-2" />

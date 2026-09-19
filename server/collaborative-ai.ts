@@ -55,6 +55,8 @@ interface CollaborativeStreamParams {
   /** Called every ~10s during the Phase-2 R1 wait so the caller can send
    *  SSE keepalive comments and prevent proxy/mobile connection timeouts. */
   onKeepAlive?: () => void;
+  /** Cancels provider work when the requesting client disconnects. */
+  signal?: AbortSignal;
 }
 
 const RPLICE_LENS_STATIC = `Apply implementation science thinking grounded in ThriveUp's actual frameworks:
@@ -127,21 +129,41 @@ async function callEngineWithDeadline(
   systemPrompt: string,
   maxTokens: number,
   timeoutMs: number,
+  externalSignal?: AbortSignal,
 ): Promise<EngineResult> {
   const controller = new AbortController();
   let timeoutTimer: ReturnType<typeof setTimeout> | undefined;
+  const onExternalAbort = () => controller.abort();
+  if (externalSignal && !externalSignal.aborted) {
+    externalSignal.addEventListener("abort", onExternalAbort, { once: true });
+  }
+  let onCancellationAbort: (() => void) | undefined;
   const timeoutPromise = new Promise<EngineResult>((_, reject) =>
     timeoutTimer = setTimeout(() => reject(new Error(`Engine timed out after ${timeoutMs}ms`)), timeoutMs),
   );
+  const cancellationPromise = externalSignal
+    ? new Promise<EngineResult>((_, reject) => {
+        if (externalSignal.aborted) reject(new Error("AI request cancelled"));
+        else {
+          onCancellationAbort = () => reject(new Error("AI request cancelled"));
+          externalSignal.addEventListener("abort", onCancellationAbort, { once: true });
+        }
+      })
+    : null;
   const abortTimer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     return await Promise.race([
       callEngine(engine, prompt, systemPrompt, maxTokens, controller.signal),
       timeoutPromise,
+      ...(cancellationPromise ? [cancellationPromise] : []),
     ]);
   } finally {
     if (timeoutTimer) clearTimeout(timeoutTimer);
     clearTimeout(abortTimer);
+    externalSignal?.removeEventListener("abort", onExternalAbort);
+    if (externalSignal && onCancellationAbort) {
+      externalSignal.removeEventListener("abort", onCancellationAbort);
+    }
     controller.abort();
   }
 }
@@ -156,13 +178,14 @@ async function collectEngineResults(
   engines: Array<{ id: EngineId; model: string }>,
   prompt: string,
   systemPrompt: string,
-  maxTokens: number
+  maxTokens: number,
+  signal?: AbortSignal,
 ): Promise<EngineResult[]> {
   const collected: EngineResult[] = [];
 
   // Each engine pushes its result into collected as soon as it finishes.
   const perEnginePromises = engines.map(engine =>
-    callEngineWithDeadline(engine, prompt, systemPrompt, maxTokens, COLLAB_ENGINE_TIMEOUT_MS)
+    callEngineWithDeadline(engine, prompt, systemPrompt, maxTokens, COLLAB_ENGINE_TIMEOUT_MS, signal)
       .then(result => { collected.push(result); })
       .catch(err => {
         // callEngine already catches internally; this is a belt-and-suspenders guard.
@@ -178,15 +201,30 @@ async function collectEngineResults(
 
   // Race: finish when all complete, or drop stragglers at the global deadline.
   let globalDeadlineTimer: ReturnType<typeof setTimeout> | undefined;
+  let onExternalAbort: (() => void) | undefined;
+  const externalAbortPromise = signal
+    ? new Promise<void>(resolve => {
+        if (signal.aborted) {
+          resolve();
+        } else {
+          onExternalAbort = () => resolve();
+          signal.addEventListener("abort", onExternalAbort, { once: true });
+        }
+      })
+    : null;
   try {
     await Promise.race([
       Promise.all(perEnginePromises),
       new Promise<void>(resolve => {
         globalDeadlineTimer = setTimeout(resolve, ENGINES_GLOBAL_DEADLINE_MS);
       }),
+      ...(externalAbortPromise ? [externalAbortPromise] : []),
     ]);
   } finally {
     if (globalDeadlineTimer) clearTimeout(globalDeadlineTimer);
+    if (signal && onExternalAbort) {
+      signal.removeEventListener("abort", onExternalAbort);
+    }
   }
 
   // Any engine that hasn't pushed a result yet has been dropped by the deadline.
@@ -546,7 +584,16 @@ export async function collaborativeJSON<T = unknown>(
     .replace(/<think>[\s\S]*?<\/think>/g, "")
     .trim();
 
-  const data = JSON.parse(cleaned) as T;
+  let data: T;
+  try {
+    data = JSON.parse(cleaned) as T;
+  } catch (error) {
+    console.error("[CollabAI] Provider returned invalid JSON", {
+      error: error instanceof Error ? error.message : String(error),
+      preview: cleaned.slice(0, 500),
+    });
+    throw new Error("The AI response was not valid JSON. Please try again.");
+  }
   return {
     data,
     meta: {
@@ -559,6 +606,7 @@ export async function collaborativeJSON<T = unknown>(
 }
 
 export async function collaborativeStream(params: CollaborativeStreamParams): Promise<void> {
+  if (params.signal?.aborted) return;
   const engines = getAvailableEngines();
   if (engines.length === 0) {
     params.onError(new Error("No AI engines configured"));
@@ -587,6 +635,7 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
 
   if (!params.skipRAG) {
     try {
+      if (params.signal?.aborted) return;
       const searchQuery = params.prompt.slice(0, 200);
       const [chunks, liveContext] = await Promise.all([
         retrieveRelevantChunks(searchQuery, 8),
@@ -635,6 +684,7 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
           baseSystem,
           params.maxTokens || 3000,
           DEEP_THINK_TIMEOUT_MS,
+          params.signal,
         ),
         new Promise<EngineResult>(resolve => {
           deepThinkTimeout = setTimeout(() => resolve({
@@ -660,10 +710,25 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
   // Send keepalive SSE comments every 8s so mobile Safari / deployment proxies
   // don't drop the connection while engines are computing.
   const phase1Keepalive = params.onKeepAlive
-    ? setInterval(() => params.onKeepAlive!(), 8_000)
+    ? setInterval(() => {
+        try { params.onKeepAlive!(); } catch (error) {
+          console.warn("[CollabAI] keepalive callback failed:", error instanceof Error ? error.message : error);
+        }
+      }, 8_000)
     : null;
-  const fastResults = await collectEngineResults(enginesForFastPass, enrichedPrompt, baseSystem, params.maxTokens || 3000);
-  if (phase1Keepalive) clearInterval(phase1Keepalive);
+  let fastResults: EngineResult[];
+  try {
+    fastResults = await collectEngineResults(
+      enginesForFastPass,
+      enrichedPrompt,
+      baseSystem,
+      params.maxTokens || 3000,
+      params.signal,
+    );
+  } finally {
+    if (phase1Keepalive) clearInterval(phase1Keepalive);
+  }
+  if (params.signal?.aborted) return;
 
   const successfulEngines = fastResults.filter(r => !r.error && r.response.length > 20);
   const failedStreamEngines = fastResults.filter(r => r.error || r.response.length <= 20);
@@ -677,12 +742,14 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
     const synthesis = await synthesizeResponses(fastResults, params.prompt, ragSources, synthesisEngine, params.skipRAG, params.noFrameworkInjection);
     const words = synthesis.split(/(\s+)/);
     for (let i = 0; i < words.length; i += 3) {
+      if (params.signal?.aborted) return;
       params.onChunk(words.slice(i, i + 3).join(""));
       await new Promise(r => setTimeout(r, 10));
     }
   } else if (successfulEngines.length === 1) {
     const words = successfulEngines[0].response.split(/(\s+)/);
     for (let i = 0; i < words.length; i += 3) {
+      if (params.signal?.aborted) return;
       params.onChunk(words.slice(i, i + 3).join(""));
       await new Promise(r => setTimeout(r, 10));
     }
@@ -692,12 +759,28 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
       `collaborativeStream: 0/${enginesForFastPass.length} fast engines responded within ${ENGINES_GLOBAL_DEADLINE_MS}ms global deadline. ` +
       `Failed: ${fastResults.map(e => `${e.engine}(${e.error || "empty"})`).join(", ")}`
     );
+    if (deepThinkEngine && params.onDeepThinking) {
+      deepThinkPromise
+        .then((r1Result) => {
+          const deepThinkTimeMs = Date.now() - deepThinkStart;
+          params.onDeepThinking!(
+            r1Result && !r1Result.error ? r1Result.response : "",
+            r1Result?.engine || deepThinkEngine!.id,
+            deepThinkTimeMs,
+          );
+        })
+        .catch((err) => {
+          console.error(`[CollabAI-Stream] Phase 2 background error after fast failure: ${err}`);
+          params.onDeepThinking!("", deepThinkEngine!.id, Date.now() - deepThinkStart);
+        });
+    }
     params.onError(new Error("All AI engines failed to produce a response. Please try again in a few minutes."));
     return;
   }
 
   // Signal that Phase 1 is done — unlock input immediately.
   params.onSynthesisComplete?.();
+  if (params.signal?.aborted) return;
 
   // ── Close the SSE NOW — Phase 1 result is fully delivered ────────────────
   // DeepSeek R1 continues running in the background. The client polls
@@ -727,12 +810,16 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
   if (deepThinkEngine && params.onDeepThinking) {
     deepThinkPromise
       .then(r1Result => {
+        if (params.signal?.aborted) return;
         const deepThinkTimeMs = Date.now() - deepThinkStart;
         if (r1Result && !r1Result.error && r1Result.response.length > 20) {
           console.log(`[CollabAI-Stream] Phase 2: DeepSeek R1 complete in ${deepThinkTimeMs}ms — storing for poll`);
           params.onDeepThinking!(r1Result.response, r1Result.engine, deepThinkTimeMs);
         } else {
           console.log(`[CollabAI-Stream] Phase 2: DeepSeek R1 no output — ${r1Result?.error || "empty"}`);
+          // Let the caller release any admission slot even when the provider
+          // times out or returns an unusable response.
+          params.onDeepThinking!("", deepThinkEngine!.id, deepThinkTimeMs);
         }
       })
       .catch(err => console.error(`[CollabAI-Stream] Phase 2 background error: ${err}`));

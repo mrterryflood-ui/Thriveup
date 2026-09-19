@@ -362,10 +362,15 @@ export function getVerifierProbes(): ReadonlyArray<{
  */
 export function auditRouteRegistration(app: {
   _router?: { stack?: unknown[] };
+  router?: { stack?: unknown[] };
+  locals?: { partnerMountedRoutes?: string[] };
 }): { missing: string[]; extra: string[] } {
-  const routerStack = app._router?.stack;
+  // Express 4 exposes _router; Express 5 exposes the lazily-created router
+  // as app.router. Support both so a missing property never becomes a false
+  // clean audit.
+  const routerStack = app._router?.stack ?? app.router?.stack;
   if (!Array.isArray(routerStack)) {
-    return { missing: [], extra: [] };
+    return { missing: ["<router-stack-unavailable>"], extra: [] };
   }
 
   // Collect all registered routes from the Express router stack.
@@ -396,8 +401,16 @@ export function auditRouteRegistration(app: {
   }
 
   const missing: string[] = [];
+  // Express 5 does not retain a mount path on nested Router layers until a
+  // request matches them. The route registrar records externally mounted
+  // partner routes on app.locals after mounting them; use that runtime
+  // registration evidence rather than a path-only exemption.
+  const mountedPartnerRoutes = new Set(app.locals?.partnerMountedRoutes ?? []);
   for (const key of Object.keys(expected)) {
-    if (!registered.has(key)) missing.push(key);
+    const [method, ...pathParts] = key.split(" ");
+    const path = pathParts.join(" ");
+    const isMountedRoute = mountedPartnerRoutes.has(key);
+    if (!registered.has(key) && !isMountedRoute) missing.push(key);
   }
 
   const extra: string[] = [];

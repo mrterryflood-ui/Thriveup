@@ -22,6 +22,11 @@ import { getToolsForOrg } from "@/lib/partner-tools";
 import type { PartnerTool } from "@/lib/partner-tools";
 import { useState } from "react";
 
+function isSafeExternalUrl(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  try { return new URL(value).protocol === "https:"; } catch { return false; }
+}
+
 const ICON_MAP: Record<string, React.ElementType> = {
   Compass, FileText, Sparkles, Map, Network, Users, Zap, TrendingUp,
   Heart, Shield, Command, RotateCcw, Home, GraduationCap, Baby,
@@ -72,7 +77,7 @@ function ToolCard({ tool }: { tool: PartnerTool }) {
   const Icon = ICON_MAP[tool.icon] ?? Zap;
   return (
     <Link
-      href={tool.path}
+      href={tool.path === "/community-resource-directory" ? "/resource-directory" : tool.path}
       data-testid={`card-tool-${tool.id}`}
       className="group flex flex-col gap-2 rounded-xl border border-border bg-card p-4 hover:border-primary/40 hover:shadow-md transition-all cursor-pointer h-full"
     >
@@ -158,6 +163,9 @@ function CapacityPanel({ isAuthenticated }: { isAuthenticated: boolean }) {
   const { data, isLoading, error, refetch } = useQuery<{ entries: any[]; orgId: string; orgName: string }>({
     queryKey: ["/api/partner-portal/capacity", orgId],
     enabled: isAuthenticated && !!orgId,
+    staleTime: 60_000,
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: true,
   });
 
   const updateMutation = useMutation({
@@ -239,19 +247,19 @@ function CapacityPanel({ isAuthenticated }: { isAuthenticated: boolean }) {
               {e.note && <p className="text-muted-foreground">{e.note}</p>}
               {(e.contactPhone || e.contactUrl) && (
                 <p className="text-muted-foreground">
-                  {e.contactPhone && <span data-testid={`capacity-entry-phone-${e.programCode}`}>📞 {e.contactPhone}</span>}
+                  {e.contactPhone && <a href={`tel:${e.contactPhone}`} className="text-primary hover:underline" data-testid={`capacity-entry-phone-${e.programCode}`}>📞 {e.contactPhone}</a>}
                   {e.contactPhone && e.contactUrl && <span> · </span>}
-                  {e.contactUrl && <span className="break-all" data-testid={`capacity-entry-url-${e.programCode}`}>🔗 {e.contactUrl}</span>}
+                  {e.contactUrl && isSafeExternalUrl(e.contactUrl) ? <a href={e.contactUrl} target="_blank" rel="noopener noreferrer" className="break-all text-primary hover:underline" data-testid={`capacity-entry-url-${e.programCode}`}>🔗 {e.contactUrl} <ExternalLink className="inline h-3 w-3" aria-hidden="true" /></a> : e.contactUrl ? <span>Source link unavailable</span> : null}
                 </p>
               )}
             </div>
-            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0">
               <StatusBadge status={e.status} stale={e.stale} />
               <Select
                 value={e.status}
                 onValueChange={(v) => updateMutation.mutate({ programCode: e.programCode, status: v, waitWeeks: e.waitWeeks, note: e.note, contactPhone: e.contactPhone, contactUrl: e.contactUrl, serviceZips: e.serviceZips })}
               >
-                <SelectTrigger className="h-6 w-24 text-[10px]">
+                <SelectTrigger aria-label={`Update ${e.programCode} capacity status`} className="h-6 w-24 text-[10px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -266,20 +274,20 @@ function CapacityPanel({ isAuthenticated }: { isAuthenticated: boolean }) {
 
         {showAdd && (
           <div className="border rounded-lg p-3 space-y-3 bg-muted/20" data-testid="form-add-capacity">
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div>
-                <Label className="text-xs">Program</Label>
+                <Label htmlFor="capacity-program" className="text-xs">Program</Label>
                 <Select value={newProgram} onValueChange={setNewProgram}>
-                  <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectTrigger id="capacity-program" aria-label="Program" className="h-8 text-xs"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {PROGRAM_CODES.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label className="text-xs">Status</Label>
+                <Label htmlFor="capacity-status" className="text-xs">Status</Label>
                 <Select value={newStatus} onValueChange={setNewStatus}>
-                  <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectTrigger id="capacity-status" aria-label="Status" className="h-8 text-xs"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="open">Open</SelectItem>
                     <SelectItem value="waitlist">Waitlist</SelectItem>
@@ -309,9 +317,9 @@ function CapacityPanel({ isAuthenticated }: { isAuthenticated: boolean }) {
                 placeholder="e.g. Call first to confirm"
               />
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div>
-                <Label className="text-xs">Intake phone (optional)</Label>
+                <Label htmlFor="capacity-phone" className="text-xs">Intake phone (optional)</Label>
                 <Input
                   type="tel"
                   className="h-8 text-xs"
@@ -319,10 +327,11 @@ function CapacityPanel({ isAuthenticated }: { isAuthenticated: boolean }) {
                   onChange={(e) => setNewPhone(e.target.value)}
                   placeholder="e.g. 512-555-0142"
                   data-testid="input-capacity-phone"
+                  id="capacity-phone"
                 />
               </div>
               <div>
-                <Label className="text-xs">Apply / info URL (optional)</Label>
+                <Label htmlFor="capacity-url" className="text-xs">Apply / info URL (optional)</Label>
                 <Input
                   type="url"
                   className="h-8 text-xs"
@@ -330,6 +339,7 @@ function CapacityPanel({ isAuthenticated }: { isAuthenticated: boolean }) {
                   onChange={(e) => setNewUrl(e.target.value)}
                   placeholder="https://…"
                   data-testid="input-capacity-url"
+                  id="capacity-url"
                 />
               </div>
             </div>
@@ -727,7 +737,7 @@ export default function PartnerPortalPage() {
                 </Link>
               </Card>
             ) : (
-              <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-3" data-testid="tools-grid">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3" data-testid="tools-grid">
                 {tools.map((tool) => (
                   <ToolCard key={tool.id} tool={tool} />
                 ))}

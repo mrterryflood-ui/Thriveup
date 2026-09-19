@@ -34,10 +34,10 @@ function groundGunViolenceStory(
   story: { headline?: string; subhead?: string; body?: string[]; keyNumbers?: { label: string; value: string }[]; callToAction?: string },
   ctx: { cdcSummary: any; acesCorr: any; geography: string }
 ): typeof story {
-  const totalDeaths = ctx.cdcSummary?.totalDeaths ?? 834013;
-  const crudeRate = ctx.cdcSummary?.latestYear?.crudeRate ?? 14.5;
-  const peakDeaths = ctx.cdcSummary?.peakYear?.deaths ?? 48830;
-  const aceR = ctx.acesCorr?.aceFirearmR ?? 0.856;
+  const totalDeaths = ctx.cdcSummary?.totalDeaths;
+  const crudeRate = ctx.cdcSummary?.latestYear?.crudeRate;
+  const peakDeaths = ctx.cdcSummary?.peakYear?.deaths;
+  const aceR = ctx.acesCorr?.aceFirearmR;
 
   const rules: ClaimRule[] = [
     // No cost-benefit/ROI figure is computed for this surface — any such claim is fabricated.
@@ -59,7 +59,9 @@ function groundGunViolenceStory(
         }
         return claims;
       },
-      [totalDeaths, crudeRate, peakDeaths, aceR, aceR * 100],
+      [totalDeaths, crudeRate, peakDeaths, aceR, typeof aceR === "number" ? aceR * 100 : null].filter(
+        (value): value is number => typeof value === "number" && Number.isFinite(value),
+      ),
       (v) => Math.max(0.5, Math.abs(v) * 0.03)
     ),
   ];
@@ -105,8 +107,15 @@ function groundGunViolenceStory(
 
 // ── Simple in-memory rate limiter (no package dependency) ────────────────────
 const summaryRateWindows = new Map<string, { count: number; resetAt: number }>();
+const MAX_SUMMARY_RATE_KEYS = 10_000;
 function checkSummaryRate(ip: string): boolean {
   const now = Date.now();
+  if (summaryRateWindows.size >= MAX_SUMMARY_RATE_KEYS && !summaryRateWindows.has(ip)) {
+    for (const [key, value] of summaryRateWindows) {
+      if (value.resetAt <= now) summaryRateWindows.delete(key);
+    }
+    if (summaryRateWindows.size >= MAX_SUMMARY_RATE_KEYS) return false;
+  }
   const entry = summaryRateWindows.get(ip);
   if (!entry || now > entry.resetAt) {
     summaryRateWindows.set(ip, { count: 1, resetAt: now + 60_000 });
@@ -142,6 +151,8 @@ const importSchema = z.array(incidentSchema).min(1).max(10_000);
 
 // ── Module-level intelligence cache (shared by route + conductor + Navigator) ─
 let _intelligenceCache: { data: any; cachedAt: number } | null = null;
+let _intelligenceInFlight: Promise<any> | null = null;
+let _intelligenceGeneration = 0;
 const REGISTRY_BASE = "https://gun-violence-registry.replit.app";
 
 /**
@@ -151,15 +162,37 @@ const REGISTRY_BASE = "https://gun-violence-registry.replit.app";
  * server-side context — no HTTP round-trip when cache is warm.
  */
 export async function getGunViolenceIntelligenceData(): Promise<any> {
+  const getSyncStatus = async () => {
+    const STALE_UI_MS = 24 * 60 * 60 * 1000;
+    const lastSyncRow = await db
+      .select({ importedAt: gunViolenceImports.importedAt })
+      .from(gunViolenceImports)
+      .where(eq(gunViolenceImports.dataSource, "gun-violence-registry"))
+      .orderBy(desc(gunViolenceImports.importedAt))
+      .limit(1)
+      .catch(() => []);
+    const lastSuccessfulSyncAt = lastSyncRow[0]?.importedAt?.toISOString() ?? null;
+    return {
+      lastSuccessfulSyncAt,
+      isStale: !lastSuccessfulSyncAt ||
+        Date.now() - new Date(lastSuccessfulSyncAt).getTime() > STALE_UI_MS,
+    };
+  };
+
   if (_intelligenceCache && Date.now() - _intelligenceCache.cachedAt < 3_600_000) {
-    return _intelligenceCache.data;
+    // Do not let the one-hour intelligence cache hide a newly completed or
+    // failed import. Sync health is an operational status, not intelligence.
+    return { ..._intelligenceCache.data, syncStatus: await getSyncStatus() };
   }
+  if (_intelligenceInFlight) return _intelligenceInFlight;
+  const generationAtStart = _intelligenceGeneration;
 
   const fetcher = (path: string) =>
     fetch(`${REGISTRY_BASE}${path}`, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(15_000) })
       .then(r => r.ok ? r.json() : null)
       .catch(() => null);
 
+  _intelligenceInFlight = (async () => {
   const [
     cdcTrend, cdcSummary, cdcStates,
     fbiTrends, ncvsTrends, wisqarsCosts,
@@ -196,19 +229,7 @@ export async function getGunViolenceIntelligenceData(): Promise<any> {
   const cleanCdcSummary = validateCdcSummary("getGunViolenceIntelligenceData", cdcSummary);
   const cleanAcesCorr = validateAcesCorrelations("getGunViolenceIntelligenceData", acesCorr);
 
-  // Staleness indicator: last successful scheduled sync (24h UI badge threshold)
-  const STALE_UI_MS = 24 * 60 * 60 * 1000;
-  const lastSyncRow = await db
-    .select({ importedAt: gunViolenceImports.importedAt })
-    .from(gunViolenceImports)
-    .where(eq(gunViolenceImports.dataSource, "gun-violence-registry"))
-    .orderBy(desc(gunViolenceImports.importedAt))
-    .limit(1)
-    .catch(() => []);
-  const lastSuccessfulSyncAt = lastSyncRow[0]?.importedAt?.toISOString() ?? null;
-  const isStale = lastSuccessfulSyncAt
-    ? Date.now() - new Date(lastSuccessfulSyncAt).getTime() > STALE_UI_MS
-    : true;
+  const syncStatus = await getSyncStatus();
 
   const data = {
     meta: { generatedAt: new Date().toISOString(), source: "gun-violence-registry.replit.app" },
@@ -219,11 +240,17 @@ export async function getGunViolenceIntelligenceData(): Promise<any> {
     policy: didPolicies?.catalog ?? didPolicies,
     rpliceFindings,
     localRegistry: localCounts,
-    syncStatus: { lastSuccessfulSyncAt, isStale },
+    syncStatus,
   };
 
-  _intelligenceCache = { data, cachedAt: Date.now() };
+  if (generationAtStart === _intelligenceGeneration) {
+    _intelligenceCache = { data, cachedAt: Date.now() };
+  }
   return data;
+  })().finally(() => {
+    _intelligenceInFlight = null;
+  });
+  return _intelligenceInFlight;
 }
 
 // The registry's CDC/ACES summary endpoints feed straight into the
@@ -396,6 +423,11 @@ export async function runGunViolenceRegistrySync(): Promise<{ fetched: number; u
     recordCount: totalUpserted,
     notes: `Scheduled sync. fetched=${totalFetched} upserted=${totalUpserted} rejected=${totalRejected} elapsed=${elapsedMs}ms`,
   });
+  // A successful import supersedes the in-process intelligence snapshot.
+  // Clear it before downstream consumers can observe the new import as fresh
+  // while still receiving pre-import incident data.
+  _intelligenceCache = null;
+  _intelligenceGeneration++;
 
   console.info(`[gv-sync] sync complete — fetched=${totalFetched} upserted=${totalUpserted} rejected=${totalRejected} elapsed=${elapsedMs}ms`);
 
@@ -565,25 +597,61 @@ export function registerGunViolenceRoutes(app: Express) {
     }
 
     try {
-      const zip   = ((req.query.zip   as string) || "").trim();
-      const city  = ((req.query.city  as string) || "").trim();
-      const ward  = ((req.query.ward  as string) || "").trim();
-      const state = ((req.query.state as string) || "").trim();
-      const from  = ((req.query.from  as string) || "").trim();
-      const to    = ((req.query.to    as string) || "").trim();
-      const rowLimit = Math.min(parseInt((req.query.limit as string) || "200", 10), 500);
+      const rawZip = req.query.zip;
+      const rawCity = req.query.city;
+      const rawWard = req.query.ward;
+      const rawState = req.query.state;
+      const rawFrom = req.query.from;
+      const rawTo = req.query.to;
+      if ([rawZip, rawCity, rawWard, rawState, rawFrom, rawTo].some((value) => value !== undefined && typeof value !== "string")) {
+        return res.status(400).json({ error: "summary filters must be single strings" });
+      }
+      const zip   = ((rawZip as string | undefined) || "").trim();
+      const city  = ((rawCity as string | undefined) || "").trim();
+      const ward  = ((rawWard as string | undefined) || "").trim();
+      const state = ((rawState as string | undefined) || "").trim().toUpperCase();
+      if (zip && !/^\d{5}$/.test(zip)) {
+        return res.status(400).json({ error: "zip must be a 5-digit ZIP code" });
+      }
+      if (city.length > 100 || ward.length > 50 || state.length > 2 || (state && !/^[A-Z]{2}$/.test(state))) {
+        return res.status(400).json({ error: "city, ward, and state filters are too long or malformed" });
+      }
+      const from  = ((rawFrom as string | undefined) || "").trim();
+      const to    = ((rawTo as string | undefined) || "").trim();
+      if (from.length > 40 || to.length > 40) {
+        return res.status(400).json({ error: "from and to must be bounded ISO date strings" });
+      }
+      const limitRaw = (req.query.limit as string | undefined) ?? "200";
+      if (!/^[1-9]\d*$/.test(limitRaw)) {
+        return res.status(400).json({ error: "limit must be a positive integer" });
+      }
+      const rowLimit = Number(limitRaw);
+      if (!Number.isSafeInteger(rowLimit) || rowLimit > 500) {
+        return res.status(400).json({ error: "limit must be a positive integer no greater than 500" });
+      }
+      const fromDate = from ? new Date(from) : null;
+      const toDate = to ? new Date(to) : null;
+      if (fromDate && Number.isNaN(fromDate.getTime())) {
+        return res.status(400).json({ error: "from must be a valid ISO date" });
+      }
+      if (toDate && Number.isNaN(toDate.getTime())) {
+        return res.status(400).json({ error: "to must be a valid ISO date" });
+      }
+      if (fromDate && toDate && fromDate > toDate) {
+        return res.status(400).json({ error: "from must be before to" });
+      }
 
       const conditions: ReturnType<typeof eq>[] = [];
       if (zip)   conditions.push(eq(gunViolenceIncidents.zip, zip));
       if (city)  conditions.push(eq(gunViolenceIncidents.city, city));
       if (ward)  conditions.push(eq(gunViolenceIncidents.ward, ward));
       if (state) conditions.push(eq(gunViolenceIncidents.state, state));
-      if (from)  conditions.push(gte(gunViolenceIncidents.occurredAt, new Date(from)));
-      if (to)    conditions.push(lte(gunViolenceIncidents.occurredAt, new Date(to)));
+      if (fromDate) conditions.push(gte(gunViolenceIncidents.occurredAt, fromDate));
+      if (toDate) conditions.push(lte(gunViolenceIncidents.occurredAt, toDate));
 
       const whereClause = conditions.length ? and(...conditions) : undefined;
 
-      const [totals, byZip, incidentRows] = await Promise.all([
+      const [totals, byZip] = await Promise.all([
         db.select({
           incidents:  sql<number>`count(*)::int`,
           victims:    sql<number>`coalesce(sum(${gunViolenceIncidents.victimCount}), 0)::int`,
@@ -598,33 +666,33 @@ export function registerGunViolenceRoutes(app: Express) {
             }).from(gunViolenceIncidents).where(whereClause)
               .groupBy(gunViolenceIncidents.zip)
               .orderBy(desc(sql`count(*)`))
-              .limit(25)
+              .limit(rowLimit)
           : Promise.resolve([]),
 
-        // Individual rows for hub table (geography + type + counts only — no PII)
-        db.select({
-          id:           gunViolenceIncidents.id,
-          city:         gunViolenceIncidents.city,
-          state:        gunViolenceIncidents.state,
-          zip:          gunViolenceIncidents.zip,
-          occurredAt:   gunViolenceIncidents.occurredAt,
-          incidentType: gunViolenceIncidents.incidentType,
-          victimCount:  gunViolenceIncidents.victimCount,
-          fatalCount:   gunViolenceIncidents.fatalCount,
-        }).from(gunViolenceIncidents).where(whereClause)
-          .orderBy(desc(gunViolenceIncidents.occurredAt))
-          .limit(rowLimit),
       ]);
 
+      const suppressionFloor = 5;
+      const incidentCount = totals?.incidents ?? 0;
+      const suppressed = incidentCount > 0 && incidentCount < suppressionFloor;
+      const publicByZip = (byZip as any[])
+        .filter((row) => Number(row.incidents) >= suppressionFloor)
+        .map((row) => ({
+          zip: row.zip,
+          incidents: row.incidents,
+          fatalities: row.fatalities,
+        }));
       res.json({
         filters: { zip: zip || null, city: city || null, state: state || null, ward: ward || null, from: from || null, to: to || null },
-        incidents:  totals?.incidents  ?? 0,
-        victims:    totals?.victims    ?? 0,
-        fatalities: totals?.fatalities ?? 0,
-        byZip: (byZip as any[]).length ? byZip : undefined,
-        rows: incidentRows,
+        incidents:  suppressed ? null : incidentCount,
+        victims:    suppressed ? null : totals?.victims ?? 0,
+        fatalities: suppressed ? null : totals?.fatalities ?? 0,
+        byZip: publicByZip.length ? publicByZip : undefined,
+        suppressed,
+        suppressionFloor,
         source: "TCAF Gun Violence Registry",
-        note: "Aggregate counts only. No individual victim data is stored or exposed.",
+        note: suppressed
+          ? `Counts below ${suppressionFloor} incidents are suppressed to protect privacy.`
+          : "Aggregate counts only. Individual incident rows are not exposed.",
       });
     } catch (err: any) {
       console.error("[gun-violence] summary error:", err);
@@ -721,15 +789,16 @@ export function registerGunViolenceRoutes(app: Express) {
         ? rootCauses.slice(0, 4).map((r: any) => `${r.factor} (r=${r.correlation})`)
         : [];
 
+      const unavailable = "UNAVAILABLE (the source did not return this value; do not infer or substitute it)";
       const prompt = withEthicalPreamble(`
 You are a public health data journalist writing for TCAF — the Thriving Communities for All Foundation.
 Write a compelling, factual, trauma-informed narrative about gun violence in ${geography}.
 
 Ground your story in these data points:
-- National: ${cdcSummary?.totalDeaths ?? 834013} Americans have died from gun violence since 1999 (CDC WONDER)
-- Annual rate: ${cdcSummary?.latestYear?.crudeRate ?? 14.5} deaths per 100,000 (${cdcSummary?.latestYear?.year ?? 2022})
-- Peak year: ${cdcSummary?.peakYear?.year ?? 2021} with ${cdcSummary?.peakYear?.deaths ?? 48830} deaths
-- ACE score correlation with firearm violence: r = ${acesCorr?.aceFirearmR ?? 0.856} — the strongest structural predictor
+- National: ${cdcSummary?.totalDeaths ?? unavailable} Americans have died from gun violence since 1999 (CDC WONDER)
+- Annual rate: ${cdcSummary?.latestYear?.crudeRate ?? unavailable} deaths per 100,000 (${cdcSummary?.latestYear?.year ?? unavailable})
+- Peak year: ${cdcSummary?.peakYear?.year ?? unavailable} with ${cdcSummary?.peakYear?.deaths ?? unavailable} deaths
+- ACE score correlation with firearm violence: r = ${acesCorr?.aceFirearmR ?? unavailable} — source value unavailable means this claim must be omitted
 - Top root causes: ${topRootCauses.join("; ")}
 ${stateSdoh ? `- ${geography} SDOH: poverty ${stateSdoh.povertyRate}%, median income $${stateSdoh.medianIncome?.toLocaleString()}, Gini ${stateSdoh.giniCoefficient}, mental health providers per 100k: ${stateSdoh.mentalHealthProvidersPer100k}` : ""}
 ${localState?.count ? `- Local registry: ${localState.count} incidents, ${localState.victims} victims, ${localState.fatal} fatal in current dataset` : ""}

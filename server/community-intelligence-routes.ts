@@ -100,7 +100,8 @@ async function geocodeZip(zip: string): Promise<{ lat: number; lng: number } | n
 }
 
 // ── Pull community org markers from DB ───────────────────────────────────────
-async function getOrgMarkers(_county: string) {
+async function getOrgMarkers(_county: string | null) {
+  if (!_county) return [];
   try {
     // Primary: benefits_partners with coordinates
     const [partners, overlays] = await Promise.all([
@@ -168,6 +169,7 @@ async function getOrgMarkers(_county: string) {
 const COMMUNITY_ANALYSIS_WINDOW_MS = 10 * 60 * 1000;
 const COMMUNITY_ANALYSIS_MAX = 5;
 const communityAnalysisHits = new Map<string, number[]>();
+const MAX_COMMUNITY_ANALYSIS_BUCKETS = 10_000;
 const MAX_ANALYSIS_BODY_BYTES = 8_000;
 const MAX_ANALYSIS_PROMPT_LENGTH = 1_200;
 
@@ -182,6 +184,15 @@ function limitCommunityAnalysis(req: Request, res: Response, next: NextFunction)
   }
   const now = Date.now();
   const ip = communityClientIp(req);
+  if (communityAnalysisHits.size >= MAX_COMMUNITY_ANALYSIS_BUCKETS && !communityAnalysisHits.has(ip)) {
+    const cutoff = now - COMMUNITY_ANALYSIS_WINDOW_MS;
+    for (const [storedIp, timestamps] of communityAnalysisHits) {
+      if (!timestamps.some((at) => at > cutoff)) communityAnalysisHits.delete(storedIp);
+    }
+    if (communityAnalysisHits.size >= MAX_COMMUNITY_ANALYSIS_BUCKETS) {
+      return res.status(429).json({ error: "Rate limit capacity reached; try again later." });
+    }
+  }
   const recent = (communityAnalysisHits.get(ip) ?? []).filter((at) => at > now - COMMUNITY_ANALYSIS_WINDOW_MS);
   if (recent.length >= COMMUNITY_ANALYSIS_MAX) {
     const retryAfter = Math.max(1, Math.ceil((recent[0] + COMMUNITY_ANALYSIS_WINDOW_MS - now) / 1000));
@@ -513,7 +524,9 @@ export function registerCommunityIntelligenceRoutes(app: Express) {
         return res.status(404).json({ error: `Could not geocode ZIP ${zipStr}. Verify it is a valid U.S. ZIP code.` });
       }
 
-      const county = geo?.countyName || sviRaw?.countyName || "Unknown County";
+      // A failed ZIP→county lookup is a real unavailable state. Never label
+      // source-backed organization or geography claims as "Unknown County".
+      const county = geo?.countyName || sviRaw?.countyName || null;
 
       // Flatten the nested fetchZctaData shape into the flat shape this module expects
       const svi = flattenSvi(sviRaw);
@@ -521,10 +534,12 @@ export function registerCommunityIntelligenceRoutes(app: Express) {
       // Detect Cook County / Chicago ZIPs (60601–60699)
       const isChicagoZip = /^606\d{2}$/.test(zipStr);
 
-      // Orgs + AI + optional gun-violence context all in parallel
-      const [orgs, aiAnalysis, gunViolenceCtx] = await Promise.all([
-        getOrgMarkers(county),
-        synthesizeAnalysis(prompt, svi, zipStr, 0),
+      // Resolve organizations before synthesis so the narrative receives the
+      // same evidence-backed count that the map actually returns. Do not
+      // substitute a placeholder zero for a successful organization query.
+      const orgs = await getOrgMarkers(county);
+      const [aiAnalysis, gunViolenceCtx] = await Promise.all([
+        synthesizeAnalysis(prompt, svi, zipStr, orgs.length),
         isChicagoZip ? fetchChicagoGunViolenceContext(zipStr) : Promise.resolve(null),
       ]);
 
@@ -546,7 +561,11 @@ export function registerCommunityIntelligenceRoutes(app: Express) {
         evidence: {
           geography: {
             requested: { type: "ZIP", key: zipStr },
-            resolved: { type: "Census ZCTA", key: zipStr },
+        resolved: geo ? { type: "Census ZCTA", key: zipStr, county: county ?? undefined } : null,
+        resolutionStatus: geo ? "resolved" : "unavailable",
+        resolutionDisclosure: geo
+          ? "ZIP resolved to aggregate Census geography."
+          : "County geography could not be resolved; county-scoped source claims are unavailable.",
             disclosure: "Aggregate geography only; this response does not contain resident-level information.",
           },
           sources: [
