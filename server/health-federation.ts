@@ -23,9 +23,51 @@ export interface FederatedPartner {
   name: string;
   baseUrl: string;
   tagline: string;
+  platformId: string;
+  integrationState: "discovery_only" | "connected";
+  discovery: {
+    ping: string;
+    ecosystemStatus: string;
+    sourceLanes: string;
+  };
   aiCompanion: { name: string; url: string; description: string };
   tools: Array<{ label: string; url: string; description: string }>;
 }
+
+export const HEALTH_FEDERATION_CONTRACT = {
+  version: "2026-09-19.v1",
+  hub: {
+    platformId: "thriveup-hub",
+    baseUrl: "https://thrivingcommunitiesforall.com",
+    discoveryOnly: true,
+  },
+  exchange: {
+    inboundAuthentication: "not_configured",
+    outboundAuthentication: "not_configured",
+    credentialsSeparated: true,
+    enabledScopes: ["public_resources"],
+    disabledScopes: ["referrals", "status_updates", "corrections", "revocations", "deletions", "health_records", "research"],
+    requiredControls: [
+      "versioned_schema",
+      "signature_verification",
+      "replay_protection",
+      "idempotency",
+      "bounded_retries",
+      "audit_receipts",
+      "opaque_identity_mapping",
+      "recipient_purpose_category_expiration_bound_consent",
+      "independent_authorization_and_privacy_verification",
+    ],
+  },
+  schemas: {
+    resources: { version: "v1", direction: "read_only", pii: false },
+    referrals: { version: "v1", direction: "disabled_until_authenticated", pii: true },
+    statusUpdates: { version: "v1", direction: "disabled_until_authenticated", pii: true },
+    corrections: { version: "v1", direction: "disabled_until_authenticated", pii: true },
+    revocations: { version: "v1", direction: "disabled_until_authenticated", pii: true },
+    deletions: { version: "v1", direction: "disabled_until_authenticated", pii: true },
+  },
+} as const;
 
 export const FEDERATED_PARTNERS: FederatedPartner[] = [
   {
@@ -34,6 +76,13 @@ export const FEDERATED_PARTNERS: FederatedPartner[] = [
     baseUrl: "https://herhealthmatters2.com",
     tagline:
       "Women's health equity platform — condition library sourced from NIH, FDA, and ClinicalTrials.gov, with a 24,000+ resource directory.",
+    platformId: "sankofa-feminine-health",
+    integrationState: "discovery_only",
+    discovery: {
+      ping: "https://herhealthmatters2.com/api/ping",
+      ecosystemStatus: "https://herhealthmatters2.com/api/ecosystem/status",
+      sourceLanes: "https://herhealthmatters2.com/api/ecosystem/source-lanes",
+    },
     aiCompanion: {
       name: "Nia",
       url: "https://herhealthmatters2.com/ai-navigator",
@@ -58,6 +107,13 @@ export const FEDERATED_PARTNERS: FederatedPartner[] = [
     baseUrl: "https://malehealthmatters2.com",
     tagline:
       "Men's health platform — condition library, MAP-GAP 8-domain health assessment, and provider directory.",
+    platformId: "sankofa-mens-health",
+    integrationState: "discovery_only",
+    discovery: {
+      ping: "https://malehealthmatters2.com/api/ping",
+      ecosystemStatus: "https://malehealthmatters2.com/api/ecosystem/status",
+      sourceLanes: "https://malehealthmatters2.com/api/ecosystem/source-lanes",
+    },
     aiCompanion: {
       name: "Malik",
       url: "https://malehealthmatters2.com/malik",

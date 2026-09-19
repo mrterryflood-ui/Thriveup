@@ -9,6 +9,7 @@
 import type { Express } from "express";
 import {
   FEDERATED_PARTNERS,
+  HEALTH_FEDERATION_CONTRACT,
   getFederatedContent,
   checkPartnerConnectivity,
 } from "./health-federation";
@@ -17,6 +18,17 @@ export function registerHealthFederationRoutes(app: Express) {
   // Partner metadata + deep links (static config, never fails)
   app.get("/api/health/federation/partners", (_req, res) => {
     res.json(FEDERATED_PARTNERS);
+  });
+
+  // Public contract discovery only. This deliberately exposes capability
+  // boundaries and disabled scopes, never credentials or authenticated data.
+  app.get("/api/health/federation/discovery", (_req, res) => {
+    res.json({
+      contract: HEALTH_FEDERATION_CONTRACT,
+      partners: FEDERATED_PARTNERS.map(({ id, name, baseUrl, platformId, integrationState, discovery }) => ({
+        id, name, baseUrl, platformId, integrationState, discovery,
+      })),
+    });
   });
 
   // Connectivity check — registered BEFORE the parameterized route so it can

@@ -5,7 +5,7 @@
 // the partner itself is down — the point is that we DETECT the outage.
 
 import express from "express";
-import { FEDERATED_PARTNERS, getFederatedContent, checkPartnerConnectivity } from "../server/health-federation";
+import { FEDERATED_PARTNERS, HEALTH_FEDERATION_CONTRACT, getFederatedContent, checkPartnerConnectivity } from "../server/health-federation";
 import { registerHealthFederationRoutes } from "../server/health-federation-routes";
 
 let failures = 0;
@@ -19,8 +19,19 @@ async function main() {
     if (!p.aiCompanion?.url?.startsWith("https://")) fail(`${p.id}: missing AI companion deep link`);
     if (!p.tools?.length) fail(`${p.id}: no tool deep links`);
     if (!p.baseUrl.startsWith("https://")) fail(`${p.id}: bad baseUrl`);
+    if (p.integrationState !== "discovery_only") fail(`${p.id}: integration must remain discovery-only`);
+    if (!p.discovery.ping.startsWith("https://") || !p.discovery.ecosystemStatus.startsWith("https://") || !p.discovery.sourceLanes.startsWith("https://")) {
+      fail(`${p.id}: incomplete public discovery endpoints`);
+    }
   }
   pass("partner config: 2 partners, AI companion + tool deep links present");
+  if (HEALTH_FEDERATION_CONTRACT.exchange.inboundAuthentication !== "not_configured" ||
+      HEALTH_FEDERATION_CONTRACT.exchange.outboundAuthentication !== "not_configured" ||
+      HEALTH_FEDERATION_CONTRACT.exchange.disabledScopes.includes("health_records") === false) {
+    fail("health federation contract must remain unauthenticated and health-record scopes disabled");
+  } else {
+    pass("versioned federation contract is discovery-only with health-record exchange disabled");
+  }
 
   // 2. Connectivity check must return a structured result for every partner
   const statuses = await checkPartnerConnectivity();
