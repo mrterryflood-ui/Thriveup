@@ -4196,9 +4196,7 @@ export const benefitsEnrollmentData = pgTable("benefits_enrollment_data", {
   longitude: real("longitude"),
   updatedAt: timestamp("updated_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
-}, (t) => ({
-  countyBenefitUq: uniqueIndex("benefits_enrollment_data_county_benefit_uq").on(t.countyFips, t.benefitType),
-}));
+});
 
 export const insertBenefitsEnrollmentDataSchema = createInsertSchema(benefitsEnrollmentData).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertBenefitsEnrollmentData = z.infer<typeof insertBenefitsEnrollmentDataSchema>;
