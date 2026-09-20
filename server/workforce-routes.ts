@@ -13,6 +13,7 @@ import {
 import { eq, desc, sql, and, count } from "drizzle-orm";
 import { storage } from "./storage";
 import { z } from "zod";
+import { validateContactPhone } from "@shared/intake-contact-validators";
 
 function getUserId(req: Request): string | undefined {
   const u = (req as unknown as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
@@ -104,6 +105,24 @@ const readinessUpdateSchema = z.object({
   bankAccount: z.boolean().optional(),
   identificationDocs: z.boolean().optional(),
   notes: z.string().optional(),
+});
+
+const employerRegistrationSchema = z.object({
+  companyName: z.string().trim().min(1).max(200),
+  industry: z.string().trim().min(1).max(100),
+  contactName: z.string().trim().min(1).max(200),
+  contactEmail: z.string().trim().email().max(320),
+  contactPhone: z.string().trim().max(50).optional().nullable().refine(
+    (value) => value == null || value === "" || validateContactPhone(value).ok,
+    { message: "Enter a valid phone number" },
+  ),
+  hiringCommitments: z.string().trim().max(2000).optional().nullable(),
+  barrierFriendly: z.boolean().optional().default(false),
+  banTheBox: z.boolean().optional().default(false),
+  fairChanceHiring: z.boolean().optional().default(false),
+  description: z.string().trim().max(4000).optional().nullable(),
+  location: z.string().trim().max(300).optional().nullable(),
+  website: z.string().trim().url().max(2048).optional().nullable(),
 });
 
 async function autoSeedIfEmpty() {
@@ -274,7 +293,20 @@ export function registerWorkforceRoutes(app: Express) {
 
   app.get("/api/workforce/employers", async (_req, res) => {
     try {
-      const results = await db.select().from(employerPartners).orderBy(employerPartners.companyName);
+      const results = await db.select({
+        id: employerPartners.id,
+        companyName: employerPartners.companyName,
+        industry: employerPartners.industry,
+        hiringCommitments: employerPartners.hiringCommitments,
+        barrierFriendly: employerPartners.barrierFriendly,
+        banTheBox: employerPartners.banTheBox,
+        fairChanceHiring: employerPartners.fairChanceHiring,
+        description: employerPartners.description,
+        location: employerPartners.location,
+        website: employerPartners.website,
+      }).from(employerPartners)
+        .where(eq(employerPartners.partnershipStatus, "active"))
+        .orderBy(employerPartners.companyName);
       res.json(results);
     } catch (error) {
       console.error("Failed to fetch employers:", error);
@@ -297,12 +329,12 @@ export function registerWorkforceRoutes(app: Express) {
   // Public employer self-registration — no auth required; status defaults to "pending" for admin review
   app.post("/api/workforce/employers/register", async (req, res) => {
     try {
-      const parsed = insertEmployerPartnerSchema.safeParse({ ...req.body, partnershipStatus: "pending" });
+      const parsed = employerRegistrationSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
-      if (!parsed.data.companyName || !parsed.data.industry || !parsed.data.contactEmail) {
-        return res.status(400).json({ error: "companyName, industry, and contactEmail are required" });
-      }
-      const [employer] = await db.insert(employerPartners).values(parsed.data).returning();
+      const [employer] = await db.insert(employerPartners).values({
+        ...parsed.data,
+        partnershipStatus: "pending",
+      }).returning();
       res.status(201).json({ ok: true, id: employer.id, message: "Registration received — we'll review and activate your listing within 1–2 business days." });
     } catch (error) {
       console.error("Employer self-registration failed:", error);

@@ -1,29 +1,9 @@
-import type { Express, Request, Response } from "express";
+import type { Express } from "express";
 import { db } from "./storage";
 import { contactInquiries, insertContactInquirySchema } from "@shared/schema";
 import { eq, desc, sql } from "drizzle-orm";
 import { sendContactInquiry } from "./email-service";
-
-function getUserId(req: Request): string | undefined {
-  const u = (req as unknown as Record<string, unknown>).user as
-    | { claims?: { sub?: string }; id?: string }
-    | undefined;
-  return u?.claims?.sub || u?.id;
-}
-
-function requireAuth(req: Request, res: Response, next: Function) {
-  if (!getUserId(req)) return res.status(401).json({ error: "Unauthorized" });
-  next();
-}
-
-function requireAdmin(req: Request, res: Response, next: Function) {
-  if (!getUserId(req)) return res.status(401).json({ error: "Unauthorized" });
-  const u = (req as unknown as Record<string, unknown>).user as
-    | { role?: string; claims?: { email?: string } }
-    | undefined;
-  if (u?.role === "admin" || u?.role === "teacher" || u?.role === "case_manager") return next();
-  return res.status(403).json({ error: "Admin access required" });
-}
+import { requireStaff } from "./yhsi-routes";
 
 export function registerContactRoutes(app: Express) {
   app.post("/api/contact", async (req, res) => {
@@ -79,7 +59,7 @@ export function registerContactRoutes(app: Express) {
     }
   });
 
-  app.get("/api/contact/inquiries", requireAdmin, async (_req, res) => {
+  app.get("/api/contact/inquiries", requireStaff, async (_req, res) => {
     try {
       const inquiries = await db
         .select()
@@ -91,7 +71,7 @@ export function registerContactRoutes(app: Express) {
     }
   });
 
-  app.patch("/api/contact/inquiries/:id", requireAdmin, async (req, res) => {
+  app.patch("/api/contact/inquiries/:id", requireStaff, async (req, res) => {
     try {
       const { status, notes } = req.body;
       const updates: Record<string, unknown> = {};

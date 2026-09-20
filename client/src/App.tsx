@@ -728,7 +728,11 @@ function AppRouter() {
         </RequireAuth>
       </Route>
       <Route path="/advisory-board" component={AdvisoryBoardPage} />
-      <Route path="/staffing-plan" component={StaffingPlanPage} />
+      <Route path="/staffing-plan">
+        <RequireAuth staffOnly reason="The staffing plan is an internal operations workspace for approved staff.">
+          <StaffingPlanPage />
+        </RequireAuth>
+      </Route>
       <Route path="/ecosystem" component={EcosystemConnectorPage} />
       <Route path="/ecosystem-hub-legacy"><Redirect to="/ecosystem" /></Route>
       <Route path="/prevention-strategies" component={PreventionStrategiesPage} />
@@ -909,7 +913,11 @@ function AppRouter() {
       <Route path="/neighborhood" component={NeighborhoodLookupPage} />
       <Route path="/data-sources" component={DataSourcesPage} />
       <Route path="/jobs" component={JobBoardPage} />
-      <Route path="/clinical-screening/:participantId?" component={ClinicalScreeningPage} />
+      <Route path="/clinical-screening/:participantId?">
+        <RequireAuth reason="Clinical screening responses are private and require a signed-in account.">
+          <ClinicalScreeningPage />
+        </RequireAuth>
+      </Route>
       <Route path="/foia-tracker" component={FoiaTrackerPage} />
       <Route path="/employer/register" component={EmployerRegistrationPage} />
       <Route path="/resident-equity" component={ResidentEquityDashboardPage} />

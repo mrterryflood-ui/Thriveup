@@ -142,6 +142,8 @@ async function requireStaff(req: Request, res: Response, next: Function) {
   return res.status(403).json({ error: "Staff access required" });
 }
 
+const updateStaffingPlanEntrySchema = insertStaffingPlanEntrySchema.partial();
+
 async function requireAdmin(req: Request, res: Response, next: Function) {
   const userId = getUserId(req);
   if (!userId) return res.status(401).json({ error: "Authentication required" });
@@ -2143,7 +2145,7 @@ Write in professional but warm language. This should read as peers building toge
 
   // ==================== STAFFING PLAN ====================
 
-  app.get("/api/staffing-plan", requireAuth, async (_req, res) => {
+  app.get("/api/staffing-plan", requireStaff, async (_req, res) => {
     try {
       const entries = await db.select().from(staffingPlanEntries).orderBy(desc(staffingPlanEntries.createdAt));
       res.json(entries);
@@ -2152,7 +2154,7 @@ Write in professional but warm language. This should read as peers building toge
     }
   });
 
-  app.post("/api/staffing-plan", requireAuth, async (req, res) => {
+  app.post("/api/staffing-plan", requireStaff, async (req, res) => {
     try {
       const parsed = insertStaffingPlanEntrySchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
@@ -2163,9 +2165,11 @@ Write in professional but warm language. This should read as peers building toge
     }
   });
 
-  app.patch("/api/staffing-plan/:id", requireAuth, async (req, res) => {
+  app.patch("/api/staffing-plan/:id", requireStaff, async (req, res) => {
     try {
-      const [updated] = await db.update(staffingPlanEntries).set(req.body).where(eq(staffingPlanEntries.id, getParamId(req))).returning();
+      const parsed = updateStaffingPlanEntrySchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
+      const [updated] = await db.update(staffingPlanEntries).set(parsed.data).where(eq(staffingPlanEntries.id, getParamId(req))).returning();
       if (!updated) return res.status(404).json({ error: "Entry not found" });
       res.json(updated);
     } catch (error) {
@@ -2173,7 +2177,7 @@ Write in professional but warm language. This should read as peers building toge
     }
   });
 
-  app.delete("/api/staffing-plan/:id", requireAuth, async (req, res) => {
+  app.delete("/api/staffing-plan/:id", requireStaff, async (req, res) => {
     try {
       await db.delete(staffingPlanEntries).where(eq(staffingPlanEntries.id, getParamId(req)));
       res.json({ success: true });

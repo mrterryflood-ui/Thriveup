@@ -452,7 +452,7 @@ const adminOperationsItems: NavItem[] = [
   { title: "Business Documents", url: "/business-documents", icon: FileText },
   { title: "Business Card", url: "/business-card", icon: User },
   { title: "Directive Compliance", url: "/directive-compliance", icon: ClipboardCheck },
-  { title: "Trade Sims Signups", url: "/admin/trade-sims-signups", icon: Users },
+  { title: "Trade Sims Signups", url: "/admin/trade-sims-signups", icon: Users, authOnly: true, adminOnly: true },
   { title: "ChildCORE Integration", url: "/childcore-integration", icon: ArrowRightLeft },
 ];
 

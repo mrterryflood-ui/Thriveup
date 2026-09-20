@@ -1,0 +1,18 @@
+# Alpha Omega — 2026-09-20 — Full platform health and product audit
+
+## Alpha
+
+- End-state: one coherent, trustworthy primary platform surface where people can discover help, staff can operate it, partners can integrate, visual evidence can be understood, and every output is traceable and actionable.
+- In-state evidence: the workspace contains a React/Vite/Express/PostgreSQL platform with dedicated visualization surfaces, partner APIs, AI engines, and extensive validation workflows.
+- Authority/boundaries: preserve current safety and authorization boundaries, especially no opaque person-level referral writes, no fabricated partner/clinical contracts, no production data mutation, and human approval for consequential actions.
+- Plan and acceptance proofs: map primary public, member, staff, partner, visualization, integration, and output journeys; run existing health, security, congruence, navigation, accessibility, and visual checks; implement only evidenced gaps; typecheck, restart, inspect logs, and perform the post-build audit.
+- Verified during this session: clinical screening APIs are session-gated and self-screenings are bound to the authenticated account; unauthenticated clinical probes return 401; memory health passes. Legacy employer review GET/PATCH now use the DB-backed canonical five-role staff gate and bind reviewer identity to the authenticated actor. Contact inquiry administration uses the same gate. Anonymous collaboration visitors receive a sign-in path instead of an authenticated-only form. ITI and producer credentials use bounded sessionStorage envelopes with fail-closed producer revalidation.
+- Unknowns/deferred decisions: production publication state, partner referral receiving contract, cross-repository RPLICE implementation details, and methodology requiring stakeholder authorization remain deferred until directly verified.
+
+## Omega
+
+- Diff scrimmage: bounded server authorization, actor binding, client auth-state alignment, session credential storage, and retry/error-state changes only; no opaque referral, clinical transport, consent, receipt, idempotency, correction, or revocation contracts were reopened.
+- Proofs and gates: direct TypeScript compilation passed with zero diagnostics; the restarted typecheck workflow passed; git diff check passed; anonymous contact-admin and collaboration-inquiry probes returned 401; the final six-domain audit was CLEAN for API, runtime, storage, UX, and congruence. The UI audit repeated a false-positive route mismatch because it ignored the intentionally mounted legacy `/api/employers/register` contract; source and congruence checks verified that contract directly.
+- Independent angle: adversarial audit rechecked API contracts, runtime imports, UI/auth reachability, browser persistence, unavailable-vs-empty behavior, and server/client congruence after the final edits.
+- Outcome: the bounded MAP-GAP remediation pass is complete for the verified scope. No production data was mutated.
+- Residuals and reusable guard: official Connecticut geography alignment remains blocked by an external Census relationship file returning no tabular rows; the code remains fail-closed and no legacy county substitute was introduced. Audits were static/read-only apart from anonymous HTTP probes; no browser E2E was run in the final pass. Keep the dual employer-registration contracts explicit when auditing route consumers.

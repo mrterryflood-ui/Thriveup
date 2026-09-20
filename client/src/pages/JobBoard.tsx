@@ -144,6 +144,15 @@ export default function JobBoard() {
             <div
               key={job.id}
               onClick={() => setSelectedJob(selectedJob === job.id ? null : job.id)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  setSelectedJob(selectedJob === job.id ? null : job.id);
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              aria-expanded={selectedJob === job.id}
               data-testid={`card-job-${job.id}`}
               className={`bg-white rounded-xl p-5 cursor-pointer transition-all ${
                 selectedJob === job.id

@@ -465,6 +465,7 @@ function requireAuth(req: Request, res: any, next: any) {
 // bypassing the youth module-completion gating). Server-authoritative:
 // the client cannot force this by passing ?mode=adult.
 const AI_ADULT_MODE_ROLES = new Set(["admin", "teacher", "facilitator", "parent", "adult", "staff"]);
+const STAFF_ROLES = new Set(["admin", "teacher", "case_manager", "facilitator", "staff"]);
 
 async function userQualifiesForAdultMode(userId: string | undefined): Promise<boolean> {
   if (!userId) return false;
@@ -1023,7 +1024,16 @@ export async function registerRoutes(
   // Workforce / fair-chance job board routes
   app.get("/api/workforce/match/:userId", requireAuth, async (req, res) => {
     try {
-      const userId = (req.params.userId as string) === "me" ? getUserId(req)! : req.params.userId as string;
+      const callerId = getUserId(req)!;
+      const requestedId = String(req.params.userId);
+      const isOwnRequest = requestedId === "me" || requestedId === callerId;
+      if (!isOwnRequest) {
+        const caller = await storage.getUser(callerId);
+        if (!caller || !STAFF_ROLES.has(caller.role)) {
+          return res.status(403).json({ error: "You may only view your own employer matches" });
+        }
+      }
+      const userId = requestedId === "me" ? callerId : requestedId;
       const result = await getEmployerMatches(userId);
       res.json(result);
     } catch (err) {
@@ -6808,7 +6818,7 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
     }
   });
 
-  app.use("/api/clinical", clinicalRouter);
+  app.use("/api/clinical", requireAuth, clinicalRouter);
   app.use("/api/foia", requireAuth, foiaRouter);
   app.use("/api/employers", employerRegRouter);
   app.use("/api/equity", equityRouter);

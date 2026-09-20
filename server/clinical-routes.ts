@@ -1,12 +1,23 @@
 import express from "express";
 import { z } from "zod";
-import { db } from "./storage";
+import { db, storage } from "./storage";
 import { clinicalScreenings } from "../shared/clinical-schema";
 import { scoreRnr, scorePhq9, scorePcl5, RNR_ITEMS, PHQ9_ITEMS, PCL5_ITEMS } from "./clinical-instruments";
 import { generateReferrals } from "./referral-routing";
-import { eq, desc } from "drizzle-orm";
+import { and, eq, desc } from "drizzle-orm";
 
 const clinicalRouter = express.Router();
+const CLINICAL_STAFF_ROLES = new Set(["admin", "teacher", "case_manager", "facilitator", "staff"]);
+
+function getUserId(req: express.Request): string | undefined {
+  const user = (req as any).user;
+  return user?.claims?.sub || user?.id;
+}
+
+async function isClinicalStaff(userId: string): Promise<boolean> {
+  const user = await storage.getUser(userId);
+  return !!user && CLINICAL_STAFF_ROLES.has(user.role);
+}
 
 clinicalRouter.get("/instruments", (_req, res) => {
   res.json({
@@ -18,6 +29,9 @@ clinicalRouter.get("/instruments", (_req, res) => {
 
 clinicalRouter.post("/screen", async (req, res) => {
   try {
+    const callerId = getUserId(req);
+    if (!callerId) return res.status(401).json({ error: "Authentication required" });
+
     const schema = z.object({
       participantId: z.string().optional(),
       userId: z.string().optional(),
@@ -32,6 +46,15 @@ clinicalRouter.post("/screen", async (req, res) => {
     const parsed = schema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
     const data = parsed.data;
+    const clinicalStaff = await isClinicalStaff(callerId);
+    const participantId = data.participantId ?? callerId;
+
+    // A regular member may complete a screening only for their own account.
+    // Staff can administer one for an explicitly selected participant, but the
+    // persisted userId is always the authenticated actor—not client input.
+    if (participantId !== callerId && !clinicalStaff) {
+      return res.status(403).json({ error: "You may only complete your own screening" });
+    }
 
     const rnrResult = data.rnrResponses ? scoreRnr(data.rnrResponses) : undefined;
     const phq9Result = data.phq9Responses ? scorePhq9(data.phq9Responses) : undefined;
@@ -41,11 +64,11 @@ clinicalRouter.post("/screen", async (req, res) => {
       generateReferrals({ rnrResult, phq9Result, pcl5Result });
 
     const [screening] = await db.insert(clinicalScreenings).values({
-      participantId: data.participantId,
-      userId: data.userId,
+      participantId,
+      userId: callerId,
       householdId: data.householdId,
       instrumentType: data.instrumentType,
-      administeredBy: data.administeredBy ?? "self",
+      administeredBy: clinicalStaff ? callerId : "self",
       rnrTotalScore: rnrResult?.totalScore,
       rnrRiskLevel: rnrResult?.riskLevel as any,
       rnrDomainScores: rnrResult?.domainScores as any,
@@ -85,8 +108,20 @@ clinicalRouter.post("/screen", async (req, res) => {
 
 clinicalRouter.get("/screenings/:participantId", async (req, res) => {
   try {
+    const callerId = getUserId(req);
+    if (!callerId) return res.status(401).json({ error: "Authentication required" });
+
+    const participantId = String(req.params.participantId);
+    const clinicalStaff = await isClinicalStaff(callerId);
+    const accessFilter = clinicalStaff
+      ? eq(clinicalScreenings.participantId, participantId)
+      : and(
+          eq(clinicalScreenings.participantId, participantId),
+          eq(clinicalScreenings.userId, callerId),
+        );
+
     const screenings = await db.select().from(clinicalScreenings)
-      .where(eq(clinicalScreenings.participantId, req.params.participantId))
+      .where(accessFilter)
       .orderBy(desc(clinicalScreenings.administeredAt));
     res.json(screenings);
   } catch { res.status(500).json({ error: "Failed to load screenings" }); }

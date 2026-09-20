@@ -3,8 +3,9 @@
 // Trade Sims, WPH, public site) by passing surface + surfaceContext.
 //
 // Contract: anti-extraction by default. All consent toggles start OFF.
-// Witness loop is always on. Capability-token persisted to localStorage so the
-// invitee can come back and update without creating an account.
+// Witness loop is always on. Capability tokens stay in this browser tab only,
+// with a bounded client-side lifetime so a shared origin cannot carry them into
+// a later tab or indefinitely retain an invitee's access.
 
 import { useState, useEffect, useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
@@ -21,6 +22,7 @@ import { HandHeart, Eye, CheckCircle2, Loader2, ShieldCheck } from "lucide-react
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/lib/i18n";
 import type { CommunityContext } from "@shared/community-context";
+import { readEphemeralSessionValue, writeEphemeralSessionValue } from "@/lib/ephemeral-session";
 
 export type ItiSurface =
   | "voice-project"
@@ -87,6 +89,8 @@ function idStorageKey(surface: string, ctx: string | undefined) {
   return `iti-id:${surface}:${ctx ?? "default"}`;
 }
 
+const ITI_TOKEN_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
 function formatCommunityContext(context?: CommunityContext | null) {
   if (!context) return null;
   return [
@@ -122,8 +126,8 @@ export function IntegrationInvitation({ surface, surfaceContext, prompt, descrip
 
   // Restore prior session (if invitee saved a token last time)
   useEffect(() => {
-    const tk = localStorage.getItem(tokenStorageKey(surface, surfaceContext));
-    const id = localStorage.getItem(idStorageKey(surface, surfaceContext));
+    const tk = readEphemeralSessionValue(tokenStorageKey(surface, surfaceContext), ITI_TOKEN_MAX_AGE_MS);
+    const id = readEphemeralSessionValue(idStorageKey(surface, surfaceContext), ITI_TOKEN_MAX_AGE_MS);
     if (tk && id) { setToken(tk); setInvitationId(id); }
   }, [surface, surfaceContext]);
 
@@ -180,8 +184,8 @@ export function IntegrationInvitation({ surface, surfaceContext, prompt, descrip
       return res.json() as Promise<{ invitation: InvitationRow; accessToken: string }>;
     },
     onSuccess: (data) => {
-      localStorage.setItem(tokenStorageKey(surface, surfaceContext), data.accessToken);
-      localStorage.setItem(idStorageKey(surface, surfaceContext), data.invitation.id);
+      writeEphemeralSessionValue(tokenStorageKey(surface, surfaceContext), data.accessToken);
+      writeEphemeralSessionValue(idStorageKey(surface, surfaceContext), data.invitation.id);
       setToken(data.accessToken);
       setInvitationId(data.invitation.id);
       setInvitation(data.invitation);

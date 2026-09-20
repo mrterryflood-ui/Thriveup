@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { clearEphemeralSessionValue, readEphemeralSessionValue, writeEphemeralSessionValue } from "@/lib/ephemeral-session";
 import { Database, ShieldCheck, UserCheck, Lock, FlaskConical, Sprout, ChevronRight } from "lucide-react";
 
 const enrollSchema = z.object({
@@ -52,6 +53,8 @@ const CONSENT_LABELS: Record<string, { en: string; es: string; note: string }> =
 };
 
 const DATA_TYPES = ["soil","yield","input-cost"];
+const PRODUCER_TOKEN_KEY = "prod_token";
+const PRODUCER_TOKEN_MAX_AGE_MS = 8 * 60 * 60 * 1000;
 
 const dataSubmitSchema = z.object({
   dataType: z.enum(["soil","yield","input-cost"]),
@@ -79,7 +82,7 @@ const dataSubmitSchema = z.object({
 export default function FarmCooperativePage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [token, setToken] = useState<string>(() => localStorage.getItem("prod_token") || "");
+  const [token, setToken] = useState<string>(() => readEphemeralSessionValue(PRODUCER_TOKEN_KEY, PRODUCER_TOKEN_MAX_AGE_MS) || "");
   const [tab, setTab] = useState(token ? "dashboard" : "enroll");
   const [dataType, setDataType] = useState("soil");
   const [lang, setLang] = useState<"en" | "es">("en");
@@ -89,7 +92,7 @@ export default function FarmCooperativePage() {
   const enrollForm = useForm<z.infer<typeof enrollSchema>>({ resolver: zodResolver(enrollSchema), defaultValues: { farmType: "row-crop", workerType: "owner-operator", preferredLanguage: "en" } });
   const dataForm = useForm<z.infer<typeof dataSubmitSchema>>({ resolver: zodResolver(dataSubmitSchema), defaultValues: { dataType: "soil" } });
 
-  const { data: profile } = useQuery({
+  const { data: profile, isError: profileError } = useQuery({
     queryKey: ["/api/farm-cooperative/profile", token],
     queryFn: async () => {
       if (!token) return null;
@@ -99,6 +102,14 @@ export default function FarmCooperativePage() {
     enabled: !!token,
   });
 
+  useEffect(() => {
+    if (!profileError || !token) return;
+    clearEphemeralSessionValue(PRODUCER_TOKEN_KEY);
+    setToken("");
+    setTab("enroll");
+    toast({ title: "Producer session unavailable", description: "We couldn't verify this session. Please enroll or sign in again.", variant: "destructive" });
+  }, [profileError, token, toast]);
+
   const enrollMutation = useMutation({
     mutationFn: async (values: z.infer<typeof enrollSchema>) => {
       const r = await apiRequest("POST", "/api/farm-cooperative/enroll", values);
@@ -106,7 +117,7 @@ export default function FarmCooperativePage() {
     },
     onSuccess: (data) => {
       if (data.accessToken) {
-        try { localStorage.setItem("prod_token", data.accessToken); } catch {}
+        writeEphemeralSessionValue(PRODUCER_TOKEN_KEY, data.accessToken);
         setToken(data.accessToken);
         setTab("dashboard");
         toast({ title: L("Welcome to the cooperative!", "¡Bienvenido/a a la cooperativa!"), description: data.message });
@@ -154,7 +165,7 @@ export default function FarmCooperativePage() {
     } catch {
       // Local removal still protects this device if the network is unavailable.
     } finally {
-      try { localStorage.removeItem("prod_token"); } catch {}
+      clearEphemeralSessionValue(PRODUCER_TOKEN_KEY);
       setToken("");
       setTab("enroll");
     }

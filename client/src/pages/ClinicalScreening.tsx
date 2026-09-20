@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRoute } from "wouter";
 
 const URGENCY_COLOR: Record<string, string> = {
@@ -29,14 +29,36 @@ export default function ClinicalScreening() {
   const [results, setResults] = useState<any>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [instrumentError, setInstrumentError] = useState<string | null>(null);
+  const [loadingInstruments, setLoadingInstruments] = useState(true);
+
+  const loadInstruments = useCallback(async () => {
+    setLoadingInstruments(true);
+    setInstrumentError(null);
+    try {
+      const res = await fetch("/api/clinical/instruments", { credentials: "include" });
+      if (!res.ok) {
+        throw new Error(res.status === 401
+          ? "Your session expired. Please sign in again."
+          : "Screening instruments are temporarily unavailable.");
+      }
+      const data = await res.json();
+      if (!data?.rnr?.items || !data?.phq9?.items || !data?.pcl5?.items) {
+        throw new Error("Screening instruments are temporarily unavailable.");
+      }
+      setInstruments(data);
+    } catch (err) {
+      setInstruments(null);
+      setInstrumentError(err instanceof Error ? err.message : "Failed to load screening instruments.");
+    } finally {
+      setLoadingInstruments(false);
+    }
+  }, []);
 
   useEffect(() => {
     document.title = "Comprehensive Needs Assessment | ThriveUp Academy";
-    fetch("/api/clinical/instruments")
-      .then(r => r.json())
-      .then(setInstruments)
-      .catch(() => setError("Failed to load screening instruments."));
-  }, []);
+    void loadInstruments();
+  }, [loadInstruments]);
 
   async function submit() {
     setSubmitting(true);
@@ -107,6 +129,15 @@ export default function ClinicalScreening() {
       </div>
 
       <div style={{ maxWidth: 760, margin: "32px auto", padding: "0 24px" }}>
+        {instrumentError && (
+          <div role="alert" style={{ ...card, borderColor: "#fecaca", background: "#fef2f2", color: "#991b1b" }}>
+            <div style={{ fontWeight: 700, marginBottom: 6 }}>Assessment unavailable</div>
+            <div style={{ fontSize: 13, marginBottom: 12 }}>{instrumentError}</div>
+            <button onClick={() => void loadInstruments()} style={btn(true, "#b91c1c")} disabled={loadingInstruments}>
+              {loadingInstruments ? "Retrying…" : "Try again"}
+            </button>
+          </div>
+        )}
 
         {step === "intro" && (
           <div style={card}>
@@ -132,8 +163,8 @@ export default function ClinicalScreening() {
             <div style={{ background: "#fef3c7", border: "1px solid #fde68a", borderRadius: 8, padding: "12px 16px", marginBottom: 20, fontSize: 13, color: "#92400e" }}>
               <strong>Note:</strong> If you are experiencing thoughts of self-harm or suicide, please call or text <strong>988</strong> immediately. You are not alone.
             </div>
-            <button data-testid="btn-begin-assessment" onClick={() => setStep("rnr")} style={{ ...btn(true), padding: "12px 28px", fontSize: 14 }}>
-              Begin assessment →
+            <button data-testid="btn-begin-assessment" onClick={() => setStep("rnr")} disabled={loadingInstruments || !!instrumentError} style={{ ...btn(!loadingInstruments && !instrumentError), padding: "12px 28px", fontSize: 14 }}>
+              {loadingInstruments ? "Loading assessment…" : "Begin assessment →"}
             </button>
           </div>
         )}
@@ -246,7 +277,6 @@ export default function ClinicalScreening() {
                 </div>
               </div>
             ))}
-            {error && <div style={{ color: "#dc2626", fontSize: 13, marginBottom: 12 }}>{error}</div>}
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: 16 }}>
               <button onClick={() => setStep("phq9")} style={btn(false)}>← Back</button>
               <button data-testid="btn-complete-screening" onClick={submit} disabled={!pcl5Complete || submitting}

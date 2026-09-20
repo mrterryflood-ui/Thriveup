@@ -4,30 +4,30 @@ import { db } from "./storage";
 import { employerRegistrations } from "../shared/justice-schema";
 import { employerPartners } from "../shared/schema";
 import { eq, desc } from "drizzle-orm";
+import { validateContactPhone } from "@shared/intake-contact-validators";
+import { getUserId, requireStaff } from "./yhsi-routes";
 
 const employerRegRouter = express.Router();
-
-function ensureAuth(req: express.Request, res: express.Response, next: express.NextFunction) {
-  if (!(req as any).user) return res.status(401).json({ error: "Authentication required" });
-  next();
-}
 
 employerRegRouter.post("/register", async (req, res) => {
   try {
     const schema = z.object({
-      companyName: z.string().min(2),
-      industry: z.string().optional(),
-      contactName: z.string().min(2),
-      contactEmail: z.string().email(),
-      contactPhone: z.string().optional(),
-      website: z.string().url().optional().or(z.literal("")),
-      location: z.string().optional(),
+      companyName: z.string().trim().min(2).max(200),
+      industry: z.string().trim().max(100).optional(),
+      contactName: z.string().trim().min(2).max(200),
+      contactEmail: z.string().trim().email().max(320),
+      contactPhone: z.string().trim().max(50).optional().refine(
+        (value) => !value || validateContactPhone(value).ok,
+        { message: "Enter a valid phone number" },
+      ),
+      website: z.string().trim().max(2048).url().optional().or(z.literal("")),
+      location: z.string().trim().max(300).optional(),
       banTheBox: z.boolean().default(false),
       fairChanceHiring: z.boolean().default(false),
       barrierFriendly: z.boolean().default(false),
-      hiringCommitments: z.string().optional(),
-      description: z.string().optional(),
-      credentialTags: z.array(z.string()).optional(),
+      hiringCommitments: z.string().trim().max(2000).optional(),
+      description: z.string().trim().max(4000).optional(),
+      credentialTags: z.array(z.string().trim().min(1).max(100)).max(20).optional(),
     });
     const parsed = schema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
@@ -48,7 +48,7 @@ employerRegRouter.post("/register", async (req, res) => {
   }
 });
 
-employerRegRouter.get("/registrations", ensureAuth, async (req, res) => {
+employerRegRouter.get("/registrations", requireStaff, async (req, res) => {
   try {
     const status = (req.query.status as string) ?? "pending";
     const regs = await db.select().from(employerRegistrations)
@@ -58,11 +58,10 @@ employerRegRouter.get("/registrations", ensureAuth, async (req, res) => {
   } catch { res.status(500).json({ error: "Failed to load registrations" }); }
 });
 
-employerRegRouter.patch("/registrations/:id/review", ensureAuth, async (req, res) => {
+employerRegRouter.patch("/registrations/:id/review", requireStaff, async (req, res) => {
   try {
     const schema = z.object({
       decision: z.enum(["approved", "rejected"]),
-      reviewedBy: z.string(),
       reviewNotes: z.string().optional(),
     });
     const parsed = schema.safeParse(req.body);
@@ -96,7 +95,7 @@ employerRegRouter.patch("/registrations/:id/review", ensureAuth, async (req, res
     const [updated] = await db.update(employerRegistrations).set({
       status: parsed.data.decision,
       reviewedAt: new Date(),
-      reviewedBy: parsed.data.reviewedBy,
+      reviewedBy: getUserId(req)!,
       reviewNotes: parsed.data.reviewNotes,
       approvedEmployerId: employerId,
     }).where(eq(employerRegistrations.id, req.params.id as string)).returning();

@@ -18,6 +18,7 @@ import {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const STORAGE_KEY = "partnerDashboardAuth";
+const PARTNER_SESSION_MAX_AGE_MS = 8 * 60 * 60 * 1000;
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface AuthState {
@@ -27,6 +28,54 @@ interface AuthState {
   location: string;
   scopes: string[];
   keyPrefix: string;
+}
+
+interface StoredAuthState extends AuthState {
+  storedAt: number;
+}
+
+function persistAuthState(state: AuthState) {
+  try {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ ...state, storedAt: Date.now() }));
+    // Remove credentials written by older builds that used origin-wide storage.
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // Private browsing can disable sessionStorage; authentication still remains
+    // valid for the current React session and is never written to localStorage.
+  }
+}
+
+function clearPersistedAuth() {
+  try {
+    sessionStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // Storage can be unavailable in private browsing.
+  }
+}
+
+function readPersistedAuth(): AuthState | null {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+    const stored = sessionStorage.getItem(STORAGE_KEY);
+    if (!stored) return null;
+    const cached = JSON.parse(stored) as Partial<StoredAuthState>;
+    if (
+      typeof cached.storedAt !== "number" ||
+      Date.now() - cached.storedAt > PARTNER_SESSION_MAX_AGE_MS ||
+      typeof cached.key !== "string" ||
+      typeof cached.orgName !== "string" ||
+      typeof cached.location !== "string" ||
+      !Array.isArray(cached.scopes)
+    ) {
+      sessionStorage.removeItem(STORAGE_KEY);
+      return null;
+    }
+    return cached as AuthState;
+  } catch {
+    clearPersistedAuth();
+    return null;
+  }
 }
 
 interface TabData<T = any> {
@@ -143,7 +192,7 @@ function KeyEntryScreen({
         scopes:    data.scopes ?? [],
         keyPrefix: data.keyPrefix,
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      persistAuthState(state);
       onAuth(state);
     } catch (e: any) {
       toast({ title: "Connection failed", description: e.message, variant: "destructive" });
@@ -893,7 +942,7 @@ export default function PartnerDashboardPage() {
   const [benefits, setBenefits] = useState<TabData>({ status: "idle" });
   const [impact,   setImpact]   = useState<TabData>({ status: "idle" });
 
-  // ── Bootstrap: check URL param or localStorage ────────────────────────────
+  // ── Bootstrap: check URL param or this-tab session storage ────────────────
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const urlKey = params.get("key");
@@ -913,7 +962,7 @@ export default function PartnerDashboardPage() {
               key: urlKey, orgName: data.orgName, orgEmail: data.orgEmail ?? null,
               location: data.location, scopes: data.scopes ?? [], keyPrefix: data.keyPrefix,
             };
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            persistAuthState(state);
             setAuth(state);
             window.history.replaceState({}, "", "/partner-dashboard");
           }
@@ -923,10 +972,8 @@ export default function PartnerDashboardPage() {
       return;
     }
 
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        const cached: AuthState = JSON.parse(stored);
+    const cached = readPersistedAuth();
+    if (cached) {
         // Revalidate the cached key against the server so a stale or tampered
         // location value can't silently drive the wrong geography's community data.
         (async () => {
@@ -947,25 +994,23 @@ export default function PartnerDashboardPage() {
                 scopes:    data.scopes    ?? cached.scopes ?? [],
                 keyPrefix: data.keyPrefix ?? cached.keyPrefix,
               };
-              localStorage.setItem(STORAGE_KEY, JSON.stringify(fresh));
+              persistAuthState(fresh);
               setAuth(fresh);
             } else {
               // Key is no longer valid — clear the stale session.
-              localStorage.removeItem(STORAGE_KEY);
+              clearPersistedAuth();
+              setAuth(null);
             }
           } catch {
-            // Network failure: fall back to the cached state so offline users
-            // aren't logged out unexpectedly, but do not persist location changes.
-            setAuth(cached);
+            // Never treat a stale bearer key as authenticated when its
+            // server-side status cannot be revalidated.
+            clearPersistedAuth();
+            setAuth(null);
           } finally {
             setBooting(false);
           }
         })();
         return;
-      } catch {
-        // JSON parse failed — clear the corrupt entry.
-        localStorage.removeItem(STORAGE_KEY);
-      }
     }
     setBooting(false);
   }, []);
@@ -1029,7 +1074,7 @@ export default function PartnerDashboardPage() {
   }, [activeTab, auth]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSignOut = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
+    clearPersistedAuth();
     setAuth(null);
     setStory({ status: "idle" });
     setBenefits({ status: "idle" });

@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,13 +28,32 @@ const URGENCY_LEVELS = ["standard", "urgent", "emergency"];
 const OUTCOME_CATEGORIES = ["workforce", "education", "health", "justice", "housing", "community-engagement", "research"];
 const METRIC_TYPES = ["count", "percentage", "rate", "score", "currency"];
 
+function QueryErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <Card>
+      <CardContent className="py-10 text-center">
+        <AlertTriangle className="h-8 w-8 mx-auto mb-3 text-amber-600" />
+        <p className="font-medium">{message}</p>
+        <p className="text-sm text-muted-foreground mt-1 mb-4">The service did not return usable data. Try again.</p>
+        <Button variant="outline" onClick={onRetry}>Retry</Button>
+      </CardContent>
+    </Card>
+  );
+}
+
 function PartnerDirectory() {
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [selectedPartner, setSelectedPartner] = useState<string | null>(null);
 
-  const { data: partnersRaw, isLoading } = useQuery<CommunityPartner[]>({
-    queryKey: ["/api/collaboration/partners", search, categoryFilter],
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebouncedSearch(search), 300);
+    return () => window.clearTimeout(timer);
+  }, [search]);
+
+  const { data: partnersRaw, isLoading, isError, refetch } = useQuery<CommunityPartner[]>({
+    queryKey: ["/api/collaboration/partners", debouncedSearch, categoryFilter],
   });
   const partners = partnersRaw ?? [];
 
@@ -52,6 +72,7 @@ function PartnerDirectory() {
   });
 
   if (isLoading) return <Skeleton className="h-64" />;
+  if (isError) return <QueryErrorState message="Partner directory unavailable" onRetry={() => void refetch()} />;
 
   return (
     <div className="space-y-4">
@@ -158,7 +179,7 @@ function PartnerDetailView({ detail }: { detail: { partner: CommunityPartner; re
 function PartnershipRequestsTab() {
   const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
-  const { data: requestsRaw, isLoading } = useQuery<PartnershipRequest[]>({ queryKey: ["/api/collaboration/partnership-requests"] });
+  const { data: requestsRaw, isLoading, isError, refetch } = useQuery<PartnershipRequest[]>({ queryKey: ["/api/collaboration/partnership-requests"] });
   const requests = requestsRaw ?? [];
 
   const convertMutation = useMutation({
@@ -170,7 +191,11 @@ function PartnershipRequestsTab() {
       queryClient.invalidateQueries({ queryKey: ["/api/collaboration/partners"] });
       toast({ title: "Partner Onboarded", description: "Organization has been added to the partner directory." });
     },
-    onError: () => toast({ title: "Error", variant: "destructive" }),
+    onError: (error) => toast({
+      title: "Couldn't submit inquiry",
+      description: `${error instanceof Error && error.message ? error.message : "We couldn't send the inquiry."} Please check your connection and try again.`,
+      variant: "destructive",
+    }),
   });
 
   const updateMutation = useMutation({
@@ -190,6 +215,7 @@ function PartnershipRequestsTab() {
   const declined = requests.filter(r => r.status === "declined");
 
   if (isLoading) return <Skeleton className="h-64" />;
+  if (isError) return <QueryErrorState message="Partnership requests unavailable" onRetry={() => void refetch()} />;
 
   return (
     <div className="space-y-4">
@@ -375,9 +401,9 @@ function PartnershipRequestForm({ onClose }: { onClose: () => void }) {
 function SharedOutcomesTab() {
   const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
-  const { data: outcomesRaw, isLoading } = useQuery<SharedOutcome[]>({ queryKey: ["/api/collaboration/shared-outcomes"] });
+  const { data: outcomesRaw, isLoading, isError, refetch } = useQuery<SharedOutcome[]>({ queryKey: ["/api/collaboration/shared-outcomes"] });
   const outcomes = outcomesRaw ?? [];
-  const { data: partnersRaw2 } = useQuery<CommunityPartner[]>({ queryKey: ["/api/collaboration/partners"] });
+  const { data: partnersRaw2, isError: partnersError, refetch: refetchPartners } = useQuery<CommunityPartner[]>({ queryKey: ["/api/collaboration/partners"] });
   const partners = partnersRaw2 ?? [];
 
   const updateMutation = useMutation({
@@ -394,6 +420,7 @@ function SharedOutcomesTab() {
   const partnerMap = Object.fromEntries(partners.map(p => [p.id, p.name]));
 
   if (isLoading) return <Skeleton className="h-64" />;
+  if (isError || partnersError) return <QueryErrorState message="Shared outcomes unavailable" onRetry={() => { void refetch(); void refetchPartners(); }} />;
 
   return (
     <div className="space-y-4">
@@ -531,9 +558,9 @@ function WarmHandoffsTab() {
   const [showForm, setShowForm] = useState(false);
   const [directionFilter, setDirectionFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  const { data: handoffsRaw, isLoading } = useQuery<ExternalWarmHandoff[]>({ queryKey: ["/api/collaboration/warm-handoffs"] });
+  const { data: handoffsRaw, isLoading, isError, refetch } = useQuery<ExternalWarmHandoff[]>({ queryKey: ["/api/collaboration/warm-handoffs"] });
   const handoffs = handoffsRaw ?? [];
-  const { data: partnersRaw3 } = useQuery<CommunityPartner[]>({ queryKey: ["/api/collaboration/partners"] });
+  const { data: partnersRaw3, isError: partnersError, refetch: refetchPartners } = useQuery<CommunityPartner[]>({ queryKey: ["/api/collaboration/partners"] });
   const partners = partnersRaw3 ?? [];
 
   const updateMutation = useMutation({
@@ -560,6 +587,7 @@ function WarmHandoffsTab() {
   const active = handoffs.filter(h => h.status === "initiated" || h.status === "accepted");
 
   if (isLoading) return <Skeleton className="h-64" />;
+  if (isError || partnersError) return <QueryErrorState message="Warm handoffs unavailable" onRetry={() => { void refetch(); void refetchPartners(); }} />;
 
   return (
     <div className="space-y-4">
@@ -747,7 +775,7 @@ function WarmHandoffForm({ partners, onClose }: { partners: CommunityPartner[]; 
   );
 }
 
-function PublicInquiryTab() {
+function PartnerInquiryTab() {
   const { toast } = useToast();
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({
@@ -765,7 +793,11 @@ function PublicInquiryTab() {
       toast({ title: "Inquiry Submitted", description: "We'll review your request and respond within 5 business days." });
       setSubmitted(true);
     },
-    onError: () => toast({ title: "Error", variant: "destructive" }),
+    onError: (error) => toast({
+      title: "Couldn't submit inquiry",
+      description: `${error instanceof Error && error.message ? error.message : "We couldn't send the inquiry."} Please check your connection and try again.`,
+      variant: "destructive",
+    }),
   });
 
   function toggleFocus(item: string) {
@@ -883,7 +915,8 @@ function PublicInquiryTab() {
 }
 
 export default function CollaborationHubPage() {
-  const { data: stats, isLoading: statsLoading } = useQuery<{
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { data: stats, isLoading: statsLoading, isError: statsError, refetch: refetchStats } = useQuery<{
     totalPartners: number; pendingRequests: number; activeOutcomes: number; totalHandoffs: number; activeHandoffs: number;
   }>({ queryKey: ["/api/collaboration/stats"] });
 
@@ -899,6 +932,17 @@ export default function CollaborationHubPage() {
         </p>
       </div>
 
+      {statsError ? (
+        <Card role="alert" className="border-amber-200 bg-amber-50 dark:bg-amber-950/20">
+          <CardContent className="p-4 flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <p className="font-medium">Collaboration summary unavailable</p>
+              <p className="text-sm text-muted-foreground">The activity totals could not be loaded, so no zero values are being shown.</p>
+            </div>
+            <Button variant="outline" onClick={() => void refetchStats()}>Retry summary</Button>
+          </CardContent>
+        </Card>
+      ) : (
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <Card>
           <CardContent className="p-3 text-center">
@@ -931,6 +975,7 @@ export default function CollaborationHubPage() {
           </CardContent>
         </Card>
       </div>
+      )}
 
       <Tabs defaultValue="directory" className="space-y-6">
         <TabsList className="flex-wrap">
@@ -946,17 +991,34 @@ export default function CollaborationHubPage() {
           <TabsTrigger value="handoffs" data-testid="tab-handoffs">
             <ArrowRightLeft className="h-4 w-4 mr-1.5" /> Warm Handoffs
           </TabsTrigger>
-          <TabsTrigger value="inquiry" data-testid="tab-inquiry">
-            <Send className="h-4 w-4 mr-1.5" /> Partner Inquiry
-          </TabsTrigger>
+          {isAuthenticated && (
+            <TabsTrigger value="inquiry" data-testid="tab-inquiry">
+              <Send className="h-4 w-4 mr-1.5" /> Partner Inquiry
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="directory"><PartnerDirectory /></TabsContent>
         <TabsContent value="requests"><PartnershipRequestsTab /></TabsContent>
         <TabsContent value="outcomes"><SharedOutcomesTab /></TabsContent>
         <TabsContent value="handoffs"><WarmHandoffsTab /></TabsContent>
-        <TabsContent value="inquiry"><PublicInquiryTab /></TabsContent>
+        {isAuthenticated && <TabsContent value="inquiry"><PartnerInquiryTab /></TabsContent>}
       </Tabs>
+      {!authLoading && !isAuthenticated && (
+        <Card className="border-dashed">
+          <CardContent className="p-5 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="font-medium">Want to partner with ThriveUp?</p>
+              <p className="text-sm text-muted-foreground">Sign in to submit a partnership inquiry.</p>
+            </div>
+            <Button asChild variant="outline">
+              <a href={`/api/login?returnTo=${encodeURIComponent(
+                typeof window !== "undefined" ? `${window.location.pathname}?tab=inquiry` : "/collaboration-hub"
+              )}`}>Sign in to inquire</a>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

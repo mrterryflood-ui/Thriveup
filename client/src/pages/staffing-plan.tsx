@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import {
   Users, Plus, Trash2, Briefcase, CheckCircle2, Clock, AlertCircle,
-  Building2, ArrowRight, Download
+  Building2, ArrowRight, Download, Pencil
 } from "lucide-react";
 
 interface StaffingEntry {
@@ -98,15 +98,20 @@ const ORG_STRUCTURE = [
   },
 ];
 
+const EMPTY_FORM = {
+  roleTitle: "", grantRole: "", department: "", fte: "1.0", qualifications: "",
+  responsibilities: "", currentStaff: "", status: "planned", grantProgram: "",
+};
+
 export default function StaffingPlanPage() {
   const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
   const [activeView, setActiveView] = useState<"org" | "roles">("org");
-  const [form, setForm] = useState({
-    roleTitle: "", grantRole: "", department: "", fte: "1.0", qualifications: "", responsibilities: "", currentStaff: "", status: "planned", grantProgram: "",
-  });
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [applyingTemplate, setApplyingTemplate] = useState<string | null>(null);
 
-  const { data: rawEntries, isLoading } = useQuery<StaffingEntry[]>({ queryKey: ["/api/staffing-plan"] });
+  const { data: rawEntries, isLoading, isError, refetch } = useQuery<StaffingEntry[]>({ queryKey: ["/api/staffing-plan"] });
   const entries = rawEntries ?? [];
 
   const createMutation = useMutation({
@@ -117,9 +122,26 @@ export default function StaffingPlanPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/staffing-plan"] });
       setShowForm(false);
-      setForm({ roleTitle: "", grantRole: "", department: "", fte: "1.0", qualifications: "", responsibilities: "", currentStaff: "", status: "planned", grantProgram: "" });
+      setEditingId(null);
+      setForm(EMPTY_FORM);
       toast({ title: "Staffing entry added" });
     },
+    onError: (error) => toast({ title: "Could not add staffing entry", description: error instanceof Error ? error.message : "Please try again.", variant: "destructive" }),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Record<string, unknown> }) => {
+      const res = await apiRequest("PATCH", `/api/staffing-plan/${id}`, data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/staffing-plan"] });
+      setShowForm(false);
+      setEditingId(null);
+      setForm(EMPTY_FORM);
+      toast({ title: "Staffing entry updated" });
+    },
+    onError: (error) => toast({ title: "Could not update staffing entry", description: error instanceof Error ? error.message : "Please try again.", variant: "destructive" }),
   });
 
   const deleteMutation = useMutation({
@@ -130,18 +152,58 @@ export default function StaffingPlanPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/staffing-plan"] });
       toast({ title: "Entry removed" });
     },
+    onError: (error) => toast({ title: "Could not remove entry", description: error instanceof Error ? error.message : "Please try again.", variant: "destructive" }),
   });
 
-  const applyTemplate = (grantType: string) => {
+  const saveForm = () => {
+    if (!form.roleTitle || !form.grantRole) return;
+    if (editingId) {
+      updateMutation.mutate({ id: editingId, data: form });
+    } else {
+      createMutation.mutate(form);
+    }
+  };
+
+  const beginEdit = (entry: StaffingEntry) => {
+    setEditingId(entry.id);
+    setForm({
+      roleTitle: entry.roleTitle,
+      grantRole: entry.grantRole,
+      department: entry.department ?? "",
+      fte: entry.fte,
+      qualifications: entry.qualifications ?? "",
+      responsibilities: entry.responsibilities ?? "",
+      currentStaff: entry.currentStaff ?? "",
+      status: entry.status,
+      grantProgram: entry.grantProgram ?? "",
+    });
+    setShowForm(true);
+    setActiveView("roles");
+  };
+
+  const applyTemplate = async (grantType: string) => {
     const template = GRANT_ROLE_TEMPLATES[grantType];
     if (!template) return;
-    const promises = template.map((entry) =>
-      apiRequest("POST", "/api/staffing-plan", { ...entry, grantProgram: grantType, status: "planned" })
-    );
-    Promise.all(promises).then(() => {
+    setApplyingTemplate(grantType);
+    try {
+      const results = await Promise.allSettled(template.map((entry) =>
+        apiRequest("POST", "/api/staffing-plan", { ...entry, grantProgram: grantType, status: "planned" })
+      ));
+      const failed = results.filter((result) => result.status === "rejected").length;
       queryClient.invalidateQueries({ queryKey: ["/api/staffing-plan"] });
-      toast({ title: `${grantType} staffing template applied` });
-    });
+      if (failed > 0) {
+        const added = template.length - failed;
+        toast({
+          title: `${grantType} template partially applied`,
+          description: `${added} role${added === 1 ? "" : "s"} added; ${failed} failed. Review the roster and retry the missing roles.`,
+          variant: "destructive",
+        });
+      } else {
+        toast({ title: `${grantType} staffing template applied` });
+      }
+    } finally {
+      setApplyingTemplate(null);
+    }
   };
 
   const handleExportCSV = () => {
@@ -258,13 +320,27 @@ export default function StaffingPlanPage() {
 
       {activeView === "roles" && (
         <>
+          {isError && (
+            <Card role="alert" className="p-5 border-amber-200 bg-amber-50 dark:bg-amber-950/20">
+              <div className="flex items-center justify-between gap-4 flex-wrap">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-medium">Staffing plan unavailable</p>
+                    <p className="text-sm text-muted-foreground">The roster could not be loaded, so it is not being shown as empty.</p>
+                  </div>
+                </div>
+                <Button variant="outline" onClick={() => void refetch()}>Retry</Button>
+              </div>
+            </Card>
+          )}
           <Card className="p-5" data-testid="card-templates">
             <h2 className="font-semibold text-lg mb-1">Quick-Start Templates</h2>
             <p className="text-sm text-muted-foreground mb-4">Apply a pre-built staffing template based on grant requirements</p>
             <div className="flex flex-wrap gap-3">
               {Object.keys(GRANT_ROLE_TEMPLATES).map((grantType) => (
-                <Button key={grantType} variant="outline" onClick={() => applyTemplate(grantType)} data-testid={`button-template-${grantType.toLowerCase()}`}>
-                  <Briefcase className="mr-2 h-4 w-4" /> {grantType} Template ({GRANT_ROLE_TEMPLATES[grantType].length} roles)
+                <Button key={grantType} variant="outline" onClick={() => void applyTemplate(grantType)} disabled={!!applyingTemplate} data-testid={`button-template-${grantType.toLowerCase()}`}>
+                  <Briefcase className="mr-2 h-4 w-4" /> {applyingTemplate === grantType ? "Applying..." : `${grantType} Template (${GRANT_ROLE_TEMPLATES[grantType].length} roles)`}
                 </Button>
               ))}
             </div>
@@ -272,7 +348,7 @@ export default function StaffingPlanPage() {
 
           {showForm && (
             <Card className="p-5 space-y-4" data-testid="card-role-form">
-              <h2 className="font-semibold">Add Role</h2>
+               <h2 className="font-semibold">{editingId ? "Edit Role" : "Add Role"}</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="text-sm font-medium">Role Title *</label>
@@ -322,10 +398,10 @@ export default function StaffingPlanPage() {
                 <Input value={form.currentStaff} onChange={(e) => setForm((p) => ({ ...p, currentStaff: e.target.value }))} data-testid="input-current-staff" />
               </div>
               <div className="flex gap-2">
-                <Button onClick={() => createMutation.mutate(form)} disabled={!form.roleTitle || !form.grantRole || createMutation.isPending} data-testid="button-submit-role">
-                  {createMutation.isPending ? "Adding..." : "Add Role"}
+                <Button onClick={saveForm} disabled={!form.roleTitle || !form.grantRole || createMutation.isPending || updateMutation.isPending} data-testid="button-submit-role">
+                  {createMutation.isPending || updateMutation.isPending ? "Saving..." : editingId ? "Save Changes" : "Add Role"}
                 </Button>
-                <Button variant="outline" onClick={() => setShowForm(false)} data-testid="button-cancel-role">Cancel</Button>
+                <Button variant="outline" onClick={() => { setShowForm(false); setEditingId(null); setForm(EMPTY_FORM); }} data-testid="button-cancel-role">Cancel</Button>
               </div>
             </Card>
           )}
@@ -377,16 +453,21 @@ export default function StaffingPlanPage() {
                         <p className="text-sm mt-1 text-muted-foreground"><span className="font-medium text-foreground">Responsibilities:</span> {entry.responsibilities}</p>
                       )}
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(entry.id)} data-testid={`button-delete-role-${entry.id}`}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                     <div className="flex items-center gap-1">
+                       <Button variant="ghost" size="icon" onClick={() => beginEdit(entry)} aria-label={`Edit ${entry.roleTitle}`} data-testid={`button-edit-role-${entry.id}`}>
+                         <Pencil className="h-4 w-4" />
+                       </Button>
+                       <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(entry.id)} aria-label={`Delete ${entry.roleTitle}`} data-testid={`button-delete-role-${entry.id}`}>
+                         <Trash2 className="h-4 w-4 text-destructive" />
+                       </Button>
+                     </div>
                   </div>
                 </Card>
               );
             })}
           </div>
 
-          {entries.length === 0 && !isLoading && (
+          {entries.length === 0 && !isLoading && !isError && (
             <Card className="p-8 text-center text-muted-foreground" data-testid="empty-staffing">
               <Briefcase className="h-10 w-10 mx-auto mb-2 opacity-40" />
               <p className="font-medium mb-1">No staffing plan entries yet</p>

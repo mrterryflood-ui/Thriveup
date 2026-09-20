@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { ThumbsUp, ThumbsDown, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { writeEphemeralSessionValue } from "@/lib/ephemeral-session";
 
 /**
  * Posture B for N. Williamson County: present the regional briefing's working
@@ -87,8 +88,8 @@ export function HypothesisContest({
       if (!res.ok) throw new Error("Failed to submit");
       const j = await res.json();
       if (j.accessToken && j.invitation?.id) {
-        const key = `iti-token:${surface}:${surfaceContext}`;
-        localStorage.setItem(key, JSON.stringify({ id: j.invitation.id, token: j.accessToken }));
+        writeEphemeralSessionValue(`iti-token:${surface}:${surfaceContext}`, j.accessToken);
+        writeEphemeralSessionValue(`iti-id:${surface}:${surfaceContext}`, j.invitation.id);
       }
       setSubmitted(true);
       toast({ title: "Heard you", description: "Your contest of these guesses is now on the record." });
