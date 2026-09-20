@@ -427,6 +427,27 @@ Prioritize providers with an MS specialty program, MS neurologist, multidiscipli
       throw providerError;
     }
     const providers = parseLeads(text);
+    let evidenceSources: RetrievedEvidenceSource[] = [];
+    let evidenceSynthesis: EvidenceSynthesisResult;
+    try {
+      evidenceSources = await retrieveMsEvidence(location, focus);
+      evidenceSynthesis = await synthesizeRetrievedEvidence(
+        `What official or PubMed evidence is relevant to MS care navigation for ${location} and the requested focus: ${focus}?`,
+        evidenceSources,
+      );
+    } catch (error) {
+      console.error("[MS Provider Intelligence] evidence retrieval failed:", error);
+      evidenceSynthesis = {
+        status: "unavailable",
+        summary: null,
+        limitations: "Official/PubMed evidence retrieval was unavailable, so no AI evidence synthesis was produced.",
+        citedSourceIds: [],
+        provider: null,
+        model: null,
+        reason: "provider_error",
+        disclosure: "AI synthesis is limited to retrieved official and PubMed context. It is not clinical advice, a diagnosis, treatment recommendation, provider verification, endorsement, or referral.",
+      };
+    }
     const searchedAt = new Date().toISOString();
     const result: MsProviderSearchResult = {
       location,
@@ -434,6 +455,8 @@ Prioritize providers with an MS specialty program, MS neurologist, multidiscipli
       providers,
       citations: citations.filter((citation) => normalizeHttpsUrl(citation, 1000)).slice(0, 20),
       citationBinding: "unmapped_citations",
+      evidenceSynthesis,
+      evidenceSources: evidenceSources.map(({ id, title, url, sourceType }) => ({ id, title, url, sourceType })),
       resultStatus: providers.length > 0 ? "provider_leads_found" : "no_provider_leads",
       nextActions: providers.length > 0
         ? ["Confirm each organization directly before sharing or referring.", "Use the official national sources in this response when a lead cannot be confirmed."]
