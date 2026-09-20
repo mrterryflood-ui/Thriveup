@@ -536,6 +536,31 @@ export interface EvidenceSynthesisResult {
 const EVIDENCE_SYNTHESIS_DISCLOSURE =
   "AI synthesis is limited to the retrieved official and PubMed context listed with this response. It is not clinical advice, a diagnosis, treatment recommendation, provider verification, endorsement, or referral.";
 
+function isPermittedEvidenceUrl(url: string): boolean {
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+    return (
+      host === "pubmed.ncbi.nlm.nih.gov" ||
+      host.endsWith(".pubmed.ncbi.nlm.nih.gov") ||
+      host === "pmc.ncbi.nlm.nih.gov" ||
+      host.endsWith(".pmc.ncbi.nlm.nih.gov") ||
+      host === "nationalmssociety.org" ||
+      host.endsWith(".nationalmssociety.org") ||
+      host.endsWith(".gov")
+    );
+  } catch {
+    return false;
+  }
+}
+
+function escapeEvidenceMarkup(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 function isValidRetrievedEvidenceSource(source: RetrievedEvidenceSource): boolean {
   return Boolean(
     source &&
@@ -545,6 +570,7 @@ function isValidRetrievedEvidenceSource(source: RetrievedEvidenceSource): boolea
     source.title.trim().length > 0 &&
     typeof source.url === "string" &&
     /^https:\/\//i.test(source.url) &&
+    isPermittedEvidenceUrl(source.url) &&
     (source.sourceType === "official" || source.sourceType === "pubmed") &&
     typeof source.excerpt === "string" &&
     source.excerpt.trim().length > 0,
@@ -602,8 +628,8 @@ export async function synthesizeRetrievedEvidence(
   const boundedQuestion = question.trim().slice(0, 500);
   const context = validSources
     .map((source) =>
-      `<source id="${source.id}" type="${source.sourceType}" title="${source.title}" url="${source.url}">\n` +
-      `${source.excerpt}\n</source>`,
+      `<source id="${escapeEvidenceMarkup(source.id)}" type="${escapeEvidenceMarkup(source.sourceType)}" title="${escapeEvidenceMarkup(source.title)}" url="${escapeEvidenceMarkup(source.url)}">\n` +
+      `${escapeEvidenceMarkup(source.excerpt)}\n</source>`,
     )
     .join("\n\n");
   const systemPrompt = withEthicalPreamble(

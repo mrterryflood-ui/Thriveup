@@ -20,8 +20,8 @@
 
 ## Omega update for current evidence-synthesis slice
 
-- Diff scrimmage: pending implementation.
-- Proofs and gates: pending implementation.
-- Independent angle: pending focused tests and adversarial audit.
-- Outcome: pending.
-- Residuals and reusable guard: pending.
+- Diff scrimmage: The initial wiring left the required evidence fields unwritten; TypeScript caught the mismatch. The completed path now retrieves evidence separately, filters to HTTPS government/National MS Society/PubMed/PMC domains, bounds and escapes source content, and calls Replit OpenAI only after filtering. Referral delivery code was not changed.
+- Proofs and gates: `NODE_OPTIONS=--max-old-space-size=8192 npx tsc --noEmit -p .` passed; `npx tsx scripts/verify-ai-preamble.ts` passed; `npx tsx scripts/preflight.ts` passed 9/9; application restarted cleanly; a synthetic call returned `synthesized` from `replit-ai-integrations`/`gpt-5-nano` with a cited source and disclosure; a disallowed `example.com` source returned `insufficient_evidence` without calling a provider; `git diff --check` passed.
+- Independent angle: Direct runtime invocation exercised the dedicated provider helper independently of the route. The empty/permitted-source and disallowed-domain cases confirmed fail-closed behavior.
+- Outcome: The MS provider-intelligence path now has a separate evidence-retrieval/synthesis lane: Perplexity remains retrieval, Replit-managed OpenAI performs bounded synthesis, and the output remains explicitly non-clinical/non-referral. TypeScript is clean.
+- Residuals and reusable guard: Provider leads remain globally `unmapped_citations` and unverified. The partner has not supplied a referral contract, receipt semantics, idempotency rules, correction/revocation behavior, retry policy, or sandbox tenant; no referral payload is sent or persisted.
