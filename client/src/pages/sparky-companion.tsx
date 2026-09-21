@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageCircle, Send, Bot, User, Briefcase, BookOpen, Users, Settings, Trash2, Heart, Wand2, ShieldAlert, History, Plus, ChevronLeft } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useLanguage } from "@/lib/i18n";
+import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 
 interface Message {
@@ -83,10 +84,13 @@ function formatRelativeTime(dateStr: string) {
 export default function SparkyCompanionPage() {
   const { language } = useLanguage();
   const { user } = useAuth();
+  const { toast } = useToast();
   const welcomeMsg = language === "es" ? WELCOME_ES : WELCOME_EN;
   const [messages, setMessages] = useState<Message[]>([welcomeMsg]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [sendError, setSendError] = useState(false);
+  const [lastFailedMessage, setLastFailedMessage] = useState("");
   const [context, setContext] = useState("general");
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [view, setView] = useState<"chat" | "history">("chat");
@@ -145,6 +149,8 @@ export default function SparkyCompanionPage() {
       const welcome = language === "es" ? WELCOME_ES : WELCOME_EN;
       setMessages([welcome, ...msgs.map((m: { role: string; content: string }) => ({ role: m.role as "user" | "assistant", content: m.content }))]);
       setActiveSessionId(sessionId);
+      setSendError(false);
+      setLastFailedMessage("");
       setView("chat");
     } catch (err) {
       console.error("Failed to load session:", err);
@@ -154,12 +160,15 @@ export default function SparkyCompanionPage() {
   const startNewSession = useCallback(() => {
     setMessages([language === "es" ? WELCOME_ES : WELCOME_EN]);
     setActiveSessionId(null);
+    setSendError(false);
+    setLastFailedMessage("");
     setView("chat");
   }, [language]);
 
   const sendMessage = async (overrideMessage?: string) => {
     const trimmed = (overrideMessage || input).trim();
     if (!trimmed || isLoading) return;
+    setSendError(false);
 
     const contextLabel = CONTEXT_OPTIONS.find(c => c.value === context)?.label || context;
     const fullMessage = `[Context: ${contextLabel}] ${trimmed}`;
@@ -241,6 +250,13 @@ export default function SparkyCompanionPage() {
         });
       }
     } catch {
+      setSendError(true);
+      setLastFailedMessage(trimmed);
+      toast({
+        title: language === "es" ? "No se pudo enviar el mensaje" : "Message failed to send",
+        description: language === "es" ? "Comprueba tu conexion e intentalo de nuevo." : "Check your connection and try again.",
+        variant: "destructive",
+      });
       setMessages((prev) => {
         const updated = [...prev];
         updated[updated.length - 1] = {
@@ -266,6 +282,8 @@ export default function SparkyCompanionPage() {
   const clearChat = () => {
     setMessages([language === "es" ? WELCOME_ES : WELCOME_EN]);
     setActiveSessionId(null);
+    setSendError(false);
+    setLastFailedMessage("");
     try { localStorage.removeItem(STORAGE_KEY); } catch {}
   };
 
@@ -440,6 +458,12 @@ export default function SparkyCompanionPage() {
         ) : (
           <>
             <div className="flex-1 overflow-auto p-4 space-y-4" data-testid="container-sparky-messages" role="log" aria-label={language === "es" ? "Mensajes del chat" : "Chat messages"} aria-live="polite">
+              {messages.length === 0 && (
+                <p className="py-8 text-center text-sm text-muted-foreground" data-testid="text-sparky-empty-state">
+                  Ask Sparky anything about your trade training to get started.
+                </p>
+              )}
+
               {messages.map((msg, i) => (
                 <div
                   key={i}
@@ -471,6 +495,36 @@ export default function SparkyCompanionPage() {
                   <span className="w-2 h-2 rounded-full bg-primary/60 animate-pulse" />
                   <span className="w-2 h-2 rounded-full bg-primary/60 animate-pulse [animation-delay:0.2s]" />
                   <span className="w-2 h-2 rounded-full bg-primary/60 animate-pulse [animation-delay:0.4s]" />
+                </div>
+              )}
+
+              {sendError && (
+                <div
+                  className="flex items-center justify-between gap-3 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+                  role="alert"
+                  data-testid="banner-sparky-send-error"
+                >
+                  <span>
+                    {language === "es"
+                      ? "No se pudo enviar tu mensaje. Comprueba tu conexion e intentalo de nuevo."
+                      : "Your message could not be sent. Check your connection and try again."}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      // Remove the failed user turn + error placeholder so the
+                      // retry replaces the failed turn instead of duplicating it.
+                      setMessages((prev) => prev.slice(0, Math.max(0, prev.length - 2)));
+                      setSendError(false);
+                      sendMessage(lastFailedMessage);
+                    }}
+                    disabled={isLoading}
+                    aria-label={language === "es" ? "Reintentar el ultimo mensaje" : "Retry last message"}
+                    data-testid="button-sparky-retry-message"
+                  >
+                    {language === "es" ? "Reintentar" : "Retry"}
+                  </Button>
                 </div>
               )}
 

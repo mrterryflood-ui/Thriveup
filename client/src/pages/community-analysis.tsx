@@ -226,6 +226,7 @@ export default function CommunityAnalysisPage() {
   const [interventionResult, setInterventionResult] = useState<InterventionResult | null>(null);
   const [showInterventions, setShowInterventions] = useState(false);
   const [visualLayers, setVisualLayers] = useState(["svi", "sdoh", "resources"]);
+  const [tileError, setTileError] = useState(false);
 
   const mapLayerEnabled = (layer: "all" | "svi" | "orgs" | "quadrant") => {
     if (layer === "all") return ["svi", "sdoh", "resources", "relationships"].some((id) => visualLayers.includes(id));
@@ -509,6 +510,15 @@ export default function CommunityAnalysisPage() {
 
               {/* Map */}
               <div className="relative rounded-xl overflow-hidden border shadow-lg" style={{ height: 520 }}>
+                {tileError && (
+                  <div
+                    className="absolute top-3 left-3 right-3 z-[1000] rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 shadow-sm dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100"
+                    role="alert"
+                    data-testid="banner-community-analysis-tile-error"
+                  >
+                    The map layer is unavailable right now, but analysis content still works.
+                  </div>
+                )}
                 <MapContainer
                   center={center}
                   zoom={13}
@@ -518,6 +528,7 @@ export default function CommunityAnalysisPage() {
                   <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='© <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
+                    eventHandlers={{ tileerror: () => setTileError(true) }}
                   />
                   <MapFocus center={center} />
 

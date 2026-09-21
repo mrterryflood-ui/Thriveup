@@ -2512,6 +2512,14 @@ export default function LandingPage() {
              Free for people, organizations, and communities. Built to meet people where they are — in their place, language, and situation — then connect local action to shared learning across borders.
           </p>
 
+          <p className="text-sm mb-3 px-2" data-testid="text-hero-mission"
+            style={{ color: heroSub, maxWidth: 580, lineHeight: 1.65 }}>
+             National community infrastructure: we connect people to benefits and grant funding, align services with workforce pathways, and measure what actually changes.{" "}
+            <Link href="/why-thriveup" className="font-semibold hover:underline" style={{ color: "#d97706" }} data-testid="link-hero-why-thriveup">
+              Why ThriveUp
+            </Link>
+          </p>
+
           <p className="text-sm mb-3 px-2" data-testid="text-hero-geography"
             style={{ color: heroMuted, maxWidth: 520, lineHeight: 1.65 }}>
              Start with a guided next step — for yourself, your family, your organization, or your community. Connected local availability varies by place.{" "}
@@ -2559,6 +2567,22 @@ export default function LandingPage() {
               </Link>
             </div>
           </div>
+          <div className="w-full max-w-3xl mb-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-xs" data-testid="hero-stakeholder-doors">
+            <span style={{ color: heroFaint }}>Also here for:</span>
+            <Link href="/academy" className="inline-flex items-center gap-1.5 font-semibold hover:underline" style={{ color: heroSub }} data-testid="link-hero-students">
+              <GraduationCap className="h-3.5 w-3.5" aria-hidden="true" />
+              Students &amp; job seekers
+            </Link>
+            <Link href="/chw-dashboard" className="inline-flex items-center gap-1.5 font-semibold hover:underline" style={{ color: heroSub }} data-testid="link-hero-case-managers">
+              <Users className="h-3.5 w-3.5" aria-hidden="true" />
+              Case managers &amp; CHWs
+            </Link>
+            <Link href="/ecosystem-story" className="inline-flex items-center gap-1.5 font-semibold hover:underline" style={{ color: heroSub }} data-testid="link-hero-funders">
+              <BarChart3 className="h-3.5 w-3.5" aria-hidden="true" />
+              Funders &amp; evaluators
+            </Link>
+          </div>
+
           <p className="text-[11px] mt-3 px-2 max-w-2xl mx-auto" style={{ color: heroFaint }} data-testid="text-hero-safety-disclosure">
             Information and navigation support only — not an eligibility determination or medical advice. If someone is in immediate danger, call 911; for a mental-health crisis, call or text 988.
           </p>

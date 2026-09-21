@@ -17,7 +17,7 @@ import {
   Star, Eye, Compass,
   Play, Pause, Volume2, VolumeX, Maximize,
 } from "lucide-react";
-import featureVideoSrc from "@assets/Learning_Academy_1.0_1772131808280.mp4";
+import featureVideoSrc from "@assets/learning-academy-web.mp4";
 import featureVideoPoster from "@assets/learning-academy-poster.jpg";
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from "react-leaflet";
 import L from "leaflet";
@@ -461,11 +461,28 @@ function PlatformTourVideo() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [showOverlay, setShowOverlay] = useState(true);
+  const [playError, setPlayError] = useState(false);
 
   const togglePlay = () => {
     if (!videoRef.current) return;
     if (videoRef.current.paused) {
-      videoRef.current.play();
+      const attempt = videoRef.current.play();
+      if (attempt && typeof attempt.catch === "function") {
+        attempt
+          .then(() => {
+            setPlayError(false);
+            setIsPlaying(true);
+            setShowOverlay(false);
+          })
+          .catch(() => {
+            // Playback refused (codec, network, or browser policy). Surface it
+            // instead of leaving the overlay to imply the video is broken.
+            setPlayError(true);
+            setIsPlaying(false);
+            setShowOverlay(true);
+          });
+        return;
+      }
       setIsPlaying(true);
       setShowOverlay(false);
     } else {
@@ -528,6 +545,16 @@ function PlatformTourVideo() {
             </div>
             <p className="text-white text-lg md:text-xl font-semibold" data-testid="text-video-title">Watch the Platform Tour</p>
             <p className="text-white/70 text-sm mt-1" data-testid="text-video-subtitle">7 minutes with Arthur Wakanda</p>
+          </div>
+        )}
+
+        {playError && (
+          <div
+            className="absolute top-2 left-2 right-2 rounded-md bg-red-600/90 text-white text-xs px-3 py-2 text-center"
+            role="alert"
+            data-testid="banner-video-playback-error"
+          >
+            The video could not start. Check your connection, then press play again.
           </div>
         )}
 

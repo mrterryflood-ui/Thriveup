@@ -1,4 +1,5 @@
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Home } from "lucide-react";
+import { Link } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/lib/i18n";
@@ -17,9 +18,17 @@ export function ErrorRetry({ message, onRetry }: ErrorRetryProps) {
       <p className="text-sm text-muted-foreground" data-testid="error-retry-message" role="alert">
         {message ?? t("state.error.default")}
       </p>
-      <Button onClick={onRetry} aria-label={t("state.error.tryAgain")} data-testid="button-error-retry">
-        {t("state.error.tryAgain")}
-      </Button>
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        <Button onClick={onRetry} aria-label={t("state.error.tryAgain")} data-testid="button-error-retry">
+          {t("state.error.tryAgain")}
+        </Button>
+        <Button asChild variant="outline">
+          <Link href="/" aria-label="Go back to the home page" data-testid="button-error-home">
+            <Home className="h-4 w-4 mr-1.5" aria-hidden="true" />
+            Go home
+          </Link>
+        </Button>
+      </div>
     </Card>
   );
 }

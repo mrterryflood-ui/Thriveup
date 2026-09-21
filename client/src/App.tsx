@@ -448,7 +448,11 @@ function AppRouter() {
       <Route path="/sparky" component={SparkyCompanionPage} />
       <Route path="/community" component={CommunityPage} />
       <Route path="/parents" component={ParentResourcesPage} />
-      <Route path="/parents/dashboard" component={ParentDashboardPage} />
+      <Route path="/parents/dashboard">
+        <RequireAuth reason="The parent dashboard shows your family's saved progress and settings. Sign in to continue.">
+          <ParentDashboardPage />
+        </RequireAuth>
+      </Route>
       <Route path="/module-1-2-tools" component={Module12ToolsPage} />
       <Route path="/curriculum-documents" component={CurriculumDocumentsPage} />
       <Route path="/curriculum-documents/new" component={CurriculumDocumentCreatePage} />
@@ -457,8 +461,16 @@ function AppRouter() {
       <Route path="/classrooms/wizard" component={ClassroomWizardPage} />
       <Route path="/classrooms/:classroomId" component={ClassroomDetailPage} />
       <Route path="/teacher-dashboard" component={TeacherDashboardPage} />
-      <Route path="/certificates" component={CertificatesPage} />
-      <Route path="/certificates/:id" component={CertificateViewPage} />
+      <Route path="/certificates">
+        <RequireAuth reason="Your certificates are tied to your account. Sign in to view them.">
+          <CertificatesPage />
+        </RequireAuth>
+      </Route>
+      <Route path="/certificates/:id">
+        <RequireAuth reason="Certificate details are tied to an account. Sign in to view them.">
+          <CertificateViewPage />
+        </RequireAuth>
+      </Route>
       <Route path="/social-media-literacy" component={SocialMediaLiteracyPage} />
       <Route path="/academy" component={AcademyVillagePage} />
       <Route path="/academy/hub" component={AcademyHubPage} />

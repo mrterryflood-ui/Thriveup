@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import AcademyWizard from "@/components/academy-wizard";
 import { WIZARD_STEPS } from "@/lib/wizard-data";
@@ -95,8 +96,19 @@ export default function AcademyStocksPage() {
     queryKey: ["/api/academy/stocks"],
   });
 
-  const { data: rawPortfolio, isLoading: portfolioLoading } = useQuery<RawPortfolioItem[]>({
+  // Personal portfolio and wallet are auth-gated server-side. Only fetch them
+  // for signed-in users so anonymous visitors keep the public market view
+  // instead of hitting an expected 401.
+  const { isAuthenticated } = useAuth();
+
+  const {
+    data: rawPortfolio,
+    isLoading: portfolioLoading,
+    error: portfolioError,
+    refetch: refetchPortfolio,
+  } = useQuery<RawPortfolioItem[]>({
     queryKey: ["/api/academy/portfolio"],
+    enabled: isAuthenticated,
   });
 
   const { data: communityItems } = useQuery<CommunityPortfolioItem[]>({
@@ -105,6 +117,7 @@ export default function AcademyStocksPage() {
 
   const { data: wallet } = useQuery<WalletData>({
     queryKey: ["/api/academy/wallet"],
+    enabled: isAuthenticated,
   });
 
   const tradeMutation = useMutation({
@@ -243,6 +256,17 @@ export default function AcademyStocksPage() {
 
   if (stocksError) {
     return <div className="p-6"><ErrorRetry message="Failed to load stock market data. Please try again." onRetry={refetchStocks} /></div>;
+  }
+
+  if (isAuthenticated && portfolioError) {
+    return (
+      <div className="p-6">
+        <ErrorRetry
+          message="Portfolio data is unavailable — this is a connection issue, not an empty portfolio."
+          onRetry={refetchPortfolio}
+        />
+      </div>
+    );
   }
 
   return (

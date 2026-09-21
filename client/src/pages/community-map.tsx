@@ -523,6 +523,7 @@ export default function CommunityMapPage() {
   const [showComparison, setShowComparison] = useState(false);
   const [activeLayers, setActiveLayers] = useState<Set<string>>(new Set(["poverty", "health"]));
   const [activeTab, setActiveTab] = useState("map");
+  const [tileError, setTileError] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -797,6 +798,15 @@ export default function CommunityMapPage() {
                       <Loader2 className="h-8 w-8 animate-spin text-primary" />
                     </div>
                   )}
+                  {tileError && (
+                    <div
+                      className="absolute top-3 left-3 right-3 z-[1000] rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 shadow-sm dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100"
+                      role="alert"
+                      data-testid="banner-community-map-tile-error"
+                    >
+                      Map tiles are unavailable right now. Listings and search below still work.
+                    </div>
+                  )}
                   <MapContainer
                     center={mapCenter}
                     zoom={mapZoom}
@@ -806,6 +816,7 @@ export default function CommunityMapPage() {
                     <TileLayer
                       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      eventHandlers={{ tileerror: () => setTileError(true) }}
                     />
                     <MapUpdater center={mapCenter} zoom={mapZoom} />
                     {searchData?.records?.map((record) => {

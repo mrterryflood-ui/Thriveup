@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useRoute, useLocation } from "wouter";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { anonSessionId } from "@/lib/trade-sims/anon-session";
@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ErrorRetry } from "@/components/error-retry";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -22,11 +23,6 @@ import {
   BACKFLOW_STRETCH,
 } from "../../../../../shared/data/trade-sims/concept-tags";
 import { topWeakConcepts, type LessonGrowthState } from "../../../../../shared/trade-sims-growth";
-import { VisualCircuitCanvas } from "@/components/trade-sims/electrical/visual-circuit-canvas";
-import { VisualPlumbingCanvas } from "@/components/trade-sims/plumbing/visual-plumbing-canvas";
-import { AutoCanvas } from "@/components/trade-sims/automotive/auto-canvas";
-import { WeldingCanvas } from "@/components/trade-sims/welding/welding-canvas";
-import { HvacCanvas } from "@/components/trade-sims/hvac/hvac-canvas";
 import { ConceptDiagram } from "@/components/trade-sims/concept-diagram";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -44,6 +40,41 @@ import {
 } from "@/lib/trade-sims/automotive/sag-rubric";
 import type { PlacedAutoComponent } from "@/lib/trade-sims/automotive/component-defs";
 import type { SolveOutput } from "@/lib/trade-sims/electrical/circuit-solver";
+
+const VisualCircuitCanvas = lazy(() =>
+  import("@/components/trade-sims/electrical/visual-circuit-canvas").then((m) => ({
+    default: m.VisualCircuitCanvas,
+  })),
+);
+const VisualPlumbingCanvas = lazy(() =>
+  import("@/components/trade-sims/plumbing/visual-plumbing-canvas").then((m) => ({
+    default: m.VisualPlumbingCanvas,
+  })),
+);
+const AutoCanvas = lazy(() =>
+  import("@/components/trade-sims/automotive/auto-canvas").then((m) => ({
+    default: m.AutoCanvas,
+  })),
+);
+const WeldingCanvas = lazy(() =>
+  import("@/components/trade-sims/welding/welding-canvas").then((m) => ({
+    default: m.WeldingCanvas,
+  })),
+);
+const HvacCanvas = lazy(() =>
+  import("@/components/trade-sims/hvac/hvac-canvas").then((m) => ({
+    default: m.HvacCanvas,
+  })),
+);
+
+function EngineCanvasFallback() {
+  return (
+    <div className="rounded-lg border p-4 space-y-3" aria-label="Loading interactive canvas">
+      <Skeleton className="h-6 w-48" />
+      <Skeleton className="h-72 w-full" />
+    </div>
+  );
+}
 
 /**
  * Render the right sim canvas for a given engineMode, or null if that engine
@@ -383,7 +414,7 @@ export default function LessonPlayerPage() {
   const debriefPlumbing = soloPlumbing.lastSolve ? soloPlumbing : guidedPlumbing;
   const initialProgressFired = useRef(false);
 
-  const { data: lessonData, isLoading } = useQuery<{ trade: TradeRow; lesson: LessonRow }>({
+  const { data: lessonData, isLoading, isError, refetch } = useQuery<{ trade: TradeRow; lesson: LessonRow }>({
     queryKey: ["/api/trade-sims/lessons", tradeSlug, lessonSlug],
     enabled: !!tradeSlug && !!lessonSlug,
   });
@@ -720,6 +751,17 @@ export default function LessonPlayerPage() {
 
   const guidedStepCount = lesson?.guidedSteps?.length ?? 0;
 
+  if (isError) {
+    return (
+      <div className="container mx-auto max-w-3xl py-8 px-4">
+        <ErrorRetry
+          message="We couldn't load this lesson. Please try again."
+          onRetry={() => refetch()}
+        />
+      </div>
+    );
+  }
+
   if (isLoading || !lesson || !trade) {
     return (
       <div className="container mx-auto max-w-5xl py-8 px-4 space-y-4">
@@ -929,15 +971,17 @@ export default function LessonPlayerPage() {
                       {lesson.sandboxStarter.prompt}
                     </p>
                   )}
-                  {renderEngineCanvas(
-                    engineMode,
-                    lesson.sandboxStarter?.initialComponents,
-                    () => setHasRunSim(true),
-                    setPlumbingFor("guided"),
-                    tradeSlug,
-                    setAutoFor("guided"),
-                    autoEmptyHintFor(tradeSlug, lesson.dayNumber),
-                  )}
+                  <Suspense fallback={<EngineCanvasFallback />}>
+                    {renderEngineCanvas(
+                      engineMode,
+                      lesson.sandboxStarter?.initialComponents,
+                      () => setHasRunSim(true),
+                      setPlumbingFor("guided"),
+                      tradeSlug,
+                      setAutoFor("guided"),
+                      autoEmptyHintFor(tradeSlug, lesson.dayNumber),
+                    )}
+                  </Suspense>
                 </div>
               )}
               <div className="pt-2">
@@ -983,8 +1027,11 @@ export default function LessonPlayerPage() {
                       ))}
                     </div>
                   )}
-                  {shouldShowCanvas(tradeSlug, engineMode) &&
-                    renderEngineCanvas(engineMode, undefined, () => setHasRunSim(true), setPlumbingFor("solo"), tradeSlug, setAutoFor("solo"), autoEmptyHintFor(tradeSlug, lesson.dayNumber))}
+                  {shouldShowCanvas(tradeSlug, engineMode) && (
+                    <Suspense fallback={<EngineCanvasFallback />}>
+                      {renderEngineCanvas(engineMode, undefined, () => setHasRunSim(true), setPlumbingFor("solo"), tradeSlug, setAutoFor("solo"), autoEmptyHintFor(tradeSlug, lesson.dayNumber))}
+                    </Suspense>
+                  )}
                   {lesson.soloChallenge.sagRubric && tradeSlug === "automotive" && engineMode === "linear-dc" && (() => {
                     const g = gradeSag(
                       lesson.soloChallenge!.sagRubric!,
@@ -1137,15 +1184,17 @@ export default function LessonPlayerPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {shouldShowCanvas(tradeSlug, engineMode) ? (
-                renderEngineCanvas(
-                  engineMode,
-                  lesson.sandboxStarter?.initialComponents,
-                  () => setHasRunSim(true),
-                  setPlumbingFor("sandbox"),
-                  tradeSlug,
-                  undefined,
-                  autoEmptyHintFor(tradeSlug, lesson.dayNumber),
-                )
+                <Suspense fallback={<EngineCanvasFallback />}>
+                  {renderEngineCanvas(
+                    engineMode,
+                    lesson.sandboxStarter?.initialComponents,
+                    () => setHasRunSim(true),
+                    setPlumbingFor("sandbox"),
+                    tradeSlug,
+                    undefined,
+                    autoEmptyHintFor(tradeSlug, lesson.dayNumber),
+                  )}
+                </Suspense>
               ) : (
                 <div className="space-y-3">
                   <Alert>
