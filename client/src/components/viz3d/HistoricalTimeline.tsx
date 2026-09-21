@@ -1,23 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { createRendererSafe } from "../trade-sims/diagrams/three-lib";
-
-interface Vintage {
-  year: number;
-  povertyRate: number;
-  unemploymentRate: number;
-  cohortCost: number;
-}
-
-interface HistoricalTimelineProps {
-  vintages: Vintage[];
-  totalAccumulatedCost: number;
-  trendDirection: "improving" | "stagnant" | "worsening";
-  forwardCost: number;
-  interventionCost: number;
-  geography: string;
-}
+import { HistoricalFallback, type HistoricalTimelineProps, type Vintage } from "./svg-fallbacks";
 
 function fmt$(n: number) {
   if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`;
@@ -80,6 +65,7 @@ export default function HistoricalTimeline({
   vintages, totalAccumulatedCost, trendDirection, forwardCost, interventionCost, geography,
 }: HistoricalTimelineProps) {
   const mountRef = useRef<HTMLDivElement>(null);
+  const [webglUnavailable, setWebglUnavailable] = useState(false);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -92,12 +78,7 @@ export default function HistoricalTimeline({
 
     const renderer = createRendererSafe({ antialias: true });
     if (!renderer) {
-      const fallback = document.createElement("div");
-      fallback.dataset.testid = "historical-timeline-fallback";
-      fallback.className = "flex h-full items-center justify-center bg-slate-900 px-4 text-center text-sm text-slate-300";
-      fallback.setAttribute("role", "status");
-      fallback.textContent = "Interactive historical timeline is unavailable on this device.";
-      mount.appendChild(fallback);
+      setWebglUnavailable(true);
       return;
     }
     renderer.setSize(W, H);
@@ -308,6 +289,24 @@ export default function HistoricalTimeline({
 
   if (!vintages || vintages.length === 0) {
     return <div className="flex items-center justify-center h-full bg-slate-900 text-slate-400 text-sm">No historical data available</div>;
+  }
+
+  if (webglUnavailable) {
+    return (
+      <div data-testid="historical-timeline-fallback" className="h-full overflow-auto bg-card p-3 text-foreground">
+        <HistoricalFallback
+          vintages={vintages}
+          totalAccumulatedCost={totalAccumulatedCost}
+          trendDirection={trendDirection}
+          forwardCost={forwardCost}
+          interventionCost={interventionCost}
+          geography={geography}
+        />
+        <p role="status" className="mt-2 text-center text-xs text-muted-foreground">
+          Interactive historical timeline is unavailable on this device.
+        </p>
+      </div>
+    );
   }
 
   return <div ref={mountRef} style={{ width: "100%", height: "100%" }} />;

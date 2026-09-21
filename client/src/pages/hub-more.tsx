@@ -6,6 +6,7 @@ import {
   TrendingUp, Scale, Search, Link2, Shield,
   Info, DollarSign, RefreshCw, BookOpen, Mail,
   ClipboardCheck, Rocket, Settings,
+  HeartPulse, BriefcaseBusiness, GraduationCap, Home, Wifi,
 } from "lucide-react";
 import { HubShell, type HubCardDef } from "@/components/hub-shell";
 import { useAuth } from "@/hooks/use-auth";
@@ -38,6 +39,10 @@ const CARDS: HubCardDef[] = [
   { icon: Globe,           title: "Community",               subtitle: "ThriveUp community hub",           href: "/community",              tag: "Partners",      color: "cyan" },
   { icon: Map,             title: "Community Map",           subtitle: "Visual community overview",        href: "/community-map",          tag: "Partners",      color: "teal" },
   { icon: Microscope,      title: "Open Innovation Lab",     subtitle: "Research & co-creation",           href: "/open-innovation-lab",    tag: "Partners",      color: "rose" },
+  { icon: Users,           title: "Community Partners Directory", subtitle: "Find organizations serving communities", href: "/community-partners", tag: "Partners", color: "indigo" },
+  { icon: Handshake,       title: "For Partners",            subtitle: "Tools and opportunities for partners", href: "/for-partners",          tag: "Partners",      color: "teal" },
+  { icon: Scale,           title: "Justice Partners",        subtitle: "Justice-system partner network",   href: "/justice-partners",       tag: "Partners",      color: "slate" },
+  { icon: Handshake,       title: "Coalition Portal",        subtitle: "Coalition resources and collaboration", href: "/coalition-portal",     tag: "Partners",      color: "blue" },
 
   { icon: Map,             title: "Coverage Map",            subtitle: "National coverage overview",       href: "/coverage",               tag: "Impact",        color: "cyan" },
   { icon: HandHeart,       title: "Bring TCAF to Your State",subtitle: "Request TCAF in your area",        href: "/coverage#request",       tag: "Impact",        color: "emerald" },
@@ -53,8 +58,35 @@ const CARDS: HubCardDef[] = [
   { icon: Link2,           title: "SDOH Impact Chain",       subtitle: "Social determinants pathway",      href: "/sdoh-chain",             tag: "Impact",        color: "violet" },
   { icon: Search,          title: "SDOH Explorer",           subtitle: "Explore SDOH data",                href: "/sdoh-explorer",          tag: "Impact",        color: "indigo" },
   { icon: Scale,           title: "City Comparison",         subtitle: "Compare cities & counties",        href: "/city-comparison",        tag: "Impact",        color: "teal" },
+  { icon: Link2,           title: "Social Determinants of Health", subtitle: "Follow the SDOH impact pathway", href: "/sdoh",                 tag: "Impact",        color: "violet" },
+
+  { icon: HandHeart,       title: "Get Help",                subtitle: "Start with benefits and local support", href: "/get-help",             tag: "Services",      color: "emerald" },
+  { icon: Activity,        title: "Services",                subtitle: "Explore coordinated service delivery", href: "/services",             tag: "Services",      color: "blue" },
+  { icon: BookMarked,      title: "Community Resource Directory", subtitle: "Browse community resources",    href: "/community-resource-directory", tag: "Services", color: "teal" },
+  { icon: Search,          title: "Resource Directory",      subtitle: "Find programs and practical support", href: "/resource-directory",   tag: "Services",      color: "cyan" },
+  { icon: HeartPulse,      title: "Health & Wellness",       subtitle: "Health education and navigation",  href: "/health-wellness",        tag: "Services",      color: "rose" },
+  { icon: Shield,          title: "SafeReport",              subtitle: "Find reporting and safety resources", href: "/safereport",           tag: "Services",      color: "slate" },
+
+  { icon: BriefcaseBusiness, title: "Career Pathways",       subtitle: "Explore education-to-career pathways", href: "/career-pathways",      tag: "Workforce",     color: "blue" },
+  { icon: Wrench,          title: "Apprenticeship",          subtitle: "Track apprenticeship opportunities", href: "/apprenticeship",        tag: "Workforce",     color: "orange" },
+  { icon: DollarSign,      title: "Financial Literacy",      subtitle: "Build practical money skills",     href: "/financial-literacy",     tag: "Workforce",     color: "emerald" },
+  { icon: BriefcaseBusiness, title: "Jobs",                  subtitle: "Find fair-chance employment",       href: "/jobs",                   tag: "Workforce",     color: "indigo" },
+  { icon: Shield,          title: "Veterans",                subtitle: "Veteran transition and support",   href: "/veterans",               tag: "Workforce",     color: "slate" },
+  { icon: Users,           title: "Opportunity Youth Programs", subtitle: "Reconnect youth to school and work", href: "/opportunity-youth",   tag: "Workforce",     color: "amber" },
+  { icon: GraduationCap,   title: "Parent Education",        subtitle: "Learning resources for parents",   href: "/parent-education",       tag: "Workforce",     color: "purple" },
+  { icon: HandHeart,       title: "Foster Youth Toolkit",    subtitle: "Plan for life after foster care",  href: "/foster-youth/toolkit",   tag: "Workforce",     color: "rose" },
+
+  { icon: ClipboardCheck,  title: "Reentry Intake",          subtitle: "Begin a reentry support plan",      href: "/reentry/intake",         tag: "Justice",       color: "emerald" },
+  { icon: BarChart3,       title: "Reentry Outcome Reports", subtitle: "Review reentry outcomes and learning", href: "/reentry/outcome-reports", tag: "Justice",    color: "blue" },
+  { icon: Scale,           title: "Reentry Standards",       subtitle: "Public reentry quality standards", href: "/reentry/standards",      tag: "Justice",       color: "slate" },
+
+  { icon: HeartPulse,      title: "Rural Health",            subtitle: "Rural healthcare access and planning", href: "/rural-health",         tag: "Rural",         color: "rose" },
+  { icon: Home,            title: "Rural Housing",           subtitle: "Rural housing data and resources", href: "/rural-housing",          tag: "Rural",         color: "amber" },
+  { icon: GraduationCap,   title: "Rural Workforce",         subtitle: "County workforce pipelines",       href: "/rural-workforce",        tag: "Rural",         color: "blue" },
+  { icon: Wifi,            title: "Rural Connectivity",      subtitle: "Broadband access and digital inclusion", href: "/rural-connectivity", tag: "Rural",         color: "cyan" },
 
   { icon: Info,            title: "About / Our Structure",   subtitle: "Who we are",                       href: "/about",                  tag: "About",         color: "slate" },
+  { icon: Info,            title: "Leadership",              subtitle: "Meet the people behind the work",  href: "/about-leadership",       tag: "About",         color: "indigo" },
   { icon: DollarSign,      title: "Pricing & Services",      subtitle: "Hub Adoption Kit pricing",         href: "/pricing",                tag: "About",         color: "amber" },
   { icon: Microscope,      title: "Methodology",             subtitle: "Implementation science foundation",href: "/methodology",            tag: "About",         color: "blue" },
   { icon: Microscope,      title: "Research Hub",            subtitle: "Published research & evidence",    href: "/research-hub",           tag: "About",         color: "indigo" },
@@ -68,6 +100,8 @@ const CARDS: HubCardDef[] = [
   { icon: Shield,          title: "Privacy Policy",          subtitle: "How we protect your data",         href: "/privacy",                tag: "About",         color: "slate" },
   { icon: Rocket,          title: "Workbench",               subtitle: "Assemble your custom workspace",   href: "/workbench",              tag: "About",         color: "purple" },
   { icon: Settings,        title: "Organization Profile",    subtitle: "Manage your org settings",         href: "/settings/organization",  tag: "About",         color: "slate",  authOnly: true, roles: ["admin", "org"] },
+  { icon: MessageCircle,   title: "Community Voices",        subtitle: "Hear stories from community members", href: "/voices",               tag: "Central Texas", color: "rose" },
+  { icon: Map,             title: "Texas Assessment",        subtitle: "Explore statewide needs and assets", href: "/texas-assessment",      tag: "Central Texas", color: "blue" },
 ];
 
 export default function HubConnectPage() {
@@ -76,9 +110,9 @@ export default function HubConnectPage() {
   return (
     <HubShell
       title="Connect"
-      subtitle="Central Texas · Partners · Impact · About"
+      subtitle="Services · Workforce · Partners · Impact · Community"
       headerGradient="from-teal-600 via-cyan-600 to-teal-800"
-      chips={["All", "Central Texas", "Partners", "Impact", "About"]}
+      chips={["All", "Services", "Workforce", "Justice", "Rural", "Partners", "Impact", "Central Texas", "About"]}
       cards={CARDS}
       isAuthenticated={isAuthenticated}
       role={role}

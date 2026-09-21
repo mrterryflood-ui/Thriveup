@@ -20,7 +20,7 @@ import { ContextualHelpButton } from "@/components/contextual-help";
 import { openCommandPalette } from "@/components/command-palette";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import LandingPage from "@/pages/landing";
+const LandingPage = lazy(() => import("@/pages/landing"));
 const CoveragePage = lazy(() => import("@/pages/coverage"));
 const CurriculumPage = lazy(() => import("@/pages/curriculum"));
 const LevelDetailPage = lazy(() => import("@/pages/curriculum").then(m => ({ default: m.LevelDetailPage })));
@@ -442,7 +442,11 @@ function AppRouter() {
       <Route path="/module/:moduleId" component={ModuleDetailPage} />
       <Route path="/lesson/:lessonId" component={LessonViewerPage} />
       <Route path="/quiz/:moduleId" component={QuizPage} />
-      <Route path="/dashboard" component={DashboardPage} />
+      <Route path="/dashboard">
+        <RequireAuth reason="Your dashboard shows your saved progress and journeys. Sign in to continue.">
+          <DashboardPage />
+        </RequireAuth>
+      </Route>
       <Route path="/achievements" component={AchievementsPage} />
       <Route path="/ai-companion" component={AICompanionPage} />
       <Route path="/sparky" component={SparkyCompanionPage} />
@@ -515,8 +519,16 @@ function AppRouter() {
       <Route path="/studio/:moduleKey" component={StudioRuntimePage} />
       <Route path="/academy/avatar" component={AcademyAvatarPage} />
       <Route path="/academy/stocks" component={AcademyStocksPage} />
-      <Route path="/academy/wallet" component={AcademyWalletPage} />
-      <Route path="/academy/campus" component={AcademyCampusPage} />
+      <Route path="/academy/wallet">
+        <RequireAuth reason="Your wallet holds your ThriveUp Academy balance. Sign in to view it.">
+          <AcademyWalletPage />
+        </RequireAuth>
+      </Route>
+      <Route path="/academy/campus">
+        <RequireAuth reason="Campus Builder uses your ThriveUp Academy wallet and projects. Sign in to continue.">
+          <AcademyCampusPage />
+        </RequireAuth>
+      </Route>
       <Route path="/academy/competitions" component={AcademyCompetitionsPage} />
       <Route path="/academy/houses" component={AcademyHousesPage} />
       <Route path="/academy/dreams" component={AcademyDreamsPage} />
@@ -673,8 +685,16 @@ function AppRouter() {
       <Route path="/health-wellness" component={HealthWellnessPage} />
       <Route path="/health-network" component={HealthNetworkPage} />
       <Route path="/mentorship-directory" component={MentorshipDirectoryPage} />
-      <Route path="/pilot" component={PilotDashboardPage} />
-      <Route path="/dosage" component={DosageReportPage} />
+      <Route path="/pilot">
+        <RequireAuth adminOnly reason="The pilot dashboard shows program data restricted to program administrators.">
+          <PilotDashboardPage />
+        </RequireAuth>
+      </Route>
+      <Route path="/dosage">
+        <RequireAuth adminOnly reason="Dosage reports show pilot service data restricted to program administrators.">
+          <DosageReportPage />
+        </RequireAuth>
+      </Route>
       <Route path="/prevention" component={PreventionPage} />
       <Route path="/coalition" component={CoalitionPage} />
       <Route path="/parent-education" component={ParentEducationPage} />
@@ -739,7 +759,11 @@ function AppRouter() {
           <ConglomerateTeamPage />
         </RequireAuth>
       </Route>
-      <Route path="/advisory-board" component={AdvisoryBoardPage} />
+      <Route path="/advisory-board">
+        <RequireAuth reason="Advisory board members and meetings are visible to approved staff and partners. Sign in to continue.">
+          <AdvisoryBoardPage />
+        </RequireAuth>
+      </Route>
       <Route path="/staffing-plan">
         <RequireAuth staffOnly reason="The staffing plan is an internal operations workspace for approved staff.">
           <StaffingPlanPage />
@@ -767,7 +791,11 @@ function AppRouter() {
       <Route path="/transparency" component={TransparencyDashboardPage} />
       <Route path="/case-studies" component={CaseStudiesPage} />
       <Route path="/program-designer" component={ProgramDesignerPage} />
-      <Route path="/peer-review" component={PeerReviewPage} />
+      <Route path="/peer-review">
+        <RequireAuth reason="Peer review status is available to participating platforms. Sign in to continue.">
+          <PeerReviewPage />
+        </RequireAuth>
+      </Route>
       <Route path="/collaboration-hub" component={CollaborationHubPage} />
       <Route path="/program-lifecycle" component={ProgramLifecyclePage} />
       <Route path="/grant-packages">
@@ -903,7 +931,11 @@ function AppRouter() {
       <Route path="/foster-youth/rights" component={FosterYouthRightsPage} />
       <Route path="/foster-youth/benefits" component={FosterYouthBenefitsPage} />
       <Route path="/foster-youth/intake" component={FosterYouthIntakePage} />
-      <Route path="/foster-youth/cohort-analytics" component={FosterYouthCohortAnalyticsPage} />
+      <Route path="/foster-youth/cohort-analytics">
+        <RequireAuth adminOnly reason="Cohort analytics are restricted to program administrators.">
+          <FosterYouthCohortAnalyticsPage />
+        </RequireAuth>
+      </Route>
       <Route path="/foster-youth/state-portal">
         <RequireAuth reason="The State-Agency Portal contains de-identified caseload data and is restricted to TCAF privileged staff (admin, case manager, teacher).">
           <FosterYouthStatePortalPage />

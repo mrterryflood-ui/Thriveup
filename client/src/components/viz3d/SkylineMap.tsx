@@ -1,24 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { createRendererSafe } from "../trade-sims/diagrams/three-lib";
-
-interface ZipPin {
-  zip: string;
-  lat: number;
-  lng: number;
-  score: number;
-  grade: string;
-  urgency: string;
-  costOfInaction: number;
-  isCenter?: boolean;
-}
-
-interface SkylineMapProps {
-  zips: ZipPin[];
-  centerLat: number;
-  centerLng: number;
-}
+import { SkylineFallback, type SkylineMapProps } from "./svg-fallbacks";
 
 const URGENCY_COLOR: Record<string, number> = {
   stable:  0x10b981,
@@ -54,6 +38,7 @@ function disposeScene(scene: THREE.Scene) {
 
 export default function SkylineMap({ zips, centerLat, centerLng }: SkylineMapProps) {
   const mountRef = useRef<HTMLDivElement>(null);
+  const [webglUnavailable, setWebglUnavailable] = useState(false);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -69,13 +54,7 @@ export default function SkylineMap({ zips, centerLat, centerLng }: SkylineMapPro
     // page when it cannot obtain a context.
     const renderer = createRendererSafe({ antialias: true });
     if (!renderer) {
-      mount.replaceChildren();
-      const fallback = document.createElement("div");
-      fallback.dataset.testid = "skyline-map-fallback";
-      fallback.className = "flex h-full items-center justify-center bg-slate-900 px-4 text-center text-sm text-slate-300";
-      fallback.setAttribute("role", "status");
-      fallback.textContent = "Interactive map visualization is unavailable on this device.";
-      mount.appendChild(fallback);
+      setWebglUnavailable(true);
       return;
     }
     renderer.setSize(W, H);
@@ -186,6 +165,17 @@ export default function SkylineMap({ zips, centerLat, centerLng }: SkylineMapPro
     return (
       <div className="flex items-center justify-center h-full bg-slate-900 text-slate-400 text-sm">
         No geographic data loaded
+      </div>
+    );
+  }
+
+  if (webglUnavailable) {
+    return (
+      <div data-testid="skyline-map-fallback" className="h-full overflow-auto bg-card p-3 text-foreground">
+        <SkylineFallback zips={zips} centerLat={centerLat} centerLng={centerLng} />
+        <p role="status" className="mt-2 text-center text-xs text-muted-foreground">
+          Interactive map view is unavailable on this device.
+        </p>
       </div>
     );
   }

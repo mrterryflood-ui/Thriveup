@@ -171,10 +171,12 @@ export default function AcademyMarketplacePage() {
 
   const { data: myListings, isLoading: myListingsLoading } = useQuery<Listing[]>({
     queryKey: ["/api/academy/marketplace/my-listings"],
+    enabled: !!user,
   });
 
   const { data: trades } = useQuery<Trade[]>({
     queryKey: ["/api/academy/marketplace/trades"],
+    enabled: !!user,
   });
 
   const { data: activityFeed } = useQuery<ActivityItem[]>({
@@ -183,6 +185,7 @@ export default function AcademyMarketplacePage() {
 
   const { data: wallet } = useQuery<WalletData>({
     queryKey: ["/api/academy/wallet"],
+    enabled: !!user,
   });
 
   const walletBalance = parseFloat(wallet?.balance ?? "0") || 0;

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import AcademyWizard from "@/components/academy-wizard";
 import { WIZARD_STEPS } from "@/lib/wizard-data";
 import { Card } from "@/components/ui/card";
@@ -190,10 +191,12 @@ function CreateProjectForm() {
 
 function FundFromWallet({ project }: { project: CampusProject }) {
   const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
   const [amount, setAmount] = useState("");
 
   const { data: wallet } = useQuery<WalletData>({
     queryKey: ["/api/academy/wallet"],
+    enabled: isAuthenticated,
   });
 
   const fundMutation = useMutation({

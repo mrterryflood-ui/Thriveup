@@ -1,22 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { createRendererSafe } from "../trade-sims/diagrams/three-lib";
-
-interface TimelineNode {
-  age: string;
-  milestone: string;
-  without: string;
-  with: string;
-  interventionWindow: string;
-}
-
-interface CascadeWaterfallProps {
-  timeline: TimelineNode[];
-  totalWithout: number;
-  totalWith: number;
-  geography: string;
-}
+import { CascadeFallback, type CascadeWaterfallProps } from "./svg-fallbacks";
 
 function fmt$(n: number) {
   if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`;
@@ -77,8 +63,9 @@ function makeLabel(text: string, color: string, fontSize = 18, maxW = 256): THRE
   return s;
 }
 
-export default function CascadeWaterfall({ timeline, totalWithout, totalWith }: CascadeWaterfallProps) {
+export default function CascadeWaterfall({ timeline, totalWithout, totalWith, geography }: CascadeWaterfallProps) {
   const mountRef = useRef<HTMLDivElement>(null);
+  const [webglUnavailable, setWebglUnavailable] = useState(false);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -94,12 +81,7 @@ export default function CascadeWaterfall({ timeline, totalWithout, totalWith }: 
     // prop-driven re-render cannot leave both representations in the DOM.
     const renderer = createRendererSafe({ antialias: true });
     if (!renderer) {
-      const fallback = document.createElement("div");
-      fallback.dataset.testid = "cascade-waterfall-fallback";
-      fallback.className = "flex h-full items-center justify-center bg-slate-900 px-4 text-center text-sm text-slate-300";
-      fallback.setAttribute("role", "status");
-      fallback.textContent = "Interactive cascade visualization is unavailable on this device.";
-      mount.appendChild(fallback);
+      setWebglUnavailable(true);
       return;
     }
     renderer.setSize(W, H);
@@ -247,6 +229,16 @@ export default function CascadeWaterfall({ timeline, totalWithout, totalWith }: 
 
   if (!timeline || timeline.length === 0) {
     return <div className="flex items-center justify-center h-full bg-slate-900 text-slate-400 text-sm">No cascade data available</div>;
+  }
+  if (webglUnavailable) {
+    return (
+      <div data-testid="cascade-waterfall-fallback" className="h-full overflow-auto bg-card p-3 text-foreground">
+        <CascadeFallback timeline={timeline} totalWithout={totalWithout} totalWith={totalWith} geography={geography} />
+        <p role="status" className="mt-2 text-center text-xs text-muted-foreground">
+          Interactive cascade view is unavailable on this device.
+        </p>
+      </div>
+    );
   }
   return <div ref={mountRef} style={{ width: "100%", height: "100%" }} />;
 }

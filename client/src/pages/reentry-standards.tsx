@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import { Award, BookOpen, GraduationCap, Layers, Plus, Trash2, ExternalLink, Printer, Download, Pencil, BarChart3, Users, FileDown } from "lucide-react";
 import type { CbiProgram, StaffCertification, StandardsCrosswalk, RnrAssessment, RecidivismBaseline, FamilyVisitation } from "@shared/schema";
 
@@ -63,11 +64,16 @@ const NEEDS_FIELDS: Array<{ key: keyof RnrAssessment; label: string }> = [
 export default function ReentryStandardsPage() {
   useEffect(() => { document.title = "National Reentry Standards — TCAF"; }, []);
 
+  // Scorecard/crosswalk/CBI are public GETs; certifications and RnR are
+  // admin-only server-side — only fetch them for admins so other signed-in
+  // users don't fire expected 403s.
+  const { user } = useAuth();
+  const isAdmin = (user as any)?.role === "admin" || (user as any)?.isTcafAdmin === true;
   const scorecard = useQuery<Scorecard>({ queryKey: ["/api/standards/scorecard"] });
   const crosswalk = useQuery<StandardsCrosswalk[]>({ queryKey: ["/api/standards/crosswalk"] });
   const cbi = useQuery<CbiProgram[]>({ queryKey: ["/api/standards/cbi"] });
-  const certs = useQuery<StaffCertification[]>({ queryKey: ["/api/standards/certifications"] });
-  const rnr = useQuery<RnrAssessment[]>({ queryKey: ["/api/standards/rnr"] });
+  const certs = useQuery<StaffCertification[]>({ queryKey: ["/api/standards/certifications"], enabled: isAdmin });
+  const rnr = useQuery<RnrAssessment[]>({ queryKey: ["/api/standards/rnr"], enabled: isAdmin });
 
   const printPage = () => window.print();
 
