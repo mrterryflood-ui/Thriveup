@@ -34,7 +34,7 @@ const healthPlatforms: HealthPlatform[] = [
   },
   {
     id: "sankofa",
-    name: "Sankofa Health Network",
+    name: "HerHealth",
     url: "https://herhealthmatters2.com",
     icon: <Users className="w-8 h-8" />,
     badges: ["Health Equity Gateway", "5 Sub-Platforms", "GIS Matching", "Culturally Responsive"],

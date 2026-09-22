@@ -153,7 +153,7 @@ const FEATURED_SERVICE_PLATFORMS = [
     theme: "text-rose-600 bg-rose-100 dark:bg-rose-950/40 dark:text-rose-300",
   },
   {
-    name: "Sankofa Health Network",
+    name: "HerHealth",
     description: "A consolidated health gateway for responsive behavioral health, women's and maternal health, preventive care education, reproductive wellness, and connection to appropriate care.",
     href: "https://herhealthmatters2.com",
     icon: Stethoscope,
@@ -720,7 +720,7 @@ const ECOSYSTEM_PLATFORMS_DATA = [
     color: "from-rose-500 to-pink-600",
       platforms: [
         { name: "Whole-Person Health Ecosystem", url: "https://mentalwellnesssupport.net", desc: "Clinical screenings (C-SSRS, PHQ-9, GAD-7, PCL-5), safety plans, crisis tools, 20,670+ resources across 2,091 community groups", icon: Heart },
-        { name: "Sankofa Health Network", url: "https://herhealthmatters2.com", desc: "Consolidated health and wellness gateway for responsive behavioral health, women's and maternal health, preventive care, and family navigation", icon: Stethoscope },
+        { name: "HerHealth", url: "https://herhealthmatters2.com", desc: "Consolidated health and wellness gateway for responsive behavioral health, women's and maternal health, preventive care, and family navigation", icon: Stethoscope },
         { name: "MaleHealth Matters", url: "https://malehealthmatters2.com", desc: "Preventive screening, cardiovascular wellness, behavioral-health support, and peer mentoring", icon: User },
         { name: "SafeCogniCare", url: "https://safecognicare.com", desc: "TBI, ADHD, dementia, and peripartum cognitive assessments (MoCA, MMSE), safety protocols, care coordination", icon: Brain },
     ],

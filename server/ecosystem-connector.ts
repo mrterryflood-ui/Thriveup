@@ -757,11 +757,11 @@ const ECOSYSTEM_PLATFORMS = [
   },
   {
     id: "sankofa",
-    name: "Sankofa Health Network",
+    name: "HerHealth",
     url: "https://herhealthmatters2.com",
     role: "health-gateway",
     domain: "health-equity",
-    description: "Health and wellness gateway orchestrating specialized maternal, women's, men's, cognitive-safety, and medication-support services. Delivers behavioral-health assessments, GIS-powered resource matching, and population-aware health navigation. Coordinates upstream screening data from Whole-Person Health and routes people to the appropriate service pathway.",
+    description: "HerHealth is a health and wellness gateway orchestrating specialized maternal, women's, men's, cognitive-safety, and medication-support services. It delivers behavioral-health assessments, GIS-powered resource matching, and population-aware health navigation. It coordinates upstream screening data from Whole-Person Health and routes people to the appropriate service pathway.",
     capabilities: {
        features: ["Maternal Health Network Coordination", "Mental Health Rights Advocacy", "Breast Health Education & Screening", "Men's Health Programs", "Women's Health Navigation", "Cognitive Safety Protocols", "Medication Support Integration", "Behavioral Health Assessments", "GIS Resource Matching", "Sub-Platform Orchestration", "Health Equity Analytics", "Responsive Care Navigation", "Population Health Dashboard", "Community Health Worker Coordination"],
       subPlatforms: 5,
@@ -4782,7 +4782,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
                 url: "https://mentalwellnesssupport.net",
               },
               {
-                name: "Sankofa Health Network",
+                name: "HerHealth",
                  capability: "Health and wellness gateway — maternal health, mental health rights, breast health education, men's health, behavioral assessments, and resource matching",
                 forIndividuals: ["Personal health navigation", "Find culturally responsive providers", "Health rights education"],
                 forCompanies: ["Health equity consulting", "DEI health program development", "Community health partnerships"],
@@ -5590,7 +5590,7 @@ if (typeof module !== "undefined") {
       pattern: /maternal|prenatal|doula|postnatal/i,
       category: "maternal-health",
       crossPlatformTargets: ["sankofa", "sankofa-maternal-health", "sankofa-feminine-health"],
-      followUpAction: "Connect maternal health data to Sankofa Health Network care coordination",
+      followUpAction: "Connect maternal health data to HerHealth care coordination",
       grantRelevance: ["st-davids"],
     },
     {
