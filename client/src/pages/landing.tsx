@@ -740,6 +740,7 @@ const ECOSYSTEM_PLATFORMS_DATA = [
     platforms: [
       { name: "Mission Transition (M2C)", url: "https://vetmissiontransition.com", desc: "Military-to-civilian transition — MOS translation, benefits navigation, identity support, targeting the first 12-month risk window", icon: Shield },
       { name: "Minority Center of Excellence", url: "https://minoritycenterofexcellence.com", desc: "656,794 SAM.gov records, 14 AI tools, dual-AI proposal review, certification wizard for 8(a)/HUBZone/WOSB/SDVOSB", icon: Building2 },
+      { name: "LineReady", url: "https://linereadylabs.com", desc: "Evidence-led industrial diagnostic practice — guided simulations with system context and server-recorded evidence before supervised physical work", icon: Wrench },
     ],
   },
   {

@@ -1236,6 +1236,24 @@ const ECOSYSTEM_PLATFORMS = [
     },
     grantAlignment: ["foundation", "federal", "workforce"],
   },
+  {
+    // LineReady — owner-confirmed partner (Dr. Flood), registered 2026-09-22.
+    id: "lineready",
+    name: "LineReady",
+    url: "https://linereadylabs.com",
+    role: "platform",
+    domain: "industrial-workforce",
+    description: "Evidence-led industrial diagnostic practice at linereadylabs.com. Guided simulations with system context and server-recorded evidence prepare workers for supervised physical work on industrial control cells — drive cabinets, motor trains, and safety controls — before they touch live equipment.",
+    capabilities: {
+      features: ["Guided Industrial Diagnostic Simulations", "System Context Modeling", "Server-Recorded Practice Evidence", "Supervised Physical Work Preparation", "Industrial Control Cell Training"],
+      grantNarrative: "Extends the ecosystem's trade-sims workforce pathway into industrial diagnostics with recorded evidence of readiness before supervised physical work",
+    },
+    dataFlowConfig: {
+      sends: ["practice_evidence", "diagnostic_results", "readiness_signals"],
+      receives: ["ecosystem_directives", "community_briefs", "workforce_pathways"],
+    },
+    grantAlignment: ["wioa", "federal", "foundation", "workforce"],
+  },
 ];
 
 // ============================================================
