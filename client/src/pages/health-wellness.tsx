@@ -692,7 +692,7 @@ export default function HealthWellnessPage() {
             <Heart className="h-7 w-7 text-white" />
           </div>
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white" data-testid="text-page-title">
-            Sankofa Health Network
+            HerHealth
           </h1>
           <TrainingGuideButton moduleId="health-wellness" />
         </div>

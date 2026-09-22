@@ -31,7 +31,7 @@ const ECOSYSTEM_PLATFORMS: EcosystemPlatform[] = [
   { id: "mce", name: "Minority Capital Exchange", shortName: "MCE", icon: Building2, color: "text-emerald-600", role: "Minority business SaaS, contracting support, economic mobility" },
   { id: "lifebridge", name: "LifeBridge", shortName: "LifeBridge", icon: Heart, color: "text-rose-600", role: "24/7 virtual 211, resource navigation, housing/crisis referrals" },
   { id: "rplice", name: "RPLICE", shortName: "RPLICE", icon: Microscope, color: "text-blue-600", role: "Implementation science evaluation — RE-AIM, CFIR framework tracking" },
-  { id: "sankofa", name: "Sankofa Health Network", shortName: "Sankofa", icon: Heart, color: "text-pink-600", role: "Behavioral health assessment, Black maternal health, wellness content" },
+  { id: "sankofa", name: "HerHealth", shortName: "HerHealth", icon: Heart, color: "text-pink-600", role: "Behavioral health assessment, Black maternal health, wellness content" },
   { id: "m2c", name: "M2C Transition", shortName: "M2C", icon: Shield, color: "text-slate-600", role: "Military-to-civilian career translation and veteran services" },
   { id: "safereport", name: "SafeReport", shortName: "SafeReport", icon: Shield, color: "text-orange-600", role: "Incident reporting, safety tracking, anonymous reporting" },
   { id: "perfectly-different", name: "Perfectly Different", shortName: "Perf. Different", icon: Brain, color: "text-purple-600", role: "Neurodiversity-affirming platform, mental health risk factor support" },

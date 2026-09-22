@@ -833,7 +833,7 @@ Be specific. Use actual numbers from the data. Reference specific tracts. This i
         "health-equity": {
           platforms: [
             { id: "whole-person-health", name: "Whole-Person Health Ecosystem", domain: "health-equity", url: "https://mentalwellnesssupport.net", interventions: ["Clinical screenings (C-SSRS, PHQ-9, GAD-7)", "Safety plan builder", "Crisis routing", "MAP-GAP assessment"] },
-            { id: "sankofa", name: "Sankofa Health Network", domain: "health-equity", url: "https://herhealthmatters2.com", interventions: ["Health gateway", "Responsive care", "GIS resource matching", "Population-aware health navigation"] },
+            { id: "sankofa", name: "HerHealth", domain: "health-equity", url: "https://herhealthmatters2.com", interventions: ["Health gateway", "Responsive care", "GIS resource matching", "Population-aware health navigation"] },
             { id: "sankofa-maternal-health", name: "Maternal Health Network", domain: "health-equity", url: "https://herhealthmatters2.com", interventions: ["Maternal risk assessment", "Doula matching", "Prenatal care navigation", "Postpartum recovery"] },
             { id: "safecognicare", name: "SafeCogniCare", domain: "health-equity", url: "https://safecognicare.com", interventions: ["Cognitive health assessments (MoCA/MMSE)", "TBI screening", "Cognitive decline monitoring", "Care coordination"] },
           ],

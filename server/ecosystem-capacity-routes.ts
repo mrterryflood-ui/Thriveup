@@ -77,7 +77,7 @@ const PLATFORMS: Platform[] = [
   },
   {
     id: "sankofa",
-    name: "Sankofa Health Network",
+    name: "HerHealth",
     domain: "Health Equity",
     domainCategory: "health-equity",
     description: "Five-platform health equity technology ecosystem addressing disparities in maternal care, women's health, men's health, mental wellness, and birth equity. 700,000+ curated health data records.",

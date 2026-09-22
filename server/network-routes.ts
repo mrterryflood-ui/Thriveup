@@ -42,7 +42,7 @@ const DEFAULT_PLATFORMS: InsertNetworkPlatform[] = [
   },
   {
     id: "sankofa",
-    name: "Sankofa Health Network",
+    name: "HerHealth",
     baseUrl: "https://herhealthmatters2.com",
     description: "Health and wellness gateway connecting people to responsive care and support.",
     color: "from-emerald-600 to-teal-700",
