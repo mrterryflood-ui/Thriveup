@@ -59,3 +59,41 @@ The workspace now has a fail-closed, documented inbound contract and clearer rec
 
 ### Residuals
 See `.agents/residuals.md` rows 11–15 for the production publish gate, unknown sender response, audit visibility, adjacent dashboard findings, and unrelated Connecticut source check.
+
+## Alpha amendment — ChildCORE's supplied sender contract (2026-09-25 CDT)
+
+### Source correction and triage
+The user supplied `attached_assets/Pasted-No-I-never-gave-you-that-Here-s-what-ThriveUp-needs-tak_1790387395736.txt` after the earlier closeout. Its county-metrics section describes a flat `source: "ChildCORE"`, `dataType: "metric"` object with snake_case county, date, counts, coverage, and suppression fields. The existing route instead demands a nonempty `records` array with `fipsCode` and an ISO UTC `snapshotAt`. The earlier claim that the receiver body contract was ready is overturned for this documented sender shape. Triage: Soon/high — an authenticated send in that shape would be rejected before any county data could be stored; no actual sender attempt has been observed.
+
+Three hypotheses were checked against current code and the attachment: (1) wrong destination/key/scope remains possible in production but is unproven; (2) the endpoint and authorization path exist, and the pinned key's source-code scope list includes `chainweb:read` and `yhsi:read`; (3) the body shape mismatch is directly demonstrated by the receiver's `records` requirement versus the sender description. Do not infer sender activity or production scope grants from code.
+
+### Film study, boundaries, and environment
+Reused: the existing pinned-key authorization, batch upsert, replay guard, JSONB field, response receipt, and suppression-first downstream principle. Extend: the dedicated ingest parser, its contract documentation, and the safe presentation of accepted county aggregates. New: a focused normalization/validation helper and regression tests because the sender's flat shape is not represented today. Not touching: heartbeat requests or schedules, reverse ChildCORE calls, webhooks, unrelated partner integrations, credentials, production data, or publishing. Existing residuals 11–15 remain in scope only where they affect this receiver; the unrelated Connecticut gate remains separate.
+
+Source uncertainty: the attachment is a human-supplied description said to come from ChildCORE code, not a captured live request or independently opened ChildCORE repository. Its exact field set is the acceptance target; any production sender differences must be reported rather than guessed.
+
+Stakeholder red-team: ChildCORE needs a clear 202/400 receipt and no silent field loss; ThriveUp administrators need the published contract to match the receiver; families and youth must not see suppressed counts reconstructed from other values; an auditor needs the original batch form preserved and a no-secret, no-production-write verification path. Counties with all suppressed counts must remain "suppressed", not zero or unavailable.
+
+### Backward plan and proofs
+End-state: a properly authenticated flat county-metrics object in the supplied shape validates, persists without losing its suppression metadata, and returns the existing receipt; invalid or reconstructable small-cell values fail closed. Legacy batch requests remain unchanged. Work backward: (1) pure validator tests with representative, explicitly synthetic input; (2) normalization into the current write path; (3) JSONB typing and safe consumption; (4) machine/human/admin contract parity; (5) typecheck, targeted tests, runtime route checks, independent audit, and a written Omega amendment. No real county data or heartbeat will be sent to production. A successful workspace test will not be called a live ChildCORE connection.
+
+## Omega amendment — flat sender contract repair (2026-09-25 CDT)
+
+### Scrimmage and changes
+The first independent audit found a real storage blocker: the stale-snapshot condition was in the conflict-target predicate instead of the update predicate. It was moved to `setWhere`, factored behind a tested upsert helper, and proven against the development database inside a rolled-back synthetic transaction. The audit also found that the first mixed-format guard would reject previously tolerated batch `source`/`dataType` metadata; that backward-compatibility break was fixed and regression-tested before closeout.
+
+Implemented the stated flat ChildCORE metric shape beside the existing `records[]` batch: strict field allowlist, exact source/type/reason checks, valid nonfuture `YYYY-MM-DD`, required nullable `coverage_rate`, required boolean `_suppressed` flags, bounded safe-integer counts, and no person-level or unknown fields. Suppressed capacity/demand/gap values remain null, are not reconstructed in Navigator context, and coverage/gap semantics are stored but not interpreted because the sender description does not establish their units. Human, machine, and admin contracts now match the receiver.
+
+### Proof — development only
+- 15 focused tests pass: flat acceptance, suppression, all-suppressed county behavior, malformed/small-cell/mixed envelopes, legacy batch compatibility, malformed stored evidence, and stale-update SQL placement.
+- A development transaction proved an older snapshot is not applied, a newer one is applied, suppression metadata round-trips through JSONB, and the synthetic fixture rolled back.
+- TypeScript completed with zero errors; integrated-flow foundation passed.
+- Inbound-verification, admin-guard, and destination-security checks passed.
+- `Start application` restarted and is serving on port 5000; startup confirms the pinned ChildCORE key is already present. Local docs return 200 and expose both contract forms; unauthenticated ingest remains 401. No authenticated payload, county data, heartbeat, or production write was sent.
+- Six-domain audit ran; one storage blocker and one backward-compatibility blocker were fixed. Architect re-review returned PASS with no remaining blocker/high finding.
+
+### Limits and residual decisions
+- Workspace proof does not establish that ChildCORE is configured, connected, or has sent a request. Production requires user publication and ChildCORE's sanitized HTTP status/body.
+- The table intentionally keeps latest-per-FIPS rather than full push history. A newer flat snapshot clears prior batch-only rate fields so unrelated old rates are not mislabeled as part of the new observation; this behavior is documented.
+- Flat `as_of_date` has day precision; same-date different snapshots can replace each other. Coverage-rate units and signed gap semantics remain sender-unconfirmed and are therefore not interpreted.
+- Existing residual rows 11–15 remain open. New source-date/format-semantics limitation is recorded as residual 16.

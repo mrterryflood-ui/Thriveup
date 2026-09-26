@@ -8617,7 +8617,7 @@ export const childcoreCountyMetrics = pgTable("childcore_county_metrics", {
   subsidyAccessRate: real("subsidy_access_rate"),
   childPovertyRate: real("child_poverty_rate"),
   staffTurnoverRate: real("staff_turnover_rate"),
-  rawMetrics: jsonb("raw_metrics").$type<Record<string, number>>(),
+  rawMetrics: jsonb("raw_metrics").$type<Record<string, string | number | boolean | null>>(),
   receivedAt: timestamp("received_at").notNull().defaultNow(),
   pushedBy: varchar("pushed_by", { length: 100 }).default("childcore"),
 }, (t) => [

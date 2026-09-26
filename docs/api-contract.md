@@ -68,25 +68,71 @@ ChildCORE sends county snapshots to this dedicated ThriveUp route:
 ```text
 POST https://easyailearning.com/api/childcore/county-metrics/ingest
 Authorization: Bearer <THRIVEUP_API_KEY>
+x-partner-key: <same key>
 Content-Type: application/json
 ```
 
 The key must match the active `ChildCORE` partner identity and have the
-`inbound:write` scope. `x-partner-key` is accepted as an alternative auth
-header. Use the published ThriveUp HTTPS domain; never configure the `.replit.dev`
-preview URL as the sender destination.
+`inbound:write` scope. Either header alone is also accepted. Use the published
+ThriveUp HTTPS domain; never configure the `.replit.dev` preview URL as the
+sender destination.
 
-The request body is an object with a non-empty `records` array (maximum 500).
-Each record requires a five-digit county `fipsCode`. A valid ISO-8601 UTC
-`snapshotAt` is required either on the record or on the batch; a per-record
-timestamp overrides the batch value. Optional rate
-fields are `desertRate`, `prekEnrollmentRate`, `kindergartenReadiness`,
-`subsidyAccessRate`, `childPovertyRate`, and `staffTurnoverRate` (each 0–100).
-Optional `rawMetrics` accepts at most 50 finite numeric values. A batch with at
-least one accepted record returns HTTP 202 with received, accepted, and rejected
-counts plus a receipt. A batch where every record is rejected returns HTTP 400;
-a storage failure returns HTTP 503. County snapshots are upserted by FIPS; an
-older snapshot cannot replace a newer one.
+The documented ChildCORE sender body is **one flat county metric object**:
+
+```json
+{
+  "source": "ChildCORE",
+  "dataType": "metric",
+  "county_fips": "00000",
+  "county_name": "Example County",
+  "state": "TX",
+  "as_of_date": "2026-09-20",
+  "total_providers": 12,
+  "total_providers_suppressed": false,
+  "total_licensed_capacity": null,
+  "total_licensed_capacity_suppressed": true,
+  "estimated_demand": 140,
+  "estimated_demand_suppressed": false,
+  "slot_gap": null,
+  "slot_gap_suppressed": true,
+  "coverage_rate": null,
+  "suppression_reason": "cell_below_floor_5"
+}
+```
+
+This is a **synthetic format example**, not ChildCORE production data. FIPS
+must be a five-digit string, county name and state must be bounded strings,
+and `as_of_date` must be a valid, nonfuture `YYYY-MM-DD` date. Each of the four
+count fields requires a matching boolean `_suppressed` flag. A suppressed
+count must be null; an unsuppressed count may be null (unknown) or a bounded
+safe integer with magnitude 5 through 1,000,000,000. Counts other than
+`slot_gap` must be nonnegative. `coverage_rate` must be null or a finite number between 0 and
+100; optional `coverage_rate_suppressed: true` requires it to be null. When
+any field is suppressed, `suppression_reason` must be `cell_below_floor_5`.
+Unexpected or mixed flat/batch fields are rejected; no person-level fields
+are accepted. The source date is stored at UTC midnight for stale-snapshot
+ordering, not represented as the actual HTTP receipt time. Coverage-rate
+units and signed gap meaning are not independently confirmed, so they are
+stored but not interpreted in Navigator answers.
+
+The prior **batch form** remains supported: a non-empty `records` array
+(maximum 500), each with five-digit `fipsCode` and a valid ISO-8601 UTC
+`snapshotAt` either on the record or on the batch. A per-record timestamp
+overrides the batch value. Optional rate fields are `desertRate`,
+`prekEnrollmentRate`, `kindergartenReadiness`, `subsidyAccessRate`,
+`childPovertyRate`, and `staffTurnoverRate` (each 0–100). Optional
+`rawMetrics` accepts at most 50 finite numeric values with keys of at most
+64 characters and absolute values at most 1,000,000,000.
+
+An accepted flat object or a batch with accepted records returns HTTP 202
+with received, accepted, and rejected counts plus a receipt. An all-rejected
+batch returns HTTP 400; malformed flat objects also return HTTP 400. A storage
+failure returns HTTP 503. County snapshots are upserted by FIPS; an older
+source snapshot cannot replace a newer one. HTTP 202 in development does
+not prove that the external ChildCORE sender is configured or has connected.
+The table retains the latest snapshot per FIPS, not a history of every push.
+A newer flat snapshot clears prior batch-only rate fields rather than carrying
+older, unrelated rates forward as if they were part of the new observation.
 
 This is the ChildCORE → ThriveUp county-data path. It is distinct from
 `POST /api/partner/v1/push` (the general partner-ingest contract) and from

@@ -283,15 +283,26 @@ function ConnectionTab() {
                 </code>
               </div>
               <div>
-                Send <code className="font-mono">Authorization: Bearer &lt;THRIVEUP_API_KEY&gt;</code>.
+                ChildCORE sends <code className="font-mono">Authorization: Bearer &lt;THRIVEUP_API_KEY&gt;</code> and
+                {" "}<code className="font-mono">x-partner-key: &lt;same key&gt;</code>;
+                either header alone is also accepted.
                 Do not use a preview URL or <code className="font-mono">/api/partner/v1/push</code>.
               </div>
               <div>
-                JSON body: a non-empty <code className="font-mono">records</code> array
-                (maximum 500), with a 5-digit county <code className="font-mono">fipsCode</code> per
-                record and an ISO-8601 UTC <code className="font-mono">snapshotAt</code> per record
-                or at the batch level. A batch with accepted records returns HTTP 202; an all-rejected
-                batch returns HTTP 400.
+                JSON body: one flat <code className="font-mono">source: "ChildCORE"</code>,
+                {" "}<code className="font-mono">dataType: "metric"</code> object with
+                {" "}<code className="font-mono">county_fips</code>,
+                {" "}<code className="font-mono">county_name</code>,
+                {" "}<code className="font-mono">state</code>, and
+                {" "}<code className="font-mono">as_of_date</code> (YYYY-MM-DD).
+                Include provider, licensed-capacity, demand, and gap counts with each
+                matching <code className="font-mono">_suppressed</code> flag;
+                suppressed counts must be null. Always include <code className="font-mono">coverage_rate</code>
+                {" "}(null or 0–100); include <code className="font-mono">suppression_reason</code>
+                {" "}when any value is suppressed.
+                The older <code className="font-mono">records[]</code> batch form remains accepted.
+                Accepted snapshots return HTTP 202 with counts and a receipt; invalid payloads return
+                HTTP 400 and storage failures return HTTP 503.
               </div>
             </div>
           </CardContent>

@@ -46,6 +46,7 @@ import { eq, desc, ne } from "drizzle-orm";
 import { resolveZipBestEffort } from "./geo/zip-county-resolver";
 import { markJourneyCommunityContextWarmed } from "./journey-spine";
 import { warmCommunityContext } from "./community-context";
+import { projectChildCORECountyContext } from "./childcore-ingest-payload";
 
 // ─── Known external orgs / contacts ──────────────────────────────────────────
 const EXTERNAL_ORG_SIGNALS = [
@@ -296,6 +297,7 @@ export async function getPersonalContext(
               childPovertyRate: childcoreCountyMetrics.childPovertyRate,
               staffTurnoverRate: childcoreCountyMetrics.staffTurnoverRate,
               receivedAt: childcoreCountyMetrics.receivedAt,
+              rawMetrics: childcoreCountyMetrics.rawMetrics,
             })
             .from(childcoreCountyMetrics)
             .where(eq(childcoreCountyMetrics.fipsCode, countyFips))
@@ -303,7 +305,8 @@ export async function getPersonalContext(
             .limit(1);
 
           if (metric) {
-            const metricLines = [
+            const flat = projectChildCORECountyContext(metric.rawMetrics);
+            const metricLines = flat?.lines ?? [
               metric.desertRate != null ? `childcare desert rate ${metric.desertRate}%` : null,
               metric.prekEnrollmentRate != null ? `Pre-K enrollment ${metric.prekEnrollmentRate}%` : null,
               metric.kindergartenReadiness != null ? `kindergarten readiness ${metric.kindergartenReadiness}%` : null,
@@ -314,10 +317,11 @@ export async function getPersonalContext(
             if (metricLines.length > 0) {
               const label = metric.countyName ? ` for ${metric.countyName}` : "";
               const received = metric.receivedAt
-                ? `; received ${metric.receivedAt.toISOString()}`
+                ? `; source snapshot ${metric.receivedAt.toISOString()}`
                 : "";
+              const asOf = flat ? `; as of ${flat.asOfDate}` : "";
               journeyParts.push(
-                `ChildCORE county context${label} (partner-reported, not independently verified${received}): ${metricLines.join("; ")}`,
+                `ChildCORE county context${label} (partner-reported, not independently verified${asOf}${received}): ${metricLines.join("; ")}`,
               );
             }
           }

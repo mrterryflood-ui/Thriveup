@@ -15,13 +15,11 @@ Partner-key auth via `resolveInboundPartnerKey()` helper in `server/childcore-ro
 - Uses `partnerApiKeys.active` field (NOT `isActive`) — this is a common gotcha since most other tables use `isActive`.
 
 ## Payload
-```json
-{ "records": [ { "fipsCode": "48453", "countyName": "Travis County", "desertRate": 68.5, "prekEnrollmentRate": 42.1, ... } ] }
-```
-- Batch limit: 500 records
-- `fipsCode` must be a 5-digit string (validated with regex)
-- Writes to `childcore_county_metrics` table
-- `stateFips` is auto-derived from first 2 digits of `fipsCode`
+Two sender formats are supported:
+- Documented flat ChildCORE metric: `source: "ChildCORE"`, `dataType: "metric"`, `county_fips`, `county_name`, `state`, `as_of_date` (YYYY-MM-DD), four nullable counts, matching `_suppressed` booleans, nullable `coverage_rate`, and `suppression_reason` when suppressed.
+- Existing batch: `{ "records": [ { "fipsCode": "48453", ... } ] }`, max 500.
+
+Flat suppression metadata is preserved in `rawMetrics`; Navigator projects only safe aggregate context and does not infer suppressed capacity/demand/gap or interpret coverage/gap semantics. The stale-source guard belongs in Drizzle `setWhere`, not `targetWhere`.
 
 ## Audit log
 Uses `partnerApiAuditLog` table. Key fields: `keyId`, `keyPrefix`, `partnerName`, `endpoint`, `method`, `statusCode`, `ip`, `userAgent`. NOTE: NO `requestBody` or `responseStatus` fields — the correct field is `statusCode`.

@@ -152,7 +152,7 @@ isValidation = true
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx tsx scripts/verify-inbound-verification.ts && npx tsx scripts/security-probes.ts && npx tsx scripts/verify-gpp-opportunity-loop.ts && npx tsx scripts/verify-location-resolver-state.ts && npx tsx scripts/verify-gpp-endpoint.ts && npx tsx scripts/verify-heartbeat-validation.ts"
+args = "npx tsx scripts/verify-inbound-verification.ts && npx tsx scripts/security-probes.ts && npx tsx scripts/verify-gpp-opportunity-loop.ts && npx tsx scripts/verify-location-resolver-state.ts && npx tsx scripts/verify-gpp-endpoint.ts && npx tsx scripts/verify-heartbeat-validation.ts && npx tsx --test server/childcore-ingest-auth.test.ts server/childcore-ingest-payload.test.ts server/childcore-county-upsert.test.ts"
 
 [[workflows.workflow]]
 name = "ai-preamble"

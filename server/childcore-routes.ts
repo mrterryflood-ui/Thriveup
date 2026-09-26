@@ -16,6 +16,8 @@ import type { NextFunction, Router, Request, Response } from "express";
 import { desc, eq, sql } from "drizzle-orm";
 import { createHash } from "crypto";
 import { checkChildCOREIngressAuthorization } from "./childcore-ingest-auth";
+import { normalizeChildCORECountyPayload, type ChildCORECountyEvidence } from "./childcore-ingest-payload";
+import { buildChildCORECountyUpsert } from "./childcore-county-upsert";
 import {
   probeChildCORE,
   getChildCOREProviders,
@@ -575,9 +577,9 @@ export function registerChildCORERoutes(router: Router): void {
   });
 
   // ── Inbound: ChildCORE → ThriveUp county metrics push ───────────────────────
-  // ChildCORE calls POST /api/childcore/county-metrics/ingest every 30 minutes
-  // with county-level early-childhood intelligence. This feeds into the Navigator
-  // community context and Community Brief when a user's ZIP matches.
+  // ChildCORE sends county-level early-childhood intelligence to this route.
+  // Both its documented flat metric payload and the existing records[] batch
+  // are accepted; only safely projected aggregates reach Navigator context.
   //
   // Auth: Authorization: Bearer <THRIVEUP_API_KEY> (hashed in partner_api_keys)
   // Scope required: inbound:write — prevents read-only partner keys from injecting
@@ -598,11 +600,12 @@ export function registerChildCORERoutes(router: Router): void {
       return;
     }
 
-    if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
-      return res.status(400).json({ error: "Request body must be an object" });
+    const normalized = normalizeChildCORECountyPayload(req.body);
+    if (normalized.kind === "invalid") {
+      return res.status(400).json({ error: normalized.error });
     }
-    const records = (req.body as { records?: unknown }).records;
-    const batchSnapshotValue = (req.body as { snapshotAt?: unknown }).snapshotAt;
+    const { records } = normalized;
+    const batchSnapshotValue = normalized.snapshotAt;
     if (!Array.isArray(records) || records.length === 0) {
       return res.status(400).json({ error: "'records' must be a non-empty array" });
     }
@@ -664,6 +667,10 @@ export function registerChildCORERoutes(router: Router): void {
         rejected.push({ index: i, reason: "snapshotAt must be a valid ISO timestamp" });
         continue;
       }
+      if (snapshotAt.toISOString().slice(0, 10) !== snapshotValue.slice(0, 10)) {
+        rejected.push({ index: i, reason: "snapshotAt must contain a valid calendar date" });
+        continue;
+      }
       if (snapshotAt.getTime() > Date.now() + 5 * 60 * 1000) {
         rejected.push({ index: i, reason: "snapshotAt cannot be more than 5 minutes in the future" });
         continue;
@@ -678,8 +685,10 @@ export function registerChildCORERoutes(router: Router): void {
           return value == null ? null : typeof value === "string" && value.length <= max ? value.trim() : null;
         };
         const rawMetricsValue = raw.rawMetrics;
-        let rawMetrics: Record<string, number> | null = null;
-        if (rawMetricsValue !== undefined) {
+        let rawMetrics: ChildCORECountyEvidence | null = null;
+        if (normalized.kind === "flat") {
+          rawMetrics = normalized.rawMetrics;
+        } else if (rawMetricsValue !== undefined) {
           if (!rawMetricsValue || typeof rawMetricsValue !== "object" || Array.isArray(rawMetricsValue) ||
               Object.keys(rawMetricsValue).length > 50 ||
               Object.entries(rawMetricsValue).some(([key, value]) =>
@@ -711,29 +720,9 @@ export function registerChildCORERoutes(router: Router): void {
     let storageFailure = false;
     if (pendingRows.length > 0) {
       try {
-        // The unique FIPS index plus one bulk upsert makes concurrent 30-minute
-        // snapshots safe and avoids one database round trip per county.
-        const persisted = await db.insert(childcoreCountyMetrics)
-          .values(pendingRows.map(({ row }) => row))
-          .onConflictDoUpdate({
-            target: childcoreCountyMetrics.fipsCode,
-            set: {
-              countyName: sql`excluded.county_name`,
-              stateFips: sql`excluded.state_fips`,
-              desertRate: sql`excluded.desert_rate`,
-              prekEnrollmentRate: sql`excluded.prek_enrollment_rate`,
-              kindergartenReadiness: sql`excluded.kindergarten_readiness`,
-              subsidyAccessRate: sql`excluded.subsidy_access_rate`,
-              childPovertyRate: sql`excluded.child_poverty_rate`,
-              staffTurnoverRate: sql`excluded.staff_turnover_rate`,
-              rawMetrics: sql`excluded.raw_metrics`,
-              receivedAt: sql`excluded.received_at`,
-              pushedBy: sql`excluded.pushed_by`,
-            },
-            // Delayed retries must never replace a newer source snapshot.
-            targetWhere: sql`${childcoreCountyMetrics.receivedAt} <= excluded.received_at`,
-          })
-          .returning({ fipsCode: childcoreCountyMetrics.fipsCode });
+        // The unique FIPS index plus one bulk upsert avoids one database round
+        // trip per county and prevents older source dates replacing newer ones.
+        const persisted = await buildChildCORECountyUpsert(pendingRows.map(({ row }) => row));
         const persistedFips = new Set(persisted.map(({ fipsCode }) => fipsCode));
         for (const { index, row } of pendingRows) {
           if (persistedFips.has(row.fipsCode)) {
