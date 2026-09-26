@@ -1,6 +1,3 @@
-import * as client from "openid-client";
-import { Strategy, type VerifyFunction } from "openid-client/passport";
-
 import passport from "passport";
 import session from "express-session";
 import type { Express, Request, Response, RequestHandler } from "express";
@@ -10,9 +7,18 @@ import connectPg from "connect-pg-simple";
 import memorystore from "memorystore";
 import { authStorage } from "./storage";
 
+// `openid-client` is ESM-only. Load it only when Replit OIDC is actually
+// configured so Vercel can boot public routes during the staged migration.
+let oidcClientPromise: Promise<typeof import("openid-client")> | undefined;
+async function getOidcClient() {
+  oidcClientPromise ??= import("openid-client");
+  return oidcClientPromise;
+}
+
 const getOidcConfig = memoize(
   async () => {
-    return await client.discovery(
+    const client = await getOidcClient();
+    return client.discovery(
       new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"),
       process.env.REPL_ID!
     );
@@ -82,10 +88,7 @@ export function getSession() {
   });
 }
 
-function updateUserSession(
-  user: any,
-  tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers
-) {
+function updateUserSession(user: any, tokens: any) {
   user.claims = tokens.claims();
   user.access_token = tokens.access_token;
   user.refresh_token = tokens.refresh_token;
@@ -130,11 +133,9 @@ export async function setupAuth(app: Express) {
   }
 
   const config = await getOidcConfig();
+  const { Strategy } = await import("openid-client/passport");
 
-  const verify: VerifyFunction = async (
-    tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
-    verified: passport.AuthenticateCallback
-  ) => {
+  const verify = async (tokens: any, verified: passport.AuthenticateCallback) => {
     const user = {};
     updateUserSession(user, tokens);
     await upsertUser(tokens.claims());
@@ -209,12 +210,12 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/logout", (req, res) => {
     req.logout(() => {
-      res.redirect(
+      getOidcClient().then((client) => res.redirect(
         client.buildEndSessionUrl(config, {
           client_id: process.env.REPL_ID!,
           post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
         }).href
-      );
+      )).catch(() => res.redirect("/"));
     });
   });
 }
@@ -239,6 +240,7 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
 
   try {
     const config = await getOidcConfig();
+    const client = await getOidcClient();
     const tokenResponse = await client.refreshTokenGrant(config, refreshToken);
     updateUserSession(user, tokenResponse);
     return next();
