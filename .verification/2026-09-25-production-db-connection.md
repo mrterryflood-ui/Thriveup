@@ -17,6 +17,7 @@
 - Development preview rendered the administrator-only ChildCORE integration gate. Six independent, scoped re-audits found no new blocker/high issue in the final diff.
 
 ## Production limit and next proof
-- A fresh read of `https://easyailearning.com/health` still returned `500 text/plain` while the old build remained published. This work is not a claim that production is repaired.
-- The user must Publish the verified workspace changes. Recheck live `/health`, docs, unauthenticated ingest, and runtime database errors afterward. If the app's primary connection still times out, the remaining cause is not established by this workspace change and needs operational investigation of the deployed database target/network.
+- Before publication, `https://easyailearning.com/health` returned `500 text/plain` on the old build.
+- After the user reported publication on 2026-09-26, the public autoscale deployment's primary URL returned JSON 200 for `/health` and `/api/partner/v1/docs`, and JSON 401 for an unauthenticated `{}` POST to `/api/childcore/county-metrics/ingest`. The receiver and its unauthenticated guard are reachable again; these routes do not prove that a signed request can query the partner-key store or write to the production database.
+- Recent deployment runtime logs still contained connection-timeout errors during the live check. The cause and whether the production write database is reliably reachable remain unproven; do not label this a complete database repair. If the timeouts persist, investigate the deployed primary connection/binding and network operationally.
 - No signed ChildCORE request, county-data write, heartbeat, key inspection, or production mutation was performed.
