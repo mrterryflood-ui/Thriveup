@@ -524,6 +524,10 @@ export async function registerRoutes(
 
   await seedSafely("AI tool catalog", seedAiToolCatalog);
   await seedSafely("STAAR content", seedStaarContent);
+  await seedSafely("ChildCORE partner key", async () => {
+    const { ensureChildcorePartnerKey } = await import("./childcore-routes");
+    await ensureChildcorePartnerKey();
+  });
 
   await seedSafely("comprehensive catalog", async () => {
     const { seedComprehensive } = await import("./seed-comprehensive");

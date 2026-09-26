@@ -197,6 +197,45 @@ async function resolveInboundPartnerKey(
   };
 }
 
+// ── Boot-time partner-key seeding (off-Replit deployments) ───────────────────
+// The raw key lives only in dashboards: THRIVEUP_API_KEY in the Vercel project
+// env here, and the same value in ChildCORE's Convex env. This step persists
+// only sha256(key) so resolveInboundPartnerKey can find the partner row.
+// Insert-if-missing — never updates or deletes an existing row, so a key
+// rotation visibly adds a new hash row instead of overwriting the old one.
+export async function ensureChildcorePartnerKey(): Promise<void> {
+  const rawKey = process.env.THRIVEUP_API_KEY?.trim();
+  if (!rawKey) {
+    console.log(
+      "[seed] THRIVEUP_API_KEY not set — ChildCORE inbound auth will return 401/403 until it is.",
+    );
+    return;
+  }
+  if (!process.env.DATABASE_URL?.trim()) {
+    console.warn("[seed] DATABASE_URL not set — cannot seed ChildCORE partner key row.");
+    return;
+  }
+  const keyHash = hashPartnerKey(rawKey);
+  const existing = await db
+    .select({ id: partnerApiKeys.id })
+    .from(partnerApiKeys)
+    .where(eq(partnerApiKeys.keyHash, keyHash))
+    .limit(1);
+  if (existing.length > 0) {
+    console.log("[seed] ChildCORE partner key already present in partner_api_keys — no row inserted.");
+    return;
+  }
+  await db.insert(partnerApiKeys).values({
+    partnerName: "ChildCORE",
+    keyHash,
+    keyPrefix: rawKey.slice(0, 8),
+    scopes: ["inbound:write"],
+    active: true,
+    notes: "Boot-seeded from THRIVEUP_API_KEY env var. Raw value never stored or logged.",
+  });
+  console.log("[seed] Inserted ChildCORE partner key row from THRIVEUP_API_KEY env (hash only).");
+}
+
 // ─── Route registration ───────────────────────────────────────────────────────
 
 export function registerChildCORERoutes(router: Router): void {
