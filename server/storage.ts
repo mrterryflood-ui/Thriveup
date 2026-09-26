@@ -93,13 +93,14 @@ import {
 import { eq, and, desc, sql, inArray, isNull, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
+import { DEFAULT_DB_CONNECTION_TIMEOUT_MS } from "./db-connection-timeout";
 
 function envTimeout(name: string, fallbackMs: number): number {
   const value = Number.parseInt(process.env[name] ?? "", 10);
   return Number.isFinite(value) && value > 0 ? value : fallbackMs;
 }
 
-const DB_CONNECTION_TIMEOUT_MS = envTimeout("DB_CONNECTION_TIMEOUT_MS", 5_000);
+const DB_CONNECTION_TIMEOUT_MS = envTimeout("DB_CONNECTION_TIMEOUT_MS", DEFAULT_DB_CONNECTION_TIMEOUT_MS);
 const DB_QUERY_TIMEOUT_MS = envTimeout("DB_QUERY_TIMEOUT_MS", 20_000);
 
 const pool = new pg.Pool({

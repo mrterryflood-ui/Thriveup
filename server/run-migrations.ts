@@ -14,6 +14,7 @@
 import fs from "fs";
 import path from "path";
 import pg from "pg";
+import { DEFAULT_DB_CONNECTION_TIMEOUT_MS } from "./db-connection-timeout";
 
 function envTimeout(name: string, fallbackMs: number): number {
   const value = Number.parseInt(process.env[name] ?? "", 10);
@@ -34,7 +35,7 @@ export async function runMigrations(): Promise<void> {
     .sort();
   if (files.length === 0) return;
 
-  const connectionTimeoutMs = envTimeout("DB_CONNECTION_TIMEOUT_MS", 5_000);
+  const connectionTimeoutMs = envTimeout("DB_CONNECTION_TIMEOUT_MS", DEFAULT_DB_CONNECTION_TIMEOUT_MS);
   const queryTimeoutMs = envTimeout("DB_MIGRATION_QUERY_TIMEOUT_MS", 60_000);
   const lockTimeoutMs = envTimeout("DB_MIGRATION_LOCK_TIMEOUT_MS", 120_000);
   const client = new pg.Client({
