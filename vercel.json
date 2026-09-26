@@ -8,6 +8,7 @@
     }
   },
   "rewrites": [
+    { "source": "/diag", "destination": "/api/ping" },
     { "source": "/health", "destination": "/api?path=/health" },
     { "source": "/api/(.*)", "destination": "/api?path=/api/$1" },
     { "source": "/embed/(.*)", "destination": "/api?path=/embed/$1" },
