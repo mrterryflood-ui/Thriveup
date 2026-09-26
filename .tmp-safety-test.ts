@@ -1,4 +1,4 @@
-import { detectCrisisSignal, buildDeEscalationResponse } from "../home/runner/workspace/server/safety-escalation.ts";
+import { detectCrisisSignal, buildDeEscalationResponse } from "./server/safety-escalation";
 
 const cases = [
   { msg: "I am going to kill myself tonight, I cannot do this anymore", expected: "crisis_si" },

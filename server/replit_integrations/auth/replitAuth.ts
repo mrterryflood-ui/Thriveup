@@ -3,7 +3,8 @@ import { Strategy, type VerifyFunction } from "openid-client/passport";
 
 import passport from "passport";
 import session from "express-session";
-import type { Express, RequestHandler } from "express";
+import type { Express, Request, Response, RequestHandler } from "express";
+import { randomBytes } from "crypto";
 import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { authStorage } from "./storage";
@@ -42,8 +43,19 @@ export function getSession() {
     ttl: sessionTtl,
     tableName: "sessions",
   });
+  const sessionSecret = process.env.SESSION_SECRET?.trim();
+  if (!sessionSecret) {
+    // No hardcoded default secret, ever. An ephemeral random secret keeps the
+    // server bootable off-Replit (public pages, partner-key API routes) while
+    // making the degraded state visible: logged-in sessions do not survive a
+    // restart until SESSION_SECRET is provisioned for this host.
+    console.warn(
+      "[Auth] SESSION_SECRET not set — using an ephemeral secret. " +
+        "Sessions will not survive restarts. Set SESSION_SECRET to fix.",
+    );
+  }
   return session({
-    secret: process.env.SESSION_SECRET!,
+    secret: sessionSecret || randomBytes(32).toString("hex"),
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
@@ -80,6 +92,27 @@ export async function setupAuth(app: Express) {
   app.use(getSession());
   app.use(passport.initialize());
   app.use(passport.session());
+
+  // Replit OIDC sign-in requires REPL_ID, which Replit injects on its own
+  // deployments. On any other host (local sandbox, Vercel) the server must not
+  // crash at boot: public pages and partner-key API routes stay available, and
+  // sign-in endpoints report a visible 503 instead of taking the app down.
+  if (!process.env.REPL_ID?.trim()) {
+    console.warn(
+      "[Auth] REPL_ID not set — Replit OIDC sign-in disabled on this host. " +
+        "Sign-in endpoints will return 503; session-authenticated endpoints 401. " +
+        "Partner-key API routes (e.g. county-metrics ingest) are unaffected.",
+    );
+    const signInUnavailable = (_req: Request, res: Response) => {
+      res.status(503).json({ message: "Sign-in unavailable on this deployment: REPL_ID not configured" });
+    };
+    app.get("/api/login", signInUnavailable);
+    app.get("/api/callback", signInUnavailable);
+    app.get("/api/logout", (_req: Request, res: Response) => {
+      res.redirect("/");
+    });
+    return;
+  }
 
   const config = await getOidcConfig();
 
