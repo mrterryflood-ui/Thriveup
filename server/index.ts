@@ -134,13 +134,24 @@ app.use((req, res, next) => {
   next();
 });
 
-(async () => {
+const bootPromise = (async () => {
+  // Vercel sets VERCEL=1 in every deployment runtime. A serverless host has no
+  // long-lived process: no boot migrations, no interval timers, no listen().
+  // Replit (VERCEL unset) runs the full boot exactly as before.
+  const onVercel = process.env.VERCEL === "1" || process.env.VERCEL === "true";
   const port = parseInt(process.env.PORT || "5000", 10);
 
-  // Apply committed SQL migrations before anything touches the schema —
-  // this is the single deploy path that upgrades existing databases.
-  const { runMigrations } = await import("./run-migrations");
-  await runMigrations();
+  if (onVercel) {
+    // Concurrent cold-start lambdas must not race SQL migrations. Schema
+    // upgrades for the Vercel database go through `drizzle-kit push` from a
+    // workstation (or a build step), never from a request handler.
+    console.log("[boot] VERCEL detected — skipping boot migrations; use drizzle-kit push for schema changes.");
+  } else {
+    // Apply committed SQL migrations before anything touches the schema —
+    // this is the single deploy path that upgrades existing databases.
+    const { runMigrations } = await import("./run-migrations");
+    await runMigrations();
+  }
 
   await setupAuth(app);
   registerAuthRoutes(app);
@@ -154,7 +165,9 @@ app.use((req, res, next) => {
   // AI engine smoke tests — runs every 15 min in production, emails Dr. Flood
   // when the Navigator is completely down (all engines failing). Also runs once
   // at startup (after a 15s delay) so we know immediately if anything is broken.
-  if (process.env.NODE_ENV === "production") {
+  // Long-running-host only: on serverless the instance freezes between requests
+  // and interval timers never fire reliably.
+  if (process.env.NODE_ENV === "production" && !onVercel) {
     const { startAISmokeTests } = await import("./ai-smoke-test");
     startAISmokeTests();
   }
@@ -164,7 +177,7 @@ app.use((req, res, next) => {
   // (401/403 login-wall regression, 429-loop, 5xx, or hollow narrative) and
   // sends an all-clear when the endpoint recovers.  Closes the gap where the
   // original outage sat unnoticed because the dev-gate only ran before ship.
-  if (process.env.NODE_ENV === "production") {
+  if (process.env.NODE_ENV === "production" && !onVercel) {
     const { startCommunityBriefProbe } = await import("./community-brief-probe");
     startCommunityBriefProbe();
   }
@@ -175,14 +188,14 @@ app.use((req, res, next) => {
   // the Partner API surface credential-free.  Results are logged to stdout so
   // operators see them in the Deployments panel.  Failure does NOT crash the
   // server; it prints a clear "do NOT confirm integration live" message.
-  if (process.env.NODE_ENV === "production") {
+  if (process.env.NODE_ENV === "production" && !onVercel) {
     const { startPartnerApiContractProbe } = await import("./partner-api-contract-probe");
     startPartnerApiContractProbe();
   }
 
   // Trade Sims daily digest — fires once every 24 hours. The function itself
   // is a no-op when there are no new signups.
-  if (process.env.NODE_ENV === "production") {
+  if (process.env.NODE_ENV === "production" && !onVercel) {
     const { sendTradeSimsSignupsDigest } = await import("./trade-sims-trial-routes");
     setInterval(() => {
       sendTradeSimsSignupsDigest().catch((err) => {
@@ -196,7 +209,7 @@ app.use((req, res, next) => {
   // upserts them locally.  Idempotent; errors are logged but never crash the server.
   // After each sync (success or failure) a 48h staleness check fires and emails
   // staff if no successful audit row exists within the last 48 hours.
-  {
+  if (!onVercel) {
     const GV_SYNC_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 h
     const GV_STALE_THRESHOLD_MS = 48 * 60 * 60 * 1000; // 48 h
 
@@ -306,7 +319,7 @@ app.use((req, res, next) => {
   // Runs in any environment (dev + prod) — checks the last completed run's age
   // before doing anything, so hot-reloads within the same day are no-ops.
   // Boot delay: 90 seconds. Re-check interval: 30 days.
-  {
+  if (!onVercel) {
     const { scheduleEquityLossNationwideRefresh } = await import("./equity-loss-national-scheduler");
     scheduleEquityLossNationwideRefresh();
   }
@@ -332,21 +345,35 @@ app.use((req, res, next) => {
     res.status(404).json({ error: "API endpoint not found." });
   });
 
-  if (process.env.NODE_ENV === "production") {
+  if (onVercel) {
+    // Static assets and the SPA are served by the platform CDN
+    // (outputDirectory + rewrites in vercel.json), not by this process.
+    app.use("/{*path}", (_req: Request, res: Response) => {
+      res.status(404).json({ error: "Route not handled by the serverless API function" });
+    });
+  } else if (process.env.NODE_ENV === "production") {
     serveStatic(app);
   } else {
     const { setupVite } = await import("./vite");
     await setupVite(httpServer, app);
   }
 
-  httpServer.listen(
-    {
-      port,
-      host: "0.0.0.0",
-      reusePort: true,
-    },
-    () => {
-      log(`serving on port ${port}`);
-    },
-  );
+  if (!onVercel) {
+    httpServer.listen(
+      {
+        port,
+        host: "0.0.0.0",
+        reusePort: true,
+      },
+      () => {
+        log(`serving on port ${port}`);
+      },
+    );
+  }
 })();
+
+// Exported for the serverless entrypoint (api/index.js). `ready` resolves when
+// boot completes; a rejection means boot failed and every request should 500
+// with the failure surfaced instead of hanging.
+export { app, httpServer };
+export const ready = bootPromise;

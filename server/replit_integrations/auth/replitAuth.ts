@@ -7,6 +7,7 @@ import type { Express, Request, Response, RequestHandler } from "express";
 import { randomBytes } from "crypto";
 import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
+import memorystore from "memorystore";
 import { authStorage } from "./storage";
 
 const getOidcConfig = memoize(
@@ -28,22 +29,36 @@ export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   const connectionTimeoutMs = positiveTimeout("DB_CONNECTION_TIMEOUT_MS", 5_000);
   const queryTimeoutMs = positiveTimeout("DB_QUERY_TIMEOUT_MS", 20_000);
-  const pgStore = connectPg(session);
-  const sessionStore = new pgStore({
-    conObject: {
-      connectionString: process.env.DATABASE_URL,
-      max: 5,
-      connectionTimeoutMillis: connectionTimeoutMs,
-      query_timeout: queryTimeoutMs,
-      statement_timeout: queryTimeoutMs,
-      keepAlive: true,
-      keepAliveInitialDelayMillis: 10_000,
-    },
-    createTableIfMissing: false,
-    ttl: sessionTtl,
-    tableName: "sessions",
-  });
   const sessionSecret = process.env.SESSION_SECRET?.trim();
+  let sessionStore: session.Store;
+  if (process.env.DATABASE_URL?.trim()) {
+    const pgStore = connectPg(session);
+    sessionStore = new pgStore({
+      conObject: {
+        connectionString: process.env.DATABASE_URL,
+        max: 5,
+        connectionTimeoutMillis: connectionTimeoutMs,
+        query_timeout: queryTimeoutMs,
+        statement_timeout: queryTimeoutMs,
+        keepAlive: true,
+        keepAliveInitialDelayMillis: 10_000,
+      },
+      createTableIfMissing: false,
+      ttl: sessionTtl,
+      tableName: "sessions",
+    });
+  } else {
+    // No database configured (e.g. a fresh Vercel deployment before Neon is
+    // wired). Sessions fall back to process memory — lost on cold starts —
+    // but public pages and partner-key API routes keep working instead of
+    // every request failing when the pg store has no connection string.
+    console.warn(
+      "[Auth] DATABASE_URL not set — sessions use in-memory storage and will " +
+        "not survive restarts or cold starts. Set DATABASE_URL to fix.",
+    );
+    const MemoryStore = memorystore(session);
+    sessionStore = new MemoryStore({ checkPeriod: sessionTtl });
+  }
   if (!sessionSecret) {
     // No hardcoded default secret, ever. An ephemeral random secret keeps the
     // server bootable off-Replit (public pages, partner-key API routes) while

@@ -534,10 +534,15 @@ let benefitsScreeningColumnsReady: Promise<void> | null = null;
 export function registerBenefitsRoutes(app: Express) {
   // Keep the server bootable, but make screening requests wait for this
   // idempotent migration instead of racing the ALTER TABLE on first use.
-  benefitsScreeningColumnsReady = ensureBenefitsScreeningColumns().catch((err) => {
+  const readyPromise = ensureBenefitsScreeningColumns().catch((err) => {
     console.error("[benefits] FAILED to ensure benefits_screenings columns:", err?.message || err);
     throw err;
   });
+  // Attach a no-op observer so a failed boot (e.g. no DATABASE_URL yet) is a
+  // logged error, not an unhandledRejection that can kill a serverless worker.
+  // Route waiters still see the rejection through benefitsScreeningColumnsReady.
+  readyPromise.catch(() => {});
+  benefitsScreeningColumnsReady = readyPromise;
 
   app.get("/api/benefits/counties", async (_req, res) => {
     try {

@@ -506,11 +506,29 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  await seedAiToolCatalog();
-  await seedStaarContent();
+  // Seed-on-boot must never block route registration: on a host without a
+  // configured database (fresh Vercel deployment) these queries fail, and
+  // without a catch the entire app would come up with no API routes at all.
+  // Failures are logged loudly; every route still mounts, and DB-touching
+  // routes fail individually with a 500 instead of the whole app dying.
+  const seedSafely = async (label: string, fn: () => Promise<unknown>) => {
+    try {
+      await fn();
+    } catch (err: any) {
+      console.error(
+        `[seed] ${label} failed — ${err?.message || err}. ` +
+          `Boot continues; routes mount regardless. Check DATABASE_URL.`,
+      );
+    }
+  };
 
-  const { seedComprehensive } = await import("./seed-comprehensive");
-  await seedComprehensive();
+  await seedSafely("AI tool catalog", seedAiToolCatalog);
+  await seedSafely("STAAR content", seedStaarContent);
+
+  await seedSafely("comprehensive catalog", async () => {
+    const { seedComprehensive } = await import("./seed-comprehensive");
+    await seedComprehensive();
+  });
 
   app.use((_req, res, next) => {
     res.setHeader("X-Content-Type-Options", "nosniff");
