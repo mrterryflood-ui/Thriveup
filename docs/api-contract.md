@@ -10,7 +10,7 @@
 | Pattern | Middleware | When to Use | Header |
 |---|---|---|---|
 | **Session (Replit Auth)** | `requireAuth` | Any route a logged-in ThriveUp user calls from the browser | Session cookie (automatic) |
-| **Partner API Key** | `requirePartnerAuth` + `requireScope(scope)` | External sites, ecosystem siblings, any machine-to-machine call from OUTSIDE the ThriveUp session system | `x-partner-key: tcaf_...` or `Authorization: Bearer tcaf_...` |
+| **Partner API Key** | `requirePartnerAuth` + `requireScope(scope)` | External sites, ecosystem siblings, any machine-to-machine call from OUTSIDE the ThriveUp session system | `x-partner-key: tcaf_...` or `Authorization: Bearer ...`; pinned platform integrations may use their configured key format |
 | **Ecosystem Machine-to-Machine** | `requireEcosystemAuth` | Platform-to-platform calls between the 15+ ecosystem siblings (Whole-Person Health → ThriveUp hub, etc.) | `x-ecosystem-key: <secret>` |
 | **Public (no auth)** | _(none)_ | Read-only, non-sensitive, non-AI, non-mutating endpoints. Documentation and public catalogs. Authenticated health/keepalive routes are not public. | _(none)_ |
 
@@ -39,7 +39,7 @@ None of the above?
 
 ## Partner API Scopes
 
-All partner keys use `x-partner-key: tcaf_...` and are scoped. Available scopes:
+Most external partner keys use `x-partner-key: tcaf_...` and are scoped. Pinned platform integrations may use a different key format; the exact active key hash is authoritative. Available scopes:
 
 | Scope | What it unlocks |
 |---|---|
@@ -60,6 +60,37 @@ All partner keys use `x-partner-key: tcaf_...` and are scoped. Available scopes:
 
 Scopes are assigned at key creation time in the admin panel (Ops Center → Partner API tab). A key can have multiple scopes.
 The `health:read` scope is explicitly listed for the pinned ecosystem partner credentials and must be retained when provisioning other keys that consume the MS handoff.
+
+### ChildCORE county-metrics ingestion
+
+ChildCORE sends county snapshots to this dedicated ThriveUp route:
+
+```text
+POST https://easyailearning.com/api/childcore/county-metrics/ingest
+Authorization: Bearer <THRIVEUP_API_KEY>
+Content-Type: application/json
+```
+
+The key must match the active `ChildCORE` partner identity and have the
+`inbound:write` scope. `x-partner-key` is accepted as an alternative auth
+header. Use the published ThriveUp HTTPS domain; never configure the `.replit.dev`
+preview URL as the sender destination.
+
+The request body is an object with a non-empty `records` array (maximum 500).
+Each record requires a five-digit county `fipsCode`. A valid ISO-8601 UTC
+`snapshotAt` is required either on the record or on the batch; a per-record
+timestamp overrides the batch value. Optional rate
+fields are `desertRate`, `prekEnrollmentRate`, `kindergartenReadiness`,
+`subsidyAccessRate`, `childPovertyRate`, and `staffTurnoverRate` (each 0–100).
+Optional `rawMetrics` accepts at most 50 finite numeric values. A batch with at
+least one accepted record returns HTTP 202 with received, accepted, and rejected
+counts plus a receipt. A batch where every record is rejected returns HTTP 400;
+a storage failure returns HTTP 503. County snapshots are upserted by FIPS; an
+older snapshot cannot replace a newer one.
+
+This is the ChildCORE → ThriveUp county-data path. It is distinct from
+`POST /api/partner/v1/push` (the general partner-ingest contract) and from
+`POST /api/childcore/push` (ThriveUp → ChildCORE).
 
 ### Post-publish contract gate (automatic + manual)
 
@@ -112,15 +143,19 @@ The wrapper (`scripts/post-publish-partner-api-check.ts`):
     is reported as deployment drift; and
   - sends a bodyless `POST /api/partner/v1/heartbeat` without partner data and
     requires `401` or `403`, proving the route is present without writing a
-    heartbeat.
+    heartbeat; and
+  - sends an empty `records` array to the dedicated ChildCORE ingest route with
+    the configured `THRIVEUP_API_KEY`, requiring the route's pre-write `400`
+    validation response to confirm partner identity and `inbound:write`.
 
 The community brief is available at both `GET /api/partner/v1/community-brief`
 (canonical) and `GET /api/partner/v1/community/brief` (ChildCORE-compatible
 alias). Both require `community:read` and accept the same geography query
 parameters.
 
-Neither script sends or prints a partner key, authorization header, or partner
-payload.
+The verifier does not print the partner key or authorization header and sends
+no county data; the authenticated ChildCORE probe is rejected before metric or
+audit rows are written.
 
 **Operator rule:** a deployment whose `partner-api-contract` check has not
 returned exit 0 since the last publish must NOT receive an integration-live

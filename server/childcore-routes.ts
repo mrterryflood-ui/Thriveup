@@ -6,13 +6,16 @@
  * data never leaks to unauthenticated callers.
  * The /ping and public destination metadata routes are credential-free.
  *
- * Mutating and monitoring routes require the canonical platform-staff role
- * set; the public ping and destination metadata remain credential-free.
+ * Protected routes use storage.getUser(), which normalizes the users-table
+ * TCAF-admin flag to the admin role; session role claims are never trusted.
+ * Monitoring and settings are limited to administrators.
+ * Public ping and destination metadata remain credential-free.
  */
 
 import type { NextFunction, Router, Request, Response } from "express";
 import { desc, eq, sql } from "drizzle-orm";
 import { createHash } from "crypto";
+import { checkChildCOREIngressAuthorization } from "./childcore-ingest-auth";
 import {
   probeChildCORE,
   getChildCOREProviders,
@@ -68,7 +71,7 @@ async function requireSettingsAdmin(req: Request, res: Response): Promise<string
     const userId = getUserId(req)!;
     const user = await storage.getUser(userId);
     if (!user || user.role !== "admin") {
-      res.status(403).json({ error: "Administrator access required to change ChildCORE destinations" });
+      res.status(403).json({ error: "TCAF administrator access required for ChildCORE settings and monitoring" });
       return null;
     }
     return userId;
@@ -146,25 +149,39 @@ async function resolveInboundPartnerKey(
   res: Response,
 ): Promise<{ keyId: string; keyHash: string; partnerName: string; keyPrefix: string; scopes: string[] } | null> {
   const authHeader = req.headers.authorization ?? "";
-  const raw = authHeader.startsWith("Bearer ")
-    ? authHeader.slice(7).trim()
+  const bearerPrefix = /^Bearer\s+/i.exec(authHeader)?.[0];
+  const raw = bearerPrefix
+    ? authHeader.slice(bearerPrefix.length).trim()
     : (req.headers["x-partner-key"] as string | undefined)?.trim() ?? "";
   if (!raw) {
     res.status(401).json({ error: "Authentication required. Include Authorization: Bearer <partner-key>" });
     return null;
   }
   const hashed = hashPartnerKey(raw);
-  const [key] = await db
-    .select({
-      id: partnerApiKeys.id,
-      partnerName: partnerApiKeys.partnerName,
-      keyPrefix: partnerApiKeys.keyPrefix,
-      active: partnerApiKeys.active,
-      scopes: partnerApiKeys.scopes,
-    })
-    .from(partnerApiKeys)
-    .where(eq(partnerApiKeys.keyHash, hashed))
-    .limit(1);
+  let lookupResults:
+    | Array<Pick<typeof partnerApiKeys.$inferSelect, "id" | "partnerName" | "keyPrefix" | "active" | "scopes">>
+    | undefined;
+  try {
+    lookupResults = await db
+      .select({
+        id: partnerApiKeys.id,
+        partnerName: partnerApiKeys.partnerName,
+        keyPrefix: partnerApiKeys.keyPrefix,
+        active: partnerApiKeys.active,
+        scopes: partnerApiKeys.scopes,
+      })
+      .from(partnerApiKeys)
+      .where(eq(partnerApiKeys.keyHash, hashed))
+      .limit(1);
+  } catch (error) {
+    console.error(
+      "[ChildCORE] inbound partner-key lookup failed:",
+      error instanceof Error ? error.message : String(error),
+    );
+    res.status(503).json({ error: "Partner authentication service temporarily unavailable" });
+    return null;
+  }
+  const [key] = lookupResults;
   if (!key || !key.active) {
     res.status(403).json({ error: "Invalid or revoked partner key" });
     return null;
@@ -562,7 +579,7 @@ export function registerChildCORERoutes(router: Router): void {
   // with county-level early-childhood intelligence. This feeds into the Navigator
   // community context and Community Brief when a user's ZIP matches.
   //
-  // Auth: Authorization: Bearer <tcaf_partner_key> (hashed in partner_api_keys)
+  // Auth: Authorization: Bearer <THRIVEUP_API_KEY> (hashed in partner_api_keys)
   // Scope required: inbound:write — prevents read-only partner keys from injecting
   // or poisoning county-level metrics data.
   router.post("/childcore/county-metrics/ingest", async (req, res) => {
@@ -571,15 +588,12 @@ export function registerChildCORERoutes(router: Router): void {
     if (!partner) return;
     const configuredChildCoreKey = process.env.THRIVEUP_API_KEY?.trim();
     const configuredChildCoreHash = configuredChildCoreKey ? hashPartnerKey(configuredChildCoreKey) : "";
-    if (
-      partner.partnerName.trim().toLowerCase() !== "childcore" ||
-      !configuredChildCoreHash ||
-      partner.keyHash !== configuredChildCoreHash
-    ) {
+    const authorizationFailure = checkChildCOREIngressAuthorization(partner, configuredChildCoreHash);
+    if (authorizationFailure === "wrong_partner_identity") {
       res.status(403).json({ error: "This endpoint only accepts the ChildCORE partner identity" });
       return;
     }
-    if (!partner.scopes.includes("inbound:write")) {
+    if (authorizationFailure === "missing_scope") {
       res.status(403).json({ error: "inbound:write scope required for county metrics ingestion" });
       return;
     }
@@ -736,6 +750,9 @@ export function registerChildCORERoutes(router: Router): void {
       }
     }
 
+    const allRejected = records.length > 0 && rejected.length === records.length;
+    const responseStatus = storageFailure ? 503 : allRejected ? 400 : 202;
+
     // Audit log
     try {
       await db.insert(partnerApiAuditLog).values({
@@ -744,13 +761,20 @@ export function registerChildCORERoutes(router: Router): void {
         partnerName: partner.partnerName,
         endpoint: "POST /api/childcore/county-metrics/ingest",
         method: "POST",
-        statusCode: storageFailure ? 503 : rejected.length === records.length ? 400 : 202,
+        statusCode: responseStatus,
         ip: req.ip ?? "",
-        userAgent: req.headers["user-agent"] ?? null,
+        userAgent: typeof req.headers["user-agent"] === "string"
+          ? req.headers["user-agent"].slice(0, 299)
+          : null,
       });
-    } catch { /* audit failure is non-blocking */ }
+    } catch (error) {
+      console.error(
+        "[ChildCORE] inbound audit log insert failed:",
+        error instanceof Error ? error.message : String(error),
+      );
+    }
 
-    res.status(storageFailure ? 503 : 202).json({
+    res.status(responseStatus).json({
       received: records.length,
       accepted: accepted.length,
       rejected: rejected.length,

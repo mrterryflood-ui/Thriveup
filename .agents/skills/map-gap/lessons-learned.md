@@ -293,3 +293,11 @@ await db.select().from(agencies).where(eq(agencies.id, agencyId));
 4. If the user actually wants the plan executed, they'll restate it in plain language. Wait for that signal.
 
 **Related:** This is a memory-discipline failure, not an Iron Rule failure. Iron Rule = don't conjecture about external facts. P-L11 = don't mistake my own prior output for the user's voice.
+
+## 2026-09-25 — Preserve partner-probe error evidence without overstating status
+
+**Rule:** When an integration status endpoint returns structured diagnostics with a non-2xx response, preserve only the safe fields needed to distinguish explicit configuration failure from a generic probe failure. Do not present cached success as current after a failed refresh, and expose a retry state while the probe is running.
+
+**Why:** A generic query helper can discard the non-2xx response body. That hides the difference between “configuration unavailable” and “the probe failed,” while stale cached status can falsely suggest the integration is healthy.
+
+**How to apply:** Use this pattern for operator-facing integration status pages. Keep upstream authorization claims limited to what the probe actually established; a receiver status probe does not prove a partner sender attempted a request.

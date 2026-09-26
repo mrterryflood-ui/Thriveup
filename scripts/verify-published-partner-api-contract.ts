@@ -2,11 +2,13 @@
  * Verify the published Partner API contract before an external partner is told
  * that a deployment is ready.
  *
- * This check is intentionally credential-free:
+ * This check sends no partner data:
  * - GET /docs is public and must advertise the current scopes and routes.
  * - Protected routes are probed without a key and must reach authorization
  *   middleware (401/403), not fall through to a stale deployment's 404.
  * - The heartbeat probe is a bodyless POST, so it never sends partner data.
+ * - ChildCORE auth is checked with the configured key and an empty records
+ *   array; the endpoint rejects it before inserting metrics or an audit row.
  *
  * Usage:
  *   PUBLISHED_BASE_URL=https://published.example.com \
@@ -41,6 +43,7 @@ let failures = 0;
 // Any route with probe: true is included here automatically — there is no
 // separate list to keep in sync.
 const EXPECTED_PUBLIC_ENDPOINTS = getVerifierProbes();
+const CHILDCORE_COUNTY_METRICS_PATH = "/api/childcore/county-metrics/ingest";
 
 function ok(label: string): void {
   console.log(`  ✓ ${label}`);
@@ -183,6 +186,11 @@ async function verifyDocs(): Promise<void> {
       "published /docs returned an unexpected response shape",
     );
     if (!docs) return;
+    check(
+      "public Partner API docs cannot retain stale cached contract data",
+      /no-store/i.test(response.headers.get("cache-control") ?? ""),
+      "expected Cache-Control: no-store",
+    );
 
     const scopes = Array.isArray(docs?.scopes) ? docs.scopes : [];
     const scopeNames = new Set(
@@ -235,6 +243,46 @@ async function verifyDocs(): Promise<void> {
         );
       }
     }
+
+    const inboundPushContract = docs.inboundPushContract;
+    const childcoreContract = inboundPushContract && typeof inboundPushContract === "object"
+      ? (inboundPushContract as JsonObject).childcoreCountyMetrics
+      : null;
+    check(
+      "public docs publish the ChildCORE county-metrics ingest contract",
+      Boolean(childcoreContract && typeof childcoreContract === "object"),
+      "inboundPushContract.childcoreCountyMetrics is missing",
+    );
+    if (childcoreContract && typeof childcoreContract === "object") {
+      const contract = childcoreContract as JsonObject;
+      check(
+        "ChildCORE county-metrics docs identify the exact method and path",
+        contract.method === "POST" && contract.path === CHILDCORE_COUNTY_METRICS_PATH,
+        "expected POST /api/childcore/county-metrics/ingest",
+      );
+      check(
+        "ChildCORE county-metrics docs provide the current production URL",
+        contract.url === `https://easyailearning.com${CHILDCORE_COUNTY_METRICS_PATH}`,
+        "published absolute URL does not match ThriveUp's verified production origin",
+      );
+      check(
+        "ChildCORE county-metrics docs require inbound:write",
+        contract.requiredScope === "inbound:write",
+        "expected requiredScope inbound:write",
+      );
+      check(
+        "ChildCORE county-metrics docs describe complete response statuses",
+        contract.successStatus === 202
+          && contract.allRejectedStatus === 400
+          && contract.storageFailureStatus === 503,
+        "expected partial/success 202, all-rejected 400, and storage-failure 503",
+      );
+    }
+    check(
+      "public docs list the ChildCORE county-metrics route",
+      documentedEndpoints.has(`POST ${CHILDCORE_COUNTY_METRICS_PATH}`),
+      "exact method/path entry is missing from the published /docs response",
+    );
   } finally {
     finish();
   }
@@ -261,6 +309,84 @@ async function verifyProtectedRoute(
   }
 }
 
+async function verifyChildCOREAuthenticatedIngress(): Promise<void> {
+  const key = process.env.THRIVEUP_API_KEY?.trim();
+  if (!key) {
+    fail("ChildCORE authenticated ingest probe has a configured THRIVEUP_API_KEY");
+    return;
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(new DOMException("request timed out", "TimeoutError")),
+    REQUEST_TIMEOUT_MS,
+  );
+  try {
+    const response = await fetch(endpoint(CHILDCORE_COUNTY_METRICS_PATH), {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+        "Cache-Control": "no-cache, no-store",
+        Pragma: "no-cache",
+      },
+      // An empty batch is rejected after identity and scope checks, before any
+      // metric rows or ingestion audit records can be written.
+      body: JSON.stringify({ records: [] }),
+      cache: "no-store",
+      redirect: "manual",
+      signal: controller.signal,
+    });
+    if (new URL(response.url).origin !== baseOrigin) {
+      fail("ChildCORE authenticated ingest returned from the expected origin");
+      await response.body?.cancel();
+      return;
+    }
+
+    check(
+      "ChildCORE key authenticates and passes inbound:write on the ingest route",
+      response.status === 400,
+      `returned HTTP ${response.status}; expected the empty-batch validation response (400)`,
+    );
+    if (response.status === 400) {
+      const body = await readJson(response);
+      check(
+        "ChildCORE authenticated probe stopped at empty-batch validation",
+        body?.error === "'records' must be a non-empty array",
+        "unexpected validation response",
+      );
+    } else {
+      await response.body?.cancel();
+    }
+
+    const invalidKeyResponse = await fetch(endpoint(CHILDCORE_COUNTY_METRICS_PATH), {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer invalid-childcore-contract-probe",
+        "Content-Type": "application/json",
+        "Cache-Control": "no-cache, no-store",
+      },
+      body: JSON.stringify({ records: [] }),
+      cache: "no-store",
+      redirect: "manual",
+      signal: controller.signal,
+    });
+    check(
+      "ChildCORE ingest rejects an unrecognized credential",
+      invalidKeyResponse.status === 403,
+      `returned HTTP ${invalidKeyResponse.status}; expected 403`,
+    );
+    await invalidKeyResponse.body?.cancel();
+  } catch (error) {
+    const kind = error instanceof DOMException && error.name === "TimeoutError"
+      ? "request timed out"
+      : "network, TLS, or redirect failure";
+    fail("ChildCORE authenticated ingest probe was reachable", kind);
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 async function run(): Promise<void> {
   if (!configuredBaseUrl) {
     console.error(
@@ -284,10 +410,22 @@ async function run(): Promise<void> {
   console.log("\nPublished Partner API contract check\n");
   await verifyDocs();
   await Promise.all(
-    EXPECTED_PUBLIC_ENDPOINTS.map((expected) =>
-      verifyProtectedRoute(`${expected.method} ${expected.path}`, expected.method, expected.path),
-    ),
+    [
+      ...EXPECTED_PUBLIC_ENDPOINTS.map((expected) =>
+        verifyProtectedRoute(
+          `${expected.method} ${expected.path}`,
+          expected.method,
+          expected.path,
+        ),
+      ),
+      verifyProtectedRoute(
+        "ChildCORE county-metrics ingestion",
+        "POST",
+        CHILDCORE_COUNTY_METRICS_PATH,
+      ),
+    ],
   );
+  await verifyChildCOREAuthenticatedIngress();
 
   if (failures > 0) {
     console.error(`\n❌ ${failures} deployment contract check(s) failed.`);

@@ -67,13 +67,52 @@ function getDisplayHost(value: unknown): string | null {
   }
 }
 
+type ChildCOREPingError = Error & { statusCode?: number; responseBody?: unknown };
+
+async function fetchChildCOREPing(): Promise<Record<string, unknown>> {
+  const response = await fetch("/api/childcore/ping", { credentials: "include" });
+  const responseBody: unknown = await response.json().catch(() => undefined);
+  if (!response.ok) {
+    const body = responseBody && typeof responseBody === "object" && !Array.isArray(responseBody)
+      ? responseBody as Record<string, unknown>
+      : undefined;
+    const message = typeof body?.error === "string"
+      ? body.error
+      : `ChildCORE status request failed (HTTP ${response.status})`;
+    const error = new Error(message) as ChildCOREPingError;
+    error.statusCode = response.status;
+    error.responseBody = responseBody;
+    throw error;
+  }
+  if (!responseBody || typeof responseBody !== "object" || Array.isArray(responseBody)) {
+    throw new Error("ChildCORE status endpoint returned an invalid response");
+  }
+  return responseBody as Record<string, unknown>;
+}
+
+function isChildCOREConfigurationUnavailable(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  const body = (error as ChildCOREPingError).responseBody;
+  return !!body && typeof body === "object" && !Array.isArray(body)
+    && (body as Record<string, unknown>).configAvailable === false;
+}
+
 // ─── 1. Connection tab ───────────────────────────────────────────────────────
 
 function ConnectionTab() {
-  const { data: ping, isLoading: pinging, refetch: repingPublic } = useQuery<any>({
+  const {
+    data: ping,
+    isLoading: pinging,
+    isFetching: pingFetching,
+    isError: pingError,
+    error: pingErrorDetails,
+    refetch: repingPublic,
+  } = useQuery<any>({
     queryKey: ["/api/childcore/ping"],
+    queryFn: fetchChildCOREPing,
     refetchInterval: 60_000,
   });
+  const pingConfigUnavailable = isChildCOREConfigurationUnavailable(pingErrorDetails);
 
   const { data: status, isLoading: statusLoading, isError: statusError, refetch: refetchStatus } = useQuery<any>({
     queryKey: ["/api/childcore/status"],
@@ -82,14 +121,20 @@ function ConnectionTab() {
     queryKey: ["/api/childcore/capabilities"],
   });
 
-  const refresh = () => {
-    void repingPublic();
-    void refetchStatus();
-    void refetchCapabilities();
-    void queryClient.invalidateQueries({ queryKey: ["/api/childcore/status"] });
+  const [refreshing, setRefreshing] = useState(false);
+  const refresh = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    try {
+      await Promise.all([repingPublic(), refetchStatus(), refetchCapabilities()]);
+    } catch (error) {
+      console.error("[ChildCORE] manual status refresh failed:", error);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
-  const overall = ping?.ok;
+  const overall = ping?.ok === true && !pingError;
 
   const SCOPES = [
     { scope: "community:read",  desc: "Provider, school, SDOH, impact data by ZIP" },
@@ -102,6 +147,7 @@ function ConnectionTab() {
   const scopeState = (scope: string) => capabilities?.scopes?.[scope];
   const scopeLabel = (scope: string) => {
     if (capabilitiesLoading) return "Checking…";
+    if (capabilitiesError) return "Unavailable";
     if (scopeState(scope) === "active") return "Active";
     if (scopeState(scope) === "not_granted") return "Not granted";
     if (scopeState(scope) === "key_inactive") return "Key inactive";
@@ -129,18 +175,30 @@ function ConnectionTab() {
               <div>
                 <div className="font-bold text-lg" data-testid="text-childcore-overall-status">
                   {pinging ? "Checking…"
+                    : pingError ? pingFetching
+                      ? "Retrying ChildCORE status check…"
+                      : pingConfigUnavailable
+                        ? "ChildCORE destination could not be verified"
+                        : "ChildCORE status check failed"
                     : overall ? "ChildCORE connection healthy"
-                    : ping?.reachable ? "ChildCORE reachable — authentication needed"
-                    : "ChildCORE unreachable"}
+                    : ping?.configAvailable === false ? "ChildCORE destination verification unavailable"
+                    : ping?.configured === false ? "ChildCORE integration not configured"
+                    : ping?.reachable === false ? "ChildCORE reachability not confirmed"
+                    : ping?.reachable && ping.authenticated === false ? "ChildCORE authorization not confirmed"
+                    : "ChildCORE status unavailable"}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {ping?.service} {ping?.version && `v${ping.version}`}
-                  {ping?.latencyMs != null && ` · ${ping.latencyMs}ms`}
+                  {pingError
+                    ? pingConfigUnavailable
+                      ? "ThriveUp couldn't verify the ChildCORE destination configuration. Review Settings, then retry."
+                      : "The latest probe failed; cached status is not shown as current. Use Refresh to retry."
+                    : <>{ping?.service} {ping?.version && `v${ping.version}`}
+                      {ping?.latencyMs != null && ` · ${ping.latencyMs}ms`}</>}
                 </div>
               </div>
             </div>
-            <Button variant="outline" size="sm" onClick={refresh} data-testid="button-childcore-refresh">
-              <RefreshCw className="h-4 w-4 mr-1" /> Refresh
+            <Button variant="outline" size="sm" onClick={refresh} disabled={refreshing} aria-label="Refresh ChildCORE connection status" data-testid="button-childcore-refresh">
+              <RefreshCw className={`h-4 w-4 mr-1 ${refreshing ? "animate-spin" : ""}`} /> {refreshing ? "Refreshing…" : "Refresh"}
             </Button>
           </div>
         </CardContent>
@@ -159,15 +217,23 @@ function ConnectionTab() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
-            <Row label="Configured" ok={ping?.configured} loading={pinging} />
-            <Row label="Reachable" ok={ping?.reachable} loading={pinging} />
-            <Row label="Authenticated" ok={ping?.authenticated} loading={pinging} />
-            <Row label="Community data" ok={ping?.authenticated} loading={pinging}
-                 note={!ping?.authenticated ? "403 — key needs community scope on ChildCORE admin side" : undefined} />
+            <Row label="Configured" ok={pingError ? undefined : ping?.configured} status={pingError ? "unknown" : undefined} loading={pinging} />
+            <Row label="Reachable" ok={pingError ? undefined : ping?.reachable} status={pingError ? "unknown" : undefined} loading={pinging} />
+            <Row label="Authenticated" ok={pingError ? undefined : ping?.authenticated} status={pingError ? "unknown" : undefined} loading={pinging} />
+            <Row label="Community data" ok={pingError ? undefined : ping?.authenticated} status={pingError ? "unknown" : undefined} loading={pinging}
+                 note={pingError
+                   ? pingConfigUnavailable
+                     ? "Review the ChildCORE destination in Settings, then retry."
+                     : "The latest status request failed; use Refresh to retry."
+                   : ping?.authenticated === false
+                   ? "Access was not confirmed; this probe does not expose the upstream HTTP status."
+                   : undefined} />
             <div className="pt-2 border-t text-xs text-muted-foreground space-y-1">
-                   {statusError ? (
+                  {statusLoading ? (
+                    <Skeleton className="h-4 w-48" />
+                  ) : statusError ? (
                  <div className="text-amber-600" role="alert" data-testid="text-childcore-status-error">
-                   Integration status unavailable. <button type="button" className="text-primary underline" onClick={() => void refetchStatus()}>Retry</button>
+                      Integration status unavailable. <button type="button" className="text-primary underline" onClick={() => void refetchStatus()}>Retry</button>
                  </div>
                ) : status?.baseUrl ? (
                 <div>Base URL: <code className="font-mono">{status.baseUrl}</code></div>
@@ -204,11 +270,29 @@ function ConnectionTab() {
                  note={capabilitiesLoading ? undefined : capabilitiesError ? "Live key metadata unavailable" : capabilities?.keyFound ? "Live key record found" : "No matching live key record"} />
             <Row label="Partner API health" status="unknown"
                  note="Live inbound health probe is unavailable; key metadata alone does not prove endpoint health." />
-            <Row label="Scopes active" ok={capabilities?.keyActive} status={capabilitiesError ? "unknown" : undefined}
-                 loading={capabilitiesLoading}
-                 note={capabilities?.keyActive ? `${SCOPES.filter(({ scope }) => scopeIsActive(scope)).length}/${SCOPES.length} scopes` : "Live key record is not active"} />
-            <div className="pt-2 border-t text-xs text-muted-foreground">
-              Auth header: <code className="font-mono">x-partner-key: &lt;THRIVEUP_API_KEY&gt;</code>
+            <Row label="County-metrics scope" ok={scopeIsActive("inbound:write")}
+                 status={capabilitiesError ? "unknown" : undefined} loading={capabilitiesLoading}
+                 note={capabilitiesLoading ? undefined : capabilitiesError
+                   ? "Live scope metadata unavailable"
+                   : "This endpoint requires inbound:write"} />
+            <div className="pt-2 border-t text-sm text-muted-foreground space-y-2">
+              <div>
+                <div className="font-medium">Production ingest URL</div>
+                <code className="mt-1 block break-all text-xs text-foreground">
+                  POST https://easyailearning.com/api/childcore/county-metrics/ingest
+                </code>
+              </div>
+              <div>
+                Send <code className="font-mono">Authorization: Bearer &lt;THRIVEUP_API_KEY&gt;</code>.
+                Do not use a preview URL or <code className="font-mono">/api/partner/v1/push</code>.
+              </div>
+              <div>
+                JSON body: a non-empty <code className="font-mono">records</code> array
+                (maximum 500), with a 5-digit county <code className="font-mono">fipsCode</code> per
+                record and an ISO-8601 UTC <code className="font-mono">snapshotAt</code> per record
+                or at the batch level. A batch with accepted records returns HTTP 202; an all-rejected
+                batch returns HTTP 400.
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -247,8 +331,11 @@ function ConnectionTab() {
         </CardContent>
       </Card>
 
-      {/* Blocker card if not authenticated */}
-      {ping && !ping.authenticated && (
+      {/* Only identify an authorization issue when the configured destination responded. */}
+      {ping?.configAvailable === true &&
+        ping.configured === true &&
+        ping.reachable === true &&
+        ping.authenticated === false && (
         <Card className="border-amber-300 dark:border-amber-800 bg-amber-50/30 dark:bg-amber-950/20">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2 text-amber-700 dark:text-amber-400">
@@ -257,12 +344,12 @@ function ConnectionTab() {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground space-y-1">
-            <p>ThriveUp can reach ChildCORE's service, but community-data endpoints return 403.</p>
+            <p>ThriveUp reached the configured ChildCORE destination, but authenticated access to community data was not confirmed.</p>
             <p>
-              The <code>CHILDCORE_API_KEY</code> needs a <strong>community</strong> scope grant in
-              ChildCORE's admin console before providers, schools, SDOH, and impact data will flow.
+              This probe does not expose the upstream HTTP status, so it does not prove that the key is missing a scope.
+              Verify the active <code>CHILDCORE_API_KEY</code> and its community-data access in ChildCORE's admin console.
             </p>
-            <p>Once granted, the badge above will flip to <strong>Authenticated</strong> automatically on the next refresh.</p>
+            <p>Refresh this page after verifying the upstream key and permissions.</p>
           </CardContent>
         </Card>
       )}
@@ -370,7 +457,7 @@ function DataCard({ title, icon, data, loading, error }: {
         {error && (
           <div className="text-xs text-amber-600 space-y-1">
             <div className="font-medium">Unavailable</div>
-            <div>ChildCORE's community endpoints returned an error. This is expected until the API key receives community scope.</div>
+            <div>The community-data request failed. The response does not distinguish a permission denial from an upstream or network error; verify the destination and access in ChildCORE before changing scopes.</div>
           </div>
         )}
         {!loading && !error && data && (
@@ -1017,21 +1104,37 @@ function SettingsTab() {
 // ─── Page shell ───────────────────────────────────────────────────────────────
 
 export default function ChildCOREIntegrationPage() {
-  const { data: ping } = useQuery<any>({
+  const {
+    data: ping,
+    isLoading: pinging,
+    isFetching: pingFetching,
+    isError: pingError,
+    error: pingErrorDetails,
+  } = useQuery<any>({
     queryKey: ["/api/childcore/ping"],
+    queryFn: fetchChildCOREPing,
     refetchInterval: 60_000,
   });
-  const { data: status, isLoading: statusLoading } = useQuery<any>({
+  const {
+    data: status,
+    isLoading: statusLoading,
+    isFetching: statusFetching,
+    isError: statusError,
+    refetch: refetchPageStatus,
+  } = useQuery<any>({
     queryKey: ["/api/childcore/status"],
   });
 
-  const overallOk = ping?.ok;
+  const pingConfigUnavailable = isChildCOREConfigurationUnavailable(pingErrorDetails);
+  const overallOk = ping?.ok === true && !pingError;
   const apiHost = getDisplayHost(status?.baseUrl);
   const overallBadge = overallOk
     ? <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400 border-0 gap-1.5"><StatusDot ok={true} /><span>Live</span></Badge>
-    : ping?.reachable
-    ? <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 border-0 gap-1.5"><StatusDot ok={false} /><span>Auth needed</span></Badge>
-    : <Badge className="bg-muted text-muted-foreground border-0 gap-1.5"><StatusDot ok={false} checking={!ping} /><span>{ping ? "Unreachable" : "Checking…"}</span></Badge>;
+    : pingError
+    ? <Badge className="bg-muted text-muted-foreground border-0 gap-1.5"><StatusDot ok={false} checking={pingFetching} /><span>{pingFetching ? "Retrying…" : pingConfigUnavailable ? "Destination check unavailable" : "Status check failed"}</span></Badge>
+    : ping?.configAvailable === true && ping.configured === true && ping.reachable === true && ping.authenticated === false
+    ? <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 border-0 gap-1.5"><StatusDot ok={false} /><span>Authorization unconfirmed</span></Badge>
+    : <Badge className="bg-muted text-muted-foreground border-0 gap-1.5"><StatusDot ok={false} checking={pinging} /><span>{pinging ? "Checking…" : !ping ? "Status unavailable" : ping.configAvailable === false ? "Destination check unavailable" : ping.configured === false ? "Not configured" : ping.reachable === false ? "Reachability unconfirmed" : "Status unavailable"}</span></Badge>;
 
   return (
     <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-6" data-testid="childcore-integration-page">
@@ -1044,11 +1147,19 @@ export default function ChildCOREIntegrationPage() {
       <div className="flex flex-wrap gap-3 text-xs text-muted-foreground pb-1">
         <span className="flex items-center gap-1.5" data-testid="text-childcore-upstream">
           <Wifi className="h-3.5 w-3.5" />
-          {statusLoading ? "API: checking…" : apiHost ? `API: ${apiHost}` : "API: unavailable"}
+          {statusLoading ? "API: checking…" : statusError ? (
+            <>API: unavailable{" "}
+              <button type="button" className="text-primary underline underline-offset-2" onClick={() => void refetchPageStatus()} disabled={statusFetching} aria-label="Retry ChildCORE integration status" data-testid="button-retry-childcore-status">
+                {statusFetching ? "Retrying…" : "Retry"}
+              </button>
+            </>
+          ) : apiHost ? `API: ${apiHost}` : "API: unavailable"}
         </span>
         <span>·</span>
         {statusLoading ? (
           <span data-testid="text-childcore-header-docs-checking">Partner API docs: checking…</span>
+        ) : statusError ? (
+          <span data-testid="text-childcore-header-docs-unavailable">Partner API docs unavailable</span>
         ) : status?.docsUrl && isSafeExternalUrl(status.docsUrl) ? (
           <a href={status.docsUrl} target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-1 text-primary hover:underline">
@@ -1058,7 +1169,7 @@ export default function ChildCOREIntegrationPage() {
           <span data-testid="text-childcore-header-docs-unavailable">Partner API docs unavailable</span>
         )}
         <span>·</span>
-        <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" />Platform staff only</span>
+        <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" />Platform administrators only</span>
       </div>
 
       <Tabs defaultValue="connection" data-testid="tabs-childcore">

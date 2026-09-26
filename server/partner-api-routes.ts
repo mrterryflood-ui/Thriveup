@@ -392,6 +392,7 @@ export function registerPartnerApiRoutes(app: Express) {
   // ── Public schema docs (no auth — external devs can self-onboard) ─────────
 
   app.get("/api/partner/v1/docs", (_req, res) => {
+    res.setHeader("Cache-Control", "no-store");
     res.json({
       gateway: "ThriveUp Academy Partner API",
       version: "1.0",
@@ -406,17 +407,42 @@ export function registerPartnerApiRoutes(app: Express) {
         },
         option_B_external_partners: {
           header: "x-partner-key",
-          format: "tcaf_<hex>",
+          format: "tcaf_<hex> for standard external keys; pinned integrations may differ",
           who: "External organizations, third-party sites",
           setup: "Email terryflood@thrivingcommunitiesforall.com to request a scoped key.",
         },
       },
       scopes: PARTNER_API_SCOPES,
-      // Generated from the shared contract registry (server/partner-api-contract.ts).
-      // Add or remove routes there — this list stays in sync automatically.
-      endpoints: PARTNER_API_CONTRACT.map(buildDocsEndpointLine),
+      // Standard Partner API routes come from the shared registry. The
+      // separately secured ChildCORE county-ingest route is documented below.
+      endpoints: [
+        ...PARTNER_API_CONTRACT.map(buildDocsEndpointLine),
+        "POST /api/childcore/county-metrics/ingest — ChildCORE county-metric snapshots (ChildCORE identity; inbound:write)",
+      ],
       inboundPushContract: {
         acceptedDataTypes: ["content", "event", "insight", "update", "metric", "alert", "grant_outcome", "intervention"],
+        childcoreCountyMetrics: {
+          method: "POST",
+          path: "/api/childcore/county-metrics/ingest",
+          url: "https://easyailearning.com/api/childcore/county-metrics/ingest",
+          partner: "ChildCORE",
+          authentication: "Authorization: Bearer <THRIVEUP_API_KEY> (x-partner-key is also accepted)",
+          requiredScope: "inbound:write",
+          body: {
+            snapshotAt: "ISO-8601 UTC timestamp; may be supplied per record or once for the batch",
+            records: [{
+              fipsCode: "required 5-digit county FIPS code",
+              countyName: "optional string, max 100 characters",
+              rates: "optional desertRate, prekEnrollmentRate, kindergartenReadiness, subsidyAccessRate, childPovertyRate, and staffTurnoverRate; each 0–100",
+              rawMetrics: "optional object with at most 50 finite numeric fields",
+            }],
+            maxRecords: 500,
+          },
+          successStatus: 202,
+          allRejectedStatus: 400,
+          storageFailureStatus: 503,
+          responseFields: ["received", "accepted", "rejected", "rejections", "receipt"],
+        },
         referral: REFERRAL_PUSH_CONTRACT,
         note: "The referral dataType is reserved but closed. ThriveUp does not accept or persist person-level referral payloads until the governed request and receipt contract is published.",
       },
