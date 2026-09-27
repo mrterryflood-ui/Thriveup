@@ -6,3 +6,73 @@ version: "0.1.0"
 ## Baseline Record
 
 Each commitment **must** capture a baseline at Gate 3 entry.
+
+```yaml
+commitment_id: "cmt-{slug}"
+captured_at: "2026-09-26T14:30:00Z"
+captured_by: "act-{lead-id}"
+metrics:
+  - metric_id: "msr-{commitment_id}-{slug}"
+    name: "Stakeholder alignment score"
+    type: "leading"
+    unit: "likert_1_5"
+    baseline_value: 2.3
+    target_value: 4.0
+    measurement_cadence: "weekly"
+    data_source: "evt-{hash}"  # evidence ledger entry
+    collection_method: "anonymous_survey"
+    frequency: "weekly"
+  - metric_id: "msr-{commitment_id}-budget-variance"
+    name: "Budget variance %"
+    type: "lagging"
+    unit: "percent"
+    baseline_value: 0.0
+    target_value: 5.0
+    measurement_cadence: "at_gate_4"
+    data_source: "evt-{hash}"
+    collection_method: "financial_system_export"
+    frequency: "biweekly"
+  - metric_id: "msr-{commitment_id}-schedule-variance"
+    name: "Schedule variance (days)"
+    type: "lagging"
+    unit: "days"
+    baseline_value: 0
+    target_value: 7
+    measurement_cadence: "at_gate_4"
+    data_source: "evt-{hash}"
+    collection_method: "wbs_actuals_vs_plan"
+    frequency: "weekly"
+```
+
+---
+## Required Baseline Categories
+
+Every commitment **must** have at least one metric in each category:
+
+| Category | Purpose | Examples |
+|----------|---------|----------|
+| **Outcome** | Mission-level impact | Lives improved, policy changed, revenue generated |
+| **Output** | Direct deliverables | Reports delivered, features shipped, workshops held |
+| **Process** | How work gets done | Cycle time, defect rate, stakeholder satisfaction |
+| **Resource** | Investment efficiency | Cost per outcome, budget variance, capacity utilization |
+| **Risk** | Exposure tracking | Open risk count, residual risk score, mitigation velocity |
+
+---
+## Data Quality Rules
+
+1. **No proxy-only metrics** — Every proxy must have a documented link to the true outcome.
+2. **Measurement method immutable after Gate 3** — Changes require Gate 4 variance entry + IRP sign-off.
+3. **Missing data = explicit "not measured" entry** — Never impute silently.
+4. **All values traceable to evidence ledger** — `data_source` must resolve to a ledger entry.
+
+---
+## Baseline Completeness Checklist (Gate 3 Entry)
+
+- [ ] ≥ 1 Outcome metric
+- [ ] ≥ 1 Output metric
+- [ ] ≥ 1 Process metric
+- [ ] ≥ 1 Resource metric
+- [ ] ≥ 1 Risk metric
+- [ ] All `data_source` entries exist in ledger
+- [ ] All `collection_method` documented
+- [ ] Independent reviewer acknowledges baseline adequacy
