@@ -4,7 +4,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { getCurrentCommunityContext } from "./community-context";
 import { getCurrentGraphContext } from "./knowledge-graph";
 
-type Provider = "modal" | "gemini" | "claude" | "openrouter-claude" | "openai" | "replit-ai-integrations" | "deepseek-r1" | "perplexity";
+type Provider = "modal" | "gemini" | "claude" | "openrouter-claude" | "openai" | "replit-ai-integrations" | "deepseek-r1" | "perplexity" | "perplexity-direct";
 
 /**
  * Direct Anthropic is a last-resort provider. Claude 3.x models are retired
@@ -201,6 +201,10 @@ export function getProviderOrder(environment: Record<string, string | undefined>
   if (environment.AI_INTEGRATIONS_OPENAI_API_KEY && environment.AI_INTEGRATIONS_OPENAI_BASE_URL) providers.push("replit-ai-integrations");
   if (environment.OPENAI_API_KEY) providers.push("openai");
   if (environment.GEMINI_API_KEY) providers.push("gemini");
+  // Direct Perplexity (sonar) — an alternative to OpenRouter-broking. Ranks
+  // right after Modal, Gemini and OpenAI so free lanes are preferred but every
+  // path still answers without OpenRouter plumbing.
+  if (environment.PERPLEXITY_API_KEY) providers.push("perplexity-direct");
   // Direct Anthropic is deliberately last so exhausted credits never block a
   // healthy OpenRouter/Perplexity/Gemini path.
   if (environment.ANTHROPIC_API_KEY || (environment.AI_INTEGRATIONS_ANTHROPIC_API_KEY && environment.AI_INTEGRATIONS_ANTHROPIC_BASE_URL)) providers.push("claude");
@@ -234,6 +238,7 @@ const PROVIDER_CONFIG: Record<Provider, { model: string; isFree: boolean }> = {
   "openrouter-claude": { model: "anthropic/claude-haiku-4-5", isFree: false },
   openai: { model: "gpt-5-mini", isFree: false },
   "replit-ai-integrations": { model: "gpt-5-nano", isFree: false },
+  "perplexity-direct": { model: "sonar", isFree: false },
   "deepseek-r1": { model: "deepseek/deepseek-r1", isFree: false },
   perplexity: { model: "perplexity/sonar-pro", isFree: false },
 };
@@ -804,6 +809,32 @@ async function tryProvider(provider: Provider, params: StreamAIResponseParams): 
     const result = await modalGenerate(fullPrompt, params.maxTokens || 2000);
     params.onChunk(result.completion);
     params.onDone();
+  } else if (provider === "perplexity-direct") {
+    // Direct Perplexity API isn't a token stream for us — request, then emit
+    // the completion as one chunk.
+    const systemP = params.messages.find((m: { role: string }) => m.role === "system")?.content;
+    const userP = params.messages.filter((m: { role: string }) => m.role !== "system").map((m: { role: string; content: string }) => `${m.role}: ${m.content}`).join("\n\n") || params.messages.map((m: { role: string; content: string }) => m.content).join("\n\n");
+    const resp = await fetch("https://api.perplexity.ai/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "sonar",
+        messages: [
+          ...(systemP ? [{ role: "system", content: systemP }] : []),
+          { role: "user", content: userP },
+        ],
+        max_tokens: params.maxTokens || 1200,
+      }),
+      signal: AbortSignal.timeout(AI_PROVIDER_TIMEOUT_MS),
+    });
+    if (!resp.ok) throw new Error(`perplexity-direct stream ${resp.status}`);
+    const data = (await resp.json()) as { choices?: Array<{ message?: { content?: string } }> };
+    const content = data.choices?.[0]?.message?.content ?? "";
+    if (content) params.onChunk(content);
+    params.onDone();
   } else {
     await streamOpenAI(params, provider);
   }
@@ -1009,6 +1040,26 @@ async function callProviderDirectWithSignal(
   } else if (provider === "perplexity") {
     const { text } = await perplexityResearch(prompt, systemPrompt, maxTokens, signal);
     return text;
+  } else if (provider === "perplexity-direct") {
+    const resp = await fetch("https://api.perplexity.ai/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "sonar",
+        messages: [
+          ...(systemPrompt ? [{ role: "system", content: systemPrompt }] : []),
+          { role: "user", content: prompt },
+        ],
+        max_tokens: maxTokens || 1200,
+      }),
+      signal: AbortSignal.timeout(AI_PROVIDER_TIMEOUT_MS),
+    });
+    if (!resp.ok) throw new Error(`perplexity-direct ${resp.status}`);
+    const data = (await resp.json()) as { choices?: Array<{ message?: { content?: string } }> };
+    return data.choices?.[0]?.message?.content ?? "";
   } else if (provider === "openrouter-claude") {
     const client = new OpenAI({
       apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
