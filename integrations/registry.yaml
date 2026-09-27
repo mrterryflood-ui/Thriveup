@@ -27,3 +27,87 @@ last_updated: "2026-09-26"
 - **monitoring**: `integrations/monitors/github-health.yaml`
 - **fallback**: Local git mirror (daily bundle)
 - **gate_dependencies**: [0, 1, 2, 3, 4, 5] — all gates
+
+### 2. Vercel (Standard)
+- **id**: `int-vercel`
+- **purpose**: Preview deployments, production deployment status, logs
+- **auth**: Vercel Personal Access Token (stored in GitHub Actions secrets — *not in repo*)
+- **scopes**: read:deployments, read:logs, read:projects
+- **webhooks**: deployment.created, deployment.ready, deployment.error
+- **data_residency**: Vercel Global Edge
+- **rate_limits**: 1000 req/min
+- **contract**: `integrations/contracts/vercel.openapi.yaml`
+- **monitoring**: `integrations/monitors/vercel-health.yaml`
+- **fallback**: Netlify preview (manual)
+- **gate_dependencies**: [3, 4, 5] — implementation & evaluation gates
+
+### 3. Neon (PostgreSQL) (Standard)
+- **id**: `int-neon`
+- **purpose**: Persistent relational data for commitments, measurements, ledger indexing
+- **auth**: Neon API Key (GitHub Actions secret)
+- **connection**: `postgresql://...` (branch-aware; preview branches = Neon branches)
+- **webhooks**: None (polling via Actions)
+- **data_residency**: AWS us-east-1
+- **rate_limits**: 1000 req/min (API), connection pool limits
+- **contract**: `integrations/contracts/neon.openapi.yaml`
+- **monitoring**: `integrations/monitors/neon-health.yaml`
+- **fallback**: SQLite local (dev), Supabase (emergency)
+- **gate_dependencies**: [1, 3, 4, 5] — planning, implementation, evaluation
+
+### 4. MAPGraph / GIS (Core)
+- **id**: `int-mapgraph`
+- **purpose**: Graph database for commitment topology, risk, measurements, reviews
+- **auth**: Embedded (Phase 0: in-memory + file export; Phase 1: Neo4j Aura)
+- **schema**: `gis/mapgraph/schema.yaml`
+- **export_formats**: [GraphML, Cypher, Mermaid, JSON-LD]
+- **data_residency**: Local repo (Phase 0)
+- **rate_limits**: N/A (local)
+- **contract**: `integrations/contracts/mapgraph.schema.yaml`
+- **monitoring**: `integrations/monitors/mapgraph-health.yaml`
+- **fallback**: NetworkX in-memory
+- **gate_dependencies**: [0, 1, 2, 3, 4, 5] — all gates
+
+### 5. Evidence Ledger (Core)
+- **id**: `int-evidence-ledger`
+- **purpose**: Immutable, cryptographically signed event store
+- **storage**: Append-only JSONL files in `evidence/ledger/` + Neon index (Phase 1)
+- **crypto**: Ed25519 signing; SHA-256 payload hashes
+- **key_management**: `integrations/keys/` (age-encrypted; *keys not in repo*)
+- **verification**: `integrations/verify-ledger.py`
+- **data_residency**: Repo + Neon (Phase 1)
+- **rate_limits**: N/A
+- **contract**: `governance/rplice/evidence-ledger-schema.json`
+- **monitoring**: `integrations/monitors/ledger-health.yaml`
+- **fallback**: Git history (tamper-evident)
+- **gate_dependencies**: [0, 1, 2, 3, 4, 5] — all gates
+
+### 6. Independent Reviewer Pool (Standard)
+- **id**: `int-reviewer-pool`
+- **purpose**: Curated external reviewers for Gates 3 & 5
+- **source**: Manual curation + `integrations/reviewer-pool.yaml`
+- **selection_criteria**:
+  - No financial/employment ties to Thriveup < 2 years
+  - Domain expertise relevant to commitment
+  - Signed independence declaration
+  - Available for 2-week review windows
+- **compensation**: Defined per engagement (grant-funded where possible)
+- **gate_dependencies**: [3, 5] — independent review gates only
+
+### 7. Stakeholder Measurement (Standard)
+- **id**: `int-stakeholder-measurement`
+- **purpose**: Surveys, interviews, usage analytics for outcome validation
+- **tools**: [Typeform, Google Forms, custom Convex functions]
+- **data_residency**: Respective providers
+- **privacy**: GDPR/CCPA compliant; PII minimized
+- **gate_dependencies**: [1, 3, 4, 5] — baseline, mid, outcome
+
+---
+## Integration Health Checks
+
+Each integration **must** provide:
+1. `contracts/*.openapi.yaml` — machine-readable interface
+2. `monitors/*-health.yaml` — Prometheus-compatible health rules
+3. `fallback.md` — documented degradation procedure
+4. `gate_dependencies` — explicit gate coupling
+
+**No integration may be added without all four artifacts.**
