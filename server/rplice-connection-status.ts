@@ -10,6 +10,18 @@ export interface RpliceConnectionStatusOptions {
   now?: () => number;
 }
 
+function createTimeoutSignal(timeoutMs: number): { signal: AbortSignal; cleanup: () => void } {
+  if (typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") {
+    return { signal: AbortSignal.timeout(timeoutMs), cleanup: () => {} };
+  }
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  return {
+    signal: controller.signal,
+    cleanup: () => clearTimeout(timer),
+  };
+}
+
 export function resolveRpliceApiKey(explicit?: string): string {
   if (explicit !== undefined) return explicit;
   return process.env.RPLICE_API_KEY
@@ -32,11 +44,12 @@ export function createRpliceConnectionStatusHandler(options: RpliceConnectionSta
     }
 
     const startedAt = now();
+    const { signal, cleanup } = createTimeoutSignal(timeoutMs);
     try {
       const authHeader = "Bearer " + apiKey;
       const response = await fetchImpl(`${baseUrl}/api/v1/frameworks`, {
         headers: { Authorization: authHeader },
-        signal: AbortSignal.timeout(timeoutMs),
+        signal,
       });
 
       return res.status(response.ok ? 200 : 502).json({
@@ -50,6 +63,8 @@ export function createRpliceConnectionStatusHandler(options: RpliceConnectionSta
         reason: "RPLICE request failed",
         latencyMs: Math.max(0, now() - startedAt),
       });
+    } finally {
+      cleanup();
     }
   };
 }
