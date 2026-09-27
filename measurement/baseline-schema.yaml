@@ -1,0 +1,8 @@
+# Measurement Baseline Schema — Phase 0
+
+version: "0.1.0"
+
+---
+## Baseline Record
+
+Each commitment **must** capture a baseline at Gate 3 entry.
