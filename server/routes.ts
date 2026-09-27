@@ -222,6 +222,7 @@ import { chwRouter } from "./chw-routes";
 import { referralRouter } from "./referral-routes";
 import { capacityRouter, partnerCapacityRouter } from "./capacity-routes";
 import { funderRouter } from "./funder-routes";
+import { registerModalRoutes } from "./modal-gpu";
 
 const AI_TOOLS = [
   { toolKey: "presentation-builder", name: "Presentation Builder", description: "Create slide-by-slide presentations with AI-generated content, talking points, and visual suggestions", category: "create", iconName: "presentation", gradeBand: "all", requiredModuleKey: "ai-presentations", promptTemplate: "PRESENTATION_BUILDER", outputFormat: "slides", sortOrder: 1 },
@@ -682,6 +683,7 @@ export async function registerRoutes(
   registerTradeSimsTrialRoutes(app);
   registerStudioRoutes(app);
   registerEastAustinApprovalRoutes(app);
+  registerModalRoutes(app);
   // Idempotent demo seed for the Vann collaboration kit. Safe to call on every boot.
   seedVannDemo()
     .then((r) => { if (!r.skipped) console.log("[seed] Vann demo seeded:", r.orgs.join(", ")); })
