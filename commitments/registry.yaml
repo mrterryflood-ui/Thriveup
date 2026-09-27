@@ -1,0 +1,74 @@
+# Commitment Registry — Phase 0 Foundation
+
+version: "0.1.0"
+last_updated: "2026-09-26"
+
+---
+## Registry Rules
+
+1. **Every strategic commitment gets a unique `commitment_id`**
+2. **Format**: `cmt-{kebab-case-slug}` (e.g., `cmt-travis-county-retreat`)
+3. **Status transitions** follow RPLICE gates (see `governance/rplice/gates.md`)
+4. **Immutable once created** — corrections via new entry with `supersedes`
+5. **All fields required** unless marked optional
+
+---
+## Commitments
+
+```yaml
+- commitment_id: "cmt-travis-county-retreat"
+  title: "Travis County Strategic Planning Retreat"
+  description: "Facilitate 3-day strategic planning retreat for Travis County leadership to define 3-year priorities with measurable outcomes."
+  problem_statement: "County leadership lacks aligned, measurable 3-year strategic priorities, leading to fragmented initiatives and accountability gaps."
+  status: "initiated"
+  type: "engagement"
+  domain: "government"
+  steward: "act-terry-flood"
+  council_lead: "act-tbd"
+  created_at: "2026-09-26T14:30:00Z"
+  updated_at: "2026-09-26T14:30:00Z"
+  target_start: "2026-10-15"
+  target_end: "2026-12-15"
+  actual_start: null
+  actual_end: null
+  budget_usd: 75000
+  funding_source: "Travis County contract"
+  tags: ["strategic-planning", "facilitation", "texas", "county-government"]
+  mapgraph_node: "cmt-travis-county-retreat"
+  evidence_ledger: "evidence/ledger/cmt-travis-county-retreat.jsonl"
+  gates:
+    gate_0: "2026-09-26T14:30:00Z"
+    gate_1: null
+    gate_2: null
+    gate_3: null
+    gate_4: null
+    gate_5: null
+
+- commitment_id: "cmt-thriveup-implementation-intelligence"
+  title: "Thriveup Implementation Intelligence Platform"
+  description: "Build the governance, tooling, and practices for evidence-based implementation across all Thriveup commitments."
+  problem_statement: "Thriveup lacks a unified, auditable framework for turning strategy into verified outcomes, leading to inconsistent execution and unverifiable impact claims."
+  status: "initiated"
+  type: "internal"
+  domain: "platform"
+  steward: "act-terry-flood"
+  council_lead: "act-terry-flood"
+  created_at: "2026-09-26T14:30:00Z"
+  updated_at: "2026-09-26T14:30:00Z"
+  target_start: "2026-09-26"
+  target_end: "2026-10-31"
+  actual_start: "2026-09-26T14:30:00Z"
+  actual_end: null
+  budget_usd: 0
+  funding_source: "internal"
+  tags: ["governance", "platform", "rplice", "mapgraph", "evidence-ledger"]
+  mapgraph_node: "cmt-thriveup-implementation-intelligence"
+  evidence_ledger: "evidence/ledger/cmt-thriveup-implementation-intelligence.jsonl"
+  gates:
+    gate_0: "2026-09-26T14:30:00Z"
+    gate_1: null
+    gate_2: null
+    gate_3: null
+    gate_4: null
+    gate_5: null
+```
