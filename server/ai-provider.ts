@@ -4,7 +4,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { getCurrentCommunityContext } from "./community-context";
 import { getCurrentGraphContext } from "./knowledge-graph";
 
-type Provider = "modal" | "gemini" | "claude" | "openrouter-claude" | "openai" | "replit-ai-integrations" | "deepseek-r1" | "perplexity" | "perplexity-direct";
+type Provider = "modal" | "gemini" | "github-models" | "claude" | "openrouter-claude" | "openai" | "replit-ai-integrations" | "deepseek-r1" | "perplexity" | "perplexity-direct";
 
 /**
  * Direct Anthropic is a last-resort provider. Claude 3.x models are retired
@@ -194,6 +194,10 @@ export function getProviderOrder(environment: Record<string, string | undefined>
   const providers: Provider[] = [];
   // modal: self-hosted GPU inference (infra owned by us — zero external LLM spend)
   if (environment.THRIVEUP_MODAL_URL && environment.THRIVEUP_MODAL_KEY) providers.push("modal");
+  // github-models: Azure-hosted GPT via user's existing GitHub account
+  // (https://models.github.ai/inference). Zero new accounts/services needed —
+  // just one personal access token from github.com/marketplace/models.
+  if (environment.GITHUB_MODELS_API_KEY) providers.push("github-models");
   // openrouter-claude: uses OpenRouter to serve Claude — catches direct Anthropic failures
   if (environment.AI_INTEGRATIONS_OPENROUTER_API_KEY && environment.AI_INTEGRATIONS_OPENROUTER_BASE_URL) providers.push("openrouter-claude");
   if (environment.AI_INTEGRATIONS_OPENROUTER_API_KEY && environment.AI_INTEGRATIONS_OPENROUTER_BASE_URL) providers.push("perplexity");
@@ -233,6 +237,7 @@ function detectProvider(): Provider {
 
 const PROVIDER_CONFIG: Record<Provider, { model: string; isFree: boolean }> = {
   modal: { model: "thriveup-gpu", isFree: true },
+  "github-models": { model: "openai/gpt-4.1-mini", isFree: true },
   gemini: { model: "gemini-2.0-flash", isFree: true },
   claude: { model: "claude-haiku-4-5", isFree: false },
   "openrouter-claude": { model: "anthropic/claude-haiku-4-5", isFree: false },
@@ -809,6 +814,26 @@ async function tryProvider(provider: Provider, params: StreamAIResponseParams): 
     const result = await modalGenerate(fullPrompt, params.maxTokens || 2000);
     params.onChunk(result.completion);
     params.onDone();
+  } else if (provider === "github-models") {
+    const GITHUB_MODELS_MODEL = process.env.GITHUB_MODELS_MODEL || "openai/gpt-4.1-mini";
+    const resp = await fetch("https://models.github.ai/inference/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.GITHUB_MODELS_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: GITHUB_MODELS_MODEL,
+        messages: params.messages,
+        max_tokens: params.maxTokens || 1200,
+      }),
+      signal: AbortSignal.timeout(AI_PROVIDER_TIMEOUT_MS),
+    });
+    if (!resp.ok) throw new Error(`github-models stream ${resp.status}`);
+    const data = (await resp.json()) as { choices?: Array<{ message?: { content?: string } }> };
+    const content = data.choices?.[0]?.message?.content ?? "";
+    if (content) params.onChunk(content);
+    params.onDone();
   } else if (provider === "perplexity-direct") {
     // Direct Perplexity API isn't a token stream for us — request, then emit
     // the completion as one chunk.
@@ -995,6 +1020,28 @@ async function callProviderDirectWithSignal(
   // Persistent ethics/EI principle — applied to every direct (non-streaming,
   // non-JSON) provider call as well.
   systemPrompt = withEthicalPreamble(systemPrompt);
+  if (provider === "github-models") {
+    const GITHUB_MODELS_MODEL = process.env.GITHUB_MODELS_MODEL || "openai/gpt-4.1-mini";
+    const resp = await fetch("https://models.github.ai/inference/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.GITHUB_MODELS_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: GITHUB_MODELS_MODEL,
+        messages: [
+          ...(systemPrompt ? [{ role: "system", content: systemPrompt }] : []),
+          { role: "user", content: prompt },
+        ],
+        max_tokens: maxTokens || 1200,
+      }),
+      signal: AbortSignal.timeout(AI_PROVIDER_TIMEOUT_MS),
+    });
+    if (!resp.ok) throw new Error(`github-models ${resp.status}`);
+    const data = (await resp.json()) as { choices?: Array<{ message?: { content?: string } }> };
+    return data.choices?.[0]?.message?.content ?? "";
+  }
   if (provider === "modal") {
     // Self-hosted Modal GPU (vLLM). Fails loudly if the endpoint is down —
     // callers never receive invented substitute text.
