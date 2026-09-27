@@ -6704,7 +6704,7 @@ export const chainwebEdges = pgTable("chainweb_edges", {
   scenarioId: integer("scenario_id").notNull().references(() => chainwebScenarios.id, { onDelete: "cascade" }),
   fromNodeId: integer("from_node_id").notNull().references(() => chainwebNodes.id, { onDelete: "cascade" }),
   toNodeId: integer("to_node_id").notNull().references(() => chainwebNodes.id, { onDelete: "cascade" }),
-  coefficient: decimal("coefficient", { precision: 8, scale: 4 }).notNull(), // effect size: 0.34 = 34% change
+  coefficient: decimal("coefficient", { precision: 18, scale: 4 }).notNull(), // effect size (0.34 = 34%) OR dollar magnitude (e.g. -200000) depending on unit
   lagYears: integer("lag_years").default(0),
   direction: varchar("direction", { length: 10 }).default("positive"),  // positive | negative
   evidenceCitation: text("evidence_citation"),
@@ -6723,7 +6723,7 @@ export const chainwebCoefficients = pgTable("chainweb_coefficients", {
   toDomain: varchar("to_domain", { length: 50 }).notNull(),
   fromMetric: text("from_metric").notNull(),
   toMetric: text("to_metric").notNull(),
-  coefficient: decimal("coefficient", { precision: 8, scale: 4 }).notNull(),
+  coefficient: decimal("coefficient", { precision: 18, scale: 4 }).notNull(),
   direction: varchar("direction", { length: 10 }).default("positive"),
   lagYears: integer("lag_years").default(0),
   unit: text("unit"),
