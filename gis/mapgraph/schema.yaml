@@ -1,0 +1,20 @@
+# GIS / MAPGraph Schema — Phase 0 Foundation
+
+version: "0.1.0"
+namespace: "thriveup.mapgraph"
+
+---
+## Node Types
+
+### CommitmentNode
+- **id**: `cmt-{slug}` (matches commitments/registry.yaml)
+- **type**: `Commitment`
+- **label**: Human-readable name
+- **properties**:
+  - `problem_statement`: string (outcome-oriented)
+  - `status`: enum [initiated, planning, active, delivered, partial, failed, terminated]
+  - `start_date`: ISO 8601
+  - `target_end_date`: ISO 8601
+  - `actual_end_date`: ISO 8601 (optional)
+  - `steward`: actor_id
+  - `council_lead`: actor_id
