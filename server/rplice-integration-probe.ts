@@ -42,7 +42,7 @@ export async function runRpliceIntegrationProbeOnce(): Promise<{ ok: boolean; ch
     try {
       const authResp = await fetchWithTimeout(`${base}/api/v1/partner/execution/catalog`, {
         headers: {
-          Authorization: `******
+          Authorization: "Bearer " + key,
           "Content-Type": "application/json",
         },
       });

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { runRpliceIntegrationProbeOnce } from "./rplice-integration-probe";
+import { runRpliceIntegrationProbeOnce } from "./rplice-integration-probe.ts";
 
 type FetchFn = typeof fetch;
 
