@@ -877,7 +877,29 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
       const provider = providers[i];
       try {
         let text = "";
-      if (provider === "gemini") {
+      if (provider === "github-models") {
+        const GITHUB_MODELS_MODEL = process.env.GITHUB_MODELS_MODEL || "openai/gpt-4.1-mini";
+        const ghResp = await fetch("https://models.github.ai/inference/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${process.env.GITHUB_MODELS_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: GITHUB_MODELS_MODEL,
+            messages: [
+              ...(systemPrompt ? [{ role: "system", content: systemPrompt }] : []),
+              { role: "user", content: `${prompt}\n\nRespond with valid JSON only, no markdown.` },
+            ],
+            max_tokens: 4000,
+            response_format: { type: "json_object" },
+          }),
+          signal,
+        });
+        if (!ghResp.ok) throw new Error(`github-models JSON ${ghResp.status}`);
+        const ghData = (await ghResp.json()) as { choices?: Array<{ message?: { content?: string } }> };
+        text = ghData.choices?.[0]?.message?.content ?? "";
+      } else if (provider === "gemini") {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
         const model = genAI.getGenerativeModel({
           model: "gemini-2.0-flash",
