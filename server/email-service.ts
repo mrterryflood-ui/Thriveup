@@ -1,46 +1,10 @@
 import { Resend } from "resend";
 
 async function getResendClient() {
-  const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
-  const xReplitToken = process.env.REPL_IDENTITY
-    ? "repl " + process.env.REPL_IDENTITY
-    : process.env.WEB_REPL_RENEWAL
-      ? "depl " + process.env.WEB_REPL_RENEWAL
-      : null;
-
-  if (!xReplitToken || !hostname) {
-    throw new Error("Resend connector not available");
-  }
-
-  const connectionSettings = await fetch(
-    "https://" + hostname + "/api/v2/connection?include_secrets=true&connector_names=resend",
-    { headers: { Accept: "application/json", "X-Replit-Token": xReplitToken } }
-  )
-    .then((res) => res.json())
-    .then((data: any) => data.items?.[0]);
-
-  if (!connectionSettings?.settings?.api_key) {
-    throw new Error("Resend not connected");
-  }
-
-  const configuredFrom = connectionSettings.settings.from_email || "";
-  const isGmail = configuredFrom.toLowerCase().includes("gmail.com");
-  const isYahoo = configuredFrom.toLowerCase().includes("yahoo.com");
-  const isHotmail = configuredFrom.toLowerCase().includes("hotmail.com") || configuredFrom.toLowerCase().includes("outlook.com");
-  const useFreeProvider = isGmail || isYahoo || isHotmail || !configuredFrom;
-
-  const fromEmail = useFreeProvider
-    ? "ThriveUp Academy <onboarding@resend.dev>"
-    : configuredFrom;
-
-  if (useFreeProvider && configuredFrom) {
-    console.log(`[Email] Overriding from_email: "${configuredFrom}" is not a verified domain. Using Resend default sender. To fix permanently, verify your custom domain (e.g. thrivingcommunitiesforall.com) at https://resend.com/domains`);
-  }
-
-  return {
-    client: new Resend(connectionSettings.settings.api_key),
-    fromEmail,
-  };
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  if (!apiKey) throw new Error("RESEND_API_KEY is not configured");
+  const fromEmail = process.env.RESEND_FROM_EMAIL?.trim() || "ThriveUp Academy <onboarding@resend.dev>";
+  return { client: new Resend(apiKey), fromEmail };
 }
 
 const ADMIN_EMAIL = "Terryflood@thrivingcommunitiesforall.com";
@@ -461,7 +425,7 @@ export async function sendAIEngineAlert(opts: {
               <tbody>${engineRows}</tbody>
             </table>
             <p style="margin-top:16px;font-size:13px;color:#666">
-              Check deployment logs at <a href="https://thrivingcommunitiesforall.com">thrivingcommunitiesforall.com</a> → Replit dashboard for details.<br/>
+              Check deployment logs at <a href="https://thrivingcommunitiesforall.com">thrivingcommunitiesforall.com</a> → Vercel dashboard for details.<br/>
               Next automatic probe runs in 15 minutes.
             </p>
           </div>

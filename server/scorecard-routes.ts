@@ -12,7 +12,7 @@ import {
   insertPartnerOutcomeSchema,
 } from "../shared/schema";
 import { eq, desc, sql } from "drizzle-orm";
-import { isAuthenticated as requireAuth } from "./replit_integrations/auth/replitAuth";
+import { isAuthenticated as requireAuth } from "./platform/auth";
 
 export const scorecardRouter = Router();
 

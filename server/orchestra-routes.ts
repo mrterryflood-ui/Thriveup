@@ -16,7 +16,7 @@
 // endpoints must not trigger paid model calls).
 
 import type { Express, NextFunction, Request, Response } from "express";
-import { isAuthenticated } from "./replit_integrations/auth/replitAuth";
+import { isAuthenticated } from "./platform/auth";
 import { storage } from "./storage";
 import {
   getProviderInfo,
