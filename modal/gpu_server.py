@@ -78,7 +78,7 @@ class Model:
     image=server_image,
     secrets=[modal.Secret.from_name("thriveup-modal-key")],
 )
-@modal.web_endpoint(method="POST")
+@modal.fastapi_endpoint(method="POST")
 def generate(item: dict):
     from fastapi import HTTPException
 

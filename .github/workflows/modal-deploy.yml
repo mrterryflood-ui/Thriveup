@@ -1,0 +1,31 @@
+name: Deploy ThriveUp GPU server to Modal
+
+# Deploys the self-hosted narrative/AI GPU endpoint on push. First deploy
+# downloads the model (~5-8 min); subsequent deploys are fast.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "modal/**"
+  workflow_dispatch: {}
+
+jobs:
+  modal-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Modal
+        run: pip install modal
+
+      - name: Deploy GPU server
+        env:
+          MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+          GPU_CLASS: ${{ vars.MODAL_GPU_CLASS || 'L4' }}
+        run: GPU_CLASS="${GPU_CLASS:-L4}" modal deploy modal/gpu_server.py
