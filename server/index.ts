@@ -193,6 +193,14 @@ const bootPromise = (async () => {
     startPartnerApiContractProbe();
   }
 
+  // RPLICE integration synthetic probe — runs once after startup and then every
+  // 30 minutes. Verifies both the public research surface and authenticated
+  // partner execution catalog to detect upstream auth/connectivity blockages.
+  if (process.env.NODE_ENV === "production" && !onVercel) {
+    const { startRpliceIntegrationProbe } = await import("./rplice-integration-probe");
+    startRpliceIntegrationProbe();
+  }
+
   // Trade Sims daily digest — fires once every 24 hours. The function itself
   // is a no-op when there are no new signups.
   if (process.env.NODE_ENV === "production" && !onVercel) {

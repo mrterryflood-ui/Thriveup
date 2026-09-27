@@ -1323,6 +1323,17 @@ function AICommunityAnalysis() {
           focusAreas: focusAreas.split(",").map(s => s.trim()).filter(Boolean),
         }),
       });
+      if (!resp.ok) {
+        let reason = `HTTP ${resp.status}`;
+        try {
+          const body = await resp.json();
+          reason = body?.error || body?.message || reason;
+        } catch {
+          const text = await resp.text();
+          if (text) reason = text.slice(0, 240);
+        }
+        throw new Error(reason);
+      }
 
       const reader = resp.body?.getReader();
       if (!reader) throw new Error("No response stream");
@@ -1799,6 +1810,17 @@ function GrantNarrativeGenerator() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ stateFips, countyFips, cityName, grantName: selectedGrant }),
       });
+      if (!resp.ok) {
+        let reason = `HTTP ${resp.status}`;
+        try {
+          const body = await resp.json();
+          reason = body?.error || body?.message || reason;
+        } catch {
+          const text = await resp.text();
+          if (text) reason = text.slice(0, 240);
+        }
+        throw new Error(reason);
+      }
 
       const reader = resp.body?.getReader();
       if (!reader) throw new Error("No response stream");

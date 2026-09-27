@@ -909,7 +909,11 @@ function AppRouter() {
       <Route path="/ai-workforce" component={AIWorkforcePage} />
       <Route path="/pm-academy" component={PMAcademyPage} />
       <Route path="/directive-compliance" component={DirectiveCompliancePage} />
-      <Route path="/rplice-tools" component={RpliceToolsPage} />
+      <Route path="/rplice-tools">
+        <RequireAuth reason="RPLICE tools include assessment and planning data. Sign in to continue.">
+          <RpliceToolsPage />
+        </RequireAuth>
+      </Route>
       <Route path="/video-pipeline" component={VideoPipelinePage} />
       <Route path="/mce-contracts" component={MceContractsPage} />
       <Route path="/program-engine" component={ProgramEnginePage} />

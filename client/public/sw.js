@@ -45,10 +45,26 @@ async function trimCache(cacheName, maxEntries) {
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(STATIC_ASSETS))
+      .then(async (cache) => {
+        const results = await Promise.allSettled(
+          STATIC_ASSETS.map(async (assetPath) => {
+            try {
+              await cache.add(assetPath);
+              return null;
+            } catch {
+              return assetPath;
+            }
+          }),
+        );
+        const failed = results
+          .filter((r) => r.status === "fulfilled" && r.value)
+          .map((r) => r.value);
+        if (failed.length > 0) {
+          console.warn("[ServiceWorker] Some static assets were unavailable during install:", failed);
+        }
+      })
       .catch((error) => {
         console.error("[ServiceWorker] Static asset install failed:", error);
-        throw error;
       })
   );
   self.skipWaiting();

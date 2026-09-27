@@ -1,4 +1,4 @@
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { db } from "./storage";
 import { rpliceAssessments, rpliceActionPlans, outcomeBaselines, ecosystemPlatforms } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
@@ -374,12 +374,21 @@ export async function generateRpliceHeartbeatIntelligence(platformId: string): P
   };
 }
 
-export function requireEcosystemAuth(req: Request, res: Response, next: Function) {
-  const apiKey = req.headers["x-ecosystem-key"] as string;
-  if (!apiKey) {
+export async function requireEcosystemAuth(req: Request, res: Response, next: NextFunction) {
+  const apiKey = req.headers["x-ecosystem-key"] as string | undefined;
+  if (!apiKey || !apiKey.trim()) {
     return res.status(401).json({ error: "Missing x-ecosystem-key header" });
   }
-  next();
+  try {
+    const platform = await resolveplatformFromKey(apiKey.trim());
+    if (!platform) {
+      return res.status(403).json({ error: "Invalid ecosystem key" });
+    }
+    (req as any).ecosystemPlatform = platform;
+    next();
+  } catch (e: any) {
+    res.status(500).json({ error: e.message || "Ecosystem authentication failed" });
+  }
 }
 
 export async function resolveplatformFromKey(apiKey: string): Promise<any | null> {
@@ -391,8 +400,7 @@ export function registerEcosystemRpliceBridgeRoutes(app: Express) {
 
   app.get("/api/ecosystem/rplice/my-assignments", requireEcosystemAuth, async (req, res) => {
     try {
-      const apiKey = req.headers["x-ecosystem-key"] as string;
-      const platform = await resolveplatformFromKey(apiKey);
+      const platform = (req as any).ecosystemPlatform;
       if (!platform) return res.status(403).json({ error: "Invalid ecosystem key" });
 
       const intelligence = await generateRpliceHeartbeatIntelligence(platform.id);
@@ -418,8 +426,7 @@ export function registerEcosystemRpliceBridgeRoutes(app: Express) {
 
   app.post("/api/ecosystem/rplice/analyze", requireEcosystemAuth, async (req, res) => {
     try {
-      const apiKey = req.headers["x-ecosystem-key"] as string;
-      const platform = await resolveplatformFromKey(apiKey);
+      const platform = (req as any).ecosystemPlatform;
       if (!platform) return res.status(403).json({ error: "Invalid ecosystem key" });
 
       const { stateFips, countyFips, cityName } = req.body;
@@ -472,8 +479,7 @@ export function registerEcosystemRpliceBridgeRoutes(app: Express) {
 
   app.post("/api/ecosystem/rplice/narrative", requireEcosystemAuth, async (req, res) => {
     try {
-      const apiKey = req.headers["x-ecosystem-key"] as string;
-      const platform = await resolveplatformFromKey(apiKey);
+      const platform = (req as any).ecosystemPlatform;
       if (!platform) return res.status(403).json({ error: "Invalid ecosystem key" });
 
       const { stateFips, countyFips, cityName, grantName } = req.body;
@@ -545,8 +551,7 @@ export function registerEcosystemRpliceBridgeRoutes(app: Express) {
 
   app.post("/api/ecosystem/rplice/report-outcome", requireEcosystemAuth, async (req, res) => {
     try {
-      const apiKey = req.headers["x-ecosystem-key"] as string;
-      const platform = await resolveplatformFromKey(apiKey);
+      const platform = (req as any).ecosystemPlatform;
       if (!platform) return res.status(403).json({ error: "Invalid ecosystem key" });
 
       const { baselineId, metricKey, currentValue, evidenceUrl, notes } = req.body;
@@ -668,8 +673,7 @@ export function registerEcosystemRpliceBridgeRoutes(app: Express) {
 
   app.get("/api/ecosystem/rplice/intelligence-summary", requireEcosystemAuth, async (req, res) => {
     try {
-      const apiKey = req.headers["x-ecosystem-key"] as string;
-      const platform = await resolveplatformFromKey(apiKey);
+      const platform = (req as any).ecosystemPlatform;
       if (!platform) return res.status(403).json({ error: "Invalid ecosystem key" });
 
       const intelligence = await generateRpliceHeartbeatIntelligence(platform.id);
@@ -704,8 +708,7 @@ export function registerEcosystemRpliceBridgeRoutes(app: Express) {
   // Query params: q (required), condition, domain, limit (default 20)
   app.get("/api/ecosystem/rplice/research", requireEcosystemAuth, async (req, res) => {
     try {
-      const apiKey = req.headers["x-ecosystem-key"] as string;
-      const platform = await resolveplatformFromKey(apiKey);
+      const platform = (req as any).ecosystemPlatform;
       if (!platform) return res.status(403).json({ error: "Invalid ecosystem key" });
 
       const q = (req.query.q as string || "").trim();
@@ -801,8 +804,7 @@ export function registerEcosystemRpliceBridgeRoutes(app: Express) {
   // Query params: zip (optional), fips (optional) — if neither provided, uses platform's registered ZIP.
   app.get("/api/ecosystem/rplice/equity-analysis", requireEcosystemAuth, async (req, res) => {
     try {
-      const apiKey = req.headers["x-ecosystem-key"] as string;
-      const platform = await resolveplatformFromKey(apiKey);
+      const platform = (req as any).ecosystemPlatform;
       if (!platform) return res.status(403).json({ error: "Invalid ecosystem key" });
 
       const platformDomains = PLATFORM_RISK_RELEVANCE[platform.id] || [];
