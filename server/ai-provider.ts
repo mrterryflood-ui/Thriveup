@@ -4,7 +4,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { getCurrentCommunityContext } from "./community-context";
 import { getCurrentGraphContext } from "./knowledge-graph";
 
-type Provider = "gemini" | "claude" | "openrouter-claude" | "openai" | "replit-ai-integrations" | "deepseek-r1" | "perplexity";
+type Provider = "modal" | "gemini" | "claude" | "openrouter-claude" | "openai" | "replit-ai-integrations" | "deepseek-r1" | "perplexity";
 
 /**
  * Direct Anthropic is a last-resort provider. Claude 3.x models are retired
@@ -192,6 +192,8 @@ let geminiQuotaExhaustedUntil = 0;
 
 export function getProviderOrder(environment: Record<string, string | undefined>): Provider[] {
   const providers: Provider[] = [];
+  // modal: self-hosted GPU inference (infra owned by us — zero external LLM spend)
+  if (environment.THRIVEUP_MODAL_URL && environment.THRIVEUP_MODAL_KEY) providers.push("modal");
   // openrouter-claude: uses OpenRouter to serve Claude — catches direct Anthropic failures
   if (environment.AI_INTEGRATIONS_OPENROUTER_API_KEY && environment.AI_INTEGRATIONS_OPENROUTER_BASE_URL) providers.push("openrouter-claude");
   if (environment.AI_INTEGRATIONS_OPENROUTER_API_KEY && environment.AI_INTEGRATIONS_OPENROUTER_BASE_URL) providers.push("perplexity");
@@ -226,6 +228,7 @@ function detectProvider(): Provider {
 }
 
 const PROVIDER_CONFIG: Record<Provider, { model: string; isFree: boolean }> = {
+  modal: { model: "thriveup-gpu", isFree: true },
   gemini: { model: "gemini-2.0-flash", isFree: true },
   claude: { model: "claude-haiku-4-5", isFree: false },
   "openrouter-claude": { model: "anthropic/claude-haiku-4-5", isFree: false },
@@ -791,6 +794,16 @@ async function tryProvider(provider: Provider, params: StreamAIResponseParams): 
     await streamDeepSeekR1(params);
   } else if (provider === "perplexity") {
     await streamPerplexity(params);
+  } else if (provider === "modal") {
+    // Modal's vLLM server returns a full completion (no token streaming) —
+    // emit it as one chunk so streaming callers still get their contract.
+    const { modalGenerate } = await import("./modal-gpu");
+    const fullPrompt = params.messages
+      .map((m: { role: string; content: string }) => `${m.role}: ${m.content}`)
+      .join("\n\n");
+    const result = await modalGenerate(fullPrompt, params.maxTokens || 2000);
+    params.onChunk(result.completion);
+    params.onDone();
   } else {
     await streamOpenAI(params, provider);
   }
@@ -951,6 +964,19 @@ async function callProviderDirectWithSignal(
   // Persistent ethics/EI principle — applied to every direct (non-streaming,
   // non-JSON) provider call as well.
   systemPrompt = withEthicalPreamble(systemPrompt);
+  if (provider === "modal") {
+    // Self-hosted Modal GPU (vLLM). Fails loudly if the endpoint is down —
+    // callers never receive invented substitute text.
+    const { modalGenerate } = await import("./modal-gpu");
+    const fullPrompt = systemPrompt ? `${systemPrompt}\n\n${prompt}` : prompt;
+    const result = await Promise.race([
+      modalGenerate(fullPrompt, maxTokens || 2000),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("modal timeout")), AI_PROVIDER_TIMEOUT_MS),
+      ),
+    ]);
+    return result.completion;
+  }
   if (provider === "gemini") {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
     const model = genAI.getGenerativeModel({
