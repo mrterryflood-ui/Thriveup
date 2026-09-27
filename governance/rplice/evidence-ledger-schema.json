@@ -1,0 +1,6 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RPLICE Evidence Ledger Entry",
+  "type": "object",
+  "required": ["entry_id", "commitment_id", "timestamp", "gate", "type", "payload_hash", "payload_ref", "actor", "signature"]
+}
