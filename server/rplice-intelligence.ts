@@ -53,7 +53,7 @@ import { fetchZctaData, stateAbbrevFromZip } from "./neighborhood-routes";
 import { getCivicSignalRAGContextAsync } from "./civic-signal-connector";
 import { getChildCORECommunityData, buildChildCOREContextBlock } from "./childcore-connector";
 
-const RPLICE_BASE = "https://www.bettersciencelab.com";
+const RPLICE_BASE = process.env.RPLICE_BASE_URL || "https://www.bettersciencelab.com";
 
 // Bearer key — set RPLICE_API_KEY secret to unlock all /api/v1/* authenticated endpoints.
 // Without it, public endpoints still work; auth-gated calls return null gracefully.
@@ -85,6 +85,10 @@ async function fetchRpliceV1(path: string, timeout = 12000): Promise<any> {
       },
       signal: AbortSignal.timeout(timeout),
     });
+    if (resp.status === 401 || resp.status === 403) {
+      console.error(`[rplice] v1 auth refused (${resp.status}) on ${path} — check RPLICE_API_KEY on Vercel`);
+      return null;
+    }
     if (!resp.ok) return null;
     return await resp.json();
   } catch {

@@ -545,8 +545,9 @@ Write in the voice specified for this funder. Be specific. Every claim must refe
     res.end();
   });
 
-  const RPLICE_BASE = "https://www.bettersciencelab.com";
-  const RPLICE_API_KEY = process.env.THRIVE_GPP_API_KEY || process.env.THRIVEUP_INBOUND_KEY || process.env.THRIVE_GPP_API || process.env.RPLICE_API_KEY || "";
+  const RPLICE_BASE = process.env.RPLICE_BASE_URL || "https://www.bettersciencelab.com";
+  const RPLICE_API_KEY = process.env.RPLICE_API_KEY || process.env.THRIVE_GPP_API_KEY || process.env.THRIVEUP_INBOUND_KEY || process.env.THRIVE_GPP_API || "";
+  if (RPLICE_API_KEY && !RPLICE_API_KEY.startsWith("rplice_")) { console.warn("[rplice] RPLICE_API_KEY does not carry the rplice_ prefix — wrong scope?"); }
 
   async function fetchRplice(path: string): Promise<any> {
     try {
