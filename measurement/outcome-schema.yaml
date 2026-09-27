@@ -6,3 +6,85 @@ version: "0.1.0"
 ## Outcome Record
 
 Captured at Gate 5. Compares actuals to baseline targets.
+
+```yaml
+commitment_id: "cmt-{slug}"
+evaluated_at: "2026-12-15T10:00:00Z"
+evaluated_by: "act-{lead-id}"
+irp_verdict: "pass"  # pass | conditional_pass | hold | fail
+outcomes:
+  - metric_id: "msr-{commitment_id}-{slug}"
+    name: "Stakeholder alignment score"
+    baseline_value: 2.3
+    target_value: 4.0
+    actual_value: 4.2
+    achievement: "exceeded"  # exceeded | met | partial | missed
+    confidence: "high"  # high | medium | low
+    evidence_refs:
+      - "evt-{hash1}"
+      - "evt-{hash2}"
+    narrative: "Final survey (n=47) showed 4.2 avg vs. 2.3 baseline. IRP validated methodology."
+  - metric_id: "msr-{commitment_id}-budget-variance"
+    name: "Budget variance %"
+    baseline_value: 0.0
+    target_value: 5.0
+    actual_value: 3.7
+    achievement: "met"
+    confidence: "high"
+    evidence_refs:
+      - "evt-{hash3}"
+    narrative: "Final spend $1.037M vs. $1.0M plan. Within 5% threshold."
+  - metric_id: "msr-{commitment_id}-schedule-variance"
+    name: "Schedule variance (days)"
+    baseline_value: 0
+    target_value: 7
+    actual_value: 12
+    achievement: "missed"
+    confidence: "high"
+    evidence_refs:
+      - "evt-{hash4}"
+    narrative: "Delivered Dec 15 vs. Dec 3 target. Root cause: permit delay (risk risk-cmt-003)."
+```
+
+---
+## Achievement Classification
+
+| Classification | Criteria |
+|----------------|----------|
+| **exceeded** | Actual ≥ 110% of target (for positive metrics) or ≤ 90% (for negative metrics) |
+| **met** | Actual within ±10% of target |
+| **partial** | Actual within ±25% of target |
+| **missed** | Actual outside ±25% of target |
+
+*Directionality (higher=better vs. lower=better) defined per metric at baseline.*
+
+---
+## Confidence Levels
+
+| Level | Criteria |
+|-------|----------|
+| **high** | Multiple independent data sources; IRP verified collection methodology |
+| **medium** | Single reliable source; methodology sound but not independently audited |
+| **low** | Proxy data, significant assumptions, or incomplete collection |
+
+---
+## Overall Commitment Outcome
+
+Derived from metric achievements (Steward decision with IRP advisory):
+
+| Outcome | Rule |
+|---------|------|
+| **delivered** | All Outcome & Output metrics `met` or `exceeded`; no `missed` Process/Resource |
+| **partial** | ≥ 1 Outcome/Output `partial` or `missed`; no `missed` Resource; remediation plan |
+| **failed** | Any Outcome `missed` with no remediation; or Resource `missed` > 25% |
+| **terminated** | Steward halted before completion; outcomes recorded to date |
+
+---
+## Outcome Narrative Requirements
+
+Every metric **must** include:
+1. **Quantitative comparison** (baseline → target → actual)
+2. **Confidence assessment** with justification
+3. **Evidence references** (ledger entry IDs)
+4. **Root cause narrative** for any `partial` or `missed`
+5. **IRP validation statement** (quote or reference)
