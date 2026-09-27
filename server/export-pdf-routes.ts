@@ -445,7 +445,7 @@ export function registerExportPdfRoutes(app: Express) {
       }
 
       // Internally call the community-brief endpoint to get real data.
-      const briefRes = await fetch(`http://localhost:${process.env.PORT ?? 5000}/api/conductor/community-brief`, {
+      const briefRes = await fetch(`${process.env.VERCEL ? `https://${req.get("host")}` : `http://localhost:${process.env.PORT ?? 5000}`}/api/conductor/community-brief`, {
         method: "POST",
         // Accepted only from loopback by the conductor. The PDF route retains
         // its own public limiter, so a permitted PDF cache miss is not double

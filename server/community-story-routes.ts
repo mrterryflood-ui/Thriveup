@@ -87,9 +87,18 @@ function fmtDollar(n: number): string {
 }
 
 // ── Internal fetch helpers ────────────────────────────────────────────────────
-async function fetchCommunityBrief(location: string, populationSize?: number): Promise<Record<string, unknown>> {
-  const port = process.env.PORT ?? 5000;
-  const res = await fetch(`http://localhost:${port}/api/conductor/community-brief`, {
+
+// On Vercel serverless there is no localhost listener; self-call via origin.
+function selfOrigin(req?: { get(name: string): string | undefined }): string {
+  if (process.env.VERCEL) {
+    const host = req?.get?.("host");
+    if (host) return `https://${host}`;
+  }
+  return `http://localhost:${process.env.PORT ?? 5000}`;
+}
+
+async function fetchCommunityBrief(location: string, populationSize?: number, req?: { get(n: string): string | undefined }): Promise<Record<string, unknown>> {
+  const res = await fetch(`${selfOrigin()}/api/conductor/community-brief`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ location, populationSize: populationSize ?? 50000 }),
@@ -103,8 +112,7 @@ async function fetchCommunityBrief(location: string, populationSize?: number): P
 
 async function fetchGrantConduit(body: Record<string, unknown>): Promise<Record<string, unknown> | null> {
   try {
-    const port = process.env.PORT ?? 5000;
-    const res = await fetch(`http://localhost:${port}/api/grant-conduit/package`, {
+    const res = await fetch(`${selfOrigin()}/api/grant-conduit/package`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

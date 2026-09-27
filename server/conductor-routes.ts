@@ -1968,7 +1968,7 @@ export function registerConductorRoutes(app: Express) {
 
       const results = await Promise.allSettled(
         normalizedLocations.map((loc: string) =>
-          fetch(`http://localhost:5000/api/conductor/community-brief`, {
+          fetch(`${process.env.VERCEL && process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:5000"}/api/conductor/community-brief`, {
             method: "POST",
             headers: { "Content-Type": "application/json", cookie: forwardCookie },
             body: JSON.stringify({ location: loc, populationSize: 10000 }),

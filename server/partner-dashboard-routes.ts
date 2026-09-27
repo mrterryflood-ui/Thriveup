@@ -67,7 +67,8 @@ async function requireKey(req: Request, res: Response, next: NextFunction) {
 /** Proxy a GET request to the internal Partner API. */
 async function proxyGet(path: string, key: string): Promise<{ ok: boolean; data?: any; error?: string }> {
   try {
-    const res = await fetch(`http://localhost:5000${path}`, {
+    const selfBase = process.env.VERCEL && process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:5000";
+    const res = await fetch(`${selfBase}${path}`, {
       headers: { "x-partner-key": key, "Accept": "application/json" },
     });
     const data = await res.json();
@@ -255,7 +256,8 @@ export function registerPartnerDashboardRoutes(app: Express) {
         return res.status(422).json({ error: "Community story for this location does not yet have a valid evidence contract. Please wait for data to be refreshed." });
       }
 
-      const upstream = await fetch("http://localhost:5000/api/community-story/pdf", {
+      const pdfBase = process.env.VERCEL && process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:5000";
+      const upstream = await fetch(`${pdfBase}/api/community-story/pdf`, {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({ location, orgName, includeGrantData: true }),

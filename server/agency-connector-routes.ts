@@ -228,7 +228,7 @@ async function previewEndpoint(endpointId: string, location: string): Promise<{ 
   // so the preview still works even if the partner key is absent.
   const partnerKey   = process.env.THRIVEUP_PARTNER_KEY || "";
   const ecosystemKey = process.env.CIVIC_SIGNAL_ECOSYSTEM_KEY || "";
-  const base = "http://localhost:5000";
+  const base = process.env.VERCEL && process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:5000";
 
   const pathMap: Record<string, string> = {
     benefits:         "/api/partner/v1/benefits",
