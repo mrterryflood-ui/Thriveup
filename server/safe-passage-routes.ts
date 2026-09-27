@@ -1,5 +1,5 @@
 import type { Express, Request, Response, NextFunction } from "express";
-import { isAuthenticated } from "./replit_integrations/auth/replitAuth";
+import { isAuthenticated } from "./platform/auth";
 import { storage } from "./storage";
 
 // Canonical staff-role set — keep in lockstep with server/reentry-routes.ts /

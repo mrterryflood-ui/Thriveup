@@ -1,7 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { communityRouter } from "./community-api-routes";
-import { setupAuth, registerAuthRoutes } from "./replit_integrations/auth";
+import { setupAuth, registerAuthRoutes } from "./platform/auth";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 
@@ -30,7 +30,7 @@ app.get("/health", (_req, res) => {
 });
 
 app.get("/", (req, res, next) => {
-  if (req.headers["user-agent"]?.includes("HealthCheck") || req.headers["user-agent"]?.includes("Replit")) {
+  if (req.headers["user-agent"]?.includes("HealthCheck") || req.headers["user-agent"]?.includes("legacy provider")) {
     return res.status(200).send("ok");
   }
   next();
@@ -137,7 +137,7 @@ app.use((req, res, next) => {
 const bootPromise = (async () => {
   // Vercel sets VERCEL=1 in every deployment runtime. A serverless host has no
   // long-lived process: no boot migrations, no interval timers, no listen().
-  // Replit (VERCEL unset) runs the full boot exactly as before.
+  // legacy provider (VERCEL unset) runs the full boot exactly as before.
   const onVercel = process.env.VERCEL === "1" || process.env.VERCEL === "true";
   const port = parseInt(process.env.PORT || "5000", 10);
 
@@ -183,8 +183,8 @@ const bootPromise = (async () => {
   }
 
   // Partner API contract probe — runs once 90 s after production startup.
-  // Discovers the live production URL from REPLIT_DOMAINS (set to the
-  // .replit.app or custom-domain hostname in production containers) and probes
+  // Discovers the live production URL from APP_DOMAINS (set to the
+  // .legacy.invalid or custom-domain hostname in production containers) and probes
   // the Partner API surface credential-free.  Results are logged to stdout so
   // operators see them in the Deployments panel.  Failure does NOT crash the
   // server; it prints a clear "do NOT confirm integration live" message.
@@ -205,7 +205,7 @@ const bootPromise = (async () => {
   }
 
   // Gun violence registry sync — runs every 24 hours in any environment.
-  // Pulls current GVA incidents from gun-violence-registry.replit.app and
+  // Pulls current GVA incidents from gun-violence-registry.legacy.invalid and
   // upserts them locally.  Idempotent; errors are logged but never crash the server.
   // After each sync (success or failure) a 48h staleness check fires and emails
   // staff if no successful audit row exists within the last 48 hours.
@@ -257,14 +257,14 @@ const bootPromise = (async () => {
                   </tr>
                   <tr style="background:#f5f5f5">
                     <td style="padding:6px 10px;color:#666">Registry source:</td>
-                    <td style="padding:6px 10px">gun-violence-registry.replit.app</td>
+                    <td style="padding:6px 10px">gun-violence-registry.legacy.invalid</td>
                   </tr>
                 </table>
                 <div style="background:#fff3cd;border-left:4px solid #ffc107;padding:12px;border-radius:4px;margin-top:12px">
                   <strong>Recommended actions:</strong>
                   <ol style="margin:8px 0 0;padding-left:18px;font-size:13px">
                     <li>Check server logs for <code>[gv-sync]</code> errors around the last expected sync</li>
-                    <li>Verify <code>gun-violence-registry.replit.app</code> is reachable from this server</li>
+                    <li>Verify <code>gun-violence-registry.legacy.invalid</code> is reachable from this server</li>
                     <li>Trigger a manual sync via <code>POST /api/gun-violence/sync</code> (staff-gated)</li>
                     <li>Check <code>GET /api/gun-violence/imports</code> for the last successful audit row</li>
                   </ol>

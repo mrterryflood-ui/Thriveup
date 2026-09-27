@@ -15,7 +15,7 @@ import {
   cfirAssessments,
 } from "../shared/schema";
 import { eq, sql, and } from "drizzle-orm";
-import { isAuthenticated as requireAuth } from "./replit_integrations/auth/replitAuth";
+import { isAuthenticated as requireAuth } from "./platform/auth";
 
 export const equityRouter = Router();
 

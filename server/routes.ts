@@ -65,7 +65,7 @@ import { runFullIngestion, getContextForGeography, searchByState, searchByLocati
 import { db } from "./storage";
 import { streamAIResponse, getProviderInfo, withEthicalPreamble } from "./ai-provider";
 import { collaborativeStream, collaborativeResponse, collaborativeJSON, getCollaborativeStatus } from "./collaborative-ai";
-import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
+import { registerObjectStorageRoutes } from "./platform/blob";
 import { registerCrossPlatformRoutes } from "./cross-platform-api";
 import {
   SANKOFA_PRODUCT_LINES,
@@ -5467,7 +5467,7 @@ Then include a ## Roku & CTV Distribution section with:
   app.post("/api/admin/courses/:courseId/enroll", requireAuth, requireAdmin, async (req, res) => {
     try {
       const userId = getUserId(req)!;
-      const userName = req.headers["x-replit-user-name"] as string || "Student";
+      const userName = req.headers["x-user-name"] as string || "Student";
       const enrollment = await storage.createCourseEnrollment({
         courseId: req.params.courseId as string,
         userId,

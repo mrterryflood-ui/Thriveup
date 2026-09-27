@@ -13,7 +13,6 @@ import { withEthicalPreamble } from "./ai-provider";
 import { randomUUID, randomBytes, timingSafeEqual } from "crypto";
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
-import { ObjectStorageService } from "./replit_integrations/object_storage/objectStorage";
 import { fireWebhook } from "./webhook-dispatcher";
 import { sendFosterYouthOutcomeEmail } from "./email-service";
 
@@ -84,7 +83,7 @@ function tokensMatch(a?: string | null, b?: string | null): boolean {
 // Re-creates on process restart, which is acceptable — the floor is "no public abuse vector."
 //
 // Trust source: `req.ip` is reliable here because `app.set('trust proxy', 1)` is set by
-// server/replit_integrations/auth/replitAuth.ts at boot. We DO NOT read raw `x-forwarded-for`
+// server/platform/auth.ts at boot. We DO NOT read raw `x-forwarded-for`
 // (which is client-spoofable). The route id (intake id) is also derivable from the URL,
 // not the body, so it can't be lied about.
 type Bucket = { count: number; resetAt: number };
@@ -385,8 +384,6 @@ function pickIntakeFields(body: Record<string, unknown>): Partial<typeof fosterY
 }
 
 export function registerFosterYouthIntakeRoutes(app: Express): void {
-  const objectStorage = new ObjectStorageService();
-
   // Create a fresh intake. Server generates id + capability accessToken; client-supplied id/token are ignored.
   // Returns `accessToken` ONCE — caller is responsible for keeping it (intake.tsx persists to localStorage).
   app.post(
@@ -490,9 +487,10 @@ export function registerFosterYouthIntakeRoutes(app: Express): void {
         if ((docCount ?? 0) >= MAX_DOCS_PER_INTAKE) {
           return res.status(400).json({ error: `Document limit reached (max ${MAX_DOCS_PER_INTAKE})` });
         }
-        const uploadURL = await objectStorage.getObjectEntityUploadURL();
-        const objectPath = objectStorage.normalizeObjectEntityPath(uploadURL);
-        res.json({ uploadURL, objectPath, metadata: { filename: filename.slice(0, 300), contentType, size, docType } });
+        // Direct browser uploads are enabled with the new authenticated upload route.
+        // This capability-token route remains intentionally unavailable until the
+        // application authentication migration is complete.
+        res.status(503).json({ error: "Document uploads are temporarily unavailable while sign-in is being configured." });
       } catch (err: any) {
         console.error("[FosterYouth] upload URL failed:", err);
         res.status(500).json({ error: err.message ?? "Failed to mint upload URL" });

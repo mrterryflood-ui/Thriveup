@@ -5,7 +5,7 @@ import { db } from "./storage";
 import { hubMous, nationwideDiscoveries, insertHubMouSchema } from "@shared/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { getJurisdiction } from "@shared/nationwide/jurisdictions";
-import { isAuthenticated } from "./replit_integrations/auth/replitAuth";
+import { isAuthenticated } from "./platform/auth";
 
 export function registerMouRoutes(app: Express): void {
   // ---- MOU pipeline ----
