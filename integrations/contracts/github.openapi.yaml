@@ -1,0 +1,183 @@
+openapi: 3.1.0
+info:
+  title: Thriveup GitHub Integration Contract
+  version: 0.1.0
+  description: Machine-readable interface for GitHub operations used by RPLICE gates
+servers:
+  - url: https://api.github.com
+    description: GitHub REST API
+paths:
+  /repos/{owner}/{repo}/contents/{path}:
+    get:
+      summary: Get file contents
+      operationId: getFileContents
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema: {type: string}
+        - name: repo
+          in: path
+          required: true
+          schema: {type: string}
+        - name: path
+          in: path
+          required: true
+          schema: {type: string}
+        - name: ref
+          in: query
+          schema: {type: string}
+      responses:
+        '200':
+          description: File content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileContent'
+    put:
+      summary: Create or update file
+      operationId: putFileContents
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema: {type: string}
+        - name: repo
+          in: path
+          required: true
+          schema: {type: string}
+        - name: path
+          in: path
+          required: true
+          schema: {type: string}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WriteFileRequest'
+      responses:
+        '200':
+          description: File written
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriteFileResponse'
+  /repos/{owner}/{repo}/pulls:
+    post:
+      summary: Create pull request
+      operationId: createPullRequest
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema: {type: string}
+        - name: repo
+          in: path
+          required: true
+          schema: {type: string}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePRRequest'
+      responses:
+        '201':
+          description: PR created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PullRequest'
+  /repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs:
+    get:
+      summary: List workflow runs
+      operationId: listWorkflowRuns
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema: {type: string}
+        - name: repo
+          in: path
+          required: true
+          schema: {type: string}
+        - name: workflow_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        '200':
+          description: Workflow runs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WorkflowRun'
+components:
+  schemas:
+    FileContent:
+      type: object
+      properties:
+        name: {type: string}
+        path: {type: string}
+        sha: {type: string}
+        size: {type: integer}
+        content: {type: string, format: base64}
+        encoding: {type: string, enum: [base64]}
+    WriteFileRequest:
+      type: object
+      required: [message, content, branch]
+      properties:
+        message: {type: string}
+        content: {type: string, format: base64}
+        branch: {type: string}
+        sha: {type: string}
+    WriteFileResponse:
+      type: object
+      properties:
+        content: {$ref: '#/components/schemas/FileContent'}
+        commit: {type: object}
+    CreatePRRequest:
+      type: object
+      required: [title, head, base]
+      properties:
+        title: {type: string}
+        head: {type: string}
+        base: {type: string}
+        body: {type: string}
+        draft: {type: boolean, default: false}
+    PullRequest:
+      type: object
+      properties:
+        number: {type: integer}
+        html_url: {type: string, format: uri}
+        state: {type: string}
+        title: {type: string}
+        head: {type: object}
+        base: {type: object}
+    WorkflowRun:
+      type: object
+      properties:
+        id: {type: integer}
+        name: {type: string}
+        head_branch: {type: string}
+        head_sha: {type: string}
+        status: {type: string}
+        conclusion: {type: string}
+        html_url: {type: string, format: uri}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+security:
+  - github_app: []
+  - github_token: []
+securitySchemes:
+  github_app:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
+  github_token:
+    type: http
+    scheme: bearer
+    bearerFormat: Token
