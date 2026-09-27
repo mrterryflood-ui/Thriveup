@@ -1,0 +1,29 @@
+# Integration Registry — Phase 0 Foundation
+
+version: "0.1.0"
+last_updated: "2026-09-26"
+
+---
+## Integration Classification
+
+| Tier | Description | SLA | Review Cadence |
+|------|-------------|-----|----------------|
+| **Core** | Mission-critical; failure blocks Gates 3-5 | 99.9% uptime, < 5 min MTTR | Weekly |
+| **Standard** | Important; degradation affects velocity | 99.5% uptime, < 30 min MTTR | Bi-weekly |
+| **Experimental** | Exploratory; no gate dependency | Best effort | Monthly |
+
+---
+## Registered Integrations
+
+### 1. GitHub (Core)
+- **id**: `int-github`
+- **purpose**: Source of truth for code, issues, PRs, wiki, actions
+- **auth**: GitHub App (installed on mrterryflood-ui/Thriveup)
+- **scopes**: repo, issues, pull_requests, actions, contents, metadata
+- **webhooks**: push, pull_request, issues, workflow_run, release
+- **data_residency**: GitHub Cloud (US)
+- **rate_limits**: 5000 req/hr (app), 1000 req/hr (user)
+- **contract**: `integrations/contracts/github.openapi.yaml`
+- **monitoring**: `integrations/monitors/github-health.yaml`
+- **fallback**: Local git mirror (daily bundle)
+- **gate_dependencies**: [0, 1, 2, 3, 4, 5] — all gates
