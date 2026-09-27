@@ -1,0 +1,35 @@
+name: Migration Guard
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  migration-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run check
+
+      - name: Build
+        run: npm run build
+
+      - name: Migration manifest + preservation + RPLICE route tests
+        run: >-
+          npx tsx --test
+          server/__tests__/platform-migration-manifest.test.ts
+          server/__tests__/migration-preservation-contracts.test.ts
+          server/__tests__/rplice-connection-status.test.ts

@@ -1,0 +1,242 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-27",
+  "dependencies": [
+    {
+      "id": "replit-auth-oidc",
+      "category": "auth",
+      "affectedRoutesFeatures": [
+        "GET /api/login",
+        "GET /api/callback",
+        "GET /api/logout",
+        "Session-authenticated API routes"
+      ],
+      "currentImplementation": "Replit OIDC via server/replit_integrations/auth/replitAuth.ts",
+      "targetReplacement": "Staged dual-run auth provider with non-breaking session compatibility; no cutover until parity tests pass",
+      "requiredEnvironmentVariables": [
+        "REPL_ID",
+        "ISSUER_URL",
+        "SESSION_SECRET",
+        "DATABASE_URL"
+      ],
+      "dataAuthDependencies": [
+        "users table session identity",
+        "passport session state",
+        "authStorage user upserts"
+      ],
+      "testCases": [
+        "server/__tests__/migration-preservation-contracts.test.ts::auth contract",
+        "Existing auth-gated route behavior (401 when unauthenticated)"
+      ],
+      "rollbackMechanism": "Retain current replitAuth route and middleware wiring; revert replacement provider registration only",
+      "owner": "Platform Engineering",
+      "status": "active-preserve",
+      "formalRetirement": null
+    },
+    {
+      "id": "replit-object-storage-uploads",
+      "category": "object-storage",
+      "affectedRoutesFeatures": [
+        "POST /api/uploads/request-url",
+        "GET /objects/*path",
+        "Document upload flows"
+      ],
+      "currentImplementation": "Replit object storage route registration in server/replit_integrations/object_storage/routes.ts",
+      "targetReplacement": "Dual-write compatible signed-upload broker retaining existing route contract",
+      "requiredEnvironmentVariables": [
+        "PRIVATE_OBJECT_DIR"
+      ],
+      "dataAuthDependencies": [
+        "Authenticated user identity for upload ACL",
+        "Object ACL policy metadata"
+      ],
+      "testCases": [
+        "server/__tests__/migration-preservation-contracts.test.ts::upload contract"
+      ],
+      "rollbackMechanism": "Keep existing Replit object storage module mounted in server/routes.ts",
+      "owner": "Platform Engineering",
+      "status": "active-preserve",
+      "formalRetirement": null
+    },
+    {
+      "id": "replit-resend-connector",
+      "category": "email",
+      "affectedRoutesFeatures": [
+        "Email notifications",
+        "Staleness alert email paths"
+      ],
+      "currentImplementation": "Connector-aware resend client initialization in server/email-service.ts",
+      "targetReplacement": "Direct Resend key mode with staged fallback and parity verification",
+      "requiredEnvironmentVariables": [
+        "REPLIT_CONNECTORS_HOSTNAME",
+        "REPL_IDENTITY"
+      ],
+      "dataAuthDependencies": [
+        "Connector settings payload",
+        "sendEcosystemUpdate callers"
+      ],
+      "testCases": [
+        "Build/typecheck + manual smoke of email-service initialization paths"
+      ],
+      "rollbackMechanism": "Preserve connector lookup path and re-enable connector-backed client factory",
+      "owner": "Platform Engineering",
+      "status": "active-preserve",
+      "formalRetirement": null
+    },
+    {
+      "id": "replit-openai-evidence-synthesis",
+      "category": "ai-evidence-synthesis",
+      "affectedRoutesFeatures": [
+        "Evidence synthesis in AI provider pipeline",
+        "Provider intelligence evidence summaries"
+      ],
+      "currentImplementation": "Replit-managed OpenAI synthesis path in server/ai-provider.ts::synthesizeRetrievedEvidence",
+      "targetReplacement": "Provider-agnostic synthesis adapter that preserves bounded-source safety contract",
+      "requiredEnvironmentVariables": [
+        "AI_INTEGRATIONS_OPENAI_API_KEY",
+        "AI_INTEGRATIONS_OPENAI_BASE_URL"
+      ],
+      "dataAuthDependencies": [
+        "RetrievedEvidenceSource domain allowlist",
+        "Evidence source id citation filtering"
+      ],
+      "testCases": [
+        "server/__tests__/migration-preservation-contracts.test.ts::evidence synthesis contract"
+      ],
+      "rollbackMechanism": "Keep current Replit synthesis provider branch and model selection unchanged",
+      "owner": "Platform Engineering",
+      "status": "active-preserve",
+      "formalRetirement": null
+    },
+    {
+      "id": "replit-voice-module",
+      "category": "voice",
+      "affectedRoutesFeatures": [
+        "Voice project API endpoints",
+        "Voice insight generation surfaces"
+      ],
+      "currentImplementation": "Voice routing in server/voice-routes.ts plus Replit audio integration modules",
+      "targetReplacement": "Incremental voice service adapter while keeping route-level compatibility",
+      "requiredEnvironmentVariables": [
+        "AI_INTEGRATIONS_OPENAI_API_KEY",
+        "AI_INTEGRATIONS_OPENAI_BASE_URL"
+      ],
+      "dataAuthDependencies": [
+        "Voice project persistence",
+        "Admin-only moderation routes"
+      ],
+      "testCases": [
+        "server/__tests__/migration-preservation-contracts.test.ts::voice route/module presence"
+      ],
+      "rollbackMechanism": "Preserve existing voice route registration and audio integration modules",
+      "owner": "Platform Engineering",
+      "status": "active-preserve",
+      "formalRetirement": null
+    },
+    {
+      "id": "replit-chat-module",
+      "category": "chat",
+      "affectedRoutesFeatures": [
+        "Chat conversation routes",
+        "Conversation message streaming"
+      ],
+      "currentImplementation": "Replit chat routes/storage modules under server/replit_integrations/chat",
+      "targetReplacement": "Conversation service adapter with unchanged API paths",
+      "requiredEnvironmentVariables": [
+        "AI_INTEGRATIONS_OPENAI_API_KEY",
+        "AI_INTEGRATIONS_OPENAI_BASE_URL"
+      ],
+      "dataAuthDependencies": [
+        "Conversation owner identity",
+        "chat_conversations + chat_messages tables"
+      ],
+      "testCases": [
+        "server/__tests__/migration-preservation-contracts.test.ts::chat module presence"
+      ],
+      "rollbackMechanism": "Retain current chat integration module and route signatures",
+      "owner": "Platform Engineering",
+      "status": "active-preserve",
+      "formalRetirement": null
+    },
+    {
+      "id": "replit-image-generation-module",
+      "category": "image-generation",
+      "affectedRoutesFeatures": [
+        "POST /api/generate-image"
+      ],
+      "currentImplementation": "Replit image route/client modules under server/replit_integrations/image",
+      "targetReplacement": "Image generation provider adapter preserving endpoint and response contract",
+      "requiredEnvironmentVariables": [
+        "AI_INTEGRATIONS_OPENAI_API_KEY",
+        "AI_INTEGRATIONS_OPENAI_BASE_URL"
+      ],
+      "dataAuthDependencies": [
+        "Prompt payload validation",
+        "Generated image data response"
+      ],
+      "testCases": [
+        "server/__tests__/migration-preservation-contracts.test.ts::image module presence"
+      ],
+      "rollbackMechanism": "Keep existing image integration module and endpoint registration",
+      "owner": "Platform Engineering",
+      "status": "active-preserve",
+      "formalRetirement": null
+    },
+    {
+      "id": "scheduled-gun-violence-source-hostname",
+      "category": "scheduled-jobs",
+      "affectedRoutesFeatures": [
+        "Gun violence daily sync",
+        "Gun violence 48h staleness alert"
+      ],
+      "currentImplementation": "Source hostname references in server/index.ts",
+      "targetReplacement": "Host migration only after verified live endpoint evidence and parity sync audit",
+      "requiredEnvironmentVariables": [],
+      "dataAuthDependencies": [
+        "gun_violence_imports audit table",
+        "sendEcosystemUpdate alert path"
+      ],
+      "testCases": [
+        "server/__tests__/migration-preservation-contracts.test.ts::scheduled hostname contract"
+      ],
+      "rollbackMechanism": "Restore prior source hostname strings and retain existing sync schedule",
+      "owner": "Platform Engineering",
+      "status": "active-preserve",
+      "formalRetirement": null,
+      "externalHostnameChanges": [
+        {
+          "from": "gun-violence-registry.replit.app",
+          "to": "gun-violence-registry.legacy.invalid",
+          "sourcePullRequest": 6,
+          "decision": "reject-change-until-approved-migration"
+        }
+      ]
+    },
+    {
+      "id": "replit-domains-scheduled-probes",
+      "category": "scheduled-jobs",
+      "affectedRoutesFeatures": [
+        "Partner API contract probe",
+        "Community brief production probe",
+        "AI smoke test scheduler"
+      ],
+      "currentImplementation": "Production long-running schedule block in server/index.ts and probe helpers",
+      "targetReplacement": "Environment-aware scheduler abstraction preserving current non-serverless safety guard",
+      "requiredEnvironmentVariables": [
+        "NODE_ENV",
+        "REPLIT_DOMAINS"
+      ],
+      "dataAuthDependencies": [
+        "Probe response shape contracts",
+        "Alerting email path"
+      ],
+      "testCases": [
+        "Build/typecheck and scheduler-preservation static contract tests"
+      ],
+      "rollbackMechanism": "Keep current !onVercel scheduler guards and probe startup ordering",
+      "owner": "Platform Engineering",
+      "status": "active-preserve",
+      "formalRetirement": null
+    }
+  ]
+}
