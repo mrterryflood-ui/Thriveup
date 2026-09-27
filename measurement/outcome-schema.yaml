@@ -1,0 +1,8 @@
+# Measurement Outcome Schema — Phase 0
+
+version: "0.1.0"
+
+---
+## Outcome Record
+
+Captured at Gate 5. Compares actuals to baseline targets.
