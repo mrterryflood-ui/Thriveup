@@ -1032,6 +1032,43 @@ async function callProviderDirect(
   );
 }
 
+/**
+ * Health probe for the provider chain. Sends a trivial 8-token request to
+ * every configured provider and reports ok/fail per lane with a sanitized
+ * error message (never a key value, request header, or full response body).
+ */
+export async function callProviderDirectForHealth(): Promise<
+  Array<{ provider: string; model: string; status: "ok" | "fail"; latencyMs: number; error?: string }>
+> {
+  const providers = getAvailableProviders();
+  const report: Array<{ provider: string; model: string; status: "ok" | "fail"; latencyMs: number; error?: string }> = [];
+  for (const provider of providers) {
+    const started = Date.now();
+    try {
+      const text = await withTimeout(
+        callProviderDirect(provider, "Reply with exactly one word: healthy", undefined, 8),
+        30_000,
+        `${provider} health probe`,
+      );
+      report.push({
+        provider,
+        model: PROVIDER_CONFIG[provider]?.model ?? "unknown",
+        status: text && text.trim().length > 0 ? "ok" : "fail",
+        latencyMs: Date.now() - started,
+        ...(text && text.trim().length > 0 ? {} : { error: "empty response" }),
+      });
+    } catch (error) {
+      const raw = error instanceof Error ? error.message : String(error);
+      // Sanitize: strip anything that looks like a bearer token or long secret.
+      const sanitized = raw
+        .replace(/(sk-|pplx-|github_pat_|ghp_|AIza|npg_|rplice_)[A-Za-z0-9_\-]{8,}/g, "<redacted>")
+        .slice(0, 300);
+      report.push({ provider, model: PROVIDER_CONFIG[provider]?.model ?? "unknown", status: "fail", latencyMs: Date.now() - started, error: sanitized });
+    }
+  }
+  return report;
+}
+
 async function callProviderDirectWithSignal(
   provider: Provider,
   prompt: string,

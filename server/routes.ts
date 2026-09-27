@@ -63,7 +63,7 @@ import { computeFullThriveScore, computeAllStudentScores, getThriveHistory } fro
 import { evaluateFlags, getActiveFlags, resolveFlag, runEarlyWarningCheck } from "./early-warning";
 import { runFullIngestion, getContextForGeography, searchByState, searchByLocation, generateCommunityNarrative, getStateCoords, getStateName as gisGetStateName } from "./gis-engine";
 import { db } from "./storage";
-import { streamAIResponse, getProviderInfo, withEthicalPreamble } from "./ai-provider";
+import { streamAIResponse, getProviderInfo, withEthicalPreamble, callProviderDirectForHealth } from "./ai-provider";
 import { collaborativeStream, collaborativeResponse, collaborativeJSON, getCollaborativeStatus } from "./collaborative-ai";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { registerCrossPlatformRoutes } from "./cross-platform-api";
@@ -701,6 +701,19 @@ export async function registerRoutes(
   app.get("/api/ai-provider", (_req, res) => {
     try {
       res.json(getProviderInfo());
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Per-provider health probe: sends a trivial 1-token request through each
+  // configured provider and reports ok/fail with a sanitized error. Never
+  // echoes key values. Closes the "provider health monitoring" audit gap.
+  app.get("/api/ai-provider/health", async (_req, res) => {
+    try {
+      const report = await callProviderDirectForHealth();
+      res.setHeader("Cache-Control", "no-store");
+      res.json(report);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
