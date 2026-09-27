@@ -1604,7 +1604,7 @@ function AICommunityAnalysis() {
               RPLICE Research Library
               <InfoBubble title="RPLICE Research Library">
                 <div className="space-y-2">
-                  <p><strong>RPLICE</strong> = Research, Planning, Learning & Implementation Center of Excellence. This is Dr. Flood's external research platform at salp-science--mrterryflood.replit.app.</p>
+                  <p><strong>RPLICE</strong> = Research-to-Practice Lifecycle Implementation & Community Evidence. This is Dr. Flood's external research platform at https://www.bettersciencelab.com.</p>
                   <p>It contains a curated library of peer-reviewed implementation science research, organized by frameworks like CFIR (Consolidated Framework for Implementation Research) and RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance).</p>
                   <p>When you run an analysis, we query this library for studies relevant to your focus areas and feed them into the AI alongside the Census data — so the analysis is grounded in both real community data AND the scientific evidence base.</p>
                 </div>
@@ -2695,7 +2695,7 @@ export default function RpliceToolsPage() {
       <div>
         <h1 className="text-2xl font-bold" data-testid="text-page-title">RPLICE Implementation Science Toolkit</h1>
         <p className="text-muted-foreground">
-          Research, Planning, Learning & Implementation Center of Excellence
+          Research-to-Practice Lifecycle Implementation & Community Evidence
         </p>
       </div>
       <SectionTutorial {...SECTION_TUTORIALS["rplice-tools"]} />

@@ -413,7 +413,7 @@ export function registerRpliceToolsRoutes(app: Express) {
 
       const topHighRisk = regionData.highRiskTracts.slice(0, 6);
 
-      const systemPrompt = `You are a senior grant writer working for Dr. Terry Flood's RPLICE (Research, Planning, Learning & Implementation Center of Excellence). You specialize in writing compelling, data-driven grant narratives.
+      const systemPrompt = `You are a senior grant writer working for Dr. Terry Flood's RPLICE (Research-to-Practice Lifecycle Implementation & Community Evidence). You specialize in writing compelling, data-driven grant narratives.
 
 VOICE AND TONE FOR THIS GRANT:
 Funder: ${grantProfile.funder}
@@ -546,7 +546,7 @@ Write in the voice specified for this funder. Be specific. Every claim must refe
   });
 
   const RPLICE_BASE = process.env.RPLICE_BASE_URL || "https://www.bettersciencelab.com";
-  const RPLICE_API_KEY = process.env.RPLICE_API_KEY || process.env.THRIVE_GPP_API_KEY || process.env.THRIVEUP_INBOUND_KEY || process.env.THRIVE_GPP_API || "";
+  const RPLICE_API_KEY = process.env.RPLICE_API_KEY || "";
   if (RPLICE_API_KEY && !RPLICE_API_KEY.startsWith("rplice_")) { console.warn("[rplice] RPLICE_API_KEY does not carry the rplice_ prefix — wrong scope?"); }
 
   async function fetchRplice(path: string): Promise<any> {
@@ -682,7 +682,7 @@ Write in the voice specified for this funder. Be specific. Every claim must refe
         relevantResearch: (rpliceResearch || []).slice(0, 5).map((r: any) => r.title),
       };
 
-      const systemPrompt = `You are a senior implementation scientist and community development analyst working for Dr. Terry Flood's RPLICE (Research, Planning, Learning & Implementation Center of Excellence). Dr. Flood is a U.S. Army veteran (Bronze Star x2) with a DHA, MS Implementation Science, MA Psychology, MSHRM, MBA, MSCJ, and Public Policy credentials.
+      const systemPrompt = `You are a senior implementation scientist and community development analyst working for Dr. Terry Flood's RPLICE (Research-to-Practice Lifecycle Implementation & Community Evidence). Dr. Flood is a U.S. Army veteran (Bronze Star x2) with a DHA, MS Implementation Science, MA Psychology, MSHRM, MBA, MSCJ, and Public Policy credentials.
 
 Your analysis frameworks:
 - CFIR 2.0 (Consolidated Framework for Implementation Research)

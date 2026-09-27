@@ -544,7 +544,7 @@ ACKNOWLEDGE to confirm you are aware of Platform #20.`,
     content: `CRITICAL PROTOCOL UPDATE: Better Science Lab / RPLICE is now the mandatory quality gate for ALL ecosystem operations.
 
 WHAT THIS MEANS:
-RPLICE (Research, Planning, Logistics, Implementation, Compliance, Evaluation) is integrated into every step of what we do. Nothing leaves this ecosystem without RPLICE review. This is non-negotiable.
+RPLICE (Research-to-Practice Lifecycle Implementation & Community Evidence) is integrated into every step of what we do. Nothing leaves this ecosystem without RPLICE review. This is non-negotiable.
 
 RPLICE'S EXPANDED ROLE:
 1. GRANT SUBMISSIONS: RPLICE must review every grant narrative, budget, scope of work, and capability statement BEFORE submission. RPLICE knows the RFP/grant structure and provides feedback to ensure compliance.
