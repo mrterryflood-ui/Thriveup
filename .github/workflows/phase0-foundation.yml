@@ -1,0 +1,201 @@
+# Phase 0 Foundation Validation Workflow
+
+name: Phase 0 Foundation Validation
+on:
+  push:
+    branches: [feat/integrated-implementation-intelligence-foundation]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate-governance:
+    name: Validate Governance Artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Check required governance files exist
+        run: |
+          required_files=(
+            "governance/charter.md"
+            "governance/rplice/gates.md"
+            "governance/rplice/evidence-ledger-schema.json"
+            "governance/independent-review/protocol.md"
+            "gis/mapgraph/schema.yaml"
+            "integrations/registry.yaml"
+            "integrations/contracts/github.openapi.yaml"
+            "integrations/verify-ledger.py"
+            "integrations/monitors/github-health.yaml"
+            "measurement/baseline-schema.yaml"
+            "measurement/outcome-schema.yaml"
+            "commitments/registry.yaml"
+          )
+          for f in "${required_files[@]}"; do
+            if [[ ! -f "$f" ]]; then
+              echo "✗ Missing required file: $f"
+              exit 1
+            fi
+            echo "✓ Found: $f"
+          done
+      
+      - name: Validate YAML syntax
+        run: |
+          find . -name "*.yaml" -o -name "*.yml" | while read f; do
+            python3 -c "import yaml; yaml.safe_load(open('$f'))" && echo "✓ $f" || { echo "✗ $f - invalid YAML"; exit 1; }
+          done
+      
+      - name: Validate JSON schemas
+        run: |
+          find . -name "*.json" | while read f; do
+            python3 -c "import json; json.load(open('$f'))" && echo "✓ $f" || { echo "✗ $f - invalid JSON"; exit 1; }
+          done
+      
+      - name: Validate evidence ledger schema
+        run: |
+          python3 -c "
+import json
+with open('governance/rplice/evidence-ledger-schema.json') as f:
+    schema = json.load(f)
+assert schema['\$schema'] == 'http://json-schema.org/draft-07/schema#'
+assert 'required' in schema
+print('✓ Evidence ledger schema valid')
+"
+
+  validate-mapgraph:
+    name: Validate MAPGraph Schema
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check MAPGraph schema structure
+        run: |
+          python3 -c "
+import yaml
+with open('gis/mapgraph/schema.yaml') as f:
+    schema = yaml.safe_load(f)
+assert 'version' in schema
+assert 'namespace' in schema
+assert schema['version'] == '0.1.0'
+assert schema['namespace'] == 'thriveup.mapgraph'
+print('✓ MAPGraph schema structure valid')
+"
+
+  validate-integrations:
+    name: Validate Integration Registry
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check integration registry completeness
+        run: |
+          python3 -c "
+import yaml
+with open('integrations/registry.yaml') as f:
+    reg = yaml.safe_load(f)
+assert 'version' in reg
+print('✓ Integration registry structure valid')
+"
+      - name: Validate OpenAPI contracts
+        run: |
+          python3 -c "
+import yaml
+with open('integrations/contracts/github.openapi.yaml') as f:
+    spec = yaml.safe_load(f)
+assert spec['openapi'] == '3.1.0'
+assert 'info' in spec
+assert 'paths' in spec
+print('✓ GitHub OpenAPI contract valid')
+"
+
+  validate-measurement:
+    name: Validate Measurement Schemas
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check baseline schema
+        run: |
+          python3 -c "
+import yaml
+with open('measurement/baseline-schema.yaml') as f:
+    schema = yaml.safe_load(f)
+assert 'version' in schema
+assert schema['version'] == '0.1.0'
+print('✓ Baseline schema valid')
+"
+      - name: Check outcome schema
+        run: |
+          python3 -c "
+import yaml
+with open('measurement/outcome-schema.yaml') as f:
+    schema = yaml.safe_load(f)
+assert 'version' in schema
+assert schema['version'] == '0.1.0'
+print('✓ Outcome schema valid')
+"
+
+  validate-commitments:
+    name: Validate Commitment Registry
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check registry structure
+        run: |
+          python3 -c "
+import yaml
+with open('commitments/registry.yaml') as f:
+    reg = yaml.safe_load(f)
+assert 'version' in reg
+content = open('commitments/registry.yaml').read()
+assert 'cmt-travis-county-retreat' in content
+assert 'cmt-thriveup-implementation-intelligence' in content
+print('✓ Commitment registry valid')
+"
+
+  verify-ledger-tool:
+    name: Verify Ledger Tool Runs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run ledger verification (dry-run)
+        run: |
+          python3 integrations/verify-ledger.py --help
+          echo "✓ verify-ledger.py executable"
+
+  check-no-secrets:
+    name: Ensure No Secrets in Repo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Scan for potential secrets
+        run: |
+          patterns=(
+            "AKIA[0-9A-Z]{16}"
+            "ghp_[0-9a-zA-Z]{36}"
+            "ghs_[0-9a-zA-Z]{36}"
+            "vercel_[0-9a-zA-Z]+"
+            "neon_[0-9a-zA-Z]+"
+            "sk_live_[0-9a-zA-Z]+"
+          )
+          found=false
+          for pattern in "${patterns[@]}"; do
+            if grep -rE "$pattern" --exclude-dir=.git . 2>/dev/null; then
+              echo "✗ Potential secret found matching: $pattern"
+              found=true
+            fi
+          done
+          if [[ "$found" == "true" ]]; then
+            exit 1
+          fi
+          echo "✓ No obvious secrets detected"
+
+  summary:
+    name: Phase 0 Validation Summary
+    runs-on: ubuntu-latest
+    needs: [validate-governance, validate-mapgraph, validate-integrations, validate-measurement, validate-commitments, verify-ledger-tool, check-no-secrets]
+    steps:
+      - name: All checks passed
+        run: echo "✅ Phase 0 Foundation validation complete — ready for PR"

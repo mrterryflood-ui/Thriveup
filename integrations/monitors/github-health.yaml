@@ -1,0 +1,118 @@
+# GitHub Integration Health Monitor
+
+version: "0.1.0"
+integration_id: "int-github"
+
+---
+## Prometheus Rules
+
+groups:
+  - name: github-health
+    interval: 60s
+    rules:
+      # API Availability
+      - alert: GitHubAPIUnavailable
+        expr: |
+          up{job="github-api"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          tier: core
+        annotations:
+          summary: "GitHub API unavailable"
+          description: "GitHub API has been down for 2 minutes. All gates blocked."
+          runbook: "integrations/runbooks/github-api-down.md"
+      
+      # Rate Limit Headroom
+      - alert: GitHubRateLimitLow
+        expr: |
+          (github_rate_limit_remaining / github_rate_limit_limit) < 0.1
+        for: 5m
+        labels:
+          severity: warning
+          tier: core
+        annotations:
+          summary: "GitHub rate limit < 10% remaining"
+          description: "Rate limit headroom critically low. May block gate operations."
+          runbook: "integrations/runbooks/github-rate-limit.md"
+      
+      # Webhook Delivery Success
+      - alert: GitHubWebhookFailures
+        expr: |
+          rate(github_webhook_delivery_failures_total[5m]) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+          tier: core
+        annotations:
+          summary: "GitHub webhook failure rate > 5%"
+          description: "Webhook deliveries failing. Gate events may be missed."
+          runbook: "integrations/runbooks/github-webhook-failures.md"
+      
+      # Workflow Run Duration (gate-critical workflows)
+      - alert: GitHubGateWorkflowStuck
+        expr: |
+          github_workflow_run_duration_seconds{workflow=~"gate-.*"} > 1800
+        for: 10m
+        labels:
+          severity: warning
+          tier: core
+        annotations:
+          summary: "Gate workflow running > 30 minutes"
+          description: "Critical gate workflow appears stuck. Manual intervention may be needed."
+          runbook: "integrations/runbooks/github-workflow-stuck.md"
+
+---
+## Synthetic Checks (GitHub Actions)
+
+```yaml
+# .github/workflows/integration-health-github.yml
+name: GitHub Integration Health
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # Every 15 minutes
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check API reachability
+        run: |
+          curl -sf -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/mrterryflood-ui/Thriveup > /dev/null
+      - name: Check rate limit
+        run: |
+          curl -sf -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/rate_limit | jq '.resources.core.remaining'
+      - name: Verify webhook endpoint
+        run: |
+          curl -sf -X POST ${{ secrets.GITHUB_WEBHOOK_URL }}/health > /dev/null
+```
+
+---
+## SLA Dashboard Queries
+
+- **Availability**: `avg_over_time(up{job="github-api"}[30d])` → target ≥ 0.999
+- **Latency p95**: `histogram_quantile(0.95, github_api_request_duration_seconds_bucket)` → target < 2s
+- **Rate limit consumption**: `avg(github_rate_limit_used / github_rate_limit_limit)` → target < 0.5
+
+---
+## Fallback Activation
+
+Triggered by: `GitHubAPIUnavailable` alert firing for > 5 minutes
+
+Procedure:
+1. Switch to local git mirror for read operations
+2. Queue write operations (PR creation, file updates) for replay
+3. Notify Council via Slack/email
+4. Resume normal operations when alert clears
+5. Replay queued writes
+
+---
+## Runbook References
+
+- `integrations/runbooks/github-api-down.md`
+- `integrations/runbooks/github-rate-limit.md`
+- `integrations/runbooks/github-webhook-failures.md`
+- `integrations/runbooks/github-workflow-stuck.md`
