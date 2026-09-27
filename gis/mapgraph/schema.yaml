@@ -18,3 +18,122 @@ namespace: "thriveup.mapgraph"
   - `actual_end_date`: ISO 8601 (optional)
   - `steward`: actor_id
   - `council_lead`: actor_id
+
+### WorkPackageNode
+- **id**: `wp-{commitment_id}-{seq}`
+- **type**: `WorkPackage`
+- **label**: Short title
+- **properties**:
+  - `commitment_id`: ref → CommitmentNode
+  - `owner`: actor_id
+  - `status`: enum [not_started, in_progress, blocked, done, cancelled]
+  - `start_date`: ISO 8601 (planned)
+  - `end_date`: ISO 8601 (planned)
+  - `actual_start`: ISO 8601 (optional)
+  - `actual_end`: ISO 8601 (optional)
+  - `dependencies`: [wp_id, ...]
+  - `definition_of_done`: string
+
+### RiskNode
+- **id**: `risk-{commitment_id}-{seq}`
+- **type**: `Risk`
+- **label**: Risk title
+- **properties**:
+  - `commitment_id`: ref → CommitmentNode
+  - `probability`: enum [very_low, low, medium, high, very_high]
+  - `impact`: enum [very_low, low, medium, high, very_high]
+  - `score`: string (derived: probability × impact)
+  - `mitigation`: string
+  - `owner`: actor_id
+  - `status`: enum [open, mitigating, monitoring, closed]
+  - `residual_score`: string (after mitigation)
+
+### MeasurementNode
+- **id**: `msr-{commitment_id}-{metric_slug}`
+- **type**: `Measurement`
+- **label**: Metric name
+- **properties**:
+  - `commitment_id`: ref → CommitmentNode
+  - `metric_type`: enum [leading, lagging, baseline, outcome]
+  - `unit`: string
+  - `baseline_value`: number (optional)
+  - `target_value`: number (optional)
+  - `current_value`: number (optional)
+  - `measurement_cadence`: string (e.g., "weekly", "at_gate_4")
+  - `data_source`: string (ref to evidence ledger entry)
+
+### ReviewNode
+- **id**: `rev-{commitment_id}-gate{gate_num}-{seq}`
+- **type**: `Review`
+- **label**: Review identifier
+- **properties**:
+  - `commitment_id`: ref → CommitmentNode
+  - `gate`: integer (3 or 5)
+  - `reviewers`: [actor_id, ...]
+  - `verdict`: enum [pass, conditional_pass, hold, fail]
+  - `conditions`: [string, ...] (if conditional/hold)
+  - `report_ref`: string (path to review artifact)
+  - `completed_at`: ISO 8601
+
+### ActorNode
+- **id**: `act-{slug}`
+- **type**: `Actor`
+- **label**: Name
+- **properties**:
+  - `role`: enum [steward, council, lead, reviewer, evidence_steward, stakeholder]
+  - `email`: string
+  - `independence_confirmed`: boolean
+  - `conflict_declared`: boolean
+
+---
+## Edge Types
+
+| Edge Type | Source | Target | Properties |
+|-----------|--------|--------|------------|
+| `HAS_WORK_PACKAGE` | CommitmentNode | WorkPackageNode | `sequence`: integer |
+| `DEPENDS_ON` | WorkPackageNode | WorkPackageNode | `type`: enum [finish_to_start, start_to_start, finish_to_finish, start_to_finish] |
+| `HAS_RISK` | CommitmentNode | RiskNode | — |
+| `OWNS_RISK` | ActorNode | RiskNode | — |
+| `HAS_MEASUREMENT` | CommitmentNode | MeasurementNode | — |
+| `HAS_REVIEW` | CommitmentNode | ReviewNode | `gate`: integer |
+| `CONDUCTED_BY` | ReviewNode | ActorNode | `role`: enum [chair, member] |
+| `RESPONSIBLE_FOR` | ActorNode | WorkPackageNode | — |
+| `STEWARDS` | ActorNode | CommitmentNode | — |
+
+---
+## MAPGraph Conventions
+
+1. **All nodes and edges are immutable once written** — corrections via new nodes/edges with `supersedes` property.
+2. **Every node must have at least one evidence ledger entry** referencing its creation.
+3. **Graph queries use Cypher-like syntax** (implementation: Neo4j-compatible or in-memory for Phase 0).
+4. **Visualization** — Mermaid.js for docs; Graphviz for exports.
+
+---
+## Example Minimal Graph (YAML)
+
+```yaml
+nodes:
+  - id: cmt-travis-retreat
+    type: Commitment
+    label: "Travis County Strategic Planning Retreat"
+    properties:
+      problem_statement: "Align county leadership on 3-yr strategic priorities with measurable outcomes"
+      status: initiated
+      start_date: "2026-09-26"
+      target_end_date: "2026-12-15"
+      steward: act-terry-flood
+      council_lead: act-tbd
+  - id: act-terry-flood
+    type: Actor
+    label: "Terry Flood"
+    properties:
+      role: steward
+      email: "terry@thriveup.org"
+      independence_confirmed: true
+      conflict_declared: false
+
+edges:
+  - type: STEWARDS
+    source: act-terry-flood
+    target: cmt-travis-retreat
+```

@@ -2,5 +2,65 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "RPLICE Evidence Ledger Entry",
   "type": "object",
-  "required": ["entry_id", "commitment_id", "timestamp", "gate", "type", "payload_hash", "payload_ref", "actor", "signature"]
+  "required": ["entry_id", "commitment_id", "timestamp", "gate", "type", "payload_hash", "payload_ref", "actor", "signature"],
+  "properties": {
+    "entry_id": {
+      "type": "string",
+      "pattern": "^evt-[a-f0-9]{12}$",
+      "description": "Globally unique event identifier"
+    },
+    "commitment_id": {
+      "type": "string",
+      "pattern": "^cmt-[a-z0-9-]{8,}$",
+      "description": "Links to commitments/registry.yaml"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC when entry created"
+    },
+    "gate": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 5,
+      "description": "RPLICE gate number (0-5)"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["genesis", "artifact", "decision", "measurement", "review", "variance", "lesson", "seal"],
+      "description": "Entry classification"
+    },
+    "payload_hash": {
+      "type": "string",
+      "pattern": "^sha256-[a-f0-9]{64}$",
+      "description": "SHA-256 of the referenced artifact"
+    },
+    "payload_ref": {
+      "type": "string",
+      "description": "Relative path to artifact in repo (e.g., plans/cmt-abc/wbs.yaml)"
+    },
+    "actor": {
+      "type": "object",
+      "required": ["id", "role"],
+      "properties": {
+        "id": {"type": "string"},
+        "role": {"type": "string", "enum": ["steward", "council", "lead", "reviewer", "evidence-steward", "system"]}
+      }
+    },
+    "signature": {
+      "type": "object",
+      "required": ["algorithm", "value", "key_id"],
+      "properties": {
+        "algorithm": {"type": "string", "const": "Ed25519"},
+        "value": {"type": "string", "description": "Base64 signature over payload_hash"},
+        "key_id": {"type": "string", "description": "Key identifier for verification"}
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Extensible metadata (tags, correlations, etc.)"
+    }
+  },
+  "additionalProperties": false
 }
