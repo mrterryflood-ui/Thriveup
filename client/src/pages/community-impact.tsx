@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CommunityEvidencePanel } from "@/components/community-evidence-panel";
+import { HazardContextSection } from "@/components/hazard-context-card";
 import { EvidenceSummary } from "@/components/evidence-label";
 import { AIAugmentationDisclosure } from "@/components/ai-augmentation-disclosure";
 import { VisualIntelligenceShell } from "@/components/gis/VisualIntelligenceShell";
@@ -1710,6 +1711,10 @@ export default function CommunityImpactPage() {
 
             {/* Counterfactual */}
             {data.cascade && <CounterfactualPanel cascade={data.cascade} />}
+
+            {/* Hazard context, bridged from HazardAware through the partner
+                exchange. Unconfigured or unreachable says so; never calm. */}
+            <HazardContextSection />
 
             {/* Solutions */}
             <SolutionsLayer solutions={data.solutions} policyContext={data.policyContext} />

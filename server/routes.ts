@@ -611,6 +611,8 @@ export async function registerRoutes(
   registerEcosystemCapacityRoutes(app);
   registerTranslateRoutes(app);
   registerEcosystemConnectorRoutes(app);
+  const { registerHazardawareRoutes } = await import("./hazardaware-routes");
+  registerHazardawareRoutes(app);
   registerRAGRoutes(app);
   registerFacilitatorRoutes(app);
   registerMetricsRoutes(app);
