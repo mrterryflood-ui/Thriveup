@@ -23,6 +23,18 @@ export type ConsentScope =
   | "share_with_research"
   | "community_intelligence";
 
+/** Runtime list of valid scopes — used by API routes to validate input. */
+export const CONSENT_SCOPES: ConsentScope[] = [
+  "share_with_funder",
+  "include_in_report",
+  "name_me_publicly",
+  "share_story",
+  "export_data",
+  "record_outcome",
+  "share_with_research",
+  "community_intelligence",
+];
+
 /**
  * Check if a specific user has consented to a specific data use.
  * Returns false by default (default-off). A DB error also returns false.

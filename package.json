@@ -15,7 +15,8 @@
     "verify:complete": "node scripts/verify-complete.mjs",
     "db:push": "drizzle-kit push",
     "verify:gpp-opportunity-loop": "npx tsx scripts/verify-gpp-opportunity-loop.ts",
-    "verify:gpp-opportunity-stub": "npx tsx scripts/verify-gpp-opportunity-stub.ts"
+    "verify:gpp-opportunity-stub": "npx tsx scripts/verify-gpp-opportunity-stub.ts",
+    "test": "tsx --test server/__tests__/*.test.ts server/*.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.96.0",

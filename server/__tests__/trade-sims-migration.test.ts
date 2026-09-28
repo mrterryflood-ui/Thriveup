@@ -18,6 +18,24 @@ import { runMigrations } from "../run-migrations";
 
 const NEW_COLUMNS = ["solo_passed", "stretch_passed", "mastery_override", "override_note", "weak_concepts"];
 
+// Integration test guard — this suite mutates a live database, so it requires
+// a reachable DATABASE_URL. When no database is reachable (sandbox/CI runs)
+// it skips with a NAMED reason per doctrine: never silently, never as pass.
+async function databaseReachable(): Promise<boolean> {
+  const client = new pg.Client({
+    connectionString: process.env.DATABASE_URL,
+    connectionTimeoutMillis: 1500,
+  });
+  try {
+    await client.connect();
+    await client.end();
+    return true;
+  } catch {
+    return false;
+  }
+}
+const dbReady = await databaseReachable();
+
 async function withClient<T>(fn: (c: pg.Client) => Promise<T>): Promise<T> {
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL });
   await client.connect();
@@ -42,7 +60,7 @@ async function tableExists(c: pg.Client, name: string): Promise<boolean> {
   return r.rows[0].reg !== null;
 }
 
-test("deployment path upgrades a prior-schema database and is idempotent", async () => {
+test("deployment path upgrades a prior-schema database and is idempotent", { skip: dbReady ? false : "no reachable DATABASE_URL (integration test requires a live database)" }, async () => {
   // 1. Simulate a deployed database that never received the new schema.
   await withClient(async (c) => {
     await c.query(`DROP TABLE IF EXISTS trade_sims_attempt_events`);
