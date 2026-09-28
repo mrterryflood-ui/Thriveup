@@ -857,10 +857,23 @@ async function tryProvider(provider: Provider, params: StreamAIResponseParams): 
       signal: AbortSignal.timeout(AI_PROVIDER_TIMEOUT_MS),
     });
     if (!resp.ok) throw new Error(`perplexity-direct agent ${resp.status}`);
-    // Raw REST response: answer text lives at output[0].content[0].text
-    // (output_text is an SDK convenience, not a JSON field).
-    const data = (await resp.json()) as { output?: Array<{ content?: Array<{ text?: string }> }> };
-    const content = data.output?.[0]?.content?.[0]?.text ?? "";
+    // Raw REST response: the answer text is in output[] items of type
+    // "message" -> content[] entries of type "output_text" (output_text as a
+    // single field is an SDK convenience, not present in raw JSON). Reasoning
+    // and tool-call items can precede the message, so filter, don't index.
+    const data = (await resp.json()) as {
+      status?: string;
+      output?: Array<{ type?: string; content?: Array<{ type?: string; text?: string }> }>;
+    };
+    if (data.status && data.status !== "completed") {
+      throw new Error(`perplexity-direct agent status ${data.status}`);
+    }
+    const content = (data.output ?? [])
+      .filter((o) => o?.type === "message")
+      .flatMap((o) => o?.content ?? [])
+      .filter((c) => c?.type === "output_text")
+      .map((c) => c?.text ?? "")
+      .join("");
     if (content) params.onChunk(content);
     params.onDone();
   } else {
@@ -1167,10 +1180,21 @@ async function callProviderDirectWithSignal(
       signal: AbortSignal.timeout(AI_PROVIDER_TIMEOUT_MS),
     });
     if (!resp.ok) throw new Error(`perplexity-direct ${resp.status}`);
-    // Raw REST response: answer text lives at output[0].content[0].text
-    // (output_text is an SDK convenience, not a JSON field).
-    const data = (await resp.json()) as { output?: Array<{ content?: Array<{ text?: string }> }> };
-    return data.output?.[0]?.content?.[0]?.text ?? "";
+    // Raw REST response: answer text is in output[] "message" items ->
+    // content[] "output_text" entries (see streaming variant above).
+    const data = (await resp.json()) as {
+      status?: string;
+      output?: Array<{ type?: string; content?: Array<{ type?: string; text?: string }> }>;
+    };
+    if (data.status && data.status !== "completed") {
+      throw new Error(`perplexity-direct status ${data.status}`);
+    }
+    return (data.output ?? [])
+      .filter((o) => o?.type === "message")
+      .flatMap((o) => o?.content ?? [])
+      .filter((c) => c?.type === "output_text")
+      .map((c) => c?.text ?? "")
+      .join("");
   } else if (provider === "openrouter-claude") {
     const client = new OpenAI({
       apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
