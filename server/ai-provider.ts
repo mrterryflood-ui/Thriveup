@@ -857,8 +857,10 @@ async function tryProvider(provider: Provider, params: StreamAIResponseParams): 
       signal: AbortSignal.timeout(AI_PROVIDER_TIMEOUT_MS),
     });
     if (!resp.ok) throw new Error(`perplexity-direct agent ${resp.status}`);
-    const data = (await resp.json()) as { output_text?: string };
-    const content = data.output_text ?? "";
+    // Raw REST response: answer text lives at output[0].content[0].text
+    // (output_text is an SDK convenience, not a JSON field).
+    const data = (await resp.json()) as { output?: Array<{ content?: Array<{ text?: string }> }> };
+    const content = data.output?.[0]?.content?.[0]?.text ?? "";
     if (content) params.onChunk(content);
     params.onDone();
   } else {
@@ -903,7 +905,7 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
       } else if (provider === "gemini") {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
         const model = genAI.getGenerativeModel({
-          model: "gemini-2.0-flash",
+          model: "gemini-3.8-flash",
           systemInstruction: systemPrompt,
           generationConfig: { maxOutputTokens: 4000, responseMimeType: "application/json" },
         });
@@ -1118,7 +1120,7 @@ async function callProviderDirectWithSignal(
   if (provider === "gemini") {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
+      model: "gemini-3.8-flash",
       systemInstruction: systemPrompt,
       generationConfig: { maxOutputTokens: maxTokens || 2000 },
     });
@@ -1165,8 +1167,10 @@ async function callProviderDirectWithSignal(
       signal: AbortSignal.timeout(AI_PROVIDER_TIMEOUT_MS),
     });
     if (!resp.ok) throw new Error(`perplexity-direct ${resp.status}`);
-    const data = (await resp.json()) as { output_text?: string };
-    return data.output_text ?? "";
+    // Raw REST response: answer text lives at output[0].content[0].text
+    // (output_text is an SDK convenience, not a JSON field).
+    const data = (await resp.json()) as { output?: Array<{ content?: Array<{ text?: string }> }> };
+    return data.output?.[0]?.content?.[0]?.text ?? "";
   } else if (provider === "openrouter-claude") {
     const client = new OpenAI({
       apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,

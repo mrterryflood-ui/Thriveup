@@ -265,8 +265,8 @@ function getAvailableEngines(): Array<{ id: EngineId; model: string }> {
 
   // Gemini: OpenRouter (bypasses free-tier quota issues) → direct API key
   const hasGeminiDirect = !!(process.env.GEMINI_API_KEY && Date.now() > geminiCollabQuotaExhaustedUntil);
-  if (hasOR) engines.push({ id: "gemini", model: "google/gemini-2.5-flash" });
-  else if (hasGeminiDirect) engines.push({ id: "gemini", model: "gemini-2.0-flash" });
+  if (hasOR) engines.push({ id: "gemini", model: "google/gemini-3.8-flash" });
+  else if (hasGeminiDirect) engines.push({ id: "gemini", model: "gemini-3.8-flash" });
 
   return engines;
 }
@@ -303,7 +303,7 @@ async function callEngine(
       } else {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
         const model = genAI.getGenerativeModel({
-          model: "gemini-2.0-flash",
+          model: "gemini-3.8-flash",
           systemInstruction: systemPrompt,
           generationConfig: { maxOutputTokens: maxTokens },
         });
