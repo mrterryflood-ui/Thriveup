@@ -47,6 +47,29 @@ async function partnerCall(
   }
 }
 
+// Shared by the /api/hazardaware routes and the community story: one place
+// where the partner call, its honest failure states, and layer selection
+// live. Returns the packet, or { message } describing the honest failure.
+export async function hazardContext(
+  body: { q?: string; lat?: number; lon?: number; name?: string; select?: string[] },
+): Promise<Record<string, unknown>> {
+  const config = partnerConfig();
+  if (!config) {
+    return { message: "The HazardAware bridge is not configured on this deployment. No hazard context is available, and none is fabricated." };
+  }
+  const outcome = await partnerCall("/place", {
+    ...(body.q ? { q: body.q } : {}),
+    ...(typeof body.lat === "number" ? { lat: body.lat } : {}),
+    ...(typeof body.lon === "number" ? { lon: body.lon } : {}),
+    ...(body.name ? { name: body.name } : {}),
+    select: Array.isArray(body.select) && body.select.length ? body.select : ["place.summary", "place.feeds"],
+  });
+  if ("unreachable" in outcome) {
+    return { message: `HazardAware did not answer (${outcome.reason}). No hazard context is shown; this is not calm weather.` };
+  }
+  return ((outcome as any).data || {}) as Record<string, unknown>;
+}
+
 export function registerHazardawareRoutes(app: Express) {
   app.get("/api/hazardaware/status", (_req: Request, res: Response) => {
     const config = partnerConfig();
@@ -63,27 +86,16 @@ export function registerHazardawareRoutes(app: Express) {
   });
 
   app.post("/api/hazardaware/context", async (req: Request, res: Response) => {
-    const config = partnerConfig();
-    if (!config) {
-      return res.status(503).json({
-        message: "The HazardAware bridge is not configured on this deployment. No hazard context is available, and none is fabricated.",
-      });
-    }
     const { q, lat, lon, name, select } = req.body || {};
     if (!q && (typeof lat !== "number" || typeof lon !== "number")) {
       return res.status(400).json({ message: "A place needs q, or both lat and lon." });
     }
-    const outcome = await partnerCall("/place", {
-      ...(q ? { q } : {}),
-      ...(typeof lat === "number" ? { lat } : {}),
-      ...(typeof lon === "number" ? { lon } : {}),
-      ...(name ? { name } : {}),
-      select: Array.isArray(select) && select.length ? select : ["place.summary", "place.feeds"],
-    });
-    if ("unreachable" in outcome) {
-      return res.status(502).json({ message: `HazardAware did not answer (${outcome.reason}). No hazard context is shown; this is not calm weather.` });
+    const data = await hazardContext({ q, lat, lon, name, select });
+    if ("message" in data && !("place" in data) && !("feeds" in data)) {
+      const message = String((data as any).message);
+      return res.status(/not configured/.test(message) ? 503 : 502).json({ message });
     }
-    return res.status(outcome.status).json(outcome.data);
+    return res.json(data);
   });
 
   // The resident answer lane through the partner door: plain-words answers
