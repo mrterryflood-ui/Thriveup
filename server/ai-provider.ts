@@ -238,13 +238,13 @@ function detectProvider(): Provider {
 const PROVIDER_CONFIG: Record<Provider, { model: string; isFree: boolean }> = {
   modal: { model: "thriveup-gpu", isFree: true },
   "github-models": { model: "openai/gpt-4.1-mini", isFree: true },
-  gemini: { model: "gemini-2.0-flash", isFree: true },
+  gemini: { model: "gemini-3.8-flash", isFree: true },
   claude: { model: "claude-haiku-4-5", isFree: false },
   "openrouter-claude": { model: "anthropic/claude-haiku-4-5", isFree: false },
   openai: { model: "gpt-5-mini", isFree: false },
   "replit-ai-integrations": { model: "gpt-5-nano", isFree: false },
-  "perplexity-direct": { model: "sonar", isFree: false },
-  "deepseek-r1": { model: "deepseek/deepseek-r1", isFree: false },
+  "perplexity-direct": { model: "fast (Agent API preset)", isFree: false },
+  "deepseek-r1": { model: "deepseek/deepseek-chat", isFree: false },
   perplexity: { model: "perplexity/sonar-pro", isFree: false },
 };
 
@@ -292,7 +292,7 @@ async function streamGemini(params: StreamAIResponseParams): Promise<void> {
   }
 
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash",
+    model: "gemini-3.8-flash",
     systemInstruction,
     safetySettings: [
       { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
@@ -839,25 +839,26 @@ async function tryProvider(provider: Provider, params: StreamAIResponseParams): 
     // the completion as one chunk.
     const systemP = params.messages.find((m: { role: string }) => m.role === "system")?.content;
     const userP = params.messages.filter((m: { role: string }) => m.role !== "system").map((m: { role: string; content: string }) => `${m.role}: ${m.content}`).join("\n\n") || params.messages.map((m: { role: string; content: string }) => m.content).join("\n\n");
-    const resp = await fetch("https://api.perplexity.ai/chat/completions", {
+    // Sonar chat-completions retired 2026-09-27 — this lane now calls the
+    // Perplexity Agent API (preset "fast", answers in output_text).
+    const resp = await fetch("https://api.perplexity.ai/v1/agent", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${process.env.PERPLEXITY_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "sonar",
-        messages: [
+        preset: "fast",
+        input: [
           ...(systemP ? [{ role: "system", content: systemP }] : []),
           { role: "user", content: userP },
         ],
-        max_tokens: params.maxTokens || 1200,
       }),
       signal: AbortSignal.timeout(AI_PROVIDER_TIMEOUT_MS),
     });
-    if (!resp.ok) throw new Error(`perplexity-direct stream ${resp.status}`);
-    const data = (await resp.json()) as { choices?: Array<{ message?: { content?: string } }> };
-    const content = data.choices?.[0]?.message?.content ?? "";
+    if (!resp.ok) throw new Error(`perplexity-direct agent ${resp.status}`);
+    const data = (await resp.json()) as { output_text?: string };
+    const content = data.output_text ?? "";
     if (content) params.onChunk(content);
     params.onDone();
   } else {
@@ -1147,25 +1148,25 @@ async function callProviderDirectWithSignal(
     const { text } = await perplexityResearch(prompt, systemPrompt, maxTokens, signal);
     return text;
   } else if (provider === "perplexity-direct") {
-    const resp = await fetch("https://api.perplexity.ai/chat/completions", {
+    // Sonar chat-completions retired 2026-09-27 — Agent API, preset "fast".
+    const resp = await fetch("https://api.perplexity.ai/v1/agent", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${process.env.PERPLEXITY_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "sonar",
-        messages: [
+        preset: "fast",
+        input: [
           ...(systemPrompt ? [{ role: "system", content: systemPrompt }] : []),
           { role: "user", content: prompt },
         ],
-        max_tokens: maxTokens || 1200,
       }),
       signal: AbortSignal.timeout(AI_PROVIDER_TIMEOUT_MS),
     });
     if (!resp.ok) throw new Error(`perplexity-direct ${resp.status}`);
-    const data = (await resp.json()) as { choices?: Array<{ message?: { content?: string } }> };
-    return data.choices?.[0]?.message?.content ?? "";
+    const data = (await resp.json()) as { output_text?: string };
+    return data.output_text ?? "";
   } else if (provider === "openrouter-claude") {
     const client = new OpenAI({
       apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
