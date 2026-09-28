@@ -12,7 +12,7 @@ import type { Express, Request, Response } from "express";
 
 function partnerConfig(): { url: string; key: string } | null {
   let url = process.env.HAZARDAWARE_PARTNER_URL || "";
-  const key = process.env.HAZARDAWARE_PARTNER_KEY || "";
+  const key = (process.env.HAZARDAWARE_PARTNER_KEY || "").trim();
   if (!url || !key) return null;
   // Accept either the bare site origin or the full partner path — a half-
   // remembered URL must not silently become a 404 that reads as "no hazard
