@@ -26,6 +26,21 @@ type Section = {
 
 const HOUSE_ZIP_LOOKUP = (zip: string) => `https://ziplook.house.gov/htbin/findrep_house?ZIP=${encodeURIComponent(zip)}`;
 
+// Per-IP rate limit: the story fans out to ChildCORE, the Census geocoder,
+// the RPLICE narrative builder, and the HazardAware bridge. It is an
+// unauthenticated lane, so it must not be hammerable.
+const storyHits = new Map<string, number[]>();
+function allowStoryHit(ip: string, maxPerHour = 20): boolean {
+  const now = Date.now();
+  const cutoff = now - 60 * 60 * 1000;
+  const hits = (storyHits.get(ip) ?? []).filter((t) => t > cutoff);
+  if (hits.length >= maxPerHour) return false;
+  hits.push(now);
+  storyHits.set(ip, hits);
+  if (storyHits.size > 5000) storyHits.clear(); // bound memory; prefer dropping history over an unbounded map
+  return true;
+}
+
 async function countyFromPoint(lat: number, lon: number): Promise<{ county: string; state: string } | null> {
   try {
     const url = `https://geocoding.geo.census.gov/geocoder/geographies/reverse?x=${lon}&y=${lat}&benchmark=Public_AR_Current&format=json&vintage=Current_Current`;
@@ -48,6 +63,12 @@ export function registerResidentStoryRoutes(app: Express) {
 
     if (!zip && !hasPoint) {
       return res.status(400).json({ message: "A story needs a place: a ZIP code, or lat and lon." });
+    }
+
+    const ip = String(req.headers["x-forwarded-for"] ?? req.socket?.remoteAddress ?? "unknown")
+      .split(",")[0].trim();
+    if (!allowStoryHit(ip)) {
+      return res.status(429).json({ message: "Too many community stories requested from this address this hour. Try again shortly." });
     }
 
     const sections: Section[] = [];

@@ -121,6 +121,7 @@ const getFundedItems: NavItem[] = [
   { title: "Live Grant Opportunities", url: "/grants", icon: Target, authOnly: true, adminOnly: true },
   { title: "My Grants & Win Rate", url: "/my-grants", icon: Trophy, authOnly: true, adminOnly: true },
   { title: "Application Tracker", url: "/grants/applications", icon: ClipboardCheck, authOnly: true, adminOnly: true },
+  { title: "My Community Story", url: "/community-story", icon: Globe },
   { title: "Community Story Pack", url: "/community-story-pack", icon: Globe },
   { title: "Embed Portal on Your Website", url: "/widget-install", icon: Smartphone },
   { title: "Agency Connector", url: "/agency-connector", icon: Puzzle },
