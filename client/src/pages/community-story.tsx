@@ -57,7 +57,7 @@ export default function CommunityStoryPage() {
       if (prefs.zip) params.set("zip", prefs.zip);
       if (point) { params.set("lat", String(point.lat)); params.set("lon", String(point.lon)); }
       if (!prefs.zip && !point) throw new Error("Enter a ZIP code or share your location to open the story.");
-      const r = await fetch(`/api/community/story?${params.toString()}`);
+      const r = await fetch(`/api/story?${params.toString()}`);
       const d = await r.json();
       if (!r.ok) throw new Error(d?.message || "The story did not answer.");
       return d;

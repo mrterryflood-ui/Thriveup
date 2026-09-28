@@ -40,7 +40,7 @@ async function countyFromPoint(lat: number, lon: number): Promise<{ county: stri
 }
 
 export function registerResidentStoryRoutes(app: Express) {
-  app.get("/api/community/story", async (req: Request, res: Response) => {
+  app.get("/api/story", async (req: Request, res: Response) => {
     const zip = typeof req.query.zip === "string" ? req.query.zip.replace(/\D/g, "").slice(0, 5) : "";
     const lat = typeof req.query.lat === "string" ? Number(req.query.lat) : NaN;
     const lon = typeof req.query.lon === "string" ? Number(req.query.lon) : NaN;
