@@ -11,10 +11,18 @@
 import type { Express, Request, Response } from "express";
 
 function partnerConfig(): { url: string; key: string } | null {
-  const url = process.env.HAZARDAWARE_PARTNER_URL || "";
+  let url = process.env.HAZARDAWARE_PARTNER_URL || "";
   const key = process.env.HAZARDAWARE_PARTNER_KEY || "";
   if (!url || !key) return null;
-  return { url: url.replace(/\/$/, ""), key };
+  // Accept either the bare site origin or the full partner path — a half-
+  // remembered URL must not silently become a 404 that reads as "no hazard
+  // context". Only https is honored.
+  url = url.replace(/\/+$/, "");
+  if (!/^https:\/\//.test(url)) return null;
+  if (!url.endsWith("/api/partner/thriveup")) {
+    url = url.replace(/\/api\/partner.*$/, "") + "/api/partner/thriveup";
+  }
+  return { url, key };
 }
 
 async function partnerCall(
