@@ -5,7 +5,7 @@ Use an existing **Emergency Charitable Services of NC** partner key on the ECS *
 ## Server-to-server setup
 
 1. On ECS's server, configure a private environment variable such as `THRIVEUP_ECS_PARTNER_KEY` with the key already held by ECS. Do not expose it in a `PUBLIC_` or `NEXT_PUBLIC_` variable.
-2. Call `GET https://thrivingcommunitiesforall.com/api/partner/v1/health` with header `x-partner-key: <server-side key>`. The response identifies the partner and granted scopes. A `401` means the key was not accepted; a `403` on a data route means its scope is missing.
+2. Use the verified Replit publishing host `https://easyailearning.com` as the API base URL. Call `GET https://easyailearning.com/api/partner/v1/health` with header `x-partner-key: <server-side key>`. The response identifies the partner and granted scopes. A `401` means the key was not accepted; a `403` on a data route means its scope is missing.
 3. Call the read routes from the ECS server, then expose the approved response through ECS's own same-origin backend route. Cache generated briefs/stories rather than calling per visitor. Do not submit resident names, histories, or other identifying information.
 
 ```
@@ -23,4 +23,4 @@ For a **fresh federal search** initiated by ECS staff, the existing public `POST
 
 Generated community story and brief routes use `community:read` and are rate-limited (10 stories and 20 briefs per hour per key). Handle `429` with a cached response or retry later, and surface upstream `5xx` errors rather than showing fabricated results. The opportunities route does not expose private grant workspaces, person-level reports, internal AI analysis, or staff dashboards.
 
-After ThriveUp publishes this route, the public contract at `https://thrivingcommunitiesforall.com/api/partner/v1/docs` will list it. **A development check is not proof that ECS has configured its backend or that the new route is published.**
+The published contract at `https://easyailearning.com/api/partner/v1/docs` lists this route. On 2026-09-28, the same route on `thrivingcommunitiesforall.com` still returned 404: that hostname was served by a separate Vercel deployment, not the newly published Replit build. Do not substitute that hostname until its Vercel deployment or routing has been updated and independently verified. **A working route on the Replit publishing host does not prove ECS has configured its backend or that its specific key works.**

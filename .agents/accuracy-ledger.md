@@ -20,6 +20,16 @@ written from impression.
 
 **Class:** Data-availability and geography-methodology gap; independent review caught a false-relevance path before publication.
 
+## 2026-09-28 — ECS published-host split
+
+**Claim:** Republishing the Replit app would make the new route live on the domain ECS tested.
+
+**Verified by:** fresh GET probes of the custom, primary, and generated publishing hosts; their docs and status responses; response headers; deployment metadata; and repository Vercel routing configuration.
+
+**Outcome:** Overturned for the custom domain. The Replit primary and generated hosts served the new route (401/200/400/403 on the primary); the tested custom domain served a separate stale Vercel build and still returned 404, even on cache MISS. ECS's own key and backend were not tested.
+
+**Class:** Deployment topology gap — an additional domain in deployment metadata did not imply common serving infrastructure.
+
 ## 2026-09-09 — Production publish CommonJS startup
 
 **Claim:** The latest publish failure was caused by a production-bundle startup

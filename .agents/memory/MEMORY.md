@@ -95,3 +95,4 @@
 - [Mirror verifier safety](mirror-verifier-safety.md) — verify HTTP and database targets before fixture writes; surface cleanup failures; make retryable partner snapshots idempotent.
 - [DB connection retry boundary](db-connection-retry-boundary.md) — do not retry ambiguous query timeouts; read-replica success does not prove deployed write connectivity.
 - [Deployment log time windows](deployment-log-time-windows.md) — CodeExecution's durable runtime may disable Date.now(); use an observed timestamp for log windows.
+- [Published custom-domain split](published-custom-domain-split.md) — a domain listed in Replit deployment metadata may actually serve an independent Vercel release; verify each hostname separately.
