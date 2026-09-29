@@ -32,6 +32,7 @@ import { fireWebhook } from "./webhook-dispatcher";
 import crypto, { randomBytes } from "crypto";
 import { verifyInboundPayload, hasBlockingRejection, recordInboundVerification, rejectionsToCorrectionNote, type InboundSchema } from "./inbound-verification";
 import { getMsEcosystemDirectory, searchMsProviders } from "./ms-provider-intelligence";
+import { handleCommunityOpportunities } from "./community-api-routes";
 
 // Schema for POST /api/partner/v1/heartbeat.
 // message: optional free-text status note (max 500 chars)
@@ -827,6 +828,8 @@ export function registerPartnerApiRoutes(app: Express) {
   });
 
   // ── Community data (community:read) ──────────────────────────────────────
+
+  app.get("/api/partner/v1/community-opportunities", requirePartnerAuth, requireScope("community:read"), handleCommunityOpportunities);
 
   app.get("/api/partner/v1/community", requirePartnerAuth, requireScope("community:read"), async (_req, res) => {
     try {
