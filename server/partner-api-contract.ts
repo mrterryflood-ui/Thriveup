@@ -139,6 +139,13 @@ export const PARTNER_API_CONTRACT: readonly PartnerRouteEntry[] = [
   },
   {
     method: "GET",
+    path: "/api/partner/v1/community-opportunities",
+    auth: { kind: "partner", scope: "community:read" },
+    description: "state and county grant opportunities (community:read); query: state (required), county?",
+    probe: true,
+  },
+  {
+    method: "GET",
     path: "/api/partner/v1/community-brief",
     auth: { kind: "partner", scope: "community:read" },
     description:
