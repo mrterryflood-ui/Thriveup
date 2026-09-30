@@ -56,3 +56,6 @@ Any agent that deviates from Fable behavior in a way the user has to catch is ou
 - **Topics:** `docs/agent-memory/topics/{grants,partners,gotchas,architecture,ecosystem,implementation}.md`
 - **Archive (cold storage):** `docs/memory-archive.md` (A1–A27+) · `docs/agent-memory/archive/resolved-gotchas.md`
 - **Active commitments / continuity:** `docs/active-commitments.md` (read start, update end)
+
+## Retrieval discipline (2026-09-30)
+Navigator output passes `applyNavigatorGrounding` (statistics), then `groundContacts` (`server/contact-grounding.ts`) on every output path. Phone numbers not in the supplied context are withheld; 911, 988 and 211 always pass. Unretrieved links get a verify note. Audit and limits: `docs/retrieval-audit-2026-09-30.md`.

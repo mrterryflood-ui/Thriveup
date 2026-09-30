@@ -1,4 +1,5 @@
 import type { Express, Request } from "express";
+import { groundContacts } from "./contact-grounding";
 import { randomUUID } from "crypto";
 import { db } from "./storage";
 import {
@@ -2203,13 +2204,14 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
           // sentences are redacted; all decisions go to the claim chain.
           // AI judgment calls (fit scores, qualitative framing) carry no
           // ClaimRule and are left entirely alone by design.
-          const groundedResponse = applyNavigatorGrounding(
+          // R1/R2: phone numbers and links must come from the supplied context.
+          const groundedResponse = groundContacts(applyNavigatorGrounding(
             fullResponse,
             navigatorCensusIndicators,
             gunViolenceContext,
             navigatorGvTotals,
             navigatorGrantHuntTotal,
-          );
+          ), msgs.map((m: any) => (typeof m.content === "string" ? m.content : "")).join("\n")).text;
 
           // Emit the grounded response text to the client as a content SSE event.
           // The response was buffered (not streamed live) so the client receives
@@ -2278,13 +2280,13 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
                 if (content) fallbackResponse += content;
               }
               // Apply grounding to fallback response before emitting
-              const fallbackGrounded = applyNavigatorGrounding(
+              const fallbackGrounded = groundContacts(applyNavigatorGrounding(
                 fallbackResponse,
                 navigatorCensusIndicators,
                 gunViolenceContext,
                 navigatorGvTotals,
                 navigatorGrantHuntTotal,
-              );
+              ), msgs.map((m: any) => (typeof m.content === "string" ? m.content : "")).join("\n")).text;
               if (fallbackGrounded.length > 0) {
                 safeWrite(
                   `data: ${JSON.stringify({ content: fallbackGrounded })}\n\n`,
@@ -2308,13 +2310,13 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
                   lastResortResponse += content;
                 },
                 onDone: () => {
-                  const lastResortGrounded = applyNavigatorGrounding(
+                  const lastResortGrounded = groundContacts(applyNavigatorGrounding(
                     lastResortResponse,
                     navigatorCensusIndicators,
                     gunViolenceContext,
                     navigatorGvTotals,
                     navigatorGrantHuntTotal,
-                  );
+                  ), msgs.map((m: any) => (typeof m.content === "string" ? m.content : "")).join("\n")).text;
                   if (lastResortGrounded.length > 0) {
                     safeWrite(
                       `data: ${JSON.stringify({ content: lastResortGrounded })}\n\n`,
