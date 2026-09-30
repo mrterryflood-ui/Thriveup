@@ -162,6 +162,10 @@ export default function GunViolenceIntelligence() {
         </p>
         <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
           {data?.meta && <span>Updated {new Date(data.meta.generatedAt).toLocaleDateString()}</span>}
+          <a href="https://thegunviolenceproject.com" target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-1 hover:text-foreground transition-colors">
+            The Gun Violence Project <ExternalLink className="h-3 w-3" />
+          </a>
           <a href="https://gun-violence-registry.replit.app" target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-1 hover:text-foreground transition-colors">
             Gun Violence Registry <ExternalLink className="h-3 w-3" />

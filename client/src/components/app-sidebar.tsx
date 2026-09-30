@@ -67,6 +67,7 @@ const SIDEBAR_DESCRIPTIONS: Record<string, string> = {
   "Maternal Health Network": "Prenatal, postpartum, doula, and maternal mental-health navigation.",
   "MaleHealth Matters": "Men's health education, prevention, screening navigation, and peer connection.",
   "RPLICE Research Hub": "Research-to-practice tools for evidence review, implementation planning, and evaluation.",
+  "The Gun Violence Project": "Public data stories that start with the incident record and follow the evidence to place, time, federal research, and named methods. Nationwide register — not a completeness claim, and missing records are not evidence of zero violence.",
   "Austin EBI Planning": "Private staff workspace for documenting Austin's evidence-based intervention, local adaptations, fidelity controls, evaluation contract, and approval blockers.",
 };
 
@@ -331,6 +332,7 @@ const connectedSiteItems: NavItem[] = [
   { title: "WholeMind Learning", url: "https://wholemindlearning.com", icon: BookOpen },
   { title: "Perfectly Different", url: "https://neurodifferentassistant.app", icon: Brain },
   { title: "SafeReport", url: "https://safereports.net", icon: FileText },
+  { title: "The Gun Violence Project", url: "https://thegunviolenceproject.com", icon: ShieldCheck },
   { title: "SafeCogniCare", url: "https://safecognicare.com", icon: Activity },
   { title: "Integrated Supports for Thriving Youth", url: "https://implementationineducatio.com", icon: GraduationCap },
   { title: "Minority Center of Excellence", url: "https://minoritycenterofexcellence.com", icon: Briefcase },
