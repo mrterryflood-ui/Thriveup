@@ -14,7 +14,7 @@ import {
   Wrench, ChevronDown, Mail, Calendar,
   Map, Microscope, Layers,
   Globe, ExternalLink, Brain, Stethoscope, Baby, User,
-  Siren, Eye, MessageSquare, Activity,
+  Siren, Eye, MessageSquare, Activity, Scale,
   Video, Megaphone, Network, Cpu,
   Rocket, MessageCircle, Compass, Users,
   Zap, FileText, Send, Lock, Star, Plug
@@ -200,6 +200,13 @@ const FEATURED_SERVICE_PLATFORMS = [
     href: "https://childcore.app",
     icon: Baby,
     theme: "text-violet-600 bg-violet-100 dark:bg-violet-950/40 dark:text-violet-300",
+  },
+  {
+    name: "The Gun Violence Project",
+    description: "Public data stories that start with the incident record and follow the evidence to place, time, federal research, and named methods. Nationwide register — not a completeness claim, and missing records are not evidence of zero violence.",
+    href: "https://thegunviolenceproject.com",
+    icon: Scale,
+    theme: "text-slate-700 bg-slate-100 dark:bg-slate-900/50 dark:text-slate-200",
   },
 ] as const;
 
@@ -748,6 +755,7 @@ const ECOSYSTEM_PLATFORMS_DATA = [
     color: "from-emerald-500 to-teal-600",
     platforms: [
       { name: "SafeReport", url: "https://safereports.net", desc: "Mandatory reporter system designed for 50-state policy coverage — 7-stage incident lifecycle, tamper-evident audit trails, court-admissible evidence packaging", icon: Shield },
+      { name: "The Gun Violence Project", url: "https://thegunviolenceproject.com", desc: "Public data stories from incident records to place, time, federal research, and named methods. Nationwide register — not a completeness claim.", icon: Scale },
       { name: "Talk Your Talk", url: "https://talkyourtalk.net", desc: "Dialect- and sign-aware communication — 89 spoken languages, 18 sign languages, real-time speech-to-text, culturally responsive translation", icon: MessageSquare },
     ],
   },
