@@ -583,6 +583,36 @@ Write in the voice specified for this funder. Be specific. Every claim must refe
   }
 
   /**
+   * Verify the configured server-to-server RPLICE integration without exposing
+   * credentials or upstream response data.
+   */
+  app.get("/api/rplice/connection-status", requireAuth, async (_req, res) => {
+    if (!RPLICE_API_KEY) {
+      return res.status(503).json({ connected: false, reason: "RPLICE_API_KEY is not configured" });
+    }
+
+    const startedAt = Date.now();
+    try {
+      const response = await fetch(`${RPLICE_BASE}/api/v1/frameworks`, {
+        headers: { Authorization: `Bearer ${RPLICE_API_KEY}` },
+        signal: AbortSignal.timeout(12_000),
+      });
+      const connected = response.ok;
+      return res.status(connected ? 200 : 502).json({
+        connected,
+        upstreamStatus: response.status,
+        latencyMs: Date.now() - startedAt,
+      });
+    } catch {
+      return res.status(502).json({
+        connected: false,
+        reason: "RPLICE request failed",
+        latencyMs: Date.now() - startedAt,
+      });
+    }
+  });
+
+  /**
    * Search the RPLICE research library server-side.
    * As of Aug 2026, GET /api/research/search?q= is public (CSRF requirement removed).
    * Falls back to fetch-all + local keyword filter if the gateway regresses.
