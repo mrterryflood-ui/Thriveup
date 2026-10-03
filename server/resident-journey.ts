@@ -10,6 +10,7 @@ import {
 } from "@shared/schema";
 import { eq, desc, and } from "drizzle-orm";
 import { generateAIResponse } from "./ai-provider";
+import { requireStaff } from "./yhsi-routes";
 
 const STATE_BENEFIT_RULES: Record<string, {
   stateName: string;
@@ -372,9 +373,11 @@ export function registerResidentJourneyRoutes(app: Express) {
     }
   });
 
-  app.get("/api/case-manager/:id/risk-chain", async (req, res) => {
+  app.get("/api/case-manager/:id/risk-chain", requireStaff, async (req, res) => {
     try {
-      const id = req.params.id === "demo" ? (await ensureDemoScenario()).id : req.params.id;
+      const requestedId = req.params.id;
+      if (typeof requestedId !== "string" || !requestedId) return res.status(400).json({ error: "Invalid resident identifier" });
+      const id = requestedId === "demo" ? (await ensureDemoScenario()).id : requestedId;
       const [profile] = await db.select().from(participantProfiles).where(eq(participantProfiles.id, id)).limit(1);
       if (!profile) return res.status(404).json({ error: "Resident not found" });
       const [snapshot] = await db.select().from(residentRiskSnapshots).where(eq(residentRiskSnapshots.participantId, id)).orderBy(desc(residentRiskSnapshots.snapshotAt)).limit(1);

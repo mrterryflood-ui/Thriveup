@@ -55,6 +55,9 @@ npx tsx scripts/verify-intake-contact-validation.ts || exit 1
 npx tsx scripts/verify-chw-dashboard-no-555.ts || exit 1
 npx tsx scripts/verify-tool-reachability.ts || exit 1
 npx tsx scripts/verify-two-click-reachability.ts || exit 1
+npx tsx --test shared/workspace-catalog.test.ts || exit 1
+npx tsx --test server/resident-case-access.test.ts || exit 1
+node --test scripts/verify-focused-service-worker.test.mjs || exit 1
 npx tsx scripts/verify-how-to-apply.ts || exit 1
 
 # Scripts that probe http://localhost:5000 — forward BASE_URL.

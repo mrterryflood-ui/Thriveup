@@ -29,7 +29,7 @@ const palettePathValues = [...paletteSource.matchAll(/path:\s*"([^"]+)"/g)]
   .map((match) => match[1].split("?")[0]);
 const palettePaths = new Set(palettePathValues);
 
-if (!paletteSource.includes('getSidebarNavigationAccess } from "@/components/app-sidebar"')) {
+if (!/import\s*\{[^}]*\bgetSidebarNavigationAccess\b[^}]*\}\s*from\s*"@\/components\/app-sidebar"/.test(paletteSource) || !paletteSource.includes("getSidebarNavigationAccess(item.path)")) {
   failures.push("command palette does not consume the sidebar access predicate");
 }
 if (paletteSource.includes("AUTH_REQUIRED_PATHS") || paletteSource.includes("ADMIN_REQUIRED_PATHS")) {
@@ -38,9 +38,14 @@ if (paletteSource.includes("AUTH_REQUIRED_PATHS") || paletteSource.includes("ADM
 if (!sidebarSource.includes("const SIDEBAR_NAV_ITEMS: NavItem[]")) {
   failures.push("sidebar access registry is missing");
 }
-if (!sidebarSource.includes("matched: Boolean(match)")) {
+if (!sidebarSource.includes("matched: Boolean(match || task)")) {
   failures.push("sidebar access predicate does not report registry matches");
 }
+if (!sidebarSource.includes('task?.access === "staff"') || !sidebarSource.includes('task?.access === "admin"')) {
+  failures.push("focused task role restrictions are not merged into the shared access predicate");
+}
+const directorySource = readFileSync("client/src/pages/tool-directory.tsx", "utf8");
+if (!directorySource.includes("getSidebarNavigationAccess(item.url)")) failures.push("tool directory does not consume the shared access predicate");
 
 for (const path of expectedRestrictedPaths) {
   if (!palettePaths.has(path)) {

@@ -36,6 +36,7 @@ import {
   Compass, Baby, Layers, Sprout, Bug, FlaskConical, Droplets, HeartHandshake, Mic, Building, Wheat,
   Wifi, AlertTriangle, FolderLock,
 } from "lucide-react";
+import { WORKSPACE_TASKS } from "@shared/workspace-catalog";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -526,19 +527,26 @@ const SIDEBAR_NAV_ITEMS: NavItem[] = [
   ...adminTeachingItems.map((item) => ({ ...item, adminOnly: true, authOnly: true })),
 ];
 
+export function getSidebarNavigationCatalog(): NavItem[] {
+  // Preserve the legacy catalog and focused tasks, including external sites.
+  const focused: NavItem[] = WORKSPACE_TASKS.map(task => ({ title: task.label, url: task.href, icon: Compass }));
+  return Array.from(new globalThis.Map([...focused, ...SIDEBAR_NAV_ITEMS].map(item => [item.url, item])).values());
+}
+
 export function getSidebarNavigationAccess(url: string): Pick<NavItem, "authOnly" | "adminOnly" | "staffOnly"> & { matched: boolean } {
-  const path = url.split("?")[0];
+  const path = url.split(/[?#]/)[0];
   const match = SIDEBAR_NAV_ITEMS
     .filter((item) => {
       const itemPath = item.url.split("?")[0];
       return path === itemPath || path.startsWith(`${itemPath}/`);
     })
     .sort((a, b) => b.url.length - a.url.length)[0];
+  const task = [...WORKSPACE_TASKS].sort((a, b) => b.href.length - a.href.length).find(task => path === task.href || path.startsWith(`${task.href}/`));
   return {
-    authOnly: match?.authOnly,
-    adminOnly: match?.adminOnly,
-    staffOnly: match?.staffOnly,
-    matched: Boolean(match),
+    authOnly: match?.authOnly || (task ? task.access !== "public" : false),
+    adminOnly: match?.adminOnly || task?.access === "admin",
+    staffOnly: match?.staffOnly || task?.access === "staff",
+    matched: Boolean(match || task),
   };
 }
 

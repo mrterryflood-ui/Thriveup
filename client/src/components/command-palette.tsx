@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useLocation } from "wouter";
-import { useAuth } from "@/hooks/use-auth";
-import { getSidebarNavigationAccess } from "@/components/app-sidebar";
+import { getSidebarNavigationAccess, getSidebarNavigationCatalog } from "@/components/app-sidebar";
+import { useWorkspace, useWorkspaceAccess } from "@/lib/workspace-context";
+import { workspaceForPath } from "@shared/workspace-catalog";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
@@ -29,7 +30,12 @@ export interface CommandItem {
 }
 
 export const ALL_ITEMS: CommandItem[] = [
-  { group: "Home", label: "Hub Home", path: "/hub", icon: Home, keywords: "home dashboard" },
+  { group: "Start", label: "Choose a starting point", path: "/", icon: Home, keywords: "home dashboard" },
+  { group: "Start", label: "Search all tools", path: "/tools", icon: Search },
+  { group: "Start", label: "Residents & families", path: "/workspace/residents", icon: Heart },
+  { group: "Start", label: "Organizations & practitioners", path: "/workspace/organizations", icon: Building2 },
+  { group: "Start", label: "Funders & evaluators", path: "/workspace/funders", icon: BarChart3 },
+  { group: "Start", label: "Community & policy", path: "/workspace/community", icon: Globe },
   { group: "Home", label: "This Week (Monday Brief)", path: "/this-week", icon: Calendar, keywords: "weekly brief" },
   { group: "Home", label: "Neighborhood Intel", path: "/neighborhood", icon: MapPin },
   { group: "Home", label: "Coverage Map", path: "/coverage", icon: Map },
@@ -149,25 +155,28 @@ export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [allWorkspaces, setAllWorkspaces] = useState(false);
   const [, setLocation] = useLocation();
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
-  const { isAuthenticated, user } = useAuth();
-
-  const userRole = (user as any)?.role as string | undefined;
-  const isAdmin = userRole === "admin" || !!(user as any)?.isTcafAdmin;
-  const isStaff = ["admin", "teacher", "case_manager", "facilitator", "staff"].includes(userRole || "");
+  const { workspace, setWorkspace } = useWorkspace();
+  const { authenticated: isAuthenticated, admin: isAdmin, staff: isStaff } = useWorkspaceAccess();
 
   _openCommandPalette = () => setOpen(true);
 
   // Filter items using the sidebar's own route metadata, before text search.
-  const visibleItems = useMemo(() => ALL_ITEMS.filter((item) => {
+  const visibleItems = useMemo(() => {
+    const catalog: CommandItem[] = getSidebarNavigationCatalog().filter(item => item.url.startsWith("/")).map(item => ({ label: item.title, path: item.url, icon: item.icon, group: "Tools" }));
+    const merged = Array.from(new globalThis.Map([...catalog, ...ALL_ITEMS].map(item => [item.path, item])).values());
+    return merged.filter((item) => {
     const access = getSidebarNavigationAccess(item.path);
     if (access.adminOnly && !isAdmin) return false;
     if (access.staffOnly && !isStaff) return false;
     if (access.authOnly && !isAuthenticated) return false;
+    if (workspace && !allWorkspaces && item.group !== "Start" && workspaceForPath(item.path) !== workspace) return false;
     return true;
-  }), [isAuthenticated, isAdmin, isStaff]);
+    }).sort((a, b) => Number(b.group === "Start") - Number(a.group === "Start"));
+  }, [isAuthenticated, isAdmin, isStaff, workspace, allWorkspaces]);
 
   const filtered = query.trim()
     ? visibleItems.filter((item) => {
@@ -191,15 +200,17 @@ export function CommandPalette() {
 
   useEffect(() => {
     setSelectedIndex(0);
-  }, [query]);
+  }, [query, workspace, allWorkspaces, isAuthenticated, isAdmin, isStaff]);
 
   const handleNavigate = useCallback(
     (path: string) => {
+      const targetWorkspace = workspaceForPath(path);
+      if (targetWorkspace) setWorkspace(targetWorkspace);
       setLocation(path);
       setOpen(false);
       setQuery("");
     },
-    [setLocation]
+    [setLocation, setWorkspace]
   );
 
   useEffect(() => {
@@ -219,13 +230,14 @@ export function CommandPalette() {
     } else {
       setQuery("");
       setSelectedIndex(0);
+      setAllWorkspaces(false);
     }
   }, [open]);
 
   function handleInputKeyDown(e: React.KeyboardEvent) {
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setSelectedIndex((i) => Math.min(i + 1, flatFiltered.length - 1));
+      setSelectedIndex((i) => Math.max(0, Math.min(i + 1, flatFiltered.length - 1)));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setSelectedIndex((i) => Math.max(i - 1, 0));
@@ -256,7 +268,7 @@ export function CommandPalette() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleInputKeyDown}
-            placeholder="Search pages, tools, resources…"
+            placeholder={workspace && !allWorkspaces ? "Search this workspace…" : "Search all pages and tools…"}
             className="border-0 focus-visible:ring-0 shadow-none text-base h-auto py-0 px-0 placeholder:text-muted-foreground/60"
             data-testid="input-command-search"
             aria-label="Search pages"
@@ -266,6 +278,10 @@ export function CommandPalette() {
           </kbd>
         </div>
 
+        {workspace && <div className="px-4 py-2 border-b flex items-center justify-between gap-3 text-xs">
+          <span>{allWorkspaces ? "All workspaces" : "Current workspace"}</span>
+          <button type="button" onClick={() => setAllWorkspaces(value => !value)} aria-label={allWorkspaces ? "Search only this workspace" : "Search all workspaces"} data-testid="command-scope-toggle" className="min-h-11 underline font-medium">{allWorkspaces ? "Search this workspace" : "Search all workspaces"}</button>
+        </div>}
         <div
           ref={listRef}
           className="max-h-[400px] overflow-y-auto overscroll-contain p-2"

@@ -1,0 +1,12 @@
+thriveup findings (for your team to work it)
+What the layer is — a set of dependency-free modules with one job: before an LLM answer is delivered, check it against the retrieved evidence. The four that matter:
+•	 override  — figure-vs-template detector (flags a number-with-unit the sourced rows don’t carry).
+•	 gate  —  oversightGate(output, facts, contract)  →  { pass, reasons, overrides } . Fail-closed; enforces observed/projected labeling on predictive wording.
+•	 evals  — golden set +  evaluateAnswer  (scores  noInvention  /  citationRecall  /  labelHeld ).
+•	 registry  —  MODEL_REGISTRY  with live eval scores (gpt-5.1 = 0.94, sonar = 0.88),  routePolicy  (simple/deterministic first),  estimateCost .
+( trace ,  cache ,  contract ,  prompts ,  schema  are the deeper wave —  trace / cache  need  fnv1a / normText ; thriveup has no retrieval-core, so vendor those two tiny functions or skip that wave for now.)
+thriveup specifics (what I measured): express under  server/ ,  "type": "module" , extensionless imports, tests via  tsx --test  (node:test), primary LLM entry  server/ai-provider.ts  (plus  server/replit_integrations/chat/routes.ts ).
+Wiring pattern (same as the other three, ~6 lines): add optional  facts?: { label, value }[]  to the request type; after the model returns, call  oversightGate(answer, facts, { units })  and attach  honesty: { pass, reasons, overrides }  non-blocking to the result. Don’t let it block delivery — it’s an honesty verdict riding alongside the answer, not a hard gate.
+The one lesson I’d hand them directly: the figure unit list is domain-specific. Hazard used  ft/cfs/%/°C/mm ; shield got  kt/nm/dB/Hz . thriveup is community/grants/foster-youth, so give it its own unit set (money  $ ,  % , counts, FTEs, etc.) and a thriveup-domain golden set — do not copy the hazard or defense fixtures. The mechanism is shared; the vocabulary is per-product. That separation is the whole point.
+Key sharing: nothing changes there — Replit reads  OPENAI_API_KEY  /  ANTHROPIC_API_KEY  /  GEMINI_API_KEY  from its Secrets tab, which you’re already handling in the Replit update.
+Want me to write this up as a short handoff doc ( .md ) they can paste into the Rep

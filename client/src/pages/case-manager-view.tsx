@@ -39,6 +39,7 @@ export default function CaseManagerView() {
 
   return (
     <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-4" data-testid="page-case-manager">
+      <p className="rounded-lg border bg-muted p-3 text-sm" role="note" data-testid="case-review-demo-disclosure">Demonstration risk-chain view. This page does not provide a complete case-management system or establish observed outcomes.</p>
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2"><Shield className="h-7 w-7" /> Case Manager / Probation Officer View</h1>

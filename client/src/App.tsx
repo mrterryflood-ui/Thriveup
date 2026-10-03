@@ -1,8 +1,9 @@
-import { useEffect, useRef, lazy, Suspense, useState } from "react";
-import { Switch, Route, Redirect } from "wouter";
-import { cn } from "@/lib/utils";
-import { NavModeProvider, useNavMode } from "@/lib/nav-mode";
-import { BottomTabBar } from "@/components/bottom-tab-bar";
+import { useEffect, useRef, lazy, Suspense } from "react";
+import { Switch, Route, Redirect, Link, useLocation, useSearch } from "wouter";
+import { NavModeProvider } from "@/lib/nav-mode";
+import { FocusedBottomTabs as BottomTabBar, FocusedSidebar as AppSidebar } from "@/components/focused-navigation";
+import { WorkspaceProvider, useWorkspace } from "@/lib/workspace-context";
+import { WORKSPACES } from "@shared/workspace-catalog";
 import { queryClient, apiRequest } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -11,9 +12,7 @@ import { OrgRedirectGuard } from "@/components/org-redirect-guard";
 import { useAuth } from "@/hooks/use-auth";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Skeleton } from "@/components/ui/skeleton";
 import NotFound from "@/pages/not-found";
 import { ContextualHelpButton } from "@/components/contextual-help";
@@ -323,6 +322,10 @@ const VannCollaborationHubPage = lazy(() => import("@/pages/partners/vann-collab
 const FamilyProgramTrackerPage = lazy(() => import("@/pages/partners/family-program-tracker"));
 const RfpStorytellerPage = lazy(() => import("@/pages/partners/rfp-storyteller"));
 const HubHomePage = lazy(() => import("@/pages/hub-home"));
+const FocusedHomePage = lazy(() => import("@/pages/focused-home"));
+const WorkspaceHomePage = lazy(() => import("@/pages/workspace-home"));
+const ToolDirectoryPage = lazy(() => import("@/pages/tool-directory"));
+const WorkspaceChooserPage = lazy(() => import("@/pages/workspace-chooser"));
 const HubServePage = lazy(() => import("@/pages/hub-serve"));
 const HubFundPage = lazy(() => import("@/pages/hub-fund"));
 const HubGrowPage = lazy(() => import("@/pages/hub-grow"));
@@ -433,7 +436,11 @@ function NavigatorPage() {
 function AppRouter() {
   return (
     <Switch>
-      <Route path="/" component={LandingPage} />
+      <Route path="/" component={FocusedHomePage} />
+      <Route path="/platform-overview" component={LandingPage} />
+      <Route path="/tools" component={ToolDirectoryPage} />
+      <Route path="/workspaces" component={WorkspaceChooserPage} />
+      <Route path="/workspace/:workspace">{params => <WorkspaceHomePage workspace={params.workspace} />}</Route>
       <Route path="/coverage" component={CoveragePage} />
       <Route path="/subjects" component={SubjectsPage} />
       <Route path="/subject/:subjectId" component={SubjectDetailPage} />
@@ -698,7 +705,7 @@ function AppRouter() {
       <Route path="/prevention" component={PreventionPage} />
       <Route path="/coalition" component={CoalitionPage} />
       <Route path="/parent-education" component={ParentEducationPage} />
-      <Route path="/my-journey" component={MyJourneyPage} />
+      <Route path="/my-journey"><RequireAuth reason="Sign in to continue your own saved journey."><MyJourneyPage /></RequireAuth></Route>
       <Route path="/cohort-onboarding" component={CohortOnboardingPage} />
       <Route path="/cqi" component={MapGapCqiPage} />
       <Route path="/logic-model" component={LogicModelPage} />
@@ -786,7 +793,7 @@ function AppRouter() {
         </RequireAuth>
       </Route>
       <Route path="/research-hub" component={ResearchHubPage} />
-      <Route path="/chw-dashboard" component={ChwDashboardPage} />
+      <Route path="/chw-dashboard"><RequireAuth staffOnly reason="CHW tools require existing staff authorization."><ChwDashboardPage /></RequireAuth></Route>
       <Route path="/mapgap-framework" component={MapGapFrameworkPage} />
       <Route path="/transparency" component={TransparencyDashboardPage} />
       <Route path="/case-studies" component={CaseStudiesPage} />
@@ -902,8 +909,8 @@ function AppRouter() {
       <Route path="/sdoh-explorer" component={SDOHExplorerPage} />
       <Route path="/resident-journey" component={ResidentJourneyPage} />
       <Route path="/resident-journey/:id" component={ResidentJourneyPage} />
-      <Route path="/case-manager" component={CaseManagerViewPage} />
-      <Route path="/case-manager/:id" component={CaseManagerViewPage} />
+      <Route path="/case-manager"><RequireAuth staffOnly reason="Case review requires existing staff authorization."><CaseManagerViewPage /></RequireAuth></Route>
+      <Route path="/case-manager/:id"><RequireAuth staffOnly reason="Case review requires existing staff authorization."><CaseManagerViewPage /></RequireAuth></Route>
       <Route path="/city-comparison" component={CityComparisonPage} />
       <Route path="/transition-plans" component={TransitionPlansPage} />
       <Route path="/ai-workforce" component={AIWorkforcePage} />
@@ -993,7 +1000,8 @@ function AppRouter() {
       <Route path="/corridor/docs/live" component={CorridorDocsLivePage} />
       <Route path="/network" component={NetworkMembersPage} />
       <Route path="/navigator" component={NavigatorPage} />
-      <Route path="/hub" component={HubHomePage} />
+      <Route path="/hub" component={FocusedHomePage} />
+      <Route path="/hub/legacy" component={HubHomePage} />
       <Route path="/hub/serve" component={HubServePage} />
       <Route path="/hub/fund" component={HubFundPage} />
       <Route path="/hub/grow" component={HubGrowPage} />
@@ -1059,8 +1067,8 @@ function AppRouter() {
       <Route path="/align/community" component={AlignCommunityPage} />
       <Route path="/why-thriveup" component={WhyThriveUpPage} />
       <Route path="/thrive" component={ThrivePage} />
-      <Route path="/my-documents" component={MyDocumentsPage} />
-      <Route path="/my-appointments" component={MyAppointmentsPage} />
+      <Route path="/my-documents"><RequireAuth reason="Sign in to manage your own documents."><MyDocumentsPage /></RequireAuth></Route>
+      <Route path="/my-appointments"><RequireAuth reason="Sign in to review your own appointments."><MyAppointmentsPage /></RequireAuth></Route>
       <Route path="/my-household" component={MyHouseholdPage} />
       <Route path="/shadow-worker-hub" component={ShadowWorkerHubPage} />
       <Route path="/data-council" component={DataCouncilPage} />
@@ -1109,53 +1117,33 @@ function useAttendanceLog() {
   }, [authLoading, isAuthenticated]);
 }
 
-function NavModeToggle() {
-  const { mode, toggle } = useNavMode();
-  return (
-    <button
-      onClick={toggle}
-      className="text-xs font-medium px-3 py-1.5 rounded-full border border-border hover:bg-muted transition-colors whitespace-nowrap flex-shrink-0"
-      data-testid="button-nav-mode-toggle"
-      title={mode === "hub" ? "Switch to classic sidebar" : "Switch to hub view"}
-    >
-      {mode === "hub" ? "☰ Classic" : "⊞ Hub View"}
-    </button>
-  );
-}
-
 function AppLayoutInner() {
   useAttendanceLog();
-  const { mode } = useNavMode();
+  const { workspace } = useWorkspace();
+  const [location] = useLocation();
+  const search = useSearch();
+  const shellFreeEmbed = new URLSearchParams(search).get("embed") === "1";
+  const focusedEntry = location === "/" || location === "/hub" || location === "/workspaces" || location.startsWith("/workspace/");
+  const currentWorkspace = WORKSPACES.find(item => item.id === workspace);
   const { t } = useLanguage();
-  const [isInIframe] = useState(() => typeof window !== "undefined" && window.self !== window.top);
   const style = { "--sidebar-width": "16rem", "--sidebar-width-icon": "3rem" };
 
-  if (isInIframe) {
-    return (
-      <SidebarProvider style={style as React.CSSProperties}>
-        <main className="w-full min-h-screen overflow-auto" tabIndex={-1}>
-          <ErrorBoundary>
-            <Suspense fallback={<PageFallback />}>
-              <AppRouter />
-            </Suspense>
-          </ErrorBoundary>
-        </main>
-      </SidebarProvider>
-    );
-  }
+  // Replit preview is itself an iframe. Ordinary iframes must not silently
+  // remove navigation; supported embed routes and ?embed=1 opt out explicitly.
+  if (shellFreeEmbed) return <main className="w-full min-h-screen" tabIndex={-1}><ErrorBoundary><Suspense fallback={<PageFallback />}><AppRouter /></Suspense></ErrorBoundary></main>;
 
   return (
-    <SidebarProvider defaultOpen={false} style={style as React.CSSProperties}>
+    <SidebarProvider defaultOpen={true} style={style as React.CSSProperties}>
       <div className="flex h-screen w-full">
         <AppSidebar />
-        <div className={cn("flex flex-col flex-1 min-w-0", mode === "hub" && "pb-[calc(60px+env(safe-area-inset-bottom))]")}>
+        <div className="flex flex-col flex-1 min-w-0 pb-[calc(60px+env(safe-area-inset-bottom))] md:pb-0">
           <a href="#main-content" className="skip-link bg-primary text-primary-foreground" data-testid="link-skip-nav">
             {t("shell.skipToContent")}
           </a>
           <header className="flex items-center gap-2 px-3 py-2 border-b sticky top-0 z-50 bg-background/95 backdrop-blur-md">
             <SidebarTrigger data-testid="button-sidebar-toggle" className="shrink-0" />
             <div className="flex items-center gap-1.5 flex-1 min-w-0">
-              <span className="font-bold text-sm tracking-wide uppercase leading-none select-none truncate">ThriveUp</span>
+              <Link href={workspace ? `/workspace/${workspace}` : "/"} aria-label={currentWorkspace ? `${currentWorkspace.label} workspace` : "TCAF and ThriveUp home"} className="font-semibold text-sm leading-none truncate" data-testid="header-workspace">{currentWorkspace?.label ?? "TCAF + ThriveUp"}</Link>
             </div>
             <div className="flex items-center gap-1 shrink-0">
               <Button
@@ -1164,7 +1152,7 @@ function AppLayoutInner() {
                 onClick={openCommandPalette}
                 className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground px-2.5 h-8 rounded-lg border border-border/60 bg-muted/50 hover:bg-muted"
                 data-testid="button-search-palette"
-                aria-label={t("shell.searchAll")}
+                aria-label={workspace ? "Search this workspace or all tools" : t("shell.searchAll")}
               >
                 <Search className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline text-xs">{t("shell.search")}</span>
@@ -1183,10 +1171,10 @@ function AppLayoutInner() {
           </main>
         </div>
       </div>
-      {mode === "hub" && <BottomTabBar />}
+      <BottomTabBar />
       <CommandPalette />
-      <AINavigator />
-      <ContextualHelpButton />
+      {!focusedEntry && <AINavigator />}
+      {!focusedEntry && <ContextualHelpButton />}
     </SidebarProvider>
   );
 }
@@ -1194,7 +1182,7 @@ function AppLayoutInner() {
 function AppLayout() {
   return (
     <NavModeProvider>
-      <AppLayoutInner />
+      <WorkspaceProvider><AppLayoutInner /></WorkspaceProvider>
     </NavModeProvider>
   );
 }

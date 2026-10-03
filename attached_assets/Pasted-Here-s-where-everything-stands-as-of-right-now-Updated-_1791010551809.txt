@@ -1,0 +1,71 @@
+Here's where everything stands as of right now.
+
+## Updated and current
+
+- **GVA 2018–2026** — complete through Oct 1, 386,760 deduplicated incidents, committed + shared. ✓
+- **CDC mortality 1968–2024** — committed + shared, current through the latest finalized NVSS year (2024; CDC hasn't finalized 2025 mortality yet). ✓
+- **FBI SHR 1976–2025** and **Chicago 1991–2026** — already in the repo. ✓
+
+## Still running
+
+- **2014–2017 GVA gap closure** — the workflow has been running about 11 minutes so far (started 1:43 AM CDT). It's harvesting the four years now; nothing has merged yet (no `gva_2014-*.csv` files committed yet). It'll keep going on the daily schedule until those years are done, then auto-merge into `backfill/`, rebuild the master to include 2014+, and disable itself. Expect roughly 1–2 runs of several hours each.
+
+## Pending by design
+
+- **Live tail (Oct 2–3)** — fills on the twice-monthly update, next run ~Oct 15.
+
+So the short answer: the CDC and GVA-2018+ data are fully updated; the only piece not yet landed is the 2014–2017 backfill, and it's actively running right now. I can check back on that run's progress whenever you want.
+
+Sources
+[1] What the data says about gun deaths in the US | Pew Research Center https://www.pewresearch.org/short-reads/2026/04/28/what-the-data-says-about-gun-deaths-in-the-us/
+[2] Crime/Law Enforcement Stats (UCR Program) | Federal Bureau of Investigation https://ucr.fbi.gov/
+[3] Expanded Homicide Data Table 8 Murder Victims by Weapon, 2020 ... https://www.gunowners.org/wp-content/uploads/FBI_UCR_Expanded_Homicide_Data_Table_8_Murder_Victims_by_Weapon_2020-2024-1.pdf
+[4] UCR Publications | Federal Bureau of Investigation https://www.fbi.gov/how-we-can-help-you/more-fbi-services-and-information/ucr/publications
+[5] UCR Summary of Crime in the Nation, 2023 - Congress.gov https://congress.gov/118/meeting/house/117762/documents/HHRG-118-JU08-20241217-SD001-U1.pdf
+[6] Untitled https://www.congress.gov/crs_external_products/IF/HTML/IF12281.web.html
+[7] Homicide Victimization in the United States, 2023 https://bjs.ojp.gov/document/hvus23.pdf
+[8] City Dashboard: Gun Homicide https://everytownresearch.org/report/city-data/
+[9] Gun violence in the United States - Wikipedia https://en.wikipedia.org/wiki/Gun_deaths_in_the_United_States
+[10] Violent Crime Trends, 1990-2021 https://www.congress.gov/crs-product/IF12281
+[11] 161170NCJRS.pdf https://www.ojp.gov/pdffiles1/Digitization/161170NCJRS.pdf
+[12] Violent Victimization with a Firearm, 2024 https://bjs.ojp.gov/library/publications/violent-victimization-firearm-2024
+[13] Violent Victimization with a Firearm, 2024 | Bureau of ... https://bjs.ojp.gov/library/publications/violent-victimization-firearm-2024/web-report
+[14] Trends and Patterns in Firearm Violence, 1993–2018 https://bjs.ojp.gov/library/publications/trends-and-patterns-firearm-violence-1993-2018
+[15] Trends and Patterns in Firearm Violence, 1993–2023 https://bjs.ojp.gov/press-release/trends-and-patterns-firearm-violence-1993-2023
+[16] Trends and Patterns in Firearm Violence, 1993-2023 https://bjs.ojp.gov/library/publications/trends-and-patterns-firearm-violence-1993-2023
+[17] Trends and Patterns in Firearm Violence, 1993–2023 https://bjs.ojp.gov/document/tpfv9323.pdf
+[18] Homicide in the U.S. Known to Law Enforcement, 2011 https://bjs.ojp.gov/content/pub/pdf/hus11.pdf
+[19] Mass Murder with Firearms: Incidents and Victims, 1999- ... https://www.congress.gov/crs-product/R44126
+[20] [PDF] Trends and Patterns in Firearm Violence, 1993–2018 https://bjs.ojp.gov/content/pub/pdf/tpfv9318.pdf
+[21] Firearm homicide | Office of Justice Programs https://www.ojp.gov/taxonomy/term/firearm-homicide
+[22] What the data says about gun deaths in the U.S. https://www.pewresearch.org/short-reads/2025/03/05/what-the-data-says-about-gun-deaths-in-the-us/
+[23] Twenty-Five Years of Firearm Homicides and Suicides Among ... https://pmc.ncbi.nlm.nih.gov/articles/PMC13429908/
+[24] CDC WISQARS - Web-based Injury Statistics Query and ... https://wisqars.cdc.gov/
+[25] Firearm Mortality | Stats of the States https://www.cdc.gov/nchs/state-stats/deaths/firearms.html
+[26] WISQARS Compare Fatal Data https://wisqars.cdc.gov/compare/
+[27] Annual Gun Violence Data 2024 https://publichealth.jhu.edu/center-for-gun-violence-solutions/data/annual-gun-violence-data
+[28] WISQARS Fatal and Nonfatal Injury Reports https://wisqars.cdc.gov/reports/
+[29] Current Epidemiological Trends in Firearm Mortality in the ... https://stacks.cdc.gov/view/cdc/122908/cdc_122908_DS1.pdf
+[30] National Violent Death Reporting System https://wisqars.cdc.gov/nvdrs/
+[31] Past Summary Ledgers https://www.gunviolencearchive.org/past-tolls
+[32] Standard Reports - Gun Violence Archive https://www.gunviolencearchive.org/reports
+[33] See also https://en.wikipedia.org/wiki/Lists_of_mass_shootings_in_the_United_States
+[34] United States mass shootings by year: -2014 https://x.com/GunDeaths/status/1919855196831674527
+[35] The Gun Violence Archive on X: "United States mass ... https://x.com/GunDeaths/status/2028985849610748231
+[36] Gun Violence Archive https://www.gunviolencearchive.org/
+[37] The Gun Violence Archive on X https://x.com/GunDeaths/status/2010764351666335941
+[38] Road Rage Shootings — Dataset — The Gun Violence Data Hub https://datahub.thetrace.org/dataset/road-rage-shootings/
+[39] Get the Facts: The latest data on mass shootings in the US https://www.kcra.com/article/mass-shootings-data-october-2025/69063825
+[40] Charts and Maps https://www.gunviolencearchive.org/charts-and-maps
+[41] Gun Violence By The Numbers in 2025 - The Trace https://www.thetrace.org/2025/12/data-shooting-stats-gun-violence-america/
+[42] Gun Violence by the Numbers in 2024 - The Trace https://www.thetrace.org/2024/12/data-gun-violence-shooting-stats-america/
+[43] General Methodology https://www.gunviolencearchive.org/methodology
+[44] There have been more than 340 mass shootings so far in ... https://www.wbaltv.com/article/us-mass-shootings-map-2026/73874634
+[45] Assessing the Gun Violence Archive as an Epidemiologic ... https://pmc.ncbi.nlm.nih.gov/articles/PMC10238941/
+[46] Firearm Violence in the U.S.: Death and Injury - NCBI - NIH https://www.ncbi.nlm.nih.gov/books/NBK605168/
+[47] A Half-Century Analysis of Firearm-Related Mortality Trends in ... https://pmc.ncbi.nlm.nih.gov/articles/PMC11585387/
+[48] Number of firearm deaths U.S. 2023| Statista https://www.statista.com/statistics/258913/number-of-firearm-deaths-in-the-united-states/
+[49] Firearm Homicide Trends | Firearm Injury and Death Prevention ... https://archive.cdc.gov/www_cdc_gov/firearm-violence/php/data-trends/firearm-homicide-trends.html
+[50] Effectiveness in Disease and Injury Prevention https://www.cdc.gov/mmwr/PDF/wk/mm4303.pdf
+[51] Gun Deaths in America, 2023 - Injury Facts https://injuryfacts.nsc.org/home-and-community/safety-topics/guns/
+[52] Trends in Death Rates for Leading Methods of Injury https://www.cdc.gov/nchs/products/databriefs/db526.htm
