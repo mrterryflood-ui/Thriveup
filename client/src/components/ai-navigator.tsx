@@ -7,6 +7,8 @@ import { useLocation, Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { isGateVerdict, type GateVerdict } from "@shared/inference-honesty";
+import { HonestyDisclosure } from "@/components/honesty-disclosure";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Compass,
@@ -59,6 +61,8 @@ interface NavigatorMessage {
   role: "user" | "assistant";
   content: string;
   createdAt?: string;
+  honesty?: GateVerdict;
+  honestyNotRecorded?: boolean;
   deepThinking?: string;
   deepThinkingPending?: boolean;
   grantResults?: HuntGrant[];
@@ -772,6 +776,15 @@ export function AINavigator({
   }, [messages]);
 
   const loadConversation = useCallback(async (convoId: string) => {
+    // History replaces the message array. Invalidate its active stream before
+    // an old callback can append text/receipts at a newly reused message index.
+    navigatorRequestIdRef.current += 1;
+    requestAbortRef.current?.abort();
+    requestAbortRef.current = null;
+    if (requestTimeoutRef.current) clearTimeout(requestTimeoutRef.current);
+    requestTimeoutRef.current = null;
+    stopDeepThinkPolling();
+    setIsStreaming(false);
     const generation = ++conversationLoadGenerationRef.current;
     conversationLoadRef.current?.abort();
     const controller = new AbortController();
@@ -803,6 +816,8 @@ export function AINavigator({
           role: m.role,
           content: m.content,
           createdAt: m.createdAt,
+          honesty: isGateVerdict(m.metadata?.honesty) ? m.metadata.honesty : undefined,
+          honestyNotRecorded: m.role === "assistant" && !isGateVerdict(m.metadata?.honesty),
         })),
       );
       // Restore Youth Mode for threads that were started (or continued) in it,
@@ -831,7 +846,7 @@ export function AINavigator({
         conversationLoadRef.current = null;
       }
     }
-  }, [user?.id]);
+  }, [user?.id, stopDeepThinkPolling]);
 
   const startNewConversation = useCallback(() => {
     userStartedNewRef.current = true;
@@ -1217,6 +1232,9 @@ export function AINavigator({
                 // unlocked the composer. Never let this older stream mutate the
                 // newer request or install a stale R1 poll.
                 if (navigatorRequestIdRef.current !== requestId) continue;
+                if (isGateVerdict(parsed.honesty)) {
+                  setMessages(prev => prev.map((entry, index) => index === assistantIdx ? { ...entry, honesty: parsed.honesty } : entry));
+                }
 
                 if (parsed.conversationId && !activeConversationId) {
                   setActiveConversationId(parsed.conversationId);
@@ -1840,7 +1858,9 @@ export function AINavigator({
                             {msg.role === "assistant" ? (
                               <div className="leading-relaxed select-text cursor-text">
                                 {msg.content ? (
-                                  formatMessageContent(msg.content)
+                                  <>{formatMessageContent(msg.content)}{(msg.honesty || msg.honestyNotRecorded) && <HonestyDisclosure verdict={msg.honesty} />}</>
+                                ) : msg.honesty ? (
+                                  <><p>No response text was delivered.</p><HonestyDisclosure verdict={msg.honesty} /></>
                                 ) : (
                                   <div className="flex items-center gap-2">
                                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -2515,7 +2535,9 @@ export function AINavigator({
                         {msg.role === "assistant" ? (
                           <div className="leading-relaxed select-text cursor-text">
                             {msg.content ? (
-                              formatMessageContent(msg.content)
+                              <>{formatMessageContent(msg.content)}{(msg.honesty || msg.honestyNotRecorded) && <HonestyDisclosure verdict={msg.honesty} />}</>
+                            ) : msg.honesty ? (
+                              <><p>No response text was delivered.</p><HonestyDisclosure verdict={msg.honesty} /></>
                             ) : (
                               <div className="flex items-center gap-2">
                                 <Loader2 className="h-3.5 w-3.5 animate-spin" />

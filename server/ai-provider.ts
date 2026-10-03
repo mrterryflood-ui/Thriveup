@@ -3,6 +3,8 @@ import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import { getCurrentCommunityContext } from "./community-context";
 import { getCurrentGraphContext } from "./knowledge-graph";
+import { safeOversightGate, MAX_HONESTY_OUTPUT_CHARS, MODEL_REGISTRY, type FactLike, type GateContract, type GateVerdict, type EvalScoreRecord } from "@shared/inference-honesty";
+import { loadModelEvaluations } from "./inference-honesty-evaluations";
 
 type Provider = "gemini" | "claude" | "openrouter-claude" | "openai" | "replit-ai-integrations" | "deepseek-r1" | "perplexity";
 
@@ -172,7 +174,7 @@ interface StreamAIResponseParams {
   messages: Array<{ role: string; content: string }>;
   maxTokens?: number;
   onChunk: (content: string) => void;
-  onDone: () => void;
+  onDone: () => void | Promise<void>;
   onError: (error: Error) => void;
   // When true, attach Anthropic's server-side web_search tool so Claude can
   // look up live facts (officeholders, current grant deadlines, primary
@@ -186,6 +188,10 @@ interface StreamAIResponseParams {
   // provider fails or is unavailable, the standard chain continues.
   preferredProvider?: string;
   signal?: AbortSignal;
+  facts?: FactLike[];
+  honestyContract?: GateContract;
+  onHonesty?: (verdict: GateVerdict) => void;
+  onProviderComplete?: (provider: { name: string; model: string }) => void;
 }
 
 let geminiQuotaExhaustedUntil = 0;
@@ -239,15 +245,21 @@ export function getActiveProvider(): string {
   return detectProvider();
 }
 
-export function getProviderInfo(): { name: string; model: string; isFree: boolean; allProviders: Array<{ name: string; model: string; isFree: boolean }> } {
+export function getProviderInfo(): { name: string; model: string; isFree: boolean; honestyEvaluation: EvalScoreRecord | null; allProviders: Array<{ name: string; model: string; isFree: boolean; honestyEvaluation: EvalScoreRecord | null }> } {
   const provider = detectProvider();
   const config = PROVIDER_CONFIG[provider];
-  const allProviders = getAvailableProviders().map(p => ({
+  const evaluations = loadModelEvaluations();
+  const available = getAvailableProviders();
+  for (const entry of MODEL_REGISTRY) {
+    if (entry.id !== "deterministic") entry.status = available.some(p => PROVIDER_CONFIG[p].model === entry.id) ? "configured" : "not-connected";
+  }
+  const allProviders = available.map(p => ({
     name: p,
     model: PROVIDER_CONFIG[p].model,
     isFree: PROVIDER_CONFIG[p].isFree,
+    honestyEvaluation: evaluations.get(PROVIDER_CONFIG[p].model) ?? null,
   }));
-  return { name: provider, model: config.model, isFree: config.isFree, allProviders };
+  return { name: provider, model: config.model, isFree: config.isFree, honestyEvaluation: evaluations.get(config.model) ?? null, allProviders };
 }
 
 function isRateLimitError(error: unknown): boolean {
@@ -913,7 +925,7 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
 export async function generateAIResponse(
   messages: Array<{ role: string; content: string }>,
   maxTokens?: number,
-  options?: { enableWebSearch?: boolean; webSearchMaxUses?: number },
+  options?: { enableWebSearch?: boolean; webSearchMaxUses?: number; facts?: FactLike[]; honestyContract?: GateContract; onHonesty?: (verdict: GateVerdict) => void; preferredProvider?: string; onProviderComplete?: (provider: { name: string; model: string }) => void },
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     let result = "";
@@ -922,11 +934,27 @@ export async function generateAIResponse(
       maxTokens: maxTokens || 2000,
       enableWebSearch: options?.enableWebSearch,
       webSearchMaxUses: options?.webSearchMaxUses,
+      facts: options?.facts,
+      honestyContract: options?.honestyContract,
+      onHonesty: options?.onHonesty,
+      preferredProvider: options?.preferredProvider,
+      onProviderComplete: options?.onProviderComplete,
       onChunk: (content: string) => { result += content; },
       onDone: () => resolve(result),
       onError: (error: Error) => reject(error),
     });
   });
+}
+
+/** Additive envelope; the established generateAIResponse string API is unchanged. */
+export async function generateAIResponseWithHonesty(
+  messages: Array<{ role: string; content: string }>,
+  facts: FactLike[] = [],
+  options: { maxTokens?: number; contract?: GateContract; preferredProvider?: string } = {},
+): Promise<{ answer: string; honesty: GateVerdict; provider: { name: string; model: string } | null }> {
+  let provider: { name: string; model: string } | null = null;
+  const answer = await generateAIResponse(messages, options.maxTokens, { preferredProvider: options.preferredProvider, onProviderComplete: value => { provider = value; } });
+  return { answer, honesty: safeOversightGate(answer, facts, options.contract), provider };
 }
 
 async function callProviderDirect(
@@ -1155,6 +1183,7 @@ export async function streamAIResponse(params: StreamAIResponseParams): Promise<
       let providerController: AbortController | undefined;
       let abortProvider: EventListener | undefined;
       let streamCommitted = false;
+      let honestyOutput = "";
       try {
         const collectedChunks: string[] = [];
         const STREAM_COMMIT_THRESHOLD = 512;
@@ -1168,11 +1197,12 @@ export async function streamAIResponse(params: StreamAIResponseParams): Promise<
           ...params,
           signal: providerController.signal,
           onChunk: (content: string) => {
-            collectedChunks.push(content);
+             if (params.onHonesty && honestyOutput.length <= MAX_HONESTY_OUTPUT_CHARS) honestyOutput = (honestyOutput + content).slice(0, MAX_HONESTY_OUTPUT_CHARS + 1);
             if (streamCommitted) {
               params.onChunk(content);
               return;
             }
+             collectedChunks.push(content);
             const bufferedContent = collectedChunks.join("");
             if (bufferedContent.length >= STREAM_COMMIT_THRESHOLD) {
               streamCommitted = true;
@@ -1197,11 +1227,24 @@ export async function streamAIResponse(params: StreamAIResponseParams): Promise<
         }
 
         if (!streamCommitted) {
+          streamCommitted = true; // Consumer failures must not restart a delivered response.
           for (const chunk of collectedChunks) {
             params.onChunk(chunk);
           }
         }
-        params.onDone();
+        // Receipts are advisory. A consumer callback must never trigger a model
+        // retry or discard a successfully delivered answer.
+        try {
+          Promise.resolve(params.onProviderComplete?.({ name: provider, model: provider === "claude" ? resolvedClaudeModel ?? PROVIDER_CONFIG[provider].model : PROVIDER_CONFIG[provider].model })).catch(() => console.warn("[AI Provider] Async provider metadata consumer failed."));
+        } catch (error) {
+          console.warn("[AI Provider] Provider metadata consumer failed:", error instanceof Error ? error.message : "unknown error");
+        }
+        try {
+          if (params.onHonesty) Promise.resolve(params.onHonesty(safeOversightGate(honestyOutput, params.facts ?? [], params.honestyContract))).catch(() => console.warn("[AI Provider] Async advisory receipt consumer failed."));
+        } catch (error) {
+          console.warn("[AI Provider] Advisory receipt consumer failed:", error instanceof Error ? error.message : "unknown error");
+        }
+        await params.onDone(); // Observe async consumer failures; never mix in fallback text.
         return;
       } catch (error) {
         const isLast = i === orderedProviders.length - 1;

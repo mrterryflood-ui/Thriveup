@@ -1,5 +1,6 @@
 import type { Express, Request } from "express";
 import { randomUUID } from "crypto";
+import { navigatorHonesty } from "./inference-honesty-adapter";
 import { db } from "./storage";
 import {
   streamAIResponse,
@@ -2110,6 +2111,22 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
     msgs.push({ role: "user", content: augmentedMessage });
 
     let fullResponse = "";
+    const persistNavigatorAnswer = async (answer: string, honesty: ReturnType<typeof navigatorHonesty>) => {
+      if (!userId || !activeConversationId || clientDisconnected) return;
+      try {
+        await db.insert(navigatorMessages).values({
+          conversationId: activeConversationId, role: "assistant",
+          content: answer, metadata: { honesty },
+        });
+        if (answer.length > 50) {
+          await db.update(navigatorConversations)
+            .set({ summary: answer.substring(0, 200).replace(/\n/g, " ") })
+            .where(eq(navigatorConversations.id, activeConversationId));
+        }
+      } catch (error) {
+        console.error("[Navigator] Error saving response:", error);
+      }
+    };
     const sourceMetadata = {
       census: {
         status: navigatorCensusIndicators ? "available" : "unavailable",
@@ -2210,6 +2227,8 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
             navigatorGvTotals,
             navigatorGrantHuntTotal,
           );
+          const honesty = navigatorHonesty(groundedResponse, navigatorCensusIndicators, navigatorGvTotals, gunViolenceContext.injected, navigatorGrantHuntTotal);
+          safeWrite(`data: ${JSON.stringify({ honesty })}\n\n`);
 
           // Emit the grounded response text to the client as a content SSE event.
           // The response was buffered (not streamed live) so the client receives
@@ -2222,27 +2241,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
 
           // Persist the grounded text (not the raw model output) so the DB and
           // the user always see the same thing.
-          if (userId && activeConversationId) {
-            try {
-              await db.insert(navigatorMessages).values({
-                conversationId: activeConversationId,
-                role: "assistant",
-                content: groundedResponse,
-              });
-
-              if (groundedResponse.length > 50) {
-                const summarySnippet = groundedResponse
-                  .substring(0, 200)
-                  .replace(/\n/g, " ");
-                await db
-                  .update(navigatorConversations)
-                  .set({ summary: summarySnippet })
-                  .where(eq(navigatorConversations.id, activeConversationId));
-              }
-            } catch (err) {
-              console.error("[Navigator] Error saving response:", err);
-            }
-          }
+          await persistNavigatorAnswer(groundedResponse, honesty);
 
           // Always send deepThinkJobId (per-request UUID) so both authenticated
           // and anonymous users can poll for the DeepSeek R1 result.
@@ -2285,6 +2284,8 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
                 navigatorGvTotals,
                 navigatorGrantHuntTotal,
               );
+              const fallbackHonesty = navigatorHonesty(fallbackGrounded, navigatorCensusIndicators, navigatorGvTotals, gunViolenceContext.injected, navigatorGrantHuntTotal);
+              safeWrite(`data: ${JSON.stringify({ honesty: fallbackHonesty })}\n\n`);
               if (fallbackGrounded.length > 0) {
                 safeWrite(
                   `data: ${JSON.stringify({ content: fallbackGrounded })}\n\n`,
@@ -2293,6 +2294,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
               safeWrite(
                 `data: ${JSON.stringify({ synthesisComplete: true })}\n\n`,
               );
+              await persistNavigatorAnswer(fallbackGrounded, fallbackHonesty);
               safeWrite(
                 `data: ${JSON.stringify({ done: true, sourceMetadata, gunViolenceContext: gunViolenceContext.injected ? { geography: gunViolenceContext.geography, state: gunViolenceContext.state } : null, collaborative: { engines: ["fallback-openrouter"], consensusMethod: "single-engine-fallback", ragChunks: 0, timeMs: 0 } })}\n\n`,
               );
@@ -2307,7 +2309,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
                 onChunk: (content) => {
                   lastResortResponse += content;
                 },
-                onDone: () => {
+                onDone: async () => {
                   const lastResortGrounded = applyNavigatorGrounding(
                     lastResortResponse,
                     navigatorCensusIndicators,
@@ -2315,6 +2317,8 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
                     navigatorGvTotals,
                     navigatorGrantHuntTotal,
                   );
+                  const lastResortHonesty = navigatorHonesty(lastResortGrounded, navigatorCensusIndicators, navigatorGvTotals, gunViolenceContext.injected, navigatorGrantHuntTotal);
+                  safeWrite(`data: ${JSON.stringify({ honesty: lastResortHonesty })}\n\n`);
                   if (lastResortGrounded.length > 0) {
                     safeWrite(
                       `data: ${JSON.stringify({ content: lastResortGrounded })}\n\n`,
@@ -2323,6 +2327,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
                   safeWrite(
                     `data: ${JSON.stringify({ synthesisComplete: true })}\n\n`,
                   );
+                  await persistNavigatorAnswer(lastResortGrounded, lastResortHonesty);
                   safeWrite(
                     `data: ${JSON.stringify({ done: true, sourceMetadata, gunViolenceContext: gunViolenceContext.injected ? { geography: gunViolenceContext.geography, state: gunViolenceContext.state } : null, collaborative: { engines: ["fallback"], consensusMethod: "single-engine-fallback", ragChunks: 0, timeMs: 0 } })}\n\n`,
                   );

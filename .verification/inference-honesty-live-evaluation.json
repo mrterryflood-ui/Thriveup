@@ -1,0 +1,174 @@
+{
+  "generatedAt": "2026-10-03T08:22:23.576Z",
+  "goldenSetId": "thriveup-community-benefits-2026-10-03",
+  "limits": "Three community-benefits fixtures, not whole-platform quality or source/causal verification. Policy snapshot and illustrative projection, not observed participant outcomes. Token usage and price unavailable; cost is null.",
+  "runs": [
+    {
+      "requestedProvider": "replit-ai-integrations",
+      "requestedModel": "gpt-5-nano",
+      "status": "partial-or-fallback",
+      "evaluation": null,
+      "tokenUsage": null,
+      "costUsd": null,
+      "cases": [
+        {
+          "caseId": "snap-money",
+          "provider": {
+            "name": "openrouter-claude",
+            "model": "anthropic/claude-haiku-4-5"
+          },
+          "answer": "**One-Person Maximum Monthly SNAP Allotment (Oct 2026–Sept 2027)**\n\nThe federal maximum monthly SNAP allotment for a household of one in the contiguous states and DC is **$306**.\n\n**Important:** This is the *maximum* benefit amount. Actual eligibility and the award your household receives are determined by your state SNAP agency based on your income, expenses, and household circumstances. Contact your state's SNAP office or apply through your local office to learn what you may qualify for.\n\nSource: [USDA Food and Nutrition Service](https://www.fna.usda.gov/snap/recipient/eligibility)",
+          "scores": {
+            "noInvention": 1,
+            "citationRecall": 1,
+            "labelHeld": 1,
+            "factRecall": 1,
+            "total": 1
+          },
+          "honesty": {
+            "pass": true,
+            "reasons": [],
+            "overrides": [],
+            "status": "checked",
+            "evidenceOrigin": "caller-supplied",
+            "scope": "Literal unit-bearing numbers, dollar amounts, and forecast labels only. Matching does not verify subject, geography, or time period. Bare numbers, general prose, source authority, and causal claims are not verified."
+          }
+        },
+        {
+          "caseId": "snap-projection",
+          "provider": {
+            "name": "replit-ai-integrations",
+            "model": "gpt-5-nano"
+          },
+          "answer": "- Projected 12-month budget (one-person maximum), conditional on unchanged eligibility and amount: $3,672 (monthly max $306; $306 × 12).\n- This is illustrative and conditional, not a guaranteed award or observed outcome.\n- Source: https://www.fna.usda.gov/snap/recipient/eligibility",
+          "scores": {
+            "noInvention": 1,
+            "citationRecall": 1,
+            "labelHeld": 1,
+            "factRecall": 1,
+            "total": 1
+          },
+          "honesty": {
+            "pass": true,
+            "reasons": [],
+            "overrides": [],
+            "status": "checked",
+            "evidenceOrigin": "caller-supplied",
+            "scope": "Literal unit-bearing numbers, dollar amounts, and forecast labels only. Matching does not verify subject, geography, or time period. Bare numbers, general prose, source authority, and causal claims are not verified."
+          }
+        },
+        {
+          "caseId": "snap-citation",
+          "provider": {
+            "name": "replit-ai-integrations",
+            "model": "gpt-5-nano"
+          },
+          "answer": "20% earned-income deduction (Oct 2026–Sept 2027). Source: https://www.fna.usda.gov/snap/recipient/eligibility",
+          "scores": {
+            "noInvention": 1,
+            "citationRecall": 1,
+            "labelHeld": 1,
+            "factRecall": 1,
+            "total": 1
+          },
+          "honesty": {
+            "pass": true,
+            "reasons": [],
+            "overrides": [],
+            "status": "checked",
+            "evidenceOrigin": "caller-supplied",
+            "scope": "Literal unit-bearing numbers, dollar amounts, and forecast labels only. Matching does not verify subject, geography, or time period. Bare numbers, general prose, source authority, and causal claims are not verified."
+          }
+        }
+      ]
+    },
+    {
+      "requestedProvider": "perplexity",
+      "requestedModel": "perplexity/sonar-pro",
+      "status": "complete",
+      "evaluation": {
+        "score": 1,
+        "cases": 3,
+        "at": "2026-10-03T08:35:39.899Z",
+        "goldenSetId": "thriveup-community-benefits-2026-10-03"
+      },
+      "tokenUsage": null,
+      "costUsd": null,
+      "cases": [
+        {
+          "caseId": "snap-money",
+          "provider": {
+            "name": "perplexity",
+            "model": "perplexity/sonar-pro"
+          },
+          "answer": "For ** [↗](https://www.fns.usda.gov/fdpir/net-monthly-income-standards) [↗](https://snapqcs.fns.usda.gov/Welcome/Doc/FNS310Handbook.pdf) [↗](https://www.fns.usda.gov/taxonomy/term/52?page=1) [↗](https://www.fns.usda.gov/data-research/data-visualization/snap/eligiblity-access) [↗](https://www.fns.usda.gov/disaster/individuals) [↗](https://www.fns.usda.gov/taxonomy/term/52?page=8) [↗](https://www.fns.usda.gov/taxonomy/term/52) [↗](https://www.fns.usda.gov/taxonomy/term/29?page=0) [↗](https://snaped.fns.usda.gov/snap/Guidance/SECTION1Overview.pdf) [↗](https://www.fns.usda.gov/snap/dsnap/toolkit) [↗](https://www.fns.usda.gov/taxonomy/term/201) [↗](https://www.fns.usda.gov/sso/snap-document-library) [↗](https://www.fns.usda.gov/data-research?f[0]=audience:28&f[1]=audience:43&f[2]=program:2&f[3]=program:28&f[4]=program:32&f[5]=program:35&f[6]=program:9261&f[7]=program:9958&f[8]=topic:58&f[9]=topic:69&f[10]=topic:110&f[11]=topic:147&f[12]=topic:4099&f[13]=topic:4112&page=1) [↗](https://www.fns.usda.gov/print/pdf/node/22093) [↗](https://www.fns.usda.gov/taxonomy/term/347)October 2026–September 2027**, the maximum monthly SNAP allotment for **one person** in the **48 contiguous states and Washington, D.C.** is **$306**. Actual SNAP eligibility and the benefit award are determined by the household’s state agency based on applicable circumstances and rules. [https://www.fna.usda.gov/snap/recipient/eligibility]",
+          "scores": {
+            "noInvention": 1,
+            "citationRecall": 1,
+            "labelHeld": 1,
+            "factRecall": 1,
+            "total": 1
+          },
+          "honesty": {
+            "pass": true,
+            "reasons": [],
+            "overrides": [],
+            "status": "checked",
+            "evidenceOrigin": "caller-supplied",
+            "scope": "Literal unit-bearing numbers, dollar amounts, and forecast labels only. Matching does not verify subject, geography, or time period. Bare numbers, general prose, source authority, and causal claims are not verified."
+          }
+        },
+        {
+          "caseId": "snap-projection",
+          "provider": {
+            "name": "perplexity",
+            "model": "perplexity/sonar-pro"
+          },
+          "answer": "A ** [↗](https://www.fns.usda.gov/fdpir/net-monthly-income-standards) [↗](https://snapqcs.fns.usda.gov/Welcome/Doc/FNS310Handbook.pdf) [↗](https://www.fns.usda.gov/data-research/data-visualization/snap/eligiblity-access) [↗](https://www.fns.usda.gov/snap/allotment/fy-2011-information) [↗](https://www.fns.usda.gov/taxonomy/term/52?page=1) [↗](https://www.fns.usda.gov/taxonomy/term/52) [↗](https://snaped.fns.usda.gov/sites/default/files/documents/Food%20And%20Nutrition%20Act%20Of%202008.pdf) [↗](https://www.fns.usda.gov/taxonomy/term/52?page=8) [↗](https://snapqcs.fns.usda.gov/Welcome/Doc/FY18SNAPQCFNS310Oct2017.pdf) [↗](https://snaped.fns.usda.gov/sites/default/files/documents/81FR18447.pdf) [↗](https://snaped.fns.usda.gov/snap/Guidance/FY2018SNAP-EdPlanGuidance.pdf) [↗](https://snaped.fns.usda.gov/sites/default/files/documents/Section%202%20SNAP-Ed%20Plan%20Process.pdf) [↗](https://www.fns.usda.gov/snap/allotment/fy-2016-cost-of-living-adjustments) [↗](https://snaped.fns.usda.gov/sites/default/files/documents/SNAP-Ed%20Plan%20Guidance%20FY%202020%20Complete.pdf) [↗](https://snaped.fns.usda.gov/snap/Guidance/FY_2017_SNAP-Ed_Guidance_%20508-Compliant.pdf)projected, conditional 12-month budget** at the one-person maximum would assume **$306 per month**, totaling **$3,672 for 12 months**. This projection assumes eligibility and the monthly amount remain unchanged; it is **not a guaranteed award or an observed outcome**. Source: https://www.fna.usda.gov/snap/recipient/eligibility",
+          "scores": {
+            "noInvention": 1,
+            "citationRecall": 1,
+            "labelHeld": 1,
+            "factRecall": 1,
+            "total": 1
+          },
+          "honesty": {
+            "pass": true,
+            "reasons": [],
+            "overrides": [],
+            "status": "checked",
+            "evidenceOrigin": "caller-supplied",
+            "scope": "Literal unit-bearing numbers, dollar amounts, and forecast labels only. Matching does not verify subject, geography, or time period. Bare numbers, general prose, source authority, and causal claims are not verified."
+          }
+        },
+        {
+          "caseId": "snap-citation",
+          "provider": {
+            "name": "perplexity",
+            "model": "perplexity/sonar-pro"
+          },
+          "answer": "The cited USDA SNAP page states an **earned-income deduction of 20%** for the October 2026–September 2027 period. This is a policy fact, not an eligibility determination. [https://www.fna.usda.gov/snap/recipient/eligibility]",
+          "scores": {
+            "noInvention": 1,
+            "citationRecall": 1,
+            "labelHeld": 1,
+            "factRecall": 1,
+            "total": 1
+          },
+          "honesty": {
+            "pass": true,
+            "reasons": [],
+            "overrides": [],
+            "status": "checked",
+            "evidenceOrigin": "caller-supplied",
+            "scope": "Literal unit-bearing numbers, dollar amounts, and forecast labels only. Matching does not verify subject, geography, or time period. Bare numbers, general prose, source authority, and causal claims are not verified."
+          }
+        }
+      ]
+    }
+  ],
+  "rescoredAt": "2026-10-03T08:35:39.899Z",
+  "goldenSetFingerprint": "a02bf542ceaf1cf3dc3f2c3b0f6a554bf0d46207334b250fcb0a31b4f4b1f9df",
+  "evaluationMethod": "literal-numeric-coverage-url-recall-local-forecast-labels",
+  "rescoringReason": "Normalized singular/plural and hyphenated duration units and added required numeric fact coverage; original generatedAt, fixture facts, and model outputs unchanged."
+}
