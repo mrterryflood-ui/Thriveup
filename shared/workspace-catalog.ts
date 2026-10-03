@@ -31,9 +31,9 @@ export interface WorkspaceTask {
   primary?: boolean;
 }
 export const WORKSPACE_TASKS: WorkspaceTask[] = [
-  { id: "find-support", label: "Find support near me", description: "Food, housing, care, and local resources.", workspace: "residents", href: "/get-help", nextStep: "Choose a location and the kind of support you need. Availability varies by resource.", access: "public", terms: ["housing", "rent", "food", "help", "shelter", "transportation"], primary: true },
-  { id: "check-benefits", label: "Explore benefits", description: "Understand programs you may be eligible for.", workspace: "residents", href: "/benefits-screener", nextStep: "Answer screening questions. A screening result is not an eligibility determination.", access: "public", terms: ["benefits", "snap", "medicaid", "qualify", "assistance"], primary: true },
-  { id: "learn-work", label: "Learn or explore careers", description: "Learning, practical skills, and workforce pathways.", workspace: "residents", href: "/academy", nextStep: "Choose a learning or career pathway. Program requirements remain specific to each pathway.", access: "public", terms: ["learn", "learning", "career", "job", "jobs", "school", "training", "skills"], primary: true },
+  { id: "find-support", label: "Find food, housing or care", description: "Search resources and choose who to contact.", workspace: "residents", href: "/get-help", nextStep: "Search for a need, open a matching category, then choose a resource. Confirm location and availability with the provider.", access: "public", terms: ["housing", "rent", "food", "help", "shelter", "transportation"], primary: true },
+  { id: "check-benefits", label: "Check benefits", description: "See programs that may fit your situation.", workspace: "residents", href: "/benefits-screener", nextStep: "Review the screening disclosure, then begin the household questions. Results are estimates, not an eligibility determination.", access: "public", terms: ["benefits", "snap", "medicaid", "qualify", "assistance"], primary: true },
+  { id: "learn-work", label: "Learn skills or explore careers", description: "Choose a lesson or explore a learning path.", workspace: "residents", href: "/academy", nextStep: "Open the Learning Center for lessons, or explore another academy pathway. Each pathway has its own requirements.", access: "public", terms: ["learn", "learning", "career", "job", "jobs", "school", "training", "skills"], primary: true },
   { id: "health", label: "Explore health & wellbeing", description: "Wellness tools and connections to care.", workspace: "residents", href: "/health-wellness", nextStep: "Choose a wellness or care-navigation tool. This is not a diagnosis or emergency service.", access: "public", terms: ["health", "wellness", "wellbeing", "care"] },
   { id: "my-journey", label: "Continue my journey", description: "Review your saved personal progress.", workspace: "residents", href: "/my-journey", nextStep: "Sign in to see your own saved journey.", access: "authenticated", terms: ["journey", "progress"] },
   { id: "my-appointments", label: "My appointments", description: "Review your personal appointments.", workspace: "residents", href: "/my-appointments", nextStep: "Sign in to review your appointments.", access: "authenticated", terms: ["appointments"] },
@@ -51,6 +51,18 @@ export const WORKSPACE_TASKS: WorkspaceTask[] = [
   { id: "community-impact", label: "Explore community scenarios", description: "Compare conditions and possible responses.", workspace: "community", href: "/community-impact", nextStep: "Review scenario assumptions. Scenarios are not observed outcomes.", access: "public", terms: ["scenario", "scenarios", "planning"] },
   { id: "community-voice", label: "Share community perspectives", description: "Participate through the community workspace.", workspace: "community", href: "/community", nextStep: "Choose how to participate and review the applicable consent choices.", access: "public", terms: ["voice", "participate"] },
 ];
+// One default decision surface, not the union of every audience's priorities.
+export const HOME_ENTRY_TASK_IDS = ["find-support", "check-benefits", "learn-work"] as const;
+export function homeEntryTasks(): WorkspaceTask[] {
+  return HOME_ENTRY_TASK_IDS.flatMap(id => {
+    const task = WORKSPACE_TASKS.find(item => item.id === id);
+    return task?.access === "public" && task.workspace === "residents" ? [task] : [];
+  });
+}
+export function entryTaskForPath(path: string): WorkspaceTask | undefined {
+  const clean = path.split(/[?#]/)[0];
+  return homeEntryTasks().find(task => task.href === clean);
+}
 export interface ViewerAccess { authenticated: boolean; staff: boolean; admin: boolean; loading?: boolean }
 export function canUseTask(task: WorkspaceTask, viewer: ViewerAccess): boolean {
   if (task.access === "public") return true;

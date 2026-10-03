@@ -1,13 +1,13 @@
 import { Link, useLocation } from "wouter";
 import { Home, Compass, Search, ArrowLeft, ArrowRight } from "lucide-react";
-import { WORKSPACES, WORKSPACE_TASKS, canUseTask } from "@shared/workspace-catalog";
+import { WORKSPACES, WORKSPACE_TASKS, canUseTask, homeEntryTasks } from "@shared/workspace-catalog";
 import { useWorkspace, useWorkspaceAccess } from "@/lib/workspace-context";
 import { Sidebar, SidebarHeader, SidebarContent, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/use-auth";
 
 export function FocusedSidebar() {
   const [location] = useLocation();
-  const { workspace } = useWorkspace();
+  const { workspace, setWorkspace } = useWorkspace();
   const viewer = useWorkspaceAccess();
   const { isAuthenticated, isLoading, logout } = useAuth();
   const { setOpenMobile } = useSidebar();
@@ -24,14 +24,22 @@ export function FocusedSidebar() {
         <Link href="/" onClick={close} className="flex items-center gap-3 rounded-lg px-3 min-h-11 hover:bg-accent" aria-label="All starting points" data-testid="focused-nav-start"><Home size={17} aria-hidden="true" />Start here</Link>
         <div className="mt-5 px-3">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Your workspace</p>
-          <p className="mt-2 font-semibold text-sm">{current?.label ?? "Choose a perspective"}</p>
+          <p className="mt-2 font-semibold text-sm">{current?.label ?? "Start with a task"}</p>
         </div>
         {current ? (
           <>
             <Link href={`/workspace/${current.id}`} onClick={close} className="mt-2 flex gap-3 items-center rounded-lg px-3 min-h-11 hover:bg-accent" aria-current={location === `/workspace/${current.id}` ? "page" : undefined} aria-label="Workspace overview" data-testid="focused-nav-workspace"><Compass size={17} aria-hidden="true" />Workspace overview</Link>
             {tasks.map(task => <Link key={task.id} href={task.href} onClick={close} aria-label={task.label} aria-current={location === task.href ? "page" : undefined} data-testid={`focused-nav-${task.id}`} className={`flex gap-3 items-center rounded-lg px-3 min-h-11 text-sm hover:bg-accent ${location === task.href ? "bg-accent font-semibold" : ""}`}><ArrowRight size={14} aria-hidden="true" /><span>{task.label}</span></Link>)}
           </>
-        ) : WORKSPACES.map(item => <Link key={item.id} href={`/workspace/${item.id}`} onClick={close} className="flex gap-3 items-center rounded-lg px-3 min-h-11 text-sm hover:bg-accent" aria-label={item.label} data-testid={`focused-nav-choose-${item.id}`}><Compass size={16} aria-hidden="true" />{item.label}</Link>)}
+        ) : (
+          <>
+            {homeEntryTasks().map(task => <Link key={task.id} href={task.href} onClick={() => { setWorkspace(task.workspace); close(); }} aria-label={task.label} data-testid={`focused-nav-${task.id}`} className="flex gap-3 items-center rounded-lg px-3 min-h-11 text-sm hover:bg-accent"><ArrowRight size={14} aria-hidden="true" />{task.label}</Link>)}
+            <details className="mt-4">
+              <summary className="min-h-11 flex items-center px-3 text-sm font-semibold cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-testid="focused-nav-perspectives">Explore by audience</summary>
+              {WORKSPACES.map(item => <Link key={item.id} href={`/workspace/${item.id}`} onClick={close} className="flex gap-3 items-center rounded-lg px-3 min-h-11 text-sm hover:bg-accent" aria-label={item.label} data-testid={`focused-nav-choose-${item.id}`}><Compass size={16} aria-hidden="true" />{item.label}</Link>)}
+            </details>
+          </>
+        )}
         <Link href="/tools" onClick={close} className="mt-6 flex items-center gap-3 rounded-lg px-3 min-h-11 hover:bg-accent border" aria-label="Search all tools" data-testid="focused-nav-tools"><Search size={17} aria-hidden="true" />Search all tools</Link>
         {viewer.admin && <Link href="/ecosystem-ops-center" onClick={close} className="mt-2 px-3 min-h-11 flex items-center text-sm hover:bg-accent rounded-lg" aria-label="Staff operations center" data-testid="focused-nav-ops">Staff operations</Link>}
       </SidebarContent>

@@ -19,7 +19,7 @@ function WorkspaceTaskCard({ task }: { task: WorkspaceTask }) {
   if (!allowed) {
     const roleRequired = task.access === "staff" || task.access === "admin";
     return (
-      <article className="rounded-2xl border border-[#d6ddd5] bg-[#f6f7f1] p-5 sm:p-6" data-testid={`workspace-signin-${task.id}`}>
+      <article className="rounded-2xl border border-[#d6ddd5] bg-[#f6f7f1] p-4 sm:p-6" data-testid={`workspace-signin-${task.id}`}>
         <div className="flex items-start gap-3">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#e5eadf] text-[#58756a]">
             <LockKeyhole aria-hidden="true" size={17} />
@@ -33,7 +33,7 @@ function WorkspaceTaskCard({ task }: { task: WorkspaceTask }) {
             {!viewer.loading && !viewer.authenticated && <a
               href={`/api/login?returnTo=${encodeURIComponent(task.href)}`}
               onClick={() => setWorkspace(task.workspace)}
-              className="mt-4 inline-flex min-h-9 items-center gap-2 rounded-lg border border-[#b9ccc0] bg-white px-3 text-xs font-semibold text-[#28675d] hover:bg-[#edf3ed] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#24756b]"
+              className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-lg border border-[#b9ccc0] bg-white px-3 text-xs font-semibold text-[#28675d] hover:bg-[#edf3ed] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#24756b]"
               data-testid={`workspace-login-${task.id}`}
             >
               {roleRequired ? "Sign in with authorized account" : "Sign in to continue"} <ArrowRight aria-hidden="true" size={14} />
@@ -48,18 +48,18 @@ function WorkspaceTaskCard({ task }: { task: WorkspaceTask }) {
     <Link
       href={task.href}
       onClick={() => setWorkspace(task.workspace)}
-      className="group flex min-h-[190px] flex-col justify-between rounded-2xl border border-[#d5dfd9] bg-[#fbfaf6] p-5 transition hover:-translate-y-0.5 hover:border-[#83aa9c] hover:shadow-[0_18px_35px_-26px_rgba(26,70,62,.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#28786d] focus-visible:ring-offset-2 sm:p-6"
+      className="group flex min-h-[150px] flex-col justify-between rounded-2xl border border-[#d5dfd9] bg-[#fbfaf6] p-3 transition hover:-translate-y-0.5 hover:border-[#83aa9c] hover:shadow-[0_18px_35px_-26px_rgba(26,70,62,.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#28786d] focus-visible:ring-offset-2 sm:min-h-[190px] sm:p-6"
       data-testid={`workspace-task-${task.id}`}
     >
       <div>
-        <div className="mb-4 flex items-center justify-between gap-3">
+        <div className="mb-2 sm:mb-4 flex items-center justify-between gap-3">
           <span className="rounded-full bg-[#e8efe7] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-[#53776b]">Next step</span>
           <MoveRight aria-hidden="true" size={17} className="text-[#438074] transition-transform group-hover:translate-x-1" />
         </div>
         <h3 className="font-[var(--font-display)] text-xl font-semibold leading-tight tracking-[-.025em] text-[#213d38]">{task.label}</h3>
         <p className="mt-2 text-sm leading-5 text-[#63776f]">{task.description}</p>
       </div>
-      <p className="mt-5 border-t border-[#e2e8e1] pt-3 text-xs leading-5 text-[#61766d]">{task.nextStep}</p>
+      <p className="mt-3 sm:mt-5 border-t border-[#e2e8e1] pt-2 sm:pt-3 text-xs leading-5 text-[#61766d]">{task.nextStep}</p>
     </Link>
   );
 }
@@ -68,7 +68,6 @@ export default function WorkspaceHome({ workspace: workspaceProp }: { workspace?
   const params = useParams<{ workspace?: string }>();
   const workspaceId = workspaceProp ?? params.workspace;
   const { setWorkspace, storageUnavailable } = useWorkspace();
-  const viewer = useWorkspaceAccess();
 
   useEffect(() => {
     if (isWorkspaceId(workspaceId)) setWorkspace(workspaceId);
@@ -95,39 +94,40 @@ export default function WorkspaceHome({ workspace: workspaceProp }: { workspace?
   const visibleTasks = tasks;
 
   return (
-    <div className="min-h-[100dvh] bg-[#eef2ec] text-[#203b38]">
-      <div className="mx-auto max-w-[1180px] px-4 pb-16 pt-5 sm:px-7 lg:px-10">
-        <header className="flex justify-end">
-          <Link href="/workspaces" className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#cad7cf] bg-[#f8f8f2] px-4 text-sm font-semibold text-[#375c53] transition hover:border-[#8cac9f] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#24756b]" data-testid="workspace-switch">
+      <div className="min-h-[100dvh] bg-[#eef2ec] text-[#203b38]">
+      <div className="mx-auto max-w-[1180px] px-4 pb-16 pt-3 sm:px-7 sm:pt-5 lg:px-10">
+        <header className="flex min-h-9 items-center justify-between gap-3">
+          <p className="text-[10px] font-bold uppercase tracking-[.16em] text-[#53776b]">TCAF <span className="px-1 text-[#a28b4b]">/</span> ThriveUp</p>
+          <Link href="/workspaces" className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-[#cad7cf] bg-[#f8f8f2] px-3.5 text-xs font-semibold text-[#375c53] transition hover:border-[#8cac9f] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#24756b]" data-testid="workspace-switch">
             <Compass aria-hidden="true" size={15} /> Change workspace
           </Link>
         </header>
 
-        <section className="relative mt-8 overflow-hidden rounded-[2rem] bg-[#174b45] px-6 py-9 text-[#f8f5e9] sm:px-10 sm:py-12 lg:px-14" aria-labelledby="workspace-title">
+        <section className="relative mt-3 overflow-hidden rounded-2xl bg-[#174b45] px-5 py-4 text-[#f8f5e9] sm:mt-7 sm:rounded-[2rem] sm:px-10 sm:py-10 lg:px-14" aria-labelledby="workspace-title">
           <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-28 h-[27rem] w-[27rem] rounded-full border border-[#f0c65f]/20" />
           <div className="relative max-w-[760px]">
-            <p className="mb-4 text-xs font-bold uppercase tracking-[.18em] text-[#d3e2da]">{workspace.audience}</p>
-            <h1 id="workspace-title" className="font-[var(--font-display)] text-[2.6rem] font-medium leading-[1.02] tracking-[-.05em] sm:text-6xl">{workspace.label}</h1>
-            <p className="mt-4 max-w-xl text-base leading-7 text-[#dbe7e0]">{workspace.purpose}</p>
-            <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[.07] px-3.5 py-2 text-xs text-[#e1eae4]">
-              <Compass aria-hidden="true" size={14} className="text-[#f0cf77]" />
-              This workspace organizes related tasks; it does not grant access.
+            <p className="hidden sm:block mb-3 text-xs font-bold uppercase tracking-[.18em] text-[#d3e2da]">{workspace.audience}</p>
+            <h1 id="workspace-title" className="font-[var(--font-display)] text-[1.4rem] font-medium leading-[1.02] tracking-[-.045em] sm:text-5xl lg:text-6xl">{workspace.label}</h1>
+            <p className="mt-1.5 max-w-xl text-xs leading-5 text-[#dbe7e0] sm:mt-3 sm:text-base sm:leading-7">{workspace.purpose}</p>
+            <div className="hidden sm:inline-flex items-center leading-4 text-[#e1eae4] mt-4 gap-2 rounded-full border border-white/15 bg-white/[.07] px-3.5 py-2 text-xs">
+              <Compass aria-hidden="true" size={12} className="shrink-0 text-[#f0cf77] sm:h-[14px] sm:w-[14px]" />
+              This workspace organizes tasks; it does not grant access.
             </div>
           </div>
         </section>
 
         {storageUnavailable && <p className="mt-4 text-xs leading-5 text-[#7a6340]" role="status">Your browser could not save this preference. Your selected workspace is still available for this visit.</p>}
 
-        <section className="pt-10 sm:pt-12" aria-labelledby="workspace-tasks-title">
-          <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <section className="pt-5 sm:pt-12" aria-labelledby="workspace-tasks-title">
+          <div className="mb-3 flex flex-col gap-1 sm:mb-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[.16em] text-[#668078]">Choose one next step</p>
-              <h2 id="workspace-tasks-title" className="mt-2 font-[var(--font-display)] text-3xl font-semibold tracking-[-.04em] text-[#203b38]">Start with a task.</h2>
+              <p className="hidden sm:block text-[10px] font-bold uppercase tracking-[.16em] text-[#668078]">Choose one next step</p>
+              <h2 id="workspace-tasks-title" className="mt-0.5 font-[var(--font-display)] text-2xl font-semibold tracking-[-.04em] text-[#203b38] sm:mt-2 sm:text-3xl">Start with a task.</h2>
             </div>
-            <p className="max-w-sm text-xs leading-5 text-[#6b7f76]">Each description explains what opens next. Availability and permissions depend on the destination.</p>
+            <p className="hidden sm:block max-w-sm text-xs leading-5 text-[#6b7f76]">Each description explains what opens next. Availability and permissions depend on the destination.</p>
           </div>
           {visibleTasks.length ? (
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3 sm:gap-3">
               {visibleTasks.map((task) => <WorkspaceTaskCard key={task.id} task={task} />)}
             </div>
           ) : (
@@ -137,7 +137,7 @@ export default function WorkspaceHome({ workspace: workspaceProp }: { workspace?
           )}
         </section>
 
-        <section className="mt-12" aria-label="Optional guided navigation">
+        <section className="mt-8 sm:mt-12" aria-label="Optional guided navigation">
           <GuidedStart workspace={workspaceId} />
         </section>
         {workspaceId === "community" && <FocusedInvitation />}

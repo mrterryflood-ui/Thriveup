@@ -55,7 +55,7 @@ npx tsx scripts/verify-intake-contact-validation.ts || exit 1
 npx tsx scripts/verify-chw-dashboard-no-555.ts || exit 1
 npx tsx scripts/verify-tool-reachability.ts || exit 1
 npx tsx scripts/verify-two-click-reachability.ts || exit 1
-npx tsx --test shared/workspace-catalog.test.ts || exit 1
+npx tsx --test shared/workspace-catalog.test.ts shared/action-entry.test.ts || exit 1
 npx tsx --test server/resident-case-access.test.ts || exit 1
 node --test scripts/verify-focused-service-worker.test.mjs || exit 1
 npx tsx scripts/verify-how-to-apply.ts || exit 1
@@ -64,3 +64,8 @@ npx tsx scripts/verify-how-to-apply.ts || exit 1
 BASE_URL="$BASE" npx tsx scripts/verify-apply-chat-ratelimit.ts || exit 1
 BASE_URL="$BASE" npx tsx scripts/verify-health-federation.ts || exit 1
 npx tsx scripts/verify-navigation-permission-sync.ts || exit 1
+
+# Prevent a technically linked but unusable first screen from passing this gate.
+# This wrapper owns e2e-gate.lock and an existing :5000 server; no second server.
+E2E_BASE_URL="$BASE" npx playwright test tests/e2e/action-first-entry.spec.ts \
+  --workers=1 --output="/tmp/action-first-entry-gate-$$" || exit 1

@@ -202,10 +202,9 @@ function LoadingSkeleton() {
 
 export default function AcademyVillagePage() {
   useEffect(() => { document.title = 'Panther Village | ThriveUp Academy'; }, []);
-  const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem("txea_onboarding_complete"));
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const completeOnboarding = () => {
-    localStorage.setItem("txea_onboarding_complete", "true");
     setShowOnboarding(false);
   };
 
@@ -257,7 +256,7 @@ export default function AcademyVillagePage() {
           { label: "Village" },
         ]}
       />
-      <WelcomeOnboarding isOpen={showOnboarding} onComplete={completeOnboarding} />
+      {showOnboarding && <WelcomeOnboarding isOpen={true} onComplete={completeOnboarding} />}
       <div
         className="rounded-md bg-gradient-to-r from-rose-900 to-red-700 p-4 sm:p-6 lg:p-8 mb-6"
         data-testid="section-hero"
@@ -267,6 +266,7 @@ export default function AcademyVillagePage() {
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-1" data-testid="text-village-title">
               Panther Village
             </h1>
+            <Button variant="secondary" className="min-h-11 my-2" onClick={() => setShowOnboarding(true)} data-testid="button-open-academy-orientation">Optional academy tour</Button>
             <p className="text-rose-100 text-lg" data-testid="text-village-subtitle">
               Your Campus, Your Community, Your Future
             </p>

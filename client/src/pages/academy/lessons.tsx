@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { ErrorRetry } from "@/components/error-retry";
-import { PageHeader } from "@/components/page-header";
 
 interface LifeLesson {
   id: string;
@@ -100,59 +99,33 @@ export default function AcademyLessonsPage() {
     : lessons.filter((l) => l.featureArea.toLowerCase() === activeFilter);
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <PageHeader
-        title="Life Lessons"
-        breadcrumbs={[
-          { label: "Academy", href: "/academy" },
-          { label: "Life Lessons" },
-        ]}
-      />
-      <div className="rounded-md bg-gradient-to-r from-rose-900 to-red-950 p-8 mb-8" data-testid="section-hero">
-        <h1 className="text-3xl font-bold text-white mb-2" data-testid="text-lessons-title">
-          Life Lessons
-        </h1>
-        <p className="text-rose-100 text-lg">
+    <div className="mx-auto w-full max-w-5xl px-4 pb-8 pt-3 sm:p-6">
+      <section className="mb-3 sm:mb-5" data-testid="section-hero">
+        <nav aria-label="Breadcrumb" className="mb-1 text-xs text-muted-foreground">
+          <Link href="/academy" className="underline underline-offset-2 hover:text-foreground">Academy</Link>
+          <span aria-hidden="true" className="px-2">/</span>
+          <span aria-current="page">Life Lessons</span>
+        </nav>
+        <h1 className="font-semibold text-2xl leading-tight tracking-tight text-foreground" data-testid="text-lessons-title">Life Lessons</h1>
+        <p className="mt-1 max-w-2xl text-sm leading-5 text-muted-foreground sm:text-base sm:leading-6">
           Where Business Meets Life - Every Academy activity teaches a real-world skill
         </p>
-      </div>
+      </section>
 
-      <Card className="p-6 mb-8" data-testid="section-parallel-universe">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="rounded-md p-2 bg-primary/10">
-            <Lightbulb className="h-5 w-5 text-primary" />
-          </div>
-          <h2 className="font-semibold text-lg">The Parallel Universe</h2>
-        </div>
-        <p className="text-muted-foreground mb-2">
-          Every business skill you learn in the Academy has a life lesson behind it.
-        </p>
-        <p className="text-muted-foreground mb-6">
-          Stock trading teaches risk assessment. Campus building teaches project management. Your wallet teaches budgeting.
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {parallelMappings.map((m) => {
-            const config = getConfig(m.area);
-            const Icon = config.icon;
-            return (
-              <div
-                key={m.area}
-                className="flex items-center gap-3 rounded-md p-3 bg-muted/50"
-                data-testid={`mapping-${m.area}`}
-              >
-                <div className={`rounded-md p-1.5 ${config.bgClass} shrink-0`}>
-                  <Icon className={`h-4 w-4 ${config.textClass}`} />
-                </div>
-                <span className="text-sm font-medium whitespace-nowrap">{m.business}</span>
-                <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                <span className="text-sm text-muted-foreground whitespace-nowrap">{m.life}</span>
-              </div>
-            );
-          })}
-        </div>
-      </Card>
+      <label htmlFor="lesson-filter-select" className="sr-only">Filter lessons by category</label>
+      <select
+        id="lesson-filter-select"
+        value={activeFilter}
+        onChange={(event) => setActiveFilter(event.target.value)}
+        className="mb-3 min-h-11 w-full min-w-0 rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground sm:hidden"
+        data-testid="lesson-filter-select"
+      >
+        {filterTabs.map((tab) => (
+          <option key={tab} value={tab}>{tab.charAt(0).toUpperCase() + tab.slice(1)}</option>
+        ))}
+      </select>
 
-      <div className="flex gap-2 flex-wrap mb-6">
+      <div className="mb-4 hidden flex-wrap gap-2 sm:mb-6 sm:flex">
         {filterTabs.map((tab) => {
           const isActive = activeFilter === tab;
           const label = tab.charAt(0).toUpperCase() + tab.slice(1);
@@ -185,11 +158,11 @@ export default function AcademyLessonsPage() {
             return (
               <Card key={lesson.id} className="p-5" data-testid={`card-lesson-${lesson.id}`}>
                 <div className="flex items-start justify-between gap-2 mb-3 flex-wrap">
-                  <div className="flex items-center gap-2">
+                  <div className="flex min-w-0 items-center gap-2">
                     <div className={`rounded-md p-1.5 ${config.bgClass} shrink-0`}>
                       <Icon className={`h-4 w-4 ${config.textClass}`} />
                     </div>
-                    <h3 className="font-semibold">{lesson.businessConcept}</h3>
+                    <h3 className="min-w-0 break-words font-semibold">{lesson.businessConcept}</h3>
                   </div>
                   <Badge variant="secondary" className={`${config.badgeBg} no-default-hover-elevate no-default-active-elevate shrink-0`}>
                     {lesson.featureArea}
@@ -202,7 +175,7 @@ export default function AcademyLessonsPage() {
 
                 <div className="rounded-md bg-muted/50 p-3 mb-4" data-testid={`section-reflection-${lesson.id}`}>
                   <p className="text-xs font-medium text-muted-foreground mb-1">Reflection</p>
-                  <p className="text-sm italic">{lesson.reflection}</p>
+                  <p className="break-words text-sm italic">{lesson.reflection}</p>
                 </div>
 
                 <Link href={config.href}>
@@ -216,6 +189,44 @@ export default function AcademyLessonsPage() {
           })}
         </div>
       )}
+
+      <details className="mt-6 sm:mt-8">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-md border border-border bg-card px-4 py-3 font-semibold text-foreground marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <span className="rounded-md bg-primary/10 p-1.5">
+            <Lightbulb className="h-4 w-4 text-primary" />
+          </span>
+          The Parallel Universe
+          <span className="ml-auto text-xs font-normal text-muted-foreground">Optional background</span>
+        </summary>
+        <Card className="mt-2 p-4 sm:p-6" data-testid="section-parallel-universe">
+          <p className="mb-2 text-muted-foreground">
+            Every business skill you learn in the Academy has a life lesson behind it.
+          </p>
+          <p className="mb-5 text-muted-foreground">
+            Stock trading teaches risk assessment. Campus building teaches project management. Your wallet teaches budgeting.
+          </p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {parallelMappings.map((m) => {
+              const config = getConfig(m.area);
+              const Icon = config.icon;
+              return (
+                <div
+                  key={m.area}
+                  className="flex min-w-0 items-center gap-2 rounded-md bg-muted/50 p-3"
+                  data-testid={`mapping-${m.area}`}
+                >
+                  <div className={`rounded-md p-1.5 ${config.bgClass} shrink-0`}>
+                    <Icon className={`h-4 w-4 ${config.textClass}`} />
+                  </div>
+                  <span className="min-w-0 break-words text-sm font-medium">{m.business}</span>
+                  <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                  <span className="min-w-0 break-words text-sm text-muted-foreground">{m.life}</span>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      </details>
     </div>
   );
 }

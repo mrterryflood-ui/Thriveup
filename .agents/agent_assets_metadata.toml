@@ -1058,3 +1058,17 @@ mtime_ms = 1791036487302
 storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:55376bb2-2aea-463e-b6a9-2c1d5c123d53/f0de57c3-a63a-4866-8252-4de4aac00f6f/e9e9f311-b177-4a6d-980e-8d7b97c309c4"
 storage_version_token = "1791036512348974"
 content_type = "image/jpeg"
+
+[[outputs]]
+id = "GsioT72v7EfjOEsfKY3oc"
+uri = "file://screenshots/action-first-home-final-phone.jpg"
+type = "image"
+title = "Action-first entry — final phone preview"
+description = "Final 360×640 local capture. Independent development-domain browser checks also passed with the preview banner present."
+logical_id = "07b3ba70-3b23-4e53-b74f-b16e053438c4"
+content_hash = "sha256:7df8dadbeff433e5e066f8f4d8d2b8757bc8aab8fefe1cfc0b8911d8c87814cd"
+size = 33169
+mtime_ms = 1791040571158
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:55376bb2-2aea-463e-b6a9-2c1d5c123d53/07b3ba70-3b23-4e53-b74f-b16e053438c4/55ee432d-976a-47e1-a26d-339c440a7e2a"
+storage_version_token = "1791040681309727"
+content_type = "image/jpeg"

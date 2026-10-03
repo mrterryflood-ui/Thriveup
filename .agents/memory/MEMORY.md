@@ -98,3 +98,4 @@
 - [Published custom-domain split](published-custom-domain-split.md) — a domain listed in Replit deployment metadata may actually serve an independent Vercel release; verify each hostname separately.
 - [Platform focus and distinction](platform-focus-distinction.md) — user reports overwhelming breadth; going forward, focus, separation, and distinction must precede integration.
 - [AI honesty calibration](ai-honesty-calibration.md) — advisory receipts do not replace binding grounding; external-domain benchmarks are not ThriveUp scores.
+- [Preview viewport evidence](preview-viewport-evidence.md) — development-domain banners can reduce usable height; local screenshots alone do not prove first-screen fit.

@@ -23,8 +23,8 @@ const BASE = process.env.E2E_BASE_URL || "http://localhost:5000";
 test("focused entry: tasks, workspaces, public tools, and scope", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 980 });
   await page.goto(BASE);
-  await expect(page.locator('[data-testid^="home-task-"]')).toHaveCount(7);
-  await expect(page.locator('[data-testid^="home-workspace-"]')).toHaveCount(4);
+  await expect(page.locator('[data-testid^="home-task-"]')).toHaveCount(3);
+  await expect(page.locator('[data-testid^="home-workspace-"][href^="/workspace/"]')).toHaveCount(4);
 
   await page.getByTestId("home-task-check-benefits").click();
   await expect(page).toHaveURL(/\/benefits-screener$/);
@@ -78,6 +78,7 @@ test("workspace preference, original overview, and supported embed routes", asyn
 
   await page.goto(`${BASE}/?embed=1`);
   await expect(page.getByTestId("focused-sidebar-home")).toHaveCount(0);
+  await page.getByTestId("home-guide-toggle").click();
   await expect(page.getByTestId("guided-start-input")).toBeVisible();
 
   await page.goto(`${BASE}/ecosystem/embed`);
@@ -91,6 +92,7 @@ test("focused guide stays local, clarifies funding, and resets stale decisions",
   page.on("request", (request) => requestDetails.push(`${request.url()} ${request.postData() ?? ""}`));
   await page.goto(BASE);
 
+  await page.getByTestId("home-guide-toggle").click();
   await page.getByTestId("guided-start-input").fill("funding");
   await page.getByTestId("guided-start-submit").click();
   await expect(page.getByTestId("guided-start-choice-organization-funding")).toBeVisible();
@@ -106,6 +108,7 @@ test("focused guide stays local, clarifies funding, and resets stale decisions",
   expect(JSON.stringify(persisted).toLowerCase()).not.toContain("funding");
   expect(requestDetails.join("\n").toLowerCase()).not.toContain("funding");
   await page.goto(BASE);
+  await page.getByTestId("home-guide-toggle").click();
   await page.getByTestId("guided-start-input").fill("I need funding for my organization");
   await page.getByTestId("guided-start-submit").click();
   await expect(page.getByTestId("guided-start-choice-organization-funding")).toBeVisible();
@@ -114,6 +117,7 @@ test("focused guide stays local, clarifies funding, and resets stale decisions",
   await expect(page.getByTestId("guided-start-continue")).toHaveAttribute("href", "/hub/fund");
 
   await page.goto(BASE);
+  await page.getByTestId("home-guide-toggle").click();
   await page.getByTestId("guided-start-input").fill("abracadabra");
   await page.getByTestId("guided-start-submit").click();
   await expect(page.getByTestId("guided-start-result")).toContainText("No direct match");

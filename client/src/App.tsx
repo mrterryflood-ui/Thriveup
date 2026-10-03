@@ -3,7 +3,8 @@ import { Switch, Route, Redirect, Link, useLocation, useSearch } from "wouter";
 import { NavModeProvider } from "@/lib/nav-mode";
 import { FocusedBottomTabs as BottomTabBar, FocusedSidebar as AppSidebar } from "@/components/focused-navigation";
 import { WorkspaceProvider, useWorkspace } from "@/lib/workspace-context";
-import { WORKSPACES } from "@shared/workspace-catalog";
+import { WORKSPACES, entryTaskForPath } from "@shared/workspace-catalog";
+import { TaskStartHint } from "@/components/task-start-hint";
 import { queryClient, apiRequest } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -1123,14 +1124,14 @@ function AppLayoutInner() {
   const [location] = useLocation();
   const search = useSearch();
   const shellFreeEmbed = new URLSearchParams(search).get("embed") === "1";
-  const focusedEntry = location === "/" || location === "/hub" || location === "/workspaces" || location.startsWith("/workspace/");
+  const focusedEntry = location === "/" || location === "/hub" || location === "/workspaces" || location.startsWith("/workspace/") || location === "/academy/lessons" || Boolean(entryTaskForPath(location));
   const currentWorkspace = WORKSPACES.find(item => item.id === workspace);
   const { t } = useLanguage();
   const style = { "--sidebar-width": "16rem", "--sidebar-width-icon": "3rem" };
 
   // Replit preview is itself an iframe. Ordinary iframes must not silently
   // remove navigation; supported embed routes and ?embed=1 opt out explicitly.
-  if (shellFreeEmbed) return <main className="w-full min-h-screen" tabIndex={-1}><ErrorBoundary><Suspense fallback={<PageFallback />}><AppRouter /></Suspense></ErrorBoundary></main>;
+  if (shellFreeEmbed) return <main id="main-content" className="w-full min-h-screen" tabIndex={-1}><ErrorBoundary><Suspense fallback={<PageFallback />}><TaskStartHint key={location} path={location} /><AppRouter /></Suspense></ErrorBoundary></main>;
 
   return (
     <SidebarProvider defaultOpen={true} style={style as React.CSSProperties}>
@@ -1165,6 +1166,7 @@ function AppLayoutInner() {
           <main id="main-content" className="flex-1 overflow-auto" tabIndex={-1}>
             <ErrorBoundary>
               <Suspense fallback={<PageFallback />}>
+                <TaskStartHint key={location} path={location} />
                 <AppRouter />
               </Suspense>
             </ErrorBoundary>
