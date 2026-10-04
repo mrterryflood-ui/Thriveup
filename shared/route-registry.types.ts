@@ -50,4 +50,12 @@ export interface RouteEntry {
   classified: boolean;
   /** If the path is only an alias/redirect of another canonical path. */
   aliasOf?: string;
+  /** One sentence, plain language, what the person can do here (no superlatives). */
+  description?: string;
+  /** Guide line for the page frame: the upstream need → this page → next action. */
+  guide?: string;
 }
+
+/** Human classification override for one route (merged over the generated draft by the generator). */
+export type RouteClassification = Partial<Pick<RouteEntry, "title" | "outcome" | "audiences" | "access" | "upstream" | "downstream" | "aliasOf" | "description" | "guide">>;
+export type RouteClassificationLane = Record<string, RouteClassification>;

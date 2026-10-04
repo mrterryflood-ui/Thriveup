@@ -40,3 +40,17 @@ or credentials). Rows are not flipped on commit messages; each cites the probe.
 ## Not done here (explicitly)
 - No production (`NODE_ENV=production` long-lived host) log evidence for 2.1/2.4/2.5 firing — needs deployment logs.
 - Provider cutover (1.1–1.4), CVR bridge (3.3), welcome-email wiring (2.2) are separate scoped builds.
+
+## Phase 2 page walk (413 routes read, classified, cross-checked)
+Source: four classification lanes read every route's component (`shared/route-registry/lane-*.ts`); gate `REQUIRE_FULL_CLASSIFICATION=1 scripts/verify-route-registry.ts` → 413/413, 0 unclassified, all upstream/downstream/alias targets are real routes, no lane lowered access below its `RequireAuth` floor. Outcome moves vs. the heuristic draft: get-help 132→60, operate 66→101, see-the-data 55→72, learn 50→80.
+
+Observations surfaced by the walk (not fixed here unless marked):
+- **Fixed:** legacy sidebar linked `/community-story` but only `/community-story/:shareId` and `/community-story-pack` existed (`verify-sidebar-routes` was red on `main`); added a `<Redirect>` alias. Also fixed: the Community Gravity workspace task's match term "organizations" hijacked "Our organizations need financial support" (catalog test red); terms narrowed.
+- Same component under two paths without a redirect: `/` & `/hub`; `/intake` & `/intake-wizard`; `/research` & `/methodology`; `/transparency` & `/transparency-dashboard`; `/st-davids` & `/wab2-enrollment`; `/case-manager` & `/case-manager/:id` (ID ignored). Candidates for Phase 3d aliasing.
+- Param routes that ignore their param: `/resident-journey/:id` (uses `?pid`, defaults to a demo profile), `/community-story/:shareId` (renders the builder).
+- Demo/sample data rendered as if live: `/engagement-hub` (generated participants, simulated nudges), `/apprenticeship`, `/apprenticeship-tracker`, `/transition-plans`, `/case-manager`, student wizards claim saved selections without persistence.
+- Public draft but admin-only data calls: `/ecosystem`, `/ecosystem/embed`; LifeBridge directives require authentication.
+- Forms/links that go nowhere: HBCU inquiry form does not submit; links to unregistered `/profile` (Shadow Worker Hub), `/connect-with-us` (Workforce Pell), `/embed/demo` (For Partners).
+- Naming mismatches: `/parents` is Parent Resources (not the dashboard); `/funder-dashboard` is staff account management, not the public funder report; Sparky is an adult companion, not a student one.
+- Purpose unclear from code: `/studio/:moduleKey` (depends on runtime manifest).
+- Pre-existing red in `directory-links` gate, third-party URLs: `implementationineducatio.com` (404 — TCAF-adjacent domain, needs owner decision), `wellcome.org/.../discovery-research` (moved), `easyailearning.com/api/childcore/county-metrics/ingest` (POST-only endpoint probed with GET). Not changed.

@@ -9,3 +9,5 @@ Gotchas: an empty-change commit must reuse the parent tree (POST /git/trees with
 **Why:** the user's standing rule is push only on explicit request, and when asked the 32-commit tree had no off-Replit copy; API replay was the only authenticated route.
 
 **How to apply:** pushing a non-main branch triggers a Vercel **Preview** deployment (GitHub commit status "Vercel", deployment env "Preview") — that preview URL is the off-Replit boot proof; on Vercel `/api/login` answers 503 "REPL_ID not configured" by design, never a crash. Do not push to `main` unless the user says so; main promotes production.
+
+Repeatable path (2026-10-04): `npx tsx scripts/github-push-replay.ts <owner/repo> <branch>` writes `/tmp/replay.json`; in the sandbox, load each blob as base64 via a `/tmp` file + `readFile` (the sandbox `shellExec` silently head/tail-joins large stdout with `truncated:false` — never carry blobs through its output), then run the replay inside `"use impure"` with `listConnections("github")[0].proxyFetch("/repos/...")` (path only, no host). SHA-identical commits; ref PATCH with `force:false`.

@@ -10,6 +10,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { WORKSPACE_TASKS } from "../shared/workspace-catalog";
 import type { Outcome, Audience, Access, RegistrySource, RouteEntry } from "../shared/route-registry.types";
+import { ROUTE_CLASSIFICATIONS } from "../shared/route-registry.classified";
 
 const read = (p: string) => readFileSync(p, "utf8");
 const app = read("client/src/App.tsx");
@@ -103,6 +104,18 @@ for (const i of inv) {
 }
 for (const e of entries.values()) { if (e.sources.length === 0) e.sources.push("app-routes"); if (e.access === "admin" || e.access === "staff") e.outcome = e.outcome === "operate" ? "operate" : e.outcome; }
 
+// Human classification lanes (2b–2e) override the heuristic draft; unknown paths fail the G1 gate as stale.
+let classifiedCount = 0;
+for (const [path, c] of Object.entries(ROUTE_CLASSIFICATIONS)) {
+  const e = entries.get(path);
+  if (!e) { console.error(`classification for unknown route: ${path}`); process.exitCode = 1; continue; }
+  const floor = routeAccess.get(path);
+  Object.assign(e, c, { classified: true }); classifiedCount++;
+  // App.tsx RequireAuth is the floor: a lane may raise access (page calls a staff API) but never lower it.
+  const rank: Access[] = ["public", "authenticated", "staff", "admin"];
+  if (floor && rank.indexOf(e.access) < rank.indexOf(floor)) { console.error(`${path}: lane set access=${e.access} below RequireAuth floor ${floor}`); process.exitCode = 1; }
+}
+console.log(`classified ${classifiedCount}/${entries.size}`);
 const out = { routeCount: routePaths.size, entries: [...entries.values()].sort((a, b) => a.path.localeCompare(b.path)), externalLinks: external.map(x => ({ title: x.title, url: x.url, group: x.group })) };
 writeFileSync("shared/route-registry.generated.json", JSON.stringify(out, null, 1) + "\n");
 const byOutcome = out.entries.reduce<Record<string, number>>((m, e) => { m[e.outcome] = (m[e.outcome] ?? 0) + 1; return m; }, {});

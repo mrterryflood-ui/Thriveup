@@ -24,6 +24,15 @@ for (const e of reg.entries) {
   if (!e.title.trim()) failures.push(`${e.path}: empty title`);
 }
 const unclassified = reg.entries.filter(e => !e.classified).length;
+// Once a lane is classified, its rows must be complete (title/description/guide) — partial rows are a silent regression.
+for (const e of reg.entries) if (e.classified) {
+  if (!e.description?.trim()) failures.push(`${e.path}: classified without description`);
+  if (!e.guide?.trim()) failures.push(`${e.path}: classified without guide`);
+  if (!e.aliasOf && e.audiences.length === 0) failures.push(`${e.path}: classified with no audience`);
+  for (const p of [...e.upstream, ...e.downstream]) if (!routes.has(p)) failures.push(`${e.path}: links to non-route ${p}`);
+  if (e.aliasOf && !routes.has(e.aliasOf)) failures.push(`${e.path}: aliasOf non-route ${e.aliasOf}`);
+}
+if (process.env.REQUIRE_FULL_CLASSIFICATION === "1" && unclassified > 0) failures.push(`${unclassified} routes still unclassified`);
 console.log(`registry: ${reg.entries.length} entries / ${routes.size} routes; ${unclassified} awaiting human classification`);
 if (failures.length) { console.error("ROUTE REGISTRY GATE FAILED\n" + failures.map(f => " - " + f).join("\n")); process.exit(1); }
 console.log("Route registry completeness gate passed (G1 floor: tagged == total, zero untagged).");

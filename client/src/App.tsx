@@ -994,6 +994,7 @@ function AppRouter() {
       <Route path="/for-agencies" component={ForAgenciesPage} />
       <Route path="/community-story-pack" component={CommunityStoryPackPage} />
       <Route path="/community-story/:shareId" component={CommunityStoryPackPage} />
+      <Route path="/community-story"><Redirect to="/community-story-pack" /></Route>
       <Route path="/widget-install" component={WidgetInstallPage} />
       <Route path="/agency-connector" component={AgencyConnectorPage} />
       <Route path="/partner-dashboard" component={PartnerDashboardPage} />

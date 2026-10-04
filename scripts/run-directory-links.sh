@@ -65,7 +65,7 @@ BASE_URL="$BASE" npx tsx scripts/verify-apply-chat-ratelimit.ts || exit 1
 BASE_URL="$BASE" npx tsx scripts/verify-health-federation.ts || exit 1
 npx tsx scripts/verify-navigation-permission-sync.ts || exit 1
 npx tsx scripts/generate-route-registry.ts >/dev/null && git diff --quiet -- shared/route-registry.generated.json || { echo "route registry draft is stale: run scripts/generate-route-registry.ts and commit"; exit 1; }
-npx tsx scripts/verify-route-registry.ts || exit 1
+REQUIRE_FULL_CLASSIFICATION=1 npx tsx scripts/verify-route-registry.ts || exit 1
 
 # Prevent a technically linked but unusable first screen from passing this gate.
 # This wrapper owns e2e-gate.lock and an existing :5000 server; no second server.
