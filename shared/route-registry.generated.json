@@ -1,0 +1,6394 @@
+{
+ "routeCount": 412,
+ "entries": [
+  {
+   "path": "/",
+   "title": "Home",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "command-palette"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/411",
+   "title": "Community 411",
+   "outcome": "see-the-data",
+   "audiences": [
+    "agency-government"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "whereWeOperateItems"
+  },
+  {
+   "path": "/about",
+   "title": "About / Our Structure",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "aboutTrustItems"
+  },
+  {
+   "path": "/about-leadership",
+   "title": "about leadership",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/academy",
+   "title": "Learn skills or explore careers",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette",
+    "workspace-catalog"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/academy/admin",
+   "title": "Admin Dashboard",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminAcademyItems"
+  },
+  {
+   "path": "/academy/admin-tutorial",
+   "title": "Admin Guide",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminAcademyItems"
+  },
+  {
+   "path": "/academy/admin-video-script",
+   "title": "academy admin video script",
+   "outcome": "learn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/academy/announcements",
+   "title": "Announcements",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/academy/attendance",
+   "title": "Attendance",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminTeachingItems"
+  },
+  {
+   "path": "/academy/avatar",
+   "title": "My Avatar",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/academy/calendar",
+   "title": "Calendar",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/academy/campus",
+   "title": "Build Campus",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/academy/careers",
+   "title": "Career Explorer",
+   "outcome": "work-earn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "workforceTradesItems"
+  },
+  {
+   "path": "/academy/competitions",
+   "title": "Competitions",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/academy/course-creator",
+   "title": "academy course creator",
+   "outcome": "learn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/academy/dreams",
+   "title": "Dream Design",
+   "outcome": "work-earn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "workforceTradesItems"
+  },
+  {
+   "path": "/academy/financial-literacy",
+   "title": "Financial Literacy",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/academy/games",
+   "title": "Game Room",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/academy/games/dominoes/:id",
+   "title": "academy games dominoes",
+   "outcome": "learn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/academy/help",
+   "title": "Help & FAQ",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/academy/houses",
+   "title": "House Points",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/academy/hub",
+   "title": "academy hub",
+   "outcome": "learn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/academy/integration",
+   "title": "Support Portal",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminTeachingItems"
+  },
+  {
+   "path": "/academy/journal",
+   "title": "My Journal",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/academy/lessons",
+   "title": "Life Lessons",
+   "outcome": "work-earn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "workforceTradesItems"
+  },
+  {
+   "path": "/academy/longitudinal",
+   "title": "Longitudinal Dashboard",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminAcademyItems"
+  },
+  {
+   "path": "/academy/marketplace",
+   "title": "Marketplace",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/academy/mentor-finder",
+   "title": "academy mentor finder",
+   "outcome": "learn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/academy/mentors",
+   "title": "academy mentors",
+   "outcome": "learn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/academy/merch",
+   "title": "Print Shop",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/academy/pathway",
+   "title": "My Pathway",
+   "outcome": "work-earn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "workforceTradesItems"
+  },
+  {
+   "path": "/academy/phased-rollout",
+   "title": "academy phased rollout",
+   "outcome": "learn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/academy/power",
+   "title": "Panther Power",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/academy/progress-report",
+   "title": "Progress Report",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/academy/quests",
+   "title": "Daily Quests",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/academy/risk-monitor",
+   "title": "Risk Monitor",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminAcademyItems"
+  },
+  {
+   "path": "/academy/scenarios",
+   "title": "Adventures",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/academy/self-assessment",
+   "title": "Daily Check-In",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/academy/staar-prep",
+   "title": "STAAR Test Prep",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/academy/stocks",
+   "title": "Stock Market",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/academy/student-wizard",
+   "title": "Student Wizards",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminAcademyItems"
+  },
+  {
+   "path": "/academy/thrive",
+   "title": "Thrive Dashboard",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/academy/trade-sims",
+   "title": "Trade Sims (Try Free →)",
+   "outcome": "work-earn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "workforceTradesItems"
+  },
+  {
+   "path": "/academy/trade-sims/:tradeSlug",
+   "title": "academy trade sims",
+   "outcome": "learn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/academy/trade-sims/:tradeSlug/:lessonSlug",
+   "title": "academy trade sims",
+   "outcome": "learn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/academy/trade-sims/:tradeSlug/certify",
+   "title": "academy trade sims  certify",
+   "outcome": "learn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/academy/trade-sims/:tradeSlug/transcript",
+   "title": "academy trade sims  transcript",
+   "outcome": "learn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/academy/tutorial",
+   "title": "Arthur's Journey",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminAcademyItems"
+  },
+  {
+   "path": "/academy/wallet",
+   "title": "My Wallet",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/achievements",
+   "title": "Achievements",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/admin/platform-health",
+   "title": "admin platform health",
+   "outcome": "operate",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/admin/studio",
+   "title": "Prompt-to-Publish Studio",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminInternalItems"
+  },
+  {
+   "path": "/admin/trade-sims-signups",
+   "title": "Trade Sims Signups",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminOperationsItems"
+  },
+  {
+   "path": "/advisory",
+   "title": "advisory",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/advisory-board",
+   "title": "Advisory Board",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/ag-trade-sims",
+   "title": "Ag Trade Simulations",
+   "outcome": "work-earn",
+   "audiences": [
+    "rural-farm"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "hubRuralAg"
+  },
+  {
+   "path": "/agency-connector",
+   "title": "Agency Connector",
+   "outcome": "fund",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/ai-companion",
+   "title": "ai companion",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/ai-consulting",
+   "title": "AI Consulting",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "aboutTrustItems"
+  },
+  {
+   "path": "/ai-tools",
+   "title": "AI Creation Studio",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/ai-tools/:toolKey",
+   "title": "ai tools",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/ai-workforce",
+   "title": "AI Workforce Academy",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/align",
+   "title": "ALIGN — Connect. Grow. Serve. Thrive.",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/align/community",
+   "title": "Community Overview",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/align/my-journey",
+   "title": "My ALIGN Journey",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/align/org-assessment",
+   "title": "Org ALIGN Assessment",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/apex-accelerators",
+   "title": "APEX Accelerators",
+   "outcome": "operate",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/api-docs",
+   "title": "API Documentation",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/app/entity/:id",
+   "title": "app entity",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/apprenticeship",
+   "title": "apprenticeship",
+   "outcome": "work-earn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/apprenticeship-tracker",
+   "title": "Apprenticeship Tracker",
+   "outcome": "work-earn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "workforceTradesItems"
+  },
+  {
+   "path": "/austin",
+   "title": "Austin Initiative",
+   "outcome": "connect",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "ctxHubItems"
+  },
+  {
+   "path": "/austin-community-bridge/deliverable",
+   "title": "austin community bridge deliverable",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/austin-community-bridge/readiness",
+   "title": "Austin EBI Planning",
+   "outcome": "operate",
+   "audiences": [],
+   "access": "staff",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "ctxHubItems"
+  },
+  {
+   "path": "/behavioral-health",
+   "title": "Behavioral Health Program",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "preventionHealthItems"
+  },
+  {
+   "path": "/benefits",
+   "title": "Benefits Navigator",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "servePeopleItems"
+  },
+  {
+   "path": "/benefits-command-center",
+   "title": "benefits command center",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/benefits-screener",
+   "title": "Check benefits",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette",
+    "workspace-catalog"
+   ],
+   "classified": false,
+   "legacyGroup": "quickTaskItems"
+  },
+  {
+   "path": "/benefits/how-to-apply/:program",
+   "title": "benefits how to apply",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/brief/:shareId",
+   "title": "brief",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/business-card",
+   "title": "Business Card",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminOperationsItems"
+  },
+  {
+   "path": "/business-documents",
+   "title": "Business Documents",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminOperationsItems"
+  },
+  {
+   "path": "/business-plan",
+   "title": "Business Plan",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminOperationsItems"
+  },
+  {
+   "path": "/career-pathways",
+   "title": "career pathways",
+   "outcome": "work-earn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/case-manager",
+   "title": "Review case-management approach",
+   "outcome": "operate",
+   "audiences": [
+    "resident-family",
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "staff",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "workspace-catalog"
+   ],
+   "classified": false,
+   "legacyGroup": "servePeopleItems"
+  },
+  {
+   "path": "/case-manager/:id",
+   "title": "case manager",
+   "outcome": "operate",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/case-studies",
+   "title": "Case Studies",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "aboutTrustItems"
+  },
+  {
+   "path": "/ceds",
+   "title": "CEDS Regional Alignment",
+   "outcome": "fund",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/ceds/:regionId",
+   "title": "ceds",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/certificates",
+   "title": "Certificates",
+   "outcome": "work-earn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "workforceTradesItems"
+  },
+  {
+   "path": "/certificates/:id",
+   "title": "certificates",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/chainweb",
+   "title": "chainweb",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/chainweb-builder",
+   "title": "chainweb builder",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/child-care",
+   "title": "Child Care Overview",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "hubChildCareWorkforce"
+  },
+  {
+   "path": "/child-care-north-texas",
+   "title": "North Texas Region",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "hubChildCareWorkforce"
+  },
+  {
+   "path": "/child-care-wilco",
+   "title": "Williamson County Initiative",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "hubChildCareWorkforce"
+  },
+  {
+   "path": "/child-care-workforce",
+   "title": "Workforce Connection & Policy",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "hubChildCareWorkforce"
+  },
+  {
+   "path": "/child-care/national",
+   "title": "National Supply & Economic Context",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "hubChildCareWorkforce"
+  },
+  {
+   "path": "/childcore-integration",
+   "title": "ChildCORE Integration",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminOperationsItems"
+  },
+  {
+   "path": "/childinc-deck",
+   "title": "childinc deck",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/chw-dashboard",
+   "title": "Community health worker tools",
+   "outcome": "operate",
+   "audiences": [
+    "resident-family",
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "staff",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette",
+    "workspace-catalog"
+   ],
+   "classified": false,
+   "legacyGroup": "preventionHealthItems"
+  },
+  {
+   "path": "/city-comparison",
+   "title": "City Comparison",
+   "outcome": "see-the-data",
+   "audiences": [
+    "agency-government"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "whereWeOperateItems"
+  },
+  {
+   "path": "/civic-signal",
+   "title": "Civic Signal",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/classrooms",
+   "title": "Classrooms",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminTeachingItems"
+  },
+  {
+   "path": "/classrooms/:classroomId",
+   "title": "classrooms",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/classrooms/wizard",
+   "title": "Classroom Wizard",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminTeachingItems"
+  },
+  {
+   "path": "/clinical-screening/:participantId?",
+   "title": "clinical screening ?",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/coalition",
+   "title": "Coalition Dashboard",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/coalition-portal",
+   "title": "Coalition Portal",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/cohort-onboarding",
+   "title": "Cohort Onboarding",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "servePeopleItems"
+  },
+  {
+   "path": "/collaboration-hub",
+   "title": "Collaboration Hub",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/community",
+   "title": "Share community perspectives",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws",
+    "agency-government"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "workspace-catalog"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/community-analysis",
+   "title": "Understand my community",
+   "outcome": "see-the-data",
+   "audiences": [
+    "agency-government"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "workspace-catalog"
+   ],
+   "classified": false,
+   "legacyGroup": "whereWeOperateItems"
+  },
+  {
+   "path": "/community-banks",
+   "title": "Community bank impact view",
+   "outcome": "fund",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "workspace-catalog"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/community-compare",
+   "title": "community compare",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/community-data",
+   "title": "community data",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/community-gravity",
+   "title": "See who is doing the work",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "workspace-catalog"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/community-impact",
+   "title": "Explore community scenarios",
+   "outcome": "see-the-data",
+   "audiences": [
+    "agency-government"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "command-palette",
+    "workspace-catalog"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/community-map",
+   "title": "community map",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "command-palette"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/community-partners",
+   "title": "community partners",
+   "outcome": "connect",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/community-resource-directory",
+   "title": "community resource directory",
+   "outcome": "connect",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/community-story-pack",
+   "title": "Community Story Pack",
+   "outcome": "fund",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/community-story/:shareId",
+   "title": "community story",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/concepts",
+   "title": "Concepts",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/concepts/airplane-wing",
+   "title": "concepts airplane wing",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/concepts/lithium-battery",
+   "title": "concepts lithium battery",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/concepts/oil-pumpjack",
+   "title": "concepts oil pumpjack",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/concepts/pacemaker",
+   "title": "concepts pacemaker",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/concepts/public-key-encryption",
+   "title": "concepts public key encryption",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/concepts/suspension-bridge",
+   "title": "concepts suspension bridge",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/concepts/transformer",
+   "title": "concepts transformer",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/concepts/wind-turbine",
+   "title": "concepts wind turbine",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/conglomerate",
+   "title": "conglomerate",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/consortium-proposals",
+   "title": "Consortium Proposals",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminProgramItems"
+  },
+  {
+   "path": "/contact",
+   "title": "Contact Us",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "aboutTrustItems"
+  },
+  {
+   "path": "/contractor-opportunities",
+   "title": "TX Contractor Opportunities",
+   "outcome": "fund",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/corridor",
+   "title": "corridor",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/corridor-intelligence",
+   "title": "Implementation & Evaluation",
+   "outcome": "see-the-data",
+   "audiences": [
+    "agency-government"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "whereWeOperateItems"
+  },
+  {
+   "path": "/corridor/docs",
+   "title": "corridor docs",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/corridor/docs/live",
+   "title": "corridor docs live",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/corridor/evidence",
+   "title": "corridor evidence",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/coverage",
+   "title": "Bring TCAF to Your State",
+   "outcome": "see-the-data",
+   "audiences": [
+    "agency-government"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "whereWeOperateItems"
+  },
+  {
+   "path": "/cqi",
+   "title": "MAP-GAP CQI",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminInternalItems"
+  },
+  {
+   "path": "/curriculum",
+   "title": "AI Curriculum (Youth)",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family",
+    "students-youth"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "quickTaskItems"
+  },
+  {
+   "path": "/curriculum-documents",
+   "title": "Curriculum Docs",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminTeachingItems"
+  },
+  {
+   "path": "/curriculum-documents/:id",
+   "title": "curriculum documents",
+   "outcome": "learn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/curriculum-documents/new",
+   "title": "curriculum documents new",
+   "outcome": "learn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/curriculum/:levelId",
+   "title": "curriculum",
+   "outcome": "learn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/dashboard",
+   "title": "dashboard",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/data",
+   "title": "data",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/data-council",
+   "title": "Community Data Council",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "aboutTrustItems"
+  },
+  {
+   "path": "/data-sources",
+   "title": "Data Sources",
+   "outcome": "see-the-data",
+   "audiences": [
+    "agency-government"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "whereWeOperateItems"
+  },
+  {
+   "path": "/dfc-command-center",
+   "title": "dfc command center",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/directive-compliance",
+   "title": "Directive Compliance",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminOperationsItems"
+  },
+  {
+   "path": "/donor-receipt-demo",
+   "title": "donor receipt demo",
+   "outcome": "fund",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/donors",
+   "title": "Donors",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "aboutTrustItems"
+  },
+  {
+   "path": "/dosage",
+   "title": "Dosage Report",
+   "outcome": "see-the-data",
+   "audiences": [
+    "agency-government"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "whereWeOperateItems"
+  },
+  {
+   "path": "/ecosystem",
+   "title": "ThriveUp / TCAF",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/ecosystem-ai",
+   "title": "Ecosystem AI",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/ecosystem-hub",
+   "title": "ecosystem hub",
+   "outcome": "connect",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/ecosystem-hub-legacy",
+   "title": "ecosystem hub legacy",
+   "outcome": "connect",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/ecosystem-intel",
+   "title": "ecosystem intel",
+   "outcome": "connect",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/ecosystem-orchestration",
+   "title": "Ecosystem Orchestration",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/ecosystem-story",
+   "title": "Ecosystem Story",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/ecosystem/embed",
+   "title": "ecosystem embed",
+   "outcome": "connect",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/ecosystem/lifebridge",
+   "title": "ecosystem lifebridge",
+   "outcome": "connect",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/employer/register",
+   "title": "employer register",
+   "outcome": "work-earn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/engagement-hub",
+   "title": "Engagement Hub",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/equity-dashboard",
+   "title": "Equity Dashboard",
+   "outcome": "see-the-data",
+   "audiences": [
+    "agency-government"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "whereWeOperateItems"
+  },
+  {
+   "path": "/equity-loss",
+   "title": "Equity Loss Engine",
+   "outcome": "see-the-data",
+   "audiences": [
+    "agency-government"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "whereWeOperateItems"
+  },
+  {
+   "path": "/equity-loss/national",
+   "title": "Nationwide Equity-Loss Browse",
+   "outcome": "see-the-data",
+   "audiences": [
+    "agency-government"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "whereWeOperateItems"
+  },
+  {
+   "path": "/esign",
+   "title": "E-Sign Center",
+   "outcome": "fund",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/esign/:id",
+   "title": "esign",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/esign/invite/:id",
+   "title": "esign invite",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/facilitator-hub",
+   "title": "Facilitator Hub",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "preventionHealthItems"
+  },
+  {
+   "path": "/fafsa-navigator",
+   "title": "FAFSA Navigator",
+   "outcome": "get-help",
+   "audiences": [
+    "foster-youth",
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "fosterYouthItems"
+  },
+  {
+   "path": "/farm-cooperative",
+   "title": "Farm Cooperative Builder",
+   "outcome": "work-earn",
+   "audiences": [
+    "rural-farm"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "hubRuralAg"
+  },
+  {
+   "path": "/farm-profitability",
+   "title": "Farm Profitability Navigator",
+   "outcome": "work-earn",
+   "audiences": [
+    "rural-farm"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "hubRuralAg"
+  },
+  {
+   "path": "/farmworker-iti",
+   "title": "Farmworker ITI",
+   "outcome": "work-earn",
+   "audiences": [
+    "rural-farm"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "hubRuralAg"
+  },
+  {
+   "path": "/financial-literacy",
+   "title": "financial literacy",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/foia-tracker",
+   "title": "Housing Court FOIA Tracker",
+   "outcome": "get-help",
+   "audiences": [
+    "returning-citizens"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "justiceReentryItems"
+  },
+  {
+   "path": "/for-agencies",
+   "title": "For Other Agencies (Platform Funding)",
+   "outcome": "fund",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/for-nonprofits",
+   "title": "Coordinate services",
+   "outcome": "fund",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "workspace-catalog"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/for-partners",
+   "title": "Embed Our Tools",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/foster-youth",
+   "title": "Foster Youth Hub",
+   "outcome": "get-help",
+   "audiences": [
+    "foster-youth"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "fosterYouthItems"
+  },
+  {
+   "path": "/foster-youth/benefits",
+   "title": "State Benefits (50 states)",
+   "outcome": "get-help",
+   "audiences": [
+    "foster-youth"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "fosterYouthItems"
+  },
+  {
+   "path": "/foster-youth/cohort-analytics",
+   "title": "Cohort Analytics (Foster)",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminInternalItems"
+  },
+  {
+   "path": "/foster-youth/intake",
+   "title": "AI-assisted Intake (Foster)",
+   "outcome": "get-help",
+   "audiences": [
+    "foster-youth"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "fosterYouthItems"
+  },
+  {
+   "path": "/foster-youth/policy-comparison",
+   "title": "Policy Comparison (50 states)",
+   "outcome": "get-help",
+   "audiences": [
+    "foster-youth"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "fosterYouthItems"
+  },
+  {
+   "path": "/foster-youth/rights",
+   "title": "My Rights (Foster)",
+   "outcome": "get-help",
+   "audiences": [
+    "foster-youth"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "fosterYouthItems"
+  },
+  {
+   "path": "/foster-youth/state-portal",
+   "title": "State-Agency Portal",
+   "outcome": "get-help",
+   "audiences": [
+    "foster-youth"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "fosterYouthItems"
+  },
+  {
+   "path": "/foster-youth/toolkit",
+   "title": "Aging-Out Toolkit",
+   "outcome": "get-help",
+   "audiences": [
+    "foster-youth"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "fosterYouthItems"
+  },
+  {
+   "path": "/foster-youth/transition-plan",
+   "title": "Foster Transition Plan",
+   "outcome": "get-help",
+   "audiences": [
+    "foster-youth"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "fosterYouthItems"
+  },
+  {
+   "path": "/foster-youth/wellbeing",
+   "title": "Wellbeing Check-in",
+   "outcome": "get-help",
+   "audiences": [
+    "foster-youth"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "fosterYouthItems"
+  },
+  {
+   "path": "/fsa-eligibility",
+   "title": "FSA / NRCS Eligibility",
+   "outcome": "work-earn",
+   "audiences": [
+    "rural-farm"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "hubRuralAg"
+  },
+  {
+   "path": "/funder-dashboard",
+   "title": "Funder reporting workspace",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo",
+    "funder-evaluator"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "workspace-catalog"
+   ],
+   "classified": false,
+   "legacyGroup": "adminOperationsItems"
+  },
+  {
+   "path": "/funder/:shareToken",
+   "title": "funder",
+   "outcome": "fund",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/get-help",
+   "title": "Find food, housing or care",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "workspace-catalog"
+   ],
+   "classified": false,
+   "legacyGroup": "quickTaskItems"
+  },
+  {
+   "path": "/grant-command-center",
+   "title": "grant command center",
+   "outcome": "fund",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/grant-conduit",
+   "title": "Grant Intelligence Package",
+   "outcome": "fund",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/grant-narrative",
+   "title": "RFP / Narrative Writer",
+   "outcome": "operate",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/grant-narrative-legacy",
+   "title": "grant narrative legacy",
+   "outcome": "fund",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/grant-packages",
+   "title": "Grant Packages",
+   "outcome": "operate",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/grant-prior-awards",
+   "title": "Prior Award Research",
+   "outcome": "operate",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/grants",
+   "title": "Live Grant Opportunities",
+   "outcome": "operate",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/grants-101",
+   "title": "Grants 101 — How It Works",
+   "outcome": "fund",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/grants/:grantId",
+   "title": "grants",
+   "outcome": "fund",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/grants/:grantId/compliance",
+   "title": "grants  compliance",
+   "outcome": "fund",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/grants/applications",
+   "title": "Application Tracker",
+   "outcome": "operate",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/grants/sedgwick-vitality",
+   "title": "Sedgwick Vitality (RFP 26-0028)",
+   "outcome": "operate",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/gun-violence",
+   "title": "Gun Violence Intelligence",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "preventionHealthItems"
+  },
+  {
+   "path": "/hbcu-opportunities",
+   "title": "hbcu opportunities",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/health-network",
+   "title": "Health Network",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "preventionHealthItems"
+  },
+  {
+   "path": "/health-wellness",
+   "title": "Explore health & wellbeing",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "workspace-catalog"
+   ],
+   "classified": false,
+   "legacyGroup": "quickTaskItems"
+  },
+  {
+   "path": "/healthcare-grants",
+   "title": "Healthcare Grants Catalog",
+   "outcome": "operate",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/herhealth",
+   "title": "herhealth",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/household/:id",
+   "title": "household",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/hub",
+   "title": "hub",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/hub/connect",
+   "title": "hub connect",
+   "outcome": "connect",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/hub/fund",
+   "title": "Find organizational funding",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "workspace-catalog"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/hub/grow",
+   "title": "hub grow",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/hub/legacy",
+   "title": "hub legacy",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/hub/more",
+   "title": "hub more",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/hub/serve",
+   "title": "hub serve",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/impact",
+   "title": "Examine evidence & outcomes",
+   "outcome": "see-the-data",
+   "audiences": [
+    "agency-government",
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette",
+    "workspace-catalog"
+   ],
+   "classified": false,
+   "legacyGroup": "whereWeOperateItems"
+  },
+  {
+   "path": "/implementation",
+   "title": "Implementation Plan",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "aboutTrustItems"
+  },
+  {
+   "path": "/initiatives",
+   "title": "My Initiatives",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/initiatives/:slug",
+   "title": "initiatives",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/intake",
+   "title": "Intake Wizard",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "servePeopleItems"
+  },
+  {
+   "path": "/intake-wizard",
+   "title": "intake wizard",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/invasive-species",
+   "title": "Invasive Species Watch",
+   "outcome": "work-earn",
+   "audiences": [
+    "rural-farm"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "hubRuralAg"
+  },
+  {
+   "path": "/jobs",
+   "title": "Fair-Chance Employers",
+   "outcome": "get-help",
+   "audiences": [
+    "returning-citizens"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "justiceReentryItems"
+  },
+  {
+   "path": "/join",
+   "title": "join",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/justice-command-center",
+   "title": "Justice Command Center",
+   "outcome": "get-help",
+   "audiences": [
+    "returning-citizens"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "justiceReentryItems"
+  },
+  {
+   "path": "/justice-partners",
+   "title": "Justice Partners",
+   "outcome": "get-help",
+   "audiences": [
+    "returning-citizens"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "justiceReentryItems"
+  },
+  {
+   "path": "/learner-settings",
+   "title": "Learning Preferences",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "servePeopleItems"
+  },
+  {
+   "path": "/lesson/:lessonId",
+   "title": "lesson",
+   "outcome": "learn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/logic-model",
+   "title": "Logic Model",
+   "outcome": "fund",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/loi-writer",
+   "title": "LOI Writer",
+   "outcome": "operate",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/manor",
+   "title": "Manor Hub",
+   "outcome": "connect",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "ctxHubItems"
+  },
+  {
+   "path": "/mapgap",
+   "title": "mapgap",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/mapgap-framework",
+   "title": "MAP-GAP Framework",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "aboutTrustItems"
+  },
+  {
+   "path": "/mce-contracts",
+   "title": "MCE Contracts",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminProgramItems"
+  },
+  {
+   "path": "/member-health",
+   "title": "Member Health Engagement",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "preventionHealthItems"
+  },
+  {
+   "path": "/mentorship",
+   "title": "mentorship",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/mentorship-directory",
+   "title": "Mentors & Pathways",
+   "outcome": "work-earn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "workforceTradesItems"
+  },
+  {
+   "path": "/methodology",
+   "title": "Inspect methodology",
+   "outcome": "see-the-data",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette",
+    "workspace-catalog"
+   ],
+   "classified": false,
+   "legacyGroup": "aboutTrustItems"
+  },
+  {
+   "path": "/module-1-2-tools",
+   "title": "module 1 2 tools",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/module/:moduleId",
+   "title": "module",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/mos-translator",
+   "title": "MOS Translator",
+   "outcome": "work-earn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "workforceTradesItems"
+  },
+  {
+   "path": "/my-appointments",
+   "title": "My appointments",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette",
+    "workspace-catalog"
+   ],
+   "classified": false,
+   "legacyGroup": "servePeopleItems"
+  },
+  {
+   "path": "/my-documents",
+   "title": "My documents",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette",
+    "workspace-catalog"
+   ],
+   "classified": false,
+   "legacyGroup": "servePeopleItems"
+  },
+  {
+   "path": "/my-grants",
+   "title": "My Grants & Win Rate",
+   "outcome": "operate",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/my-household",
+   "title": "My Household",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "servePeopleItems"
+  },
+  {
+   "path": "/my-journey",
+   "title": "Continue my journey",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette",
+    "workspace-catalog"
+   ],
+   "classified": false,
+   "legacyGroup": "servePeopleItems"
+  },
+  {
+   "path": "/navigator",
+   "title": "Navigator (AI)",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family",
+    "students-youth"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "quickTaskItems"
+  },
+  {
+   "path": "/neighborhood",
+   "title": "Neighborhood Intel",
+   "outcome": "see-the-data",
+   "audiences": [
+    "agency-government"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "whereWeOperateItems"
+  },
+  {
+   "path": "/network",
+   "title": "Live Network View",
+   "outcome": "see-the-data",
+   "audiences": [
+    "agency-government"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "whereWeOperateItems"
+  },
+  {
+   "path": "/network/members",
+   "title": "network members",
+   "outcome": "connect",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/non-discrimination",
+   "title": "Non-Discrimination",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "aboutTrustItems"
+  },
+  {
+   "path": "/north-wilco-childcare-coalition",
+   "title": "N. Wilco Childcare Coalition",
+   "outcome": "connect",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "ctxHubItems"
+  },
+  {
+   "path": "/nsf-techaccess-hub",
+   "title": "nsf techaccess hub",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/onboarding/org",
+   "title": "onboarding org",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/open-innovation",
+   "title": "open innovation",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/open-innovation-lab",
+   "title": "Open Innovation Lab",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/opportunity-youth",
+   "title": "Opportunity Youth",
+   "outcome": "see-the-data",
+   "audiences": [
+    "agency-government"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "whereWeOperateItems"
+  },
+  {
+   "path": "/ops-center",
+   "title": "Ops Center",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminOperationsItems"
+  },
+  {
+   "path": "/orchestra",
+   "title": "orchestra",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/org-confirm/:token",
+   "title": "org confirm",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/organization/events",
+   "title": "Community Events & Impact",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "myOrgItems"
+  },
+  {
+   "path": "/our-approach",
+   "title": "Our Approach",
+   "outcome": "connect",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "ctxHubItems"
+  },
+  {
+   "path": "/outcome-reporting",
+   "title": "outcome reporting",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/outcomes",
+   "title": "Outcome Reporting",
+   "outcome": "see-the-data",
+   "audiences": [
+    "agency-government"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "whereWeOperateItems"
+  },
+  {
+   "path": "/parent-dashboard",
+   "title": "parent dashboard",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/parent-education",
+   "title": "Parent Education",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "preventionHealthItems"
+  },
+  {
+   "path": "/parents",
+   "title": "Parent Dashboard",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminTeachingItems"
+  },
+  {
+   "path": "/parents/dashboard",
+   "title": "parents dashboard",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/partner-dashboard",
+   "title": "Partner Dashboard",
+   "outcome": "fund",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/partner-dashboard/shared/:token",
+   "title": "partner dashboard shared",
+   "outcome": "operate",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/partner-portal",
+   "title": "Organization Dashboard",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "myOrgItems"
+  },
+  {
+   "path": "/partner-scorecard",
+   "title": "Partner Effectiveness Scorecard",
+   "outcome": "get-help",
+   "audiences": [
+    "returning-citizens"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "justiceReentryItems"
+  },
+  {
+   "path": "/partners",
+   "title": "Find community partners",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette",
+    "workspace-catalog"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/partners/family-program-tracker",
+   "title": "Family & Program Tracker",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/partners/join",
+   "title": "Join as a Partner",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/partners/rfp-storyteller",
+   "title": "RFP-Match Storyteller",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/partners/vann-hub",
+   "title": "Vann Partner Hub",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/peer-review",
+   "title": "Peer Review",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "aboutTrustItems"
+  },
+  {
+   "path": "/pflugerville",
+   "title": "Pflugerville Hub",
+   "outcome": "connect",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "ctxHubItems"
+  },
+  {
+   "path": "/pilot",
+   "title": "Pilot Dashboard",
+   "outcome": "see-the-data",
+   "audiences": [
+    "agency-government"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "whereWeOperateItems"
+  },
+  {
+   "path": "/platform-metrics",
+   "title": "Platform Metrics",
+   "outcome": "see-the-data",
+   "audiences": [
+    "agency-government"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "whereWeOperateItems"
+  },
+  {
+   "path": "/platform-overview",
+   "title": "platform overview",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/pm-academy",
+   "title": "PM Academy",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminProgramItems"
+  },
+  {
+   "path": "/policy-engine",
+   "title": "Policy Signal Engine",
+   "outcome": "see-the-data",
+   "audiences": [
+    "agency-government"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "whereWeOperateItems"
+  },
+  {
+   "path": "/presentation",
+   "title": "presentation",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/presentations",
+   "title": "Stakeholder Deck",
+   "outcome": "fund",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/prevention",
+   "title": "Prevention Hub",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "preventionHealthItems"
+  },
+  {
+   "path": "/prevention-strategies",
+   "title": "Prevention Strategies",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminInternalItems"
+  },
+  {
+   "path": "/pricing",
+   "title": "Pricing & Services",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "aboutTrustItems"
+  },
+  {
+   "path": "/privacy",
+   "title": "Privacy Policy",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "aboutTrustItems"
+  },
+  {
+   "path": "/producer-voice",
+   "title": "Producer Voice",
+   "outcome": "work-earn",
+   "audiences": [
+    "rural-farm"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "hubRuralAg"
+  },
+  {
+   "path": "/program-designer",
+   "title": "Program Designer",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminProgramItems"
+  },
+  {
+   "path": "/program-engine",
+   "title": "Program Engine",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminProgramItems"
+  },
+  {
+   "path": "/program-lifecycle",
+   "title": "Program Lifecycle",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminProgramItems"
+  },
+  {
+   "path": "/program-management",
+   "title": "Program Management",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminProgramItems"
+  },
+  {
+   "path": "/proposal-command",
+   "title": "Proposal Command",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminProgramItems"
+  },
+  {
+   "path": "/proposal-pipeline",
+   "title": "proposal pipeline",
+   "outcome": "fund",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/quiz/:moduleId",
+   "title": "quiz",
+   "outcome": "learn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/reentry",
+   "title": "Reentry Dashboard",
+   "outcome": "get-help",
+   "audiences": [
+    "returning-citizens"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "justiceReentryItems"
+  },
+  {
+   "path": "/reentry-dashboard",
+   "title": "reentry dashboard",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/reentry-program",
+   "title": "Reentry Program",
+   "outcome": "get-help",
+   "audiences": [
+    "returning-citizens"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "justiceReentryItems"
+  },
+  {
+   "path": "/reentry-stipend-pilot",
+   "title": "TX Reentry Stipend Pilot",
+   "outcome": "get-help",
+   "audiences": [
+    "returning-citizens"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "justiceReentryItems"
+  },
+  {
+   "path": "/reentry/intake",
+   "title": "Reentry Intake",
+   "outcome": "get-help",
+   "audiences": [
+    "returning-citizens"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "justiceReentryItems"
+  },
+  {
+   "path": "/reentry/outcome-reports",
+   "title": "Reentry Outcome Reports",
+   "outcome": "get-help",
+   "audiences": [
+    "returning-citizens"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "justiceReentryItems"
+  },
+  {
+   "path": "/reentry/standards",
+   "title": "Reentry Standards",
+   "outcome": "get-help",
+   "audiences": [
+    "returning-citizens"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "justiceReentryItems"
+  },
+  {
+   "path": "/reentry/strategic-plan",
+   "title": "Reentry Strategic Plan",
+   "outcome": "get-help",
+   "audiences": [
+    "returning-citizens"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "justiceReentryItems"
+  },
+  {
+   "path": "/regional-briefing",
+   "title": "Regional Briefing",
+   "outcome": "operate",
+   "audiences": [],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "ctxHubItems"
+  },
+  {
+   "path": "/research",
+   "title": "research",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/research-hub",
+   "title": "Explore research",
+   "outcome": "see-the-data",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette",
+    "workspace-catalog"
+   ],
+   "classified": false,
+   "legacyGroup": "aboutTrustItems"
+  },
+  {
+   "path": "/resident-equity",
+   "title": "What's Happening in Your County",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "servePeopleItems"
+  },
+  {
+   "path": "/resident-journey",
+   "title": "Resident Journey (demo)",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "servePeopleItems"
+  },
+  {
+   "path": "/resident-journey/:id",
+   "title": "resident journey",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/resource-directory",
+   "title": "Resource Directory",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "servePeopleItems"
+  },
+  {
+   "path": "/resources",
+   "title": "Resource Finder",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "servePeopleItems"
+  },
+  {
+   "path": "/resume-builder",
+   "title": "Resume Builder",
+   "outcome": "work-earn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "workforceTradesItems"
+  },
+  {
+   "path": "/rfp-fidelity",
+   "title": "RFP Fidelity Engine",
+   "outcome": "operate",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/roku-ads",
+   "title": "Roku & CTV Ads",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminInternalItems"
+  },
+  {
+   "path": "/rplice",
+   "title": "rplice",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/rplice-tools",
+   "title": "RPLICE Toolkit",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "aboutTrustItems"
+  },
+  {
+   "path": "/rural-alerts",
+   "title": "Rural Situational Intel",
+   "outcome": "work-earn",
+   "audiences": [
+    "rural-farm"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "hubRuralAg"
+  },
+  {
+   "path": "/rural-connectivity",
+   "title": "Rural Connectivity",
+   "outcome": "work-earn",
+   "audiences": [
+    "rural-farm"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "hubRuralAg"
+  },
+  {
+   "path": "/rural-health",
+   "title": "Rural Healthcare Hub",
+   "outcome": "work-earn",
+   "audiences": [
+    "rural-farm"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "hubRuralAg"
+  },
+  {
+   "path": "/rural-housing",
+   "title": "Rural Housing Hub",
+   "outcome": "work-earn",
+   "audiences": [
+    "rural-farm"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "hubRuralAg"
+  },
+  {
+   "path": "/rural-intel",
+   "title": "County Ag Intelligence",
+   "outcome": "work-earn",
+   "audiences": [
+    "rural-farm"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "hubRuralAg"
+  },
+  {
+   "path": "/rural-workforce",
+   "title": "Rural Workforce Pipeline",
+   "outcome": "work-earn",
+   "audiences": [
+    "rural-farm"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "hubRuralAg"
+  },
+  {
+   "path": "/rural-workforce/:countyFips",
+   "title": "rural workforce",
+   "outcome": "work-earn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/safe-passage",
+   "title": "Safe Passage (Reentry Toolkit)",
+   "outcome": "get-help",
+   "audiences": [
+    "returning-citizens"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "justiceReentryItems"
+  },
+  {
+   "path": "/safe-passage/benefits-bridge",
+   "title": "safe passage benefits bridge",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/safe-passage/employment-pathway",
+   "title": "safe passage employment pathway",
+   "outcome": "work-earn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/safe-passage/housing-assessment",
+   "title": "safe passage housing assessment",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/safe-passage/housing-finder",
+   "title": "safe passage housing finder",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/safe-passage/impact-dashboard",
+   "title": "safe passage impact dashboard",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/safe-passage/legal-navigator",
+   "title": "safe passage legal navigator",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/safe-passage/partner-portal",
+   "title": "safe passage partner portal",
+   "outcome": "connect",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/safe-passage/safety-planning",
+   "title": "safe passage safety planning",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/safereport",
+   "title": "safereport",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/sankofa",
+   "title": "sankofa",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/sdoh",
+   "title": "sdoh",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/sdoh-chain",
+   "title": "SDOH Impact Chain",
+   "outcome": "see-the-data",
+   "audiences": [
+    "agency-government"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "whereWeOperateItems"
+  },
+  {
+   "path": "/sdoh-explorer",
+   "title": "sdoh explorer",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "command-palette"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/sdvosb-tracker",
+   "title": "SDVOSB Tracker",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminProgramItems"
+  },
+  {
+   "path": "/sedgwick",
+   "title": "sedgwick",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/services",
+   "title": "Service Delivery",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "servePeopleItems"
+  },
+  {
+   "path": "/settings/documents",
+   "title": "Document Library",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "myOrgItems"
+  },
+  {
+   "path": "/settings/organization",
+   "title": "Organization Profile",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "myOrgItems"
+  },
+  {
+   "path": "/shadow-worker-hub",
+   "title": "Shadow Worker Hub",
+   "outcome": "work-earn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "workforceTradesItems"
+  },
+  {
+   "path": "/social-media-literacy",
+   "title": "Social Media Literacy",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminTeachingItems"
+  },
+  {
+   "path": "/sparky",
+   "title": "Sparky (AI Companion)",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/st-davids",
+   "title": "CTX Benefits Initiative",
+   "outcome": "connect",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "ctxHubItems"
+  },
+  {
+   "path": "/st-davids-wab2",
+   "title": "CTX Operator Workspace",
+   "outcome": "connect",
+   "audiences": [],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "ctxHubItems"
+  },
+  {
+   "path": "/staffing-plan",
+   "title": "Staffing Plan",
+   "outcome": "fund",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/stakeholder-map",
+   "title": "Stakeholder Engagement Map",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminInternalItems"
+  },
+  {
+   "path": "/standards/public",
+   "title": "Public Standards",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "aboutTrustItems"
+  },
+  {
+   "path": "/status/:token",
+   "title": "status",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/stdavids-prep",
+   "title": "CTX Benefits Initiative Prep",
+   "outcome": "connect",
+   "audiences": [],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "ctxHubItems"
+  },
+  {
+   "path": "/streets",
+   "title": "Streets Program",
+   "outcome": "get-help",
+   "audiences": [
+    "returning-citizens"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "justiceReentryItems"
+  },
+  {
+   "path": "/studio/:moduleKey",
+   "title": "studio",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/subject/:subjectId",
+   "title": "subject",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/subjects",
+   "title": "Subjects",
+   "outcome": "learn",
+   "audiences": [
+    "students-youth",
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "academyLearningItems"
+  },
+  {
+   "path": "/teacher-dashboard",
+   "title": "Teacher Dashboard",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminTeachingItems"
+  },
+  {
+   "path": "/teaming-network",
+   "title": "Teaming Network & Capabilities",
+   "outcome": "operate",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/texas-assessment",
+   "title": "Texas Assessment",
+   "outcome": "see-the-data",
+   "audiences": [
+    "agency-government"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "whereWeOperateItems"
+  },
+  {
+   "path": "/third-spaces",
+   "title": "Third Spaces",
+   "outcome": "see-the-data",
+   "audiences": [
+    "agency-government"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "whereWeOperateItems"
+  },
+  {
+   "path": "/this-week",
+   "title": "This Week (Monday Brief)",
+   "outcome": "fund",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/thrive",
+   "title": "THRIVE — Empower. Activate. Grow.",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/tools",
+   "title": "tools",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "command-palette"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/transition-plans",
+   "title": "Transition Plans",
+   "outcome": "work-earn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "workforceTradesItems"
+  },
+  {
+   "path": "/transparency",
+   "title": "Transparency Dashboard",
+   "outcome": "see-the-data",
+   "audiences": [
+    "agency-government"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "whereWeOperateItems"
+  },
+  {
+   "path": "/transparency-dashboard",
+   "title": "transparency dashboard",
+   "outcome": "see-the-data",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/transparency-matrix",
+   "title": "Transparency Matrix",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminInternalItems"
+  },
+  {
+   "path": "/verify/trade-cert/:certificateId",
+   "title": "verify trade cert",
+   "outcome": "learn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/veterans",
+   "title": "Veterans Program",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "preventionHealthItems"
+  },
+  {
+   "path": "/video-pipeline",
+   "title": "Video Pipeline",
+   "outcome": "operate",
+   "audiences": [
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "adminInternalItems"
+  },
+  {
+   "path": "/virus-trends",
+   "title": "Virus & Outbreak Trends",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "preventionHealthItems"
+  },
+  {
+   "path": "/voice",
+   "title": "Community Voice",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/voice/:slug",
+   "title": "N. Wilco Childcare Voice",
+   "outcome": "connect",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "ctxHubItems"
+  },
+  {
+   "path": "/voice/:slug/admin",
+   "title": "voice  admin",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/voice/:slug/insights",
+   "title": "voice  insights",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/voice/:slug/story",
+   "title": "voice  story",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/voice/new",
+   "title": "voice new",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/voices",
+   "title": "voices",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/voices-of-austin",
+   "title": "Voices of Austin",
+   "outcome": "connect",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "ctxHubItems"
+  },
+  {
+   "path": "/wab2-enrollment",
+   "title": "WAB2 Enrollment",
+   "outcome": "connect",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "ctxHubItems"
+  },
+  {
+   "path": "/wab2-enrollment-hub",
+   "title": "wab2 enrollment hub",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/why-thriveup",
+   "title": "Why ThriveUp? (Stakeholder Q&A)",
+   "outcome": "connect",
+   "audiences": [
+    "nonprofit-cbo",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "partnersCoalitionsItems"
+  },
+  {
+   "path": "/widget-install",
+   "title": "Embed Portal on Your Website",
+   "outcome": "fund",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/wioa-outcomes",
+   "title": "WIOA Outcomes",
+   "outcome": "operate",
+   "audiences": [],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "workforceTradesItems"
+  },
+  {
+   "path": "/won-proposals",
+   "title": "Winning Proposals Library",
+   "outcome": "operate",
+   "audiences": [
+    "funder-evaluator",
+    "nonprofit-cbo"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "getFundedItems"
+  },
+  {
+   "path": "/workbench",
+   "title": "workbench",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/workforce",
+   "title": "Workforce Pathways",
+   "outcome": "work-earn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "workforceTradesItems"
+  },
+  {
+   "path": "/workforce-assessment",
+   "title": "Workforce Assessment",
+   "outcome": "work-earn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "workforceTradesItems"
+  },
+  {
+   "path": "/workforce-dashboard",
+   "title": "Workforce Dashboard",
+   "outcome": "operate",
+   "audiences": [],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "workforceTradesItems"
+  },
+  {
+   "path": "/workforce-employers",
+   "title": "Employer Connections",
+   "outcome": "work-earn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "workforceTradesItems"
+  },
+  {
+   "path": "/workforce-pell",
+   "title": "Workforce Pell Grant",
+   "outcome": "work-earn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar",
+    "command-palette"
+   ],
+   "classified": false,
+   "legacyGroup": "workforceTradesItems"
+  },
+  {
+   "path": "/workforce-readiness",
+   "title": "Workforce Readiness",
+   "outcome": "work-earn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "workforceTradesItems"
+  },
+  {
+   "path": "/workforce-training",
+   "title": "Workforce Training",
+   "outcome": "work-earn",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "workforceTradesItems"
+  },
+  {
+   "path": "/workspace/:workspace",
+   "title": "workspace",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "command-palette"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/workspaces",
+   "title": "workspaces",
+   "outcome": "get-help",
+   "audiences": [],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": false
+  },
+  {
+   "path": "/yhsi-ops",
+   "title": "YHSI Operations",
+   "outcome": "operate",
+   "audiences": [
+    "foster-youth"
+   ],
+   "access": "admin",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "fosterYouthItems"
+  },
+  {
+   "path": "/yhsi-system",
+   "title": "YHSI System Improvement",
+   "outcome": "get-help",
+   "audiences": [
+    "foster-youth"
+   ],
+   "access": "authenticated",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "fosterYouthItems"
+  },
+  {
+   "path": "/youth-rights",
+   "title": "Know Your Rights",
+   "outcome": "get-help",
+   "audiences": [
+    "foster-youth"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "fosterYouthItems"
+  },
+  {
+   "path": "/youth-voice",
+   "title": "Youth Voice (YHSI)",
+   "outcome": "get-help",
+   "audiences": [
+    "foster-youth"
+   ],
+   "access": "public",
+   "upstream": [],
+   "downstream": [],
+   "sources": [
+    "legacy-sidebar"
+   ],
+   "classified": false,
+   "legacyGroup": "fosterYouthItems"
+  }
+ ],
+ "externalLinks": [
+  {
+   "title": "Whole-Person Health",
+   "url": "https://mentalwellnesssupport.net",
+   "group": "connectedSiteItems"
+  },
+  {
+   "title": "HerHealth Matters",
+   "url": "https://herhealthmatters2.com",
+   "group": "connectedSiteItems"
+  },
+  {
+   "title": "Maternal Health Network",
+   "url": "https://herhealthmatters2.com",
+   "group": "connectedSiteItems"
+  },
+  {
+   "title": "MaleHealth Matters",
+   "url": "https://malehealthmatters2.com",
+   "group": "connectedSiteItems"
+  },
+  {
+   "title": "Mission Transition",
+   "url": "https://vetmissiontransition.com",
+   "group": "connectedSiteItems"
+  },
+  {
+   "title": "LifeBridge",
+   "url": "https://lifetransitionsaid.org",
+   "group": "connectedSiteItems"
+  },
+  {
+   "title": "Talk Your Talk",
+   "url": "https://talkyourtalk.net",
+   "group": "connectedSiteItems"
+  },
+  {
+   "title": "WholeMind Learning",
+   "url": "https://wholemindlearning.com",
+   "group": "connectedSiteItems"
+  },
+  {
+   "title": "Perfectly Different",
+   "url": "https://neurodifferentassistant.app",
+   "group": "connectedSiteItems"
+  },
+  {
+   "title": "SafeReport",
+   "url": "https://safereports.net",
+   "group": "connectedSiteItems"
+  },
+  {
+   "title": "The Gun Violence Project",
+   "url": "https://thegunviolenceproject.com",
+   "group": "connectedSiteItems"
+  },
+  {
+   "title": "SafeCogniCare",
+   "url": "https://safecognicare.com",
+   "group": "connectedSiteItems"
+  },
+  {
+   "title": "Integrated Supports for Thriving Youth",
+   "url": "https://implementationineducatio.com",
+   "group": "connectedSiteItems"
+  },
+  {
+   "title": "Minority Center of Excellence",
+   "url": "https://minoritycenterofexcellence.com",
+   "group": "connectedSiteItems"
+  },
+  {
+   "title": "RPLICE Research Hub",
+   "url": "https://www.bettersciencelab.com",
+   "group": "connectedSiteItems"
+  }
+ ]
+}

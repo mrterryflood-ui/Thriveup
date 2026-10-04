@@ -131,7 +131,6 @@ const getFundedItems: NavItem[] = [
   { title: "Partner Dashboard", url: "/partner-dashboard", icon: LayoutDashboard },
   { title: "For Nonprofits", url: "/for-nonprofits", icon: Handshake },
   { title: "For Other Agencies (Platform Funding)", url: "/for-agencies", icon: Building2 },
-  { title: "Community Gravity (Who Does the Work)", url: "/community-gravity", icon: Magnet },
   { title: "For Community Banks (Impact View)", url: "/community-banks", icon: Landmark },
   { title: "Grant Intelligence Package", url: "/grant-conduit", icon: Sparkles },
   { title: "RFP Fidelity Engine", url: "/rfp-fidelity", icon: ShieldCheck, authOnly: true, adminOnly: true },
@@ -293,6 +292,7 @@ const academyLearningItems: NavItem[] = [
 // HUB 5 — Partners & Coalitions: every coalition / community / ecosystem
 // surface. The "who are we working with" door.
 const partnersCoalitionsItems: NavItem[] = [
+  { title: "Community Gravity (Who Does the Work)", url: "/community-gravity", icon: Magnet },
   { title: "Join as a Partner", url: "/partners/join", icon: Handshake },
   { title: "API Documentation", url: "/api-docs", icon: Globe },
   { title: "Coalition Portal", url: "/coalition-portal", icon: Handshake },
