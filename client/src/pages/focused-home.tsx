@@ -9,6 +9,7 @@ import {
 import { useWorkspace } from "@/lib/workspace-context";
 import { GuidedStart } from "@/components/guided-start";
 import { FocusedInvitation } from "@/components/focused-invitation";
+import { HomeWhyStrip, HomeDoorCard, HOME_IMAGE_NOTE } from "@/components/home-experience-map";
 
 function TaskLink({ task }: { task: WorkspaceTask }) {
   const { setWorkspace } = useWorkspace();
@@ -132,32 +133,22 @@ export default function FocusedHome() {
 
           {storageUnavailable && <p className="mt-2 text-xs leading-5 text-[#7a6340]" role="status">Your browser could not save this preference. You can still choose a perspective for this visit.</p>}
 
+          <HomeWhyStrip />
+
           <section className="mt-8 border-t border-[#d4dfd7] pt-5 sm:mt-14 sm:pt-10" aria-labelledby="workspace-choice-title">
             <div className="mb-4 flex flex-col gap-1 sm:mb-6 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[.16em] text-[#668078]">Explore by perspective</p>
-                <h2 id="workspace-choice-title" className="mt-1 font-[var(--font-display)] text-2xl font-semibold leading-tight tracking-[-.04em] text-[#203b38] sm:text-3xl">More ways to work with ThriveUp.</h2>
+                <h2 id="workspace-choice-title" className="mt-1 font-[var(--font-display)] text-2xl font-semibold leading-tight tracking-[-.04em] text-[#203b38] sm:text-3xl">Choose your door. See what happens next.</h2>
               </div>
               <p className="max-w-md text-xs leading-5 text-[#62766e]">A workspace helps organize tasks. It does not grant access or determine eligibility.</p>
             </div>
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
               {WORKSPACES.map((item, index) => (
-                <Link
-                  key={item.id}
-                  href={`/workspace/${item.id}`}
-                  onClick={() => setWorkspace(item.id)}
-                  className={`group relative flex min-h-[118px] flex-col justify-between overflow-hidden rounded-xl border p-4 transition hover:-translate-y-0.5 hover:shadow-[0_15px_30px_-24px_rgba(26,70,62,.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#24756b] focus-visible:ring-offset-2 sm:min-h-[142px] sm:rounded-2xl sm:p-5 ${index === 0 ? "border-[#c2d6cb] bg-[#e3eee4]" : index === 1 ? "border-[#d8d4bc] bg-[#f3f0df]" : index === 2 ? "border-[#d6d4c6] bg-[#eeeee5]" : "border-[#c6d8d6] bg-[#e2eeeb]"}`}
-                  data-testid={`home-workspace-${item.id}`}
-                >
-                  <span className="text-[9px] font-bold uppercase tracking-[.15em] text-[#668078]">Perspective 0{index + 1}</span>
-                  <span>
-                    <span className="block font-[var(--font-display)] text-base font-semibold leading-tight text-[#203b38] sm:text-lg">{item.label}</span>
-                    <span className="mt-1 block text-xs leading-5 text-[#62766e]">{item.audience}</span>
-                  </span>
-                  <ArrowRight aria-hidden="true" size={16} className="absolute bottom-4 right-4 text-[#39786d] transition-transform group-hover:translate-x-1 sm:bottom-5 sm:right-5" />
-                </Link>
+                <HomeDoorCard key={item.id} id={item.id} index={index} onChoose={() => setWorkspace(item.id)} />
               ))}
             </div>
+            <p className="mt-2 text-[11px] leading-4 text-[#7a8c84]">{HOME_IMAGE_NOTE}</p>
             <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs">
               <Link href="/workspaces" className="font-semibold text-[#3c7065] underline decoration-[#9ab7a8] underline-offset-4 hover:text-[#174b45] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#24756b]" data-testid="home-workspace-directory">Browse all perspectives</Link>
               <Link href="/platform-overview" className="font-semibold text-[#3c7065] underline decoration-[#9ab7a8] underline-offset-4 hover:text-[#174b45] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#24756b]" data-testid="home-platform-overview">About the platform</Link>
