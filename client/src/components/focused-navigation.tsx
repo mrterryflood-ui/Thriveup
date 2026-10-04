@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 const KEY_DESTINATIONS = [
   { id: "for-nonprofits", label: "Coordinate services (orgs)", href: "/for-nonprofits" },
   { id: "partners", label: "Community partners & ambassadors", href: "/partners" },
+  { id: "community-gravity", label: "Community Gravity: who does the work", href: "/community-gravity" },
   { id: "community-banks", label: "Community Bank Impact View", href: "/community-banks" },
   { id: "community-analysis", label: "Community analysis & maps", href: "/community-analysis" },
 ] as const;

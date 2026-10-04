@@ -200,6 +200,7 @@ import { seedOrgMemberships } from "./seed-org-memberships";
 import { registerWonProposalsRoutes } from "./won-proposals-routes";
 import { registerGunViolenceRoutes } from "./gun-violence-routes";
 import { registerCommunityBankRoutes } from "./community-banks/routes";
+import { registerCommunityGravityRoutes } from "./community-gravity/routes";
 import { registerVirusTrendRoutes } from "./virus-trend-routes";
 import { registerProviderDiscoveryRoutes } from "./provider-discovery-routes";
 import { registerActiveBidsRoutes } from "./active-bids-routes";
@@ -683,6 +684,7 @@ export async function registerRoutes(
   registerCommunityIntelligenceRoutes(app);
   registerGunViolenceRoutes(app);
   registerCommunityBankRoutes(app);
+  registerCommunityGravityRoutes(app);
   registerVirusTrendRoutes(app);
   registerProviderDiscoveryRoutes(app);
   registerExportPdfRoutes(app);

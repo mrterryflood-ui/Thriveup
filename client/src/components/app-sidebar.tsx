@@ -35,6 +35,7 @@ import {
   Microscope, Stethoscope, Film, HandHeart, Search, Wrench,
   Compass, Baby, Layers, Sprout, Bug, FlaskConical, Droplets, HeartHandshake, Mic, Building, Wheat,
   Wifi, AlertTriangle, FolderLock,
+  Magnet,
 } from "lucide-react";
 import { WORKSPACE_TASKS } from "@shared/workspace-catalog";
 import { Button } from "@/components/ui/button";
@@ -130,6 +131,7 @@ const getFundedItems: NavItem[] = [
   { title: "Partner Dashboard", url: "/partner-dashboard", icon: LayoutDashboard },
   { title: "For Nonprofits", url: "/for-nonprofits", icon: Handshake },
   { title: "For Other Agencies (Platform Funding)", url: "/for-agencies", icon: Building2 },
+  { title: "Community Gravity (Who Does the Work)", url: "/community-gravity", icon: Magnet },
   { title: "For Community Banks (Impact View)", url: "/community-banks", icon: Landmark },
   { title: "Grant Intelligence Package", url: "/grant-conduit", icon: Sparkles },
   { title: "RFP Fidelity Engine", url: "/rfp-fidelity", icon: ShieldCheck, authOnly: true, adminOnly: true },
