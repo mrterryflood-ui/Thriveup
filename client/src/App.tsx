@@ -151,6 +151,7 @@ const WIOAOutcomesPage = lazy(() => import("@/pages/wioa-outcomes"));
 const EquityDashboardPage = lazy(() => import("@/pages/EquityDashboard"));
 const EquityLossEnginePage = lazy(() => import("@/pages/EquityLossEngine"));
 const EquityLossNationalPage = lazy(() => import("@/pages/EquityLossNational"));
+const CommunityBanksPage = lazy(() => import("@/pages/community-banks"));
 const CivicSignalPage = lazy(() => import("@/pages/CivicSignal"));
 const HouseholdProfilePage = lazy(() => import("@/pages/HouseholdProfile"));
 const PolicyEnginePage = lazy(() => import("@/pages/PolicyEngine"));
@@ -617,6 +618,7 @@ function AppRouter() {
       <Route path="/mos-translator" component={MOSTranslatorPage} />
       <Route path="/equity-dashboard" component={EquityDashboardPage} />
       <Route path="/equity-loss/national" component={EquityLossNationalPage} />
+      <Route path="/community-banks" component={CommunityBanksPage} />
       <Route path="/equity-loss" component={EquityLossEnginePage} />
       <Route path="/civic-signal" component={CivicSignalPage} />
       <Route path="/household/:id" component={HouseholdProfilePage} />
@@ -1124,7 +1126,7 @@ function AppLayoutInner() {
   const [location] = useLocation();
   const search = useSearch();
   const shellFreeEmbed = new URLSearchParams(search).get("embed") === "1";
-  const focusedEntry = location === "/" || location === "/hub" || location === "/workspaces" || location.startsWith("/workspace/") || location === "/academy/lessons" || Boolean(entryTaskForPath(location));
+  const focusedEntry = location === "/" || location === "/hub" || location === "/workspaces" || location.startsWith("/workspace/") || location === "/academy/lessons" || location === "/community-banks" || Boolean(entryTaskForPath(location));
   const currentWorkspace = WORKSPACES.find(item => item.id === workspace);
   const { t } = useLanguage();
   const style = { "--sidebar-width": "16rem", "--sidebar-width-icon": "3rem" };

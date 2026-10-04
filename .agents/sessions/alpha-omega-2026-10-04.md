@@ -1,0 +1,15 @@
+# Alpha Omega — 2026-10-04 — Community Bank Impact page (`/community-banks`)
+
+## Alpha
+- End-state: a public, no-sign-in page that scopes the ecosystem to one assessment area (default Austin MSA; any US county via ZIP / county FIPS / curated city) and shows sourced indicators, a CRA reading lens, live tool entrances, the owned ecosystem with health status, what sponsorship funds, and explicit limits. Integration only.
+- In-state evidence: approved plan `docs/plans/community-bank-impact-page-plan.md`; verified existing organs (`resolveZipBestEffort`, `fetchCountyAcs`, `getChildcareIntelByFips`, `hud_pit_counts`, `gis_context_data`, `ecosystem_platforms`); no bank-framed page existed; CRA appeared once in grant copy.
+- Authority/boundaries: no new datasets/AI/scoring/schema/publish; no outcome, ROI, or utilization claims; canonical stats only; user owns all registry platforms (ownership flag dropped by user direction); public endpoint doctrine (req.ip rate limit, cache, no internal blocks).
+- Plan and acceptance proofs: composer `GET /api/community-banks/profile?place=`; page + route + catalog + sidebar; Playwright spec chained into `run-directory-links.sh`; zero-error typecheck, lint, build, preflight; curl proof for Austin/Chicago/Philadelphia/ZIP/invalid.
+- Unknowns/deferred decisions: county-level SVI is not ingested in `gis_context_data` (renders "unavailable", not substituted). Non-TX childcare returns unavailable when Census CBP/ACS suppress the county. ACS median income is a band midpoint and is labeled modeled. PDF one-pager delivered as print stylesheet (`window.print`) rather than a new server PDF route — same panels, same provenance, no new backend.
+
+## Omega
+- Diff scrimmage: endpoint is anonymous read-only, returns 404 for unresolvable place and 429 over 30 req/min/IP; no role grants; all indicator `href`s map to registered routes (`/community-analysis`, `/equity-loss`, `/sdoh-explorer`, `/community-data`, `/child-care`); floating Navigator suppressed on the page to avoid overlap at 360px.
+- Proofs and gates: curl — Austin MSA pop 2,296,377 (ACS observed), HUD PIT TX 2024 27,987, childcare gap modeled; Cook County IL and Philadelphia PA resolve with TX-only-depth limit; ZIP 78701 → Travis; "Nowhere, ZZ" → 404. `tsc` 0 errors; `eslint --max-warnings=0` clean; `npm run build` ok; workspace-catalog tests 11/11; sidebar routes 278/278; navigation permission sync pass; `tests/e2e/community-banks.spec.ts` 4/4; `action-first-entry.spec.ts` 8/8 regression pass; preflight pass after this record.
+- Independent angle: browser run (Playwright, real server) separate from curl composer proof; 360×640 geometry assertion with bottom tab bar present; verify-nav-coverage's 4 pre-existing unlinked routes are unchanged by this work (confirmed via stash comparison).
+- Outcome: delivered and verified in development; not published.
+- Residuals and reusable guard: city list is curated (26 cities) — any other place requires a ZIP, stated in the error; SVI tile stays unavailable until county-level ingestion runs; guard = `community-banks.spec.ts` in the directory-links gate.

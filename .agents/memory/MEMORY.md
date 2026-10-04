@@ -99,3 +99,4 @@
 - [Platform focus and distinction](platform-focus-distinction.md) — user reports overwhelming breadth; going forward, focus, separation, and distinction must precede integration.
 - [AI honesty calibration](ai-honesty-calibration.md) — advisory receipts do not replace binding grounding; external-domain benchmarks are not ThriveUp scores.
 - [Preview viewport evidence](preview-viewport-evidence.md) — development-domain banners can reduce usable height; local screenshots alone do not prove first-screen fit.
+- [Community bank impact view](community-bank-view.md) — public composer over existing organs; coverage per tile; county SVI not ingested; ACS median = band midpoint (modeled); curated city list, else ZIP.

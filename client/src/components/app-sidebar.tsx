@@ -128,6 +128,7 @@ const getFundedItems: NavItem[] = [
   { title: "Partner Dashboard", url: "/partner-dashboard", icon: LayoutDashboard },
   { title: "For Nonprofits", url: "/for-nonprofits", icon: Handshake },
   { title: "For Other Agencies (Platform Funding)", url: "/for-agencies", icon: Building2 },
+  { title: "For Community Banks (Impact View)", url: "/community-banks", icon: Landmark },
   { title: "Grant Intelligence Package", url: "/grant-conduit", icon: Sparkles },
   { title: "RFP Fidelity Engine", url: "/rfp-fidelity", icon: ShieldCheck, authOnly: true, adminOnly: true },
   { title: "RFP / Narrative Writer", url: "/grant-narrative", icon: FileText, authOnly: true, adminOnly: true },
