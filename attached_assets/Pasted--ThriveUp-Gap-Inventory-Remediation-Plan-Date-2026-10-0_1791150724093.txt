@@ -1,0 +1,89 @@
+# ThriveUp — Gap Inventory & Remediation Plan
+
+**Date:** 2026-10-04 · **Role:** independent reviewer + architect (you build in Replit; I review independently)
+**Scope:** everything that is *not built, not integrated, or not wired end-to-end* — surfaced now, with a remedial step for each.
+
+**Honesty note:** code-level findings below are from reading the repo. Anything gated on the live Replit runtime (connectors, cron actually firing, delivery receipts) is flagged **"needs live check"** — I cannot confirm those from here and will not claim them as fixed or broken.
+
+---
+
+## 1. Structural gaps — the Replit dependency (fix these first; they break the "independent" claim)
+
+Everything below reads Replit-only secrets, so the moment the platform is expected to run on owned/Vercel infrastructure it silently degrades to "not configured."
+
+| # | What | Where (evidence) | Gap | Remediation |
+|---|---|---|---|---|
+| 1.1 | Email (Resend) | `server/email-service.ts` → `getResendClient()` reads `REPLIT_CONNECTORS_HOSTNAME` + `REPL_IDENTITY` / `WEB_REPL_RENEWAL` | Welcome email, Trade Sims digest, grant alerts, crisis escalation, stale-capacity reminders **all throw "Resend connector not available"** off Replit | Decouple: read a standalone `RESEND_API_KEY` env first; keep Replit connector as fallback. Verify each email type fires in production. **needs live check** |
+| 1.2 | Sign-in / auth | `server/replit_integrations/auth/replitAuth.ts` + `storage.ts` | Auth is Replit OIDC; the "boot-stability OIDC repair" ≠ operational independent sign-in | Confirm replacement sign-in path works signed-out→signed-in; prove existing users' file access survives cutover. **needs live check** |
+| 1.3 | File storage | `server/replit_integrations/object_storage/objectStorage.ts` | Uploads stored via Replit Object Storage | Prove existing files remain reachable on the owned-storage path before removing Replit. |
+| 1.4 | Audio / image / chat / batch | `server/replit_integrations/{audio,image,chat,batch}/` | Media/voice/batch features tied to Replit Connectors | Map each to an owned provider or explicitly declare it Replit-only in the spec. |
+
+These four are the "independent services cutover" that the plan's Phase 0 (lock the trunk) must resolve *before* the registry/navigation work, or we orchestrate a house of cards.
+
+---
+
+## 2. Automation gaps — things that should fire but don't complete end-to-end
+
+| # | Automation | Status (evidence) | Remediation |
+|---|---|---|---|
+| 2.1 | **Daily Trade Sims digest** | Trigger code exists (`server/trade-sims-trial-routes.ts:288`) calling `sendTradeSimsDigestEmail`; memory record says opt-ins store but does not send | Confirm the scheduler actually runs and `safeSend` returns true in production; fix the sender domain ("not a verified domain" log) so `from` isn't overridden. **needs live check** |
+| 2.2 | **Welcome email** | `sendWelcomeEmail` exists; reported delivery but "missing CC" unresolved | Verify welcome actually arrives to the recipient, not just admin; reconcile the free-provider sender override. |
+| 2.3 | **Org auto-notification (webhooks)** | `webhook-dispatcher.ts` fires for `referral.created/outcome`, `foster_youth.outcome`, `trade_cert.issued` — but logs **"0 active subscribers"** when no partner registered | Onboard partners to register webhooks; add retry + delivery log. Today the loop is one-way (data stored, no org notified). |
+| 2.4 | **AI engine smoke test / alerts** | `ai-smoke-test.ts` + `sendAIEngineAlert` exist | Prove the probe is scheduled and alerts reach the operator inbox. |
+| 2.5 | **Ecosystem heartbeat / collaboration cycles** | `ecosystem-connector.ts` has `pingerInterval`, `collaborationExchangeInterval (8h)`, `verificationInterval (30m)` | Confirm these run in production (mounted, not dead code) and that receivers **act**, not just receive. |
+
+---
+
+## 3. Integration gaps — cross-product exchanges that are planned, partial, or missing
+
+| # | Integration | Status (evidence) | Remediation |
+|---|---|---|---|
+| 3.1 | **HazardAware status/context** | `hazardaware-routes.ts` + community-facing section exist; wiki says post-redeploy success un-established | Authenticated production smoke test of the exchange; prove request→response, not just commit/merge. **needs live check** |
+| 3.2 | **ChildCORE county exchange** | `childcore-connector.ts`, `childcore-ingest-auth.ts`, `childcore-routes.ts` + tests exist | Prove signed ingest works end-to-end in production against live ChildCORE; verify county upsert. |
+| 3.3 | **Community Violence Register bridge** | wiki: signed `POST /api/network/ingest` is Phase 1 **planned, not implemented** | Build the outbound ingest + freshness/replay validation + `cvr` ecosystem registration. (This is net-new work, not wiring.) |
+| 3.4 | **RPLICE exchange route** | wiki: authenticated frameworks request OK but **exchange-contract route missing** | Implement + post-deploy verify the exchange-contract route (the "honesty-source handoff" your repo notes as not adopted). |
+| 3.5 | **Civic Signal** | `civic-signal-connector.ts` + routes exist | Prove live connector status (config + a real fetch). |
+| 3.6 | **Portfolio receiver "acts"** | wiki: ThriveUp previously orchestrated 25 apps via heartbeats, but "receiver ingests/updates/acts" is unmet — sending ≠ the product goal | Define + implement receiver action contract (ingest → update → act) with rollback, not one-way dispatch. |
+
+---
+
+## 4. Routing & wiring gaps — built but not proven end-to-end
+
+| # | Item | Status (evidence) | Remediation |
+|---|---|---|---|
+| 4.1 | **Community story 502** | wiki: story-pack origin repair removed localhost fetch, but community-brief 502 remained in preview; PR #9 carries request host | Independent production close of the 502; re-test the community-brief path post-deploy. **needs live check** |
+| 4.2 | **Portfolio directory links** | PR #10 (Community Violence Register link) open; PR #11 (Gun Violence Project card) merged-source but production visibility unverified | Merge + verify cards render in production directory. |
+| 4.3 | **AI key routing** | wiki: env-name bridge authorized; some AI lanes work, other model/quota/provider paths still fail | Complete provider config per lane; run the smoke test across all providers, not a subset. |
+| 4.4 | **"Defined but not mounted" routes** | 298 server route files exist; mounting lives in `server/index.ts` / `routes.ts` | Diff declared route modules against mounted routes; flag any orphaned handler as a defect. |
+
+---
+
+## 5. Guide & instruction gaps
+
+| # | Item | Status | Remediation |
+|---|---|---|---|
+| 5.1 | Per-page guides | A `contextual-help` button + `academy/help` exist, but there is no universal "what is this / how do I use it / what's next" strip on every tool | Ship the shared per-page guide band (part of the IA build spec) and back-fill a guide for the top 20 public tools first. |
+| 5.2 | Automation guides | "Guides are not doing the automations" — help content is static, not wired to actual trigger status | Surface live automation status (digest sent? webhook registered?) on the relevant guide/ops pages so operators see what's actually running. |
+
+---
+
+## Remediation order (measure twice, cut once)
+
+1. **Lock + cutover (1.1–1.4)** — decouple email/auth/storage from Replit-only secrets; prove independent stack. Without this, everything else is pinned to Replit.
+2. **Automations complete the loop (2.1–2.5)** — make digest/welcome/webhook/alerts actually deliver and *show* delivery.
+3. **Cross-product exchanges (3.1–3.6)** — production smoke tests, then build the two net-new items (CVR ingest bridge, RPLICE exchange route).
+4. **Routing cleanup (4.1–4.4)** — close the 502, merge directory PRs, audit mounted vs orphaned routes.
+5. **Guides (5.1–5.2)** — per-page guide band + live automation status.
+
+Each line above has a pass/fail verification gate; I will check against the *built output and live behavior*, not the code diff or the builder's self-report.
+
+---
+
+## What I can't confirm from here (needs your live Replit access)
+
+- Whether the digest/verification/heartbeat schedulers are actually **running** (not just defined).
+- Whether Resend/Auth/Object-Storage connectors are **currently connected** in Replit.
+- Delivery receipts for welcome and digest emails.
+- Live HazardAware/ChildCORE/RPLICE responses.
+
+If you can paste the output of the Replit **deployment logs** for a digest cycle and a welcome signup, I can convert several of these from "unverified" to "confirmed done" or "confirmed broken" without guessing.
