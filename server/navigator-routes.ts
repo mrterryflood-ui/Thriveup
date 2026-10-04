@@ -1,4 +1,5 @@
 import type { Express, Request } from "express";
+import { groundContacts } from "./contact-grounding";
 import { randomUUID } from "crypto";
 import { navigatorHonesty } from "./inference-honesty-adapter";
 import { db } from "./storage";
@@ -2220,13 +2221,14 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
           // sentences are redacted; all decisions go to the claim chain.
           // AI judgment calls (fit scores, qualitative framing) carry no
           // ClaimRule and are left entirely alone by design.
-          const groundedResponse = applyNavigatorGrounding(
+          // R1/R2: phone numbers and links must come from the supplied context.
+          const groundedResponse = groundContacts(applyNavigatorGrounding(
             fullResponse,
             navigatorCensusIndicators,
             gunViolenceContext,
             navigatorGvTotals,
             navigatorGrantHuntTotal,
-          );
+          ), msgs.map((m: any) => (typeof m.content === "string" ? m.content : "")).join("\n")).text;
           const honesty = navigatorHonesty(groundedResponse, navigatorCensusIndicators, navigatorGvTotals, gunViolenceContext.injected, navigatorGrantHuntTotal);
           safeWrite(`data: ${JSON.stringify({ honesty })}\n\n`);
 
@@ -2277,13 +2279,13 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
                 if (content) fallbackResponse += content;
               }
               // Apply grounding to fallback response before emitting
-              const fallbackGrounded = applyNavigatorGrounding(
+              const fallbackGrounded = groundContacts(applyNavigatorGrounding(
                 fallbackResponse,
                 navigatorCensusIndicators,
                 gunViolenceContext,
                 navigatorGvTotals,
                 navigatorGrantHuntTotal,
-              );
+              ), msgs.map((m: any) => (typeof m.content === "string" ? m.content : "")).join("\n")).text;
               const fallbackHonesty = navigatorHonesty(fallbackGrounded, navigatorCensusIndicators, navigatorGvTotals, gunViolenceContext.injected, navigatorGrantHuntTotal);
               safeWrite(`data: ${JSON.stringify({ honesty: fallbackHonesty })}\n\n`);
               if (fallbackGrounded.length > 0) {
@@ -2310,13 +2312,13 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
                   lastResortResponse += content;
                 },
                 onDone: async () => {
-                  const lastResortGrounded = applyNavigatorGrounding(
+                  const lastResortGrounded = groundContacts(applyNavigatorGrounding(
                     lastResortResponse,
                     navigatorCensusIndicators,
                     gunViolenceContext,
                     navigatorGvTotals,
                     navigatorGrantHuntTotal,
-                  );
+                  ), msgs.map((m: any) => (typeof m.content === "string" ? m.content : "")).join("\n")).text;
                   const lastResortHonesty = navigatorHonesty(lastResortGrounded, navigatorCensusIndicators, navigatorGvTotals, gunViolenceContext.injected, navigatorGrantHuntTotal);
                   safeWrite(`data: ${JSON.stringify({ honesty: lastResortHonesty })}\n\n`);
                   if (lastResortGrounded.length > 0) {

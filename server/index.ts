@@ -1,3 +1,4 @@
+import "./env-aliases"; // must run before any module reads process.env (AI key name bridging)
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { communityRouter } from "./community-api-routes";

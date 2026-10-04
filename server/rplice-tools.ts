@@ -545,8 +545,9 @@ Write in the voice specified for this funder. Be specific. Every claim must refe
     res.end();
   });
 
-  const RPLICE_BASE = "https://www.bettersciencelab.com";
-  const RPLICE_API_KEY = process.env.THRIVE_GPP_API_KEY || process.env.THRIVEUP_INBOUND_KEY || process.env.THRIVE_GPP_API || process.env.RPLICE_API_KEY || "";
+  const RPLICE_BASE = process.env.RPLICE_BASE_URL || "https://www.bettersciencelab.com";
+  const RPLICE_API_KEY = process.env.RPLICE_API_KEY || process.env.THRIVE_GPP_API_KEY || process.env.THRIVEUP_INBOUND_KEY || process.env.THRIVE_GPP_API || "";
+  if (RPLICE_API_KEY && !RPLICE_API_KEY.startsWith("rplice_")) { console.warn("[rplice] RPLICE_API_KEY does not carry the rplice_ prefix — wrong scope?"); }
 
   async function fetchRplice(path: string): Promise<any> {
     try {
@@ -580,6 +581,36 @@ Write in the voice specified for this funder. Be specific. Every claim must refe
       return await resp.json();
     } catch { return null; }
   }
+
+  /**
+   * Verify the configured server-to-server RPLICE integration without exposing
+   * credentials or upstream response data.
+   */
+  app.get("/api/rplice/connection-status", requireAuth, async (_req, res) => {
+    if (!RPLICE_API_KEY) {
+      return res.status(503).json({ connected: false, reason: "RPLICE_API_KEY is not configured" });
+    }
+
+    const startedAt = Date.now();
+    try {
+      const response = await fetch(`${RPLICE_BASE}/api/v1/frameworks`, {
+        headers: { Authorization: `Bearer ${RPLICE_API_KEY}` },
+        signal: AbortSignal.timeout(12_000),
+      });
+      const connected = response.ok;
+      return res.status(connected ? 200 : 502).json({
+        connected,
+        upstreamStatus: response.status,
+        latencyMs: Date.now() - startedAt,
+      });
+    } catch {
+      return res.status(502).json({
+        connected: false,
+        reason: "RPLICE request failed",
+        latencyMs: Date.now() - startedAt,
+      });
+    }
+  });
 
   /**
    * Search the RPLICE research library server-side.

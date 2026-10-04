@@ -830,6 +830,7 @@ export function registerPartnerApiRoutes(app: Express) {
 
   // ── Community data (community:read) ──────────────────────────────────────
 
+
   app.get("/api/partner/v1/community", requirePartnerAuth, requireScope("community:read"), async (_req, res) => {
     try {
       const platforms = await db.select({
@@ -1593,10 +1594,12 @@ export function registerPartnerApiRoutes(app: Express) {
       // Partner keys are NEVER authenticated callers of the first-party session;
       // we do NOT pass a cookie or auth header so the conductor treats this as
       // an anonymous request (public brief, NO RPLICE block — aggregate only).
-      const protocol = req.protocol || "http";
-      const host = req.hostname || "localhost";
-      const port = process.env.PORT || "5000";
-      const conductorUrl = `http://localhost:${port}/api/conductor/community-brief`;
+      // Self-call: on a long-running host, loopback to PORT is correct. On
+      // Vercel serverless there is NO localhost listener — the function must
+      // call its own public origin instead.
+      const conductorUrl = process.env.VERCEL
+        ? `https://${req.get("host")}/api/conductor/community-brief`
+        : `http://localhost:${process.env.PORT || "5000"}/api/conductor/community-brief`;
 
       const conductorRes = await fetch(conductorUrl, {
         method: "POST",
@@ -1661,8 +1664,7 @@ export function registerPartnerApiRoutes(app: Express) {
       const location = (typeof req.query.location === "string" ? req.query.location : "").trim();
       if (!location) return res.status(400).json({ error: "location query param is required" });
 
-      const port = process.env.PORT || "5000";
-      const packRes = await fetch(`http://localhost:${port}/api/community-story/pack`, {
+      const packRes = await fetch(`${process.env.VERCEL ? `https://${req.get("host")}` : `http://localhost:${process.env.PORT || "5000"}`}/api/community-story/pack`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

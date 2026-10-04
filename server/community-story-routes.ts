@@ -87,9 +87,18 @@ function fmtDollar(n: number): string {
 }
 
 // ── Internal fetch helpers ────────────────────────────────────────────────────
-async function fetchCommunityBrief(location: string, populationSize?: number): Promise<Record<string, unknown>> {
-  const port = process.env.PORT ?? 5000;
-  const res = await fetch(`http://localhost:${port}/api/conductor/community-brief`, {
+
+// On Vercel serverless there is no localhost listener; self-call via origin.
+function selfOrigin(req?: { get(name: string): string | undefined }): string {
+  if (process.env.VERCEL) {
+    const host = req?.get?.("host");
+    if (host) return `https://${host}`;
+  }
+  return `http://localhost:${process.env.PORT ?? 5000}`;
+}
+
+async function fetchCommunityBrief(location: string, populationSize?: number, req?: { get(n: string): string | undefined }): Promise<Record<string, unknown>> {
+  const res = await fetch(`${selfOrigin(req)}/api/conductor/community-brief`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ location, populationSize: populationSize ?? 50000 }),
@@ -101,10 +110,9 @@ async function fetchCommunityBrief(location: string, populationSize?: number): P
   return res.json() as Promise<Record<string, unknown>>;
 }
 
-async function fetchGrantConduit(body: Record<string, unknown>): Promise<Record<string, unknown> | null> {
+async function fetchGrantConduit(body: Record<string, unknown>, req?: { get(n: string): string | undefined }): Promise<Record<string, unknown> | null> {
   try {
-    const port = process.env.PORT ?? 5000;
-    const res = await fetch(`http://localhost:${port}/api/grant-conduit/package`, {
+    const res = await fetch(`${selfOrigin(req)}/api/grant-conduit/package`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -125,10 +133,11 @@ export async function assembleStoryPack(opts: {
   focusAreas?: string[];
   missionText?: string;
   includeGrantData?: boolean;
+  request?: { get(n: string): string | undefined };
 }): Promise<Record<string, unknown>> {
-  const { location, populationSize, orgName, orgType, focusAreas, missionText, includeGrantData } = opts;
+  const { location, populationSize, orgName, orgType, focusAreas, missionText, includeGrantData, request } = opts;
 
-  const brief = await fetchCommunityBrief(location, populationSize);
+  const brief = await fetchCommunityBrief(location, populationSize, request);
 
   let grant: Record<string, unknown> | null = null;
   // Capture state before the grant conduit call so we can surface a disclosure
@@ -161,7 +170,7 @@ export async function assembleStoryPack(opts: {
       focusAreas: focusAreas ?? [],
       missionText,
       generateNarratives: !!missionText,
-    });
+    }, request);
   }
 
   return {
@@ -686,6 +695,7 @@ export function registerCommunityStoryRoutes(app: Express) {
         focusAreas: Array.isArray(focusAreas) ? focusAreas.map(String) : [],
         missionText: missionText ? String(missionText) : undefined,
         includeGrantData: !!includeGrantData,
+        request: req,
       });
       res.json(story);
     } catch (err) {
@@ -712,6 +722,7 @@ export function registerCommunityStoryRoutes(app: Express) {
         focusAreas: Array.isArray(focusAreas) ? focusAreas.map(String) : [],
         missionText: missionText ? String(missionText) : undefined,
         includeGrantData: !!includeGrantData,
+        request: req,
       });
 
       const brief = (story.brief as Record<string, unknown>) ?? {};
@@ -750,6 +761,7 @@ export function registerCommunityStoryRoutes(app: Express) {
         focusAreas: Array.isArray(focusAreas) ? focusAreas.map(String) : [],
         missionText: missionText ? String(missionText) : undefined,
         includeGrantData: !!includeGrantData,
+        request: req,
       });
 
       const brief = (story.brief as Record<string, unknown>) ?? {};
@@ -786,6 +798,7 @@ export function registerCommunityStoryRoutes(app: Express) {
           location: String(location),
           orgName: orgName ? String(orgName) : undefined,
           includeGrantData: false,
+          request: req,
         });
       }
       if (!storyData || !hasEvidenceContract(storyData as Record<string, unknown>)) {

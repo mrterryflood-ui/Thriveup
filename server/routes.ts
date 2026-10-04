@@ -63,7 +63,7 @@ import { computeFullThriveScore, computeAllStudentScores, getThriveHistory } fro
 import { evaluateFlags, getActiveFlags, resolveFlag, runEarlyWarningCheck } from "./early-warning";
 import { runFullIngestion, getContextForGeography, searchByState, searchByLocation, generateCommunityNarrative, getStateCoords, getStateName as gisGetStateName } from "./gis-engine";
 import { db } from "./storage";
-import { streamAIResponse, getProviderInfo, withEthicalPreamble } from "./ai-provider";
+import { streamAIResponse, getProviderInfo, withEthicalPreamble, callProviderDirectForHealth } from "./ai-provider";
 import { collaborativeStream, collaborativeResponse, collaborativeJSON, getCollaborativeStatus } from "./collaborative-ai";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { registerCrossPlatformRoutes } from "./cross-platform-api";
@@ -223,6 +223,13 @@ import { chwRouter } from "./chw-routes";
 import { referralRouter } from "./referral-routes";
 import { capacityRouter, partnerCapacityRouter } from "./capacity-routes";
 import { funderRouter } from "./funder-routes";
+import { registerModalRoutes } from "./modal-gpu";
+import {
+  consentEnforcementMiddleware,
+  getUserConsentToggles,
+  setConsentToggle,
+  CONSENT_SCOPES,
+} from "./consent-enforcement-middleware";
 
 const AI_TOOLS = [
   { toolKey: "presentation-builder", name: "Presentation Builder", description: "Create slide-by-slide presentations with AI-generated content, talking points, and visual suggestions", category: "create", iconName: "presentation", gradeBand: "all", requiredModuleKey: "ai-presentations", promptTemplate: "PRESENTATION_BUILDER", outputFormat: "slides", sortOrder: 1 },
@@ -462,6 +469,14 @@ function requireAuth(req: Request, res: any, next: any) {
   next();
 }
 
+// ── Consent enforcement (Magnet System Doctrine, Law 4 wiring) ──────────────
+// The consent middleware previously existed but was never mounted — a module
+// connected to nothing. It is mounted app-wide inside registerRoutes below
+// (attaches req.checkConsent) and exposes a self-service API so users can view
+// and set their own consent scopes. All scopes default OFF; enforcement points
+// call req.checkConsent / filterByConsent before including a user's data in
+// reports or aggregates.
+
 // Roles allowed to use "adult mode" for AI tools (all tools unlocked,
 // bypassing the youth module-completion gating). Server-authoritative:
 // the client cannot force this by passing ?mode=adult.
@@ -507,6 +522,32 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  // Consent enforcement middleware — mounted first so req.checkConsent is
+  // available on every route (see the consent note above requireAuth).
+  app.use(consentEnforcementMiddleware);
+
+  app.get("/api/user/consent", requireAuth, async (req, res) => {
+    try {
+      res.json(await getUserConsentToggles(getUserId(req)!));
+    } catch (error: any) {
+      res.status(500).json({ error: "Failed to load consent settings" });
+    }
+  });
+
+  app.put("/api/user/consent", requireAuth, async (req, res) => {
+    const userId = getUserId(req)!;
+    const { scope, enabled } = req.body ?? {};
+    if (!CONSENT_SCOPES.includes(scope) || typeof enabled !== "boolean") {
+      return res.status(400).json({ error: "Invalid scope or enabled flag", validScopes: CONSENT_SCOPES });
+    }
+    try {
+      await setConsentToggle(userId, scope, enabled);
+      res.json(await getUserConsentToggles(userId));
+    } catch (error: any) {
+      res.status(500).json({ error: "Failed to save consent setting" });
+    }
+  });
+
   // Seed-on-boot must never block route registration: on a host without a
   // configured database (fresh Vercel deployment) these queries fail, and
   // without a catch the entire app would come up with no API routes at all.
@@ -525,6 +566,10 @@ export async function registerRoutes(
 
   await seedSafely("AI tool catalog", seedAiToolCatalog);
   await seedSafely("STAAR content", seedStaarContent);
+  await seedSafely("ChildCORE partner key", async () => {
+    const { ensureChildcorePartnerKey } = await import("./childcore-routes");
+    await ensureChildcorePartnerKey();
+  });
 
   await seedSafely("comprehensive catalog", async () => {
     const { seedComprehensive } = await import("./seed-comprehensive");
@@ -607,6 +652,10 @@ export async function registerRoutes(
   registerEcosystemCapacityRoutes(app);
   registerTranslateRoutes(app);
   registerEcosystemConnectorRoutes(app);
+  const { registerHazardawareRoutes } = await import("./hazardaware-routes");
+  registerHazardawareRoutes(app);
+  const { registerResidentStoryRoutes } = await import("./resident-story-routes");
+  registerResidentStoryRoutes(app);
   registerRAGRoutes(app);
   registerFacilitatorRoutes(app);
   registerMetricsRoutes(app);
@@ -680,6 +729,7 @@ export async function registerRoutes(
   registerTradeSimsTrialRoutes(app);
   registerStudioRoutes(app);
   registerEastAustinApprovalRoutes(app);
+  registerModalRoutes(app);
   // Idempotent demo seed for the Vann collaboration kit. Safe to call on every boot.
   seedVannDemo()
     .then((r) => { if (!r.skipped) console.log("[seed] Vann demo seeded:", r.orgs.join(", ")); })
@@ -697,6 +747,19 @@ export async function registerRoutes(
   app.get("/api/ai-provider", (_req, res) => {
     try {
       res.json(getProviderInfo());
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Per-provider health probe: sends a trivial 1-token request through each
+  // configured provider and reports ok/fail with a sanitized error. Never
+  // echoes key values. Closes the "provider health monitoring" audit gap.
+  app.get("/api/ai-provider/health", async (_req, res) => {
+    try {
+      const report = await callProviderDirectForHealth();
+      res.setHeader("Cache-Control", "no-store");
+      res.json(report);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }

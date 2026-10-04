@@ -332,6 +332,68 @@ async function resolveLatLngToCounty(lat: number, lng: number): Promise<Resolved
   } catch { return null; }
 }
 
+/**
+ * Shared read-only opportunities handler. Both the Community API and the
+ * Partner API use this exact response shape so integrations do not drift.
+ * Authentication and rate limiting remain route-specific.
+ */
+export async function handleCommunityOpportunities(req: Request, res: Response) {
+  try {
+    const state = String(req.query.state ?? "").toUpperCase().trim();
+    const county = String(req.query.county ?? "").trim();
+    if (!state) {
+      return res.status(400).json({ error: "state is required.", example: "?state=TX&county=Burnet" });
+    }
+    const stateName = STATE_NAMES[state];
+    if (!stateName) return res.status(400).json({ error: `Unrecognized state: ${state}` });
+
+    let grants = await db
+      .select()
+      .from(grantOpportunities)
+      .orderBy(desc(grantOpportunities.fitScore), desc(grantOpportunities.createdAt));
+
+    const haystack = (g: (typeof grants)[0]) =>
+      `${g.title} ${g.description ?? ""} ${g.eligibilityCriteria ?? ""} ${(g.focusAreas as string[] ?? []).join(" ")}`.toLowerCase();
+
+    grants = grants.filter(g => {
+      const hay = haystack(g);
+      const isNational = /national|nationwide|all states|fifty states/i.test(hay);
+      return isNational || hay.includes(state.toLowerCase()) || hay.includes(stateName.toLowerCase());
+    });
+
+    if (county) {
+      const normalizedCounty = county.toLowerCase().replace(/\s*county\s*$/i, "").trim();
+      const refined = grants.filter(g => haystack(g).includes(normalizedCounty));
+      if (refined.length > 0) grants = refined;
+    }
+
+    const opportunities = grants.slice(0, 50).map(g => ({
+      id: g.id,
+      title: g.title,
+      funder: g.agency ?? null,
+      fundingType: g.grantType ?? null,
+      amountRange: g.fundingAmount ?? null,
+      deadline: g.deadline ? new Date(g.deadline).toISOString().slice(0, 10) : null,
+      fitScore: g.fitScore ?? null,
+      focusAreas: (g.focusAreas as string[] ?? []),
+      eligibilitySummary: g.eligibilityCriteria ?? null,
+      applyUrl: g.sourceUrl ?? null,
+      status: g.status ?? null,
+      whyItMatches: `Fit score ${g.fitScore ?? "N/A"}/100 · ${(g.focusAreas as string[] ?? []).slice(0, 3).join(", ")}`,
+    }));
+
+    return res.json({
+      geography: { state, stateName, county: county || null },
+      total: opportunities.length,
+      opportunities,
+      _poweredBy: "ThriveUp Grant Discovery Engine · SAM.gov · Grants.gov · curated foundation feeds",
+    });
+  } catch (err: any) {
+    console.error("[community-api/opportunities]", err?.message ?? err);
+    return res.status(500).json({ error: "Failed to retrieve opportunities." });
+  }
+}
+
 // ── Router factory ────────────────────────────────────────────────────────────
 // Returns an Express Router mounted at /api/community by server/index.ts.
 // All paths here are relative (e.g. "/profile" not "/api/community/profile").
@@ -388,64 +450,7 @@ export function createCommunityRouter(): Router {
   });
 
   // ── /opportunities ────────────────────────────────────────────────────────
-  router.get("/opportunities", ...mw, async (req: Request, res: Response) => {
-    try {
-      const state  = String(req.query.state  ?? "").toUpperCase().trim();
-      const county = String(req.query.county ?? "").trim();
-      if (!state) {
-        return res.status(400).json({ error: "state is required.", example: "?state=TX&county=Burnet" });
-      }
-      const stateName = STATE_NAMES[state];
-      if (!stateName) return res.status(400).json({ error: `Unrecognized state: ${state}` });
-
-      let grants = await db
-        .select()
-        .from(grantOpportunities)
-        .orderBy(desc(grantOpportunities.fitScore), desc(grantOpportunities.createdAt));
-
-      // Keep national + state-relevant grants
-      const haystack = (g: (typeof grants)[0]) =>
-        `${g.title} ${g.description ?? ""} ${g.eligibilityCriteria ?? ""} ${(g.focusAreas as string[] ?? []).join(" ")}`.toLowerCase();
-
-      grants = grants.filter(g => {
-        const hay = haystack(g);
-        const isNational = /national|nationwide|all states|fifty states/i.test(hay);
-        return isNational || hay.includes(state.toLowerCase()) || hay.includes(stateName.toLowerCase());
-      });
-
-      // County refinement (best-effort, don't shrink to zero)
-      if (county) {
-        const cn = county.toLowerCase().replace(/\s*county\s*$/i, "").trim();
-        const refined = grants.filter(g => haystack(g).includes(cn));
-        if (refined.length > 0) grants = refined;
-      }
-
-      const opportunities = grants.slice(0, 50).map(g => ({
-        id:                   g.id,
-        title:                g.title,
-        funder:               g.agency ?? null,
-        fundingType:          g.grantType ?? null,
-        amountRange:          g.fundingAmount ?? null,
-        deadline:             g.deadline ? new Date(g.deadline).toISOString().slice(0, 10) : null,
-        fitScore:             g.fitScore ?? null,
-        focusAreas:           (g.focusAreas as string[] ?? []),
-        eligibilitySummary:   g.eligibilityCriteria ?? null,
-        applyUrl:             g.sourceUrl ?? null,
-        status:               g.status ?? null,
-        whyItMatches:         `Fit score ${g.fitScore ?? "N/A"}/100 · ${(g.focusAreas as string[] ?? []).slice(0, 3).join(", ")}`,
-      }));
-
-      return res.json({
-        geography: { state, stateName, county: county || null },
-        total:    opportunities.length,
-        opportunities,
-        _poweredBy: "ThriveUp Grant Discovery Engine · SAM.gov · Grants.gov · curated foundation feeds",
-      });
-    } catch (err: any) {
-      console.error("[community-api/opportunities]", err?.message ?? err);
-      return res.status(500).json({ error: "Failed to retrieve opportunities." });
-    }
-  });
+  router.get("/opportunities", ...mw, handleCommunityOpportunities);
 
   // ── /compare ──────────────────────────────────────────────────────────────
   router.get("/compare", ...mw, async (req: Request, res: Response) => {

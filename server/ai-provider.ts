@@ -6,7 +6,7 @@ import { getCurrentGraphContext } from "./knowledge-graph";
 import { safeOversightGate, MAX_HONESTY_OUTPUT_CHARS, MODEL_REGISTRY, type FactLike, type GateContract, type GateVerdict, type EvalScoreRecord } from "@shared/inference-honesty";
 import { loadModelEvaluations } from "./inference-honesty-evaluations";
 
-type Provider = "gemini" | "claude" | "openrouter-claude" | "openai" | "replit-ai-integrations" | "deepseek-r1" | "perplexity";
+type Provider = "modal" | "gemini" | "github-models" | "claude" | "openrouter-claude" | "openai" | "replit-ai-integrations" | "deepseek-r1" | "perplexity" | "perplexity-direct";
 
 /**
  * Direct Anthropic is a last-resort provider. Claude 3.x models are retired
@@ -198,6 +198,12 @@ let geminiQuotaExhaustedUntil = 0;
 
 export function getProviderOrder(environment: Record<string, string | undefined>): Provider[] {
   const providers: Provider[] = [];
+  // modal: self-hosted GPU inference (infra owned by us — zero external LLM spend)
+  if (environment.THRIVEUP_MODAL_URL && environment.THRIVEUP_MODAL_KEY) providers.push("modal");
+  // github-models: Azure-hosted GPT via user's existing GitHub account
+  // (https://models.github.ai/inference). Zero new accounts/services needed —
+  // just one personal access token from github.com/marketplace/models.
+  if (environment.GITHUB_MODELS_API_KEY) providers.push("github-models");
   // openrouter-claude: uses OpenRouter to serve Claude — catches direct Anthropic failures
   if (environment.AI_INTEGRATIONS_OPENROUTER_API_KEY && environment.AI_INTEGRATIONS_OPENROUTER_BASE_URL) providers.push("openrouter-claude");
   if (environment.AI_INTEGRATIONS_OPENROUTER_API_KEY && environment.AI_INTEGRATIONS_OPENROUTER_BASE_URL) providers.push("perplexity");
@@ -205,6 +211,10 @@ export function getProviderOrder(environment: Record<string, string | undefined>
   if (environment.AI_INTEGRATIONS_OPENAI_API_KEY && environment.AI_INTEGRATIONS_OPENAI_BASE_URL) providers.push("replit-ai-integrations");
   if (environment.OPENAI_API_KEY) providers.push("openai");
   if (environment.GEMINI_API_KEY) providers.push("gemini");
+  // Direct Perplexity (sonar) — an alternative to OpenRouter-broking. Ranks
+  // right after Modal, Gemini and OpenAI so free lanes are preferred but every
+  // path still answers without OpenRouter plumbing.
+  if (environment.PERPLEXITY_API_KEY) providers.push("perplexity-direct");
   // Direct Anthropic is deliberately last so exhausted credits never block a
   // healthy OpenRouter/Perplexity/Gemini path.
   if (environment.ANTHROPIC_API_KEY || (environment.AI_INTEGRATIONS_ANTHROPIC_API_KEY && environment.AI_INTEGRATIONS_ANTHROPIC_BASE_URL)) providers.push("claude");
@@ -232,12 +242,15 @@ function detectProvider(): Provider {
 }
 
 const PROVIDER_CONFIG: Record<Provider, { model: string; isFree: boolean }> = {
-  gemini: { model: "gemini-2.0-flash", isFree: true },
+  modal: { model: "thriveup-gpu", isFree: true },
+  "github-models": { model: "openai/gpt-4.1-mini", isFree: true },
+  gemini: { model: "gemini-3.8-flash", isFree: true },
   claude: { model: "claude-haiku-4-5", isFree: false },
   "openrouter-claude": { model: "anthropic/claude-haiku-4-5", isFree: false },
   openai: { model: "gpt-5-mini", isFree: false },
   "replit-ai-integrations": { model: "gpt-5-nano", isFree: false },
-  "deepseek-r1": { model: "deepseek/deepseek-r1", isFree: false },
+  "perplexity-direct": { model: "fast (Agent API preset)", isFree: false },
+  "deepseek-r1": { model: "deepseek/deepseek-chat", isFree: false },
   perplexity: { model: "perplexity/sonar-pro", isFree: false },
 };
 
@@ -291,7 +304,7 @@ async function streamGemini(params: StreamAIResponseParams): Promise<void> {
   }
 
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash",
+    model: "gemini-3.8-flash",
     systemInstruction,
     safetySettings: [
       { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
@@ -803,6 +816,78 @@ async function tryProvider(provider: Provider, params: StreamAIResponseParams): 
     await streamDeepSeekR1(params);
   } else if (provider === "perplexity") {
     await streamPerplexity(params);
+  } else if (provider === "modal") {
+    // Modal's vLLM server returns a full completion (no token streaming) —
+    // emit it as one chunk so streaming callers still get their contract.
+    const { modalGenerate } = await import("./modal-gpu");
+    const fullPrompt = params.messages
+      .map((m: { role: string; content: string }) => `${m.role}: ${m.content}`)
+      .join("\n\n");
+    const result = await modalGenerate(fullPrompt, params.maxTokens || 2000);
+    params.onChunk(result.completion);
+    params.onDone();
+  } else if (provider === "github-models") {
+    const GITHUB_MODELS_MODEL = process.env.GITHUB_MODELS_MODEL || "openai/gpt-4.1-mini";
+    const resp = await fetch("https://models.github.ai/inference/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.GITHUB_MODELS_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: GITHUB_MODELS_MODEL,
+        messages: params.messages,
+        max_tokens: params.maxTokens || 1200,
+      }),
+      signal: AbortSignal.timeout(AI_PROVIDER_TIMEOUT_MS),
+    });
+    if (!resp.ok) throw new Error(`github-models stream ${resp.status}`);
+    const data = (await resp.json()) as { choices?: Array<{ message?: { content?: string } }> };
+    const content = data.choices?.[0]?.message?.content ?? "";
+    if (content) params.onChunk(content);
+    params.onDone();
+  } else if (provider === "perplexity-direct") {
+    // Direct Perplexity API isn't a token stream for us — request, then emit
+    // the completion as one chunk.
+    const systemP = params.messages.find((m: { role: string }) => m.role === "system")?.content;
+    const userP = params.messages.filter((m: { role: string }) => m.role !== "system").map((m: { role: string; content: string }) => `${m.role}: ${m.content}`).join("\n\n") || params.messages.map((m: { role: string; content: string }) => m.content).join("\n\n");
+    // Sonar chat-completions retired 2026-09-27 — this lane now calls the
+    // Perplexity Agent API (preset "fast", answers in output_text).
+    const resp = await fetch("https://api.perplexity.ai/v1/agent", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        preset: "fast",
+        input: [
+          ...(systemP ? [{ role: "system", content: systemP }] : []),
+          { role: "user", content: userP },
+        ],
+      }),
+      signal: AbortSignal.timeout(AI_PROVIDER_TIMEOUT_MS),
+    });
+    if (!resp.ok) throw new Error(`perplexity-direct agent ${resp.status}`);
+    // Raw REST response: the answer text is in output[] items of type
+    // "message" -> content[] entries of type "output_text" (output_text as a
+    // single field is an SDK convenience, not present in raw JSON). Reasoning
+    // and tool-call items can precede the message, so filter, don't index.
+    const data = (await resp.json()) as {
+      status?: string;
+      output?: Array<{ type?: string; content?: Array<{ type?: string; text?: string }> }>;
+    };
+    if (data.status && data.status !== "completed") {
+      throw new Error(`perplexity-direct agent status ${data.status}`);
+    }
+    const content = (data.output ?? [])
+      .filter((o) => o?.type === "message")
+      .flatMap((o) => o?.content ?? [])
+      .filter((c) => c?.type === "output_text")
+      .map((c) => c?.text ?? "")
+      .join("");
+    if (content) params.onChunk(content);
+    params.onDone();
   } else {
     await streamOpenAI(params, provider);
   }
@@ -820,10 +905,32 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
       const provider = providers[i];
       try {
         let text = "";
-      if (provider === "gemini") {
+      if (provider === "github-models") {
+        const GITHUB_MODELS_MODEL = process.env.GITHUB_MODELS_MODEL || "openai/gpt-4.1-mini";
+        const ghResp = await fetch("https://models.github.ai/inference/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${process.env.GITHUB_MODELS_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: GITHUB_MODELS_MODEL,
+            messages: [
+              ...(systemPrompt ? [{ role: "system", content: systemPrompt }] : []),
+              { role: "user", content: `${prompt}\n\nRespond with valid JSON only, no markdown.` },
+            ],
+            max_tokens: 4000,
+            response_format: { type: "json_object" },
+          }),
+          signal,
+        });
+        if (!ghResp.ok) throw new Error(`github-models JSON ${ghResp.status}`);
+        const ghData = (await ghResp.json()) as { choices?: Array<{ message?: { content?: string } }> };
+        text = ghData.choices?.[0]?.message?.content ?? "";
+      } else if (provider === "gemini") {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
         const model = genAI.getGenerativeModel({
-          model: "gemini-2.0-flash",
+          model: "gemini-3.8-flash",
           systemInstruction: systemPrompt,
           generationConfig: { maxOutputTokens: 4000, responseMimeType: "application/json" },
         });
@@ -969,6 +1076,43 @@ async function callProviderDirect(
   );
 }
 
+/**
+ * Health probe for the provider chain. Sends a trivial 8-token request to
+ * every configured provider and reports ok/fail per lane with a sanitized
+ * error message (never a key value, request header, or full response body).
+ */
+export async function callProviderDirectForHealth(): Promise<
+  Array<{ provider: string; model: string; status: "ok" | "fail"; latencyMs: number; error?: string }>
+> {
+  const providers = getAvailableProviders();
+  const report: Array<{ provider: string; model: string; status: "ok" | "fail"; latencyMs: number; error?: string }> = [];
+  for (const provider of providers) {
+    const started = Date.now();
+    try {
+      const text = await withTimeout(
+        callProviderDirect(provider, "Reply with exactly one word: healthy", undefined, 8),
+        30_000,
+        `${provider} health probe`,
+      );
+      report.push({
+        provider,
+        model: PROVIDER_CONFIG[provider]?.model ?? "unknown",
+        status: text && text.trim().length > 0 ? "ok" : "fail",
+        latencyMs: Date.now() - started,
+        ...(text && text.trim().length > 0 ? {} : { error: "empty response" }),
+      });
+    } catch (error) {
+      const raw = error instanceof Error ? error.message : String(error);
+      // Sanitize: strip anything that looks like a bearer token or long secret.
+      const sanitized = raw
+        .replace(/(sk-|pplx-|github_pat_|ghp_|AIza|npg_|rplice_)[A-Za-z0-9_\-]{8,}/g, "<redacted>")
+        .slice(0, 300);
+      report.push({ provider, model: PROVIDER_CONFIG[provider]?.model ?? "unknown", status: "fail", latencyMs: Date.now() - started, error: sanitized });
+    }
+  }
+  return report;
+}
+
 async function callProviderDirectWithSignal(
   provider: Provider,
   prompt: string,
@@ -979,10 +1123,45 @@ async function callProviderDirectWithSignal(
   // Persistent ethics/EI principle — applied to every direct (non-streaming,
   // non-JSON) provider call as well.
   systemPrompt = withEthicalPreamble(systemPrompt);
+  if (provider === "github-models") {
+    const GITHUB_MODELS_MODEL = process.env.GITHUB_MODELS_MODEL || "openai/gpt-4.1-mini";
+    const resp = await fetch("https://models.github.ai/inference/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.GITHUB_MODELS_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: GITHUB_MODELS_MODEL,
+        messages: [
+          ...(systemPrompt ? [{ role: "system", content: systemPrompt }] : []),
+          { role: "user", content: prompt },
+        ],
+        max_tokens: maxTokens || 1200,
+      }),
+      signal: AbortSignal.timeout(AI_PROVIDER_TIMEOUT_MS),
+    });
+    if (!resp.ok) throw new Error(`github-models ${resp.status}`);
+    const data = (await resp.json()) as { choices?: Array<{ message?: { content?: string } }> };
+    return data.choices?.[0]?.message?.content ?? "";
+  }
+  if (provider === "modal") {
+    // Self-hosted Modal GPU (vLLM). Fails loudly if the endpoint is down —
+    // callers never receive invented substitute text.
+    const { modalGenerate } = await import("./modal-gpu");
+    const fullPrompt = systemPrompt ? `${systemPrompt}\n\n${prompt}` : prompt;
+    const result = await Promise.race([
+      modalGenerate(fullPrompt, maxTokens || 2000),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("modal timeout")), AI_PROVIDER_TIMEOUT_MS),
+      ),
+    ]);
+    return result.completion;
+  }
   if (provider === "gemini") {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
+      model: "gemini-3.8-flash",
       systemInstruction: systemPrompt,
       generationConfig: { maxOutputTokens: maxTokens || 2000 },
     });
@@ -1011,6 +1190,39 @@ async function callProviderDirectWithSignal(
   } else if (provider === "perplexity") {
     const { text } = await perplexityResearch(prompt, systemPrompt, maxTokens, signal);
     return text;
+  } else if (provider === "perplexity-direct") {
+    // Sonar chat-completions retired 2026-09-27 — Agent API, preset "fast".
+    const resp = await fetch("https://api.perplexity.ai/v1/agent", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        preset: "fast",
+        input: [
+          ...(systemPrompt ? [{ role: "system", content: systemPrompt }] : []),
+          { role: "user", content: prompt },
+        ],
+      }),
+      signal: AbortSignal.timeout(AI_PROVIDER_TIMEOUT_MS),
+    });
+    if (!resp.ok) throw new Error(`perplexity-direct ${resp.status}`);
+    // Raw REST response: answer text is in output[] "message" items ->
+    // content[] "output_text" entries (see streaming variant above).
+    const data = (await resp.json()) as {
+      status?: string;
+      output?: Array<{ type?: string; content?: Array<{ type?: string; text?: string }> }>;
+    };
+    if (data.status && data.status !== "completed") {
+      throw new Error(`perplexity-direct status ${data.status}`);
+    }
+    return (data.output ?? [])
+      .filter((o) => o?.type === "message")
+      .flatMap((o) => o?.content ?? [])
+      .filter((c) => c?.type === "output_text")
+      .map((c) => c?.text ?? "")
+      .join("");
   } else if (provider === "openrouter-claude") {
     const client = new OpenAI({
       apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,

@@ -15,7 +15,8 @@
     "verify:complete": "node scripts/verify-complete.mjs",
     "db:push": "drizzle-kit push",
     "verify:gpp-opportunity-loop": "npx tsx scripts/verify-gpp-opportunity-loop.ts",
-    "verify:gpp-opportunity-stub": "npx tsx scripts/verify-gpp-opportunity-stub.ts"
+    "verify:gpp-opportunity-stub": "npx tsx scripts/verify-gpp-opportunity-stub.ts",
+    "test": "tsx --test server/__tests__/*.test.ts server/*.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.96.0",
@@ -63,6 +64,7 @@
     "@uppy/core": "^5.2.0",
     "@uppy/dashboard": "^5.1.1",
     "@uppy/react": "^5.2.0",
+    "@vercel/analytics": "^2.0.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",

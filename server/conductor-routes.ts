@@ -8,7 +8,7 @@
  */
 
 import type { Express, NextFunction, Request, Response } from "express";
-import { buildRpliceIntelligencePackage } from "./rplice-intelligence";
+import { buildRpliceIntelligencePackage, buildCommunityAIContextWithStatus } from "./rplice-intelligence";
 import { buildRpliceInboundContext, getLatestRpliceEvidence } from "./rplice-inbound-routes";
 import {
   resolveLocationToZip,
@@ -1233,8 +1233,12 @@ async function generateCommunityNarrative(
   demographics: Record<string, number | string | null>,
   domainScores: Record<string, DomainScore>,
   cascade: ReturnType<typeof buildCascadeModel> | null,
-  populations: AtRiskPopulation[]
+  populations: AtRiskPopulation[],
+  communityContext?: string | null | Promise<string | null>
 ): Promise<string> {
+  // The four-source partner context is fetched in parallel with the Census
+  // work — resolve it here without blocking the caller's Promise.all.
+  const resolvedCommunityContext = communityContext ? await Promise.resolve(communityContext) : null;
   const crisisDomains = Object.values(domainScores)
     .filter((d) => d.urgency === "crisis")
     .map((d) => d.label);
@@ -1270,6 +1274,9 @@ ${cascade ? `- TCAF scenario cost of inaction: $${(cascade.counterfactualCost / 
 - TCAF scenario net savings: $${(cascade.netSavings / 1e6).toFixed(1)}M
 - TCAF scenario ROI: ${cascade.roi}x (this is the ONLY return-on-investment figure you may state — do not invent, round to a different ratio, or restate it as a "dollars saved per dollar" claim using any other number)` : "- No cost-benefit ratio, ROI, or \"dollars saved per dollar\" figure may be stated anywhere in the narrative, because no scenario was computed for this geography."}
 - At-risk populations: ${topPop}
+${resolvedCommunityContext ? `
+VERIFIED SUPPLEMENTARY CONTEXT from partner integrations (each block is labeled with its own source — RPLICE knowledge base, Civic Signal, or ChildCORE). Use it to deepen the story, but: (1) attribute claims to the source named in the block, (2) never describe any of it as Census data, (3) preserve uncertainty language exactly as the source states it, (4) do not convert modeled or estimated figures into observed facts:
+${resolvedCommunityContext.slice(0, 6000)}` : ""}
 
 Tone: compassionate, honest, evidence-grounded. Blame the systems, not the people. Do not call any modeled dollar figure Census-verified or a fact. Do not call a ZCTA result citywide. This is decision support, not a factual certification. Never state a cost-benefit ratio, "return per dollar", or "saves $X for every $1" claim other than the exact TCAF scenario ROI figure given above (or, if none was given, do not state one at all).
 
@@ -1711,6 +1718,19 @@ export function registerConductorRoutes(app: Express) {
               .catch(() => null)
           : Promise.resolve(null);
 
+      // Four-source verified context (RPLICE public knowledge, Census ZCTA
+      // snapshot, Civic Signal, ChildCORE) fetched in parallel with the Census
+      // + narrative work. Anon-safe: buildCommunityAIContextWithStatus calls
+      // RPLICE with includePrivateData: false.
+      const communityContextPromise = buildCommunityAIContextWithStatus({
+        zip: zip || undefined,
+        stateFips: stateFips || stateFipsFromName(stateName) || stateFipsFromZip(zip) || undefined,
+        crisisDomains: crisisDomainIds,
+        regionName: displayName,
+      })
+        .then((r) => r.content)
+        .catch(() => null);
+
       const [grants, narrative, rpliceIntelligence, historicalCascade, childcare] = await Promise.all([
         findRelevantGrants(domainScores),
         generateCommunityNarrative(
@@ -1719,6 +1739,7 @@ export function registerConductorRoutes(app: Express) {
           domainScores,
           cascade,
           atRiskPopulations,
+          communityContextPromise,
         ),
         // Only build the internal RPLICE intelligence package for authenticated
         // callers — anonymous responses never include it, so don't spend the DB
@@ -1968,7 +1989,7 @@ export function registerConductorRoutes(app: Express) {
 
       const results = await Promise.allSettled(
         normalizedLocations.map((loc: string) =>
-          fetch(`http://localhost:5000/api/conductor/community-brief`, {
+          fetch(`${process.env.VERCEL && process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:5000"}/api/conductor/community-brief`, {
             method: "POST",
             headers: { "Content-Type": "application/json", cookie: forwardCookie },
             body: JSON.stringify({ location: loc, populationSize: 10000 }),
