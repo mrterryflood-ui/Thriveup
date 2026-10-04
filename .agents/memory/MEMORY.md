@@ -100,4 +100,5 @@
 - [Platform focus and distinction](platform-focus-distinction.md) — user reports overwhelming breadth; going forward, focus, separation, and distinction must precede integration.
 - [AI honesty calibration](ai-honesty-calibration.md) — advisory receipts do not replace binding grounding; external-domain benchmarks are not ThriveUp scores.
 - [Preview viewport evidence](preview-viewport-evidence.md) — development-domain banners can reduce usable height; local screenshots alone do not prove first-screen fit.
+- [GitHub push via connector replay](github-push-via-connector.md) — shell has no git creds; replay commits via the GitHub connector's Git Data API to identical SHAs; branch push = Vercel Preview boot proof.
 - [Community bank impact view](community-bank-view.md) — public composer over existing organs; coverage per tile; nationwide county ACS+SVI ingested via script (no scheduler); childcare engine wants 3-digit county suffix; curated city list, else ZIP/county:FIPS.
