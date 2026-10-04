@@ -13,3 +13,10 @@
 - Independent angle: browser run (Playwright, real server) separate from curl composer proof; 360×640 geometry assertion with bottom tab bar present; verify-nav-coverage's 4 pre-existing unlinked routes are unchanged by this work (confirmed via stash comparison).
 - Outcome: delivered and verified in development; not published.
 - Residuals and reusable guard: city list is curated (26 cities) — any other place requires a ZIP, stated in the error; SVI tile stays unavailable until county-level ingestion runs; guard = `community-banks.spec.ts` in the directory-links gate.
+
+## Omega (addendum — Phases 1, 2a, 6)
+- Diff scrimmage: gravity writes behind `requireStaff` (DB role lookup); public reads validated (city regex, 2-letter state, 9-digit EIN), rate-limited by req.ip, cached; revenue null never rendered as $0; geography limit ("filing address, not service area; nearby is a same-state count") returned in every payload and shown on the page; people never listed.
+- Proofs and gates: tsc 0; preflight 9/9; two-click 221 routes; tool reachability 19/19; touch targets OK; e2e community-gravity 3/3; route-registry G1 412/412 untagged 0, deterministic stale-check in directory-links gate.
+- Independent angle: reviewer re-verified the push (SHA a17dc6f9, ahead 33/behind 0); Vercel Preview boot + `/health` 200 on both hosts; ledger rows cite live probe output, not repo reads (3 reviewer paths were wrong: health-federation, /api/ai/status, /api/community-story/generate).
+- Outcome: Magnet live for Austin TX (9,179 orgs); registry draft is a generated artifact, explicitly NOT a fourth nav source (readers collapse into it in Phase 3); ledger at docs/audits/2026-10-gap-ledger.md.
+- Residuals: welcome email has no caller (2.2); schedulers only provable from production logs; cited-fact research unexercised (needs a staff session + Perplexity spend); nearby-by-distance (1d) and Travis County cities (1c) pending; classification of 412 rows pending (all `classified:false`).
