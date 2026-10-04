@@ -76,7 +76,7 @@ export default function CommunityBanksPage() {
 
       <form onSubmit={submit} className="mb-5 flex flex-col gap-2 rounded-xl border bg-card p-3 sm:flex-row sm:items-center print:hidden" aria-label="Choose assessment area">
         <label htmlFor="cb-place" className="flex items-center gap-1.5 text-sm font-semibold"><MapPin aria-hidden="true" className="h-4 w-4" /> Assessment area</label>
-        <Input id="cb-place" value={draft} onChange={e => setDraft(e.target.value)} placeholder="ZIP code, or city like Chicago, IL" className="min-h-11 sm:max-w-xs" data-testid="input-cb-place" />
+        <Input id="cb-place" value={draft} onChange={e => setDraft(e.target.value)} placeholder="ZIP, city like Chicago, IL, or county:48453" className="min-h-11 sm:max-w-xs" data-testid="input-cb-place" />
         <Button type="submit" className="min-h-11" data-testid="button-cb-place">Update view</Button>
         <Button type="button" variant="outline" className="min-h-11" onClick={() => navigate("/community-banks")} data-testid="button-cb-default">Central Texas default</Button>
         <Button type="button" variant="ghost" className="min-h-11 sm:ml-auto" onClick={() => window.print()} data-testid="button-cb-print"><Printer aria-hidden="true" className="mr-1.5 h-4 w-4" /> Print one-pager</Button>

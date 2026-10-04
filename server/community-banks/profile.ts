@@ -92,7 +92,7 @@ const CITY_COUNTY: Record<string, { fips: string; name: string; state: string }>
   "new orleans, la": { fips: "22071", name: "Orleans Parish", state: "LA" },
   "denver, co": { fips: "08031", name: "Denver County", state: "CO" },
   "seattle, wa": { fips: "53033", name: "King County", state: "WA" },
-  "minneapolis, mi": { fips: "27053", name: "Hennepin County", state: "MN" },
+  "minneapolis, mn": { fips: "27053", name: "Hennepin County", state: "MN" },
   "milwaukee, wi": { fips: "55079", name: "Milwaukee County", state: "WI" },
   "baltimore, md": { fips: "24510", name: "Baltimore city", state: "MD" },
   "cleveland, oh": { fips: "39035", name: "Cuyahoga County", state: "OH" },
@@ -107,6 +107,13 @@ const STATE_FIPS_TO_ABBR: Record<string, string> = {
   "45": "SC", "46": "SD", "47": "TN", "48": "TX", "49": "UT", "50": "VT", "51": "VA", "53": "WA", "54": "WV", "55": "WI", "56": "WY",
 };
 
+async function ingestedCountyName(fips: string): Promise<string | undefined> {
+  try {
+    const [row] = await db.select({ name: gisContextData.locationName }).from(gisContextData).where(and(eq(gisContextData.geographyKey, fips), eq(gisContextData.geographyType, "county"))).limit(1);
+    return row?.name?.split(",")[0]?.trim() || undefined;
+  } catch { return undefined; }
+}
+
 function knownCountyName(fips: string): string | undefined {
   return AUSTIN_MSA.counties.find(c => c.fips === fips)?.name ?? Object.values(CITY_COUNTY).find(c => c.fips === fips)?.name;
 }
@@ -118,8 +125,17 @@ export async function resolvePlace(raw: string | undefined): Promise<ResolveResu
   if (!place) return { ok: true, geography: AUSTIN_MSA };
   if (place.length > 80) return { ok: false, reason: "Place query too long." };
 
+  // Explicit county FIPS: "county:48453" / "fips:48453" (bare 5 digits are ambiguous with ZIPs).
+  const explicitFips = /^(?:county|fips):?\s*(\d{5})$/i.exec(place)?.[1];
+  if (explicitFips) {
+    const stateAbbr = STATE_FIPS_TO_ABBR[explicitFips.slice(0, 2)];
+    if (!stateAbbr) return { ok: false, reason: `County FIPS ${explicitFips} has an unknown state prefix.` };
+    const name = knownCountyName(explicitFips) ?? (await ingestedCountyName(explicitFips)) ?? `County ${explicitFips}`;
+    return { ok: true, geography: { label: `${name}, ${stateAbbr}`, state: stateAbbr, stateName: getStateName(stateAbbr), counties: [{ fips: explicitFips, name }], resolvedFrom: "county-fips" } };
+  }
+
   if (/^\d{5}$/.test(place)) {
-    // County FIPS first (5 digits whose state prefix is valid), else ZIP.
+    // ZIP first; a 5-digit string that is not a ZIP falls back to county FIPS.
     const stateAbbr = STATE_FIPS_TO_ABBR[place.slice(0, 2)];
     const zip = await resolveZipBestEffort(place);
     if (zip.countyFips && zip.state) {
@@ -163,7 +179,7 @@ export async function resolvePlace(raw: string | undefined): Promise<ResolveResu
       },
     };
   }
-  return { ok: false, reason: `"${place}" is not in the curated city list. Enter a 5-digit ZIP code for any U.S. location.` };
+  return { ok: false, reason: `"${place}" is not in the curated city list. Enter a 5-digit ZIP code for any U.S. location, or a county FIPS code as county:48453.` };
 }
 
 function weightedMedian(points: { value: number; weight: number }[]): number | null {
@@ -174,6 +190,10 @@ function weightedMedian(points: { value: number; weight: number }[]): number | n
   for (const p of sorted) { acc += p.weight; if (acc >= total / 2) return Math.round(p.value); }
   return null;
 }
+
+// gis_context_data.data_year is overwritten by later PLACES/SVI refreshes (calendar year), so the
+// ACS vintage is pinned to what the GIS engine ingests (ACS 5-year 2022) rather than read from the row.
+const ACS_INGEST_VINTAGE = "ACS 5-year 2022";
 
 const unavailable = (id: string, label: string, unit: Indicator["unit"], source: string, href: string, scope: Indicator["scope"], note: string): Indicator =>
   ({ id, label, value: null, unit, source, vintage: "—", coverage: "unavailable", scope, note, href });
@@ -190,16 +210,33 @@ export async function buildIndicators(geo: BankGeography): Promise<{ indicators:
   const scope: Indicator["scope"] = geo.counties.length > 1 ? "msa" : "county";
   const indicators: Indicator[] = [];
 
+  // Ingested county context (ACS-derived poverty/median income, CDC SVI when present). Read once.
+  const ingested = new Map<string, typeof gisContextData.$inferSelect>();
+  try {
+    const rows = await Promise.all(geo.counties.map(c => db.select().from(gisContextData).where(and(eq(gisContextData.geographyKey, c.fips), eq(gisContextData.geographyType, "county"))).limit(1)));
+    rows.forEach((r, i) => { if (r[0]) ingested.set(geo.counties[i].fips, r[0]); });
+  } catch (error) {
+    limits.push("Ingested county context could not be read; poverty and SVI tiles withheld.");
+    console.warn("[community-banks] gis_context_data read failed:", error);
+  }
+
   // ACS county population / median household income (nationwide, Census API).
   const acs = await Promise.allSettled(geo.counties.map(c => withTimeout(fetchCountyAcs(c.fips.slice(0, 2), c.fips.slice(2)), 12000)));
   const okAcs = acs.filter((r): r is PromiseFulfilledResult<Awaited<ReturnType<typeof fetchCountyAcs>>> => r.status === "fulfilled").map(r => r.value);
   if (okAcs.length === geo.counties.length) {
     indicators.push({ id: "population", label: "Population", value: okAcs.reduce((s, a) => s + a.population, 0), unit: "count", source: "U.S. Census Bureau ACS 5-year", vintage: "latest ACS 5-year", coverage: "observed", scope, href: "/community-analysis" });
+    const published = geo.counties.map(c => ingested.get(c.fips)?.medianIncome ?? null);
+    if (published.every((m): m is number => typeof m === "number" && m > 0)) {
+      const popW = okAcs.map(a => a.population);
+      const value = scope === "msa" ? Math.round(published.reduce((s, m, i) => s + m * popW[i], 0) / popW.reduce((s, p) => s + p, 0)) : published[0];
+      indicators.push({ id: "median-income", label: "Median household income", value, unit: "usd", source: "U.S. Census Bureau ACS 5-year (B19013)", vintage: ACS_INGEST_VINTAGE, coverage: scope === "msa" ? "modeled" : "observed", scope, note: scope === "msa" ? "Population-weighted mean of county medians; not a single published MSA median." : undefined, href: "/equity-loss" });
+    } else {
     const medians = okAcs.map(a => weightedMedian(a.incomeDistribution)).filter((m): m is number => m !== null);
     if (medians.length === okAcs.length) {
       const popW = okAcs.map(a => a.population);
       const value = Math.round(medians.reduce((s, m, i) => s + m * popW[i], 0) / popW.reduce((s, p) => s + p, 0));
       indicators.push({ id: "median-income", label: "Median household income (ACS band midpoint)", value, unit: "usd", source: "U.S. Census Bureau ACS 5-year income bands", vintage: "latest ACS 5-year", coverage: "modeled", scope, note: (scope === "msa" ? "Population-weighted across counties. " : "") + "Midpoint of the ACS income band containing the median household; not the published exact median.", href: "/equity-loss" });
+    }
     }
   } else {
     const failed = acs.filter(r => r.status === "rejected").length;
@@ -208,17 +245,20 @@ export async function buildIndicators(geo: BankGeography): Promise<{ indicators:
   }
 
   // SVI / poverty from ingested GIS context (county key), if present.
-  try {
-    const rows = await Promise.all(geo.counties.map(c => db.select().from(gisContextData).where(and(eq(gisContextData.geographyKey, c.fips), eq(gisContextData.geographyType, "county"))).limit(1)));
-    const found = rows.map(r => r[0]).filter(Boolean);
+  {
+    const found = geo.counties.map(c => ingested.get(c.fips)).filter((f): f is NonNullable<typeof f> => Boolean(f));
+    // Poverty rate (ACS B17001 below-poverty / B01003 population), population-weighted across counties.
+    if (found.length === geo.counties.length && found.every(f => f.povertyRate !== null && (f.totalPopulation ?? 0) > 0)) {
+      const popW = found.map(f => f.totalPopulation ?? 0);
+      const value = found.reduce((s, f, i) => s + (f.povertyRate ?? 0) * popW[i], 0) / popW.reduce((s, p) => s + p, 0);
+      indicators.push({ id: "poverty-rate", label: "Population below the poverty line", value: Math.round(value * 10) / 10, unit: "percent", source: "U.S. Census Bureau ACS 5-year (B17001)", vintage: ACS_INGEST_VINTAGE, coverage: "observed", scope, note: scope === "msa" ? "Population-weighted across counties." : undefined, href: "/sdoh-explorer" });
+    }
     if (found.length === geo.counties.length && found.every(f => f.sviPercentile !== null)) {
       const avg = found.reduce((s, f) => s + (f.sviPercentile ?? 0), 0) / found.length;
       indicators.push({ id: "svi", label: "Social Vulnerability Index (percentile)", value: Math.round(avg * (avg <= 1 ? 100 : 1)), unit: "percent", source: found[0].dataSource ?? "CDC/ATSDR SVI", vintage: String(found[0].dataYear ?? "—"), coverage: "observed", scope, note: scope === "msa" ? "Unweighted mean of county percentiles." : undefined, href: "/sdoh-explorer" });
     } else {
       indicators.push(unavailable("svi", "Social Vulnerability Index", "percent", "CDC/ATSDR SVI", "/sdoh-explorer", scope, "County-level SVI has not been ingested for this area."));
     }
-  } catch {
-    indicators.push(unavailable("svi", "Social Vulnerability Index", "percent", "CDC/ATSDR SVI", "/sdoh-explorer", scope, "SVI lookup failed."));
   }
 
   // HUD PIT homelessness — state-level latest year (CoC geography does not align to counties).
@@ -229,10 +269,10 @@ export async function buildIndicators(geo: BankGeography): Promise<{ indicators:
       const total = rows.reduce((s, r) => s + (r.overallHomeless ?? 0), 0);
       indicators.push({ id: "homeless-pit", label: `People experiencing homelessness (${geo.stateName}, PIT)`, value: total, unit: "count", source: "HUD Point-in-Time Count", vintage: String(latest[0].year), coverage: "observed", scope: "state", note: "HUD counts by Continuum of Care, reported here at state level.", href: "/community-data" });
     } else {
-      indicators.push(unavailable("homeless-pit", "People experiencing homelessness (PIT)", "count", "HUD Point-in-Time Count", "/hud-report", "state", "No HUD PIT rows loaded for this state."));
+      indicators.push(unavailable("homeless-pit", "People experiencing homelessness (PIT)", "count", "HUD Point-in-Time Count", "/community-data", "state", "No HUD PIT rows loaded for this state."));
     }
   } catch {
-    indicators.push(unavailable("homeless-pit", "People experiencing homelessness (PIT)", "count", "HUD Point-in-Time Count", "/hud-report", "state", "HUD PIT lookup failed."));
+    indicators.push(unavailable("homeless-pit", "People experiencing homelessness (PIT)", "count", "HUD Point-in-Time Count", "/community-data", "state", "HUD PIT lookup failed."));
   }
 
   // Childcare slot gap (TX = HHSC licensing; other states = Census CBP/ACS model).
@@ -243,10 +283,10 @@ export async function buildIndicators(geo: BankGeography): Promise<{ indicators:
     if (ok.length === geo.counties.length && gaps.length === ok.length) {
       indicators.push({ id: "childcare-gap", label: "Estimated childcare slot gap (modeled demand − licensed capacity)", value: gaps.reduce((s, g) => s + g, 0), unit: "count", source: ok[0].slotGap.dataSource, vintage: geo.state === "TX" ? "HHSC CCL live + ACS" : "Census CBP 2022 / ACS", coverage: "modeled", scope, note: ok[0].slotGap.methodology, href: "/child-care" });
     } else {
-      indicators.push(unavailable("childcare-gap", "Licensed childcare slot gap", "count", "HHSC CCL / Census CBP", "/childcore", scope, "Childcare supply data incomplete for this area."));
+      indicators.push(unavailable("childcare-gap", "Licensed childcare slot gap", "count", "HHSC CCL / Census CBP", "/child-care", scope, "Childcare supply data incomplete for this area."));
     }
   } catch {
-    indicators.push(unavailable("childcare-gap", "Licensed childcare slot gap", "count", "HHSC CCL / Census CBP", "/childcore", scope, "Childcare lookup failed."));
+    indicators.push(unavailable("childcare-gap", "Licensed childcare slot gap", "count", "HHSC CCL / Census CBP", "/child-care", scope, "Childcare lookup failed."));
   }
 
   if (geo.state !== "TX") {
@@ -271,7 +311,7 @@ const cache = new Map<string, { at: number; value: BankProfile }>();
 const TTL_MS = 10 * 60 * 1000;
 
 export async function buildBankProfile(geo: BankGeography): Promise<BankProfile> {
-  const key = geo.counties.map(c => c.fips).join(",");
+  const key = `${geo.resolvedFrom}|${geo.label}|${geo.counties.map(c => c.fips).join(",")}`;
   const hit = cache.get(key);
   if (hit && Date.now() - hit.at < TTL_MS) return hit.value;
   const [{ indicators, limits }, ecosystem] = await Promise.all([buildIndicators(geo), loadEcosystem().catch(() => [] as EcosystemNode[])]);

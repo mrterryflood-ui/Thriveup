@@ -8,6 +8,7 @@ const hits = new Map<string, { count: number; resetAt: number }>();
 
 function limited(ip: string): boolean {
   const now = Date.now();
+  if (hits.size > 5000) for (const [k, v] of hits) if (v.resetAt < now) hits.delete(k);
   const entry = hits.get(ip);
   if (!entry || entry.resetAt < now) { hits.set(ip, { count: 1, resetAt: now + WINDOW_MS }); return false; }
   entry.count += 1;

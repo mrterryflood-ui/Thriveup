@@ -20,8 +20,10 @@ test("Central Texas default resolves to the Austin MSA without sign-in", async (
   await page.goto(`${BASE}/community-banks`);
   await expectProfile(page, /Austin MSA/);
   await expect(page.getByTestId("cb-tool-check-benefits")).toHaveAttribute("href", /\/benefits-screener\?zip=48453/);
+  await expect(page.getByTestId("cb-coverage-poverty-rate")).toHaveText("observed");
+  await expect(page.getByTestId("cb-coverage-median-income")).toHaveText("modeled");
   // Every indicator is a real route, not a dead end.
-  for (const id of INDICATORS) {
+  for (const id of [...INDICATORS, "poverty-rate"]) {
     const href = await page.getByTestId(`cb-indicator-${id}`).getAttribute("href");
     const res = await page.request.get(`${BASE}${href}`);
     expect(res.status(), `${href} should resolve`).toBeLessThan(400);
@@ -38,6 +40,21 @@ test("same page serves Chicago and Philadelphia with coverage caveats", async ({
   await expectProfile(page, /Philadelphia County, PA/);
   await page.getByTestId("button-cb-default").click();
   await expectProfile(page, /Austin MSA/);
+});
+
+test("explicit county FIPS resolves to a single county with a published median", async ({ page }) => {
+  const api = await page.request.get(`${BASE}/api/community-banks/profile?place=county%3A48491`);
+  expect(api.status()).toBe(200);
+  const body = await api.json();
+  expect(body.geography.label).toMatch(/Williamson County, TX/);
+  expect(body.indicators.find((i: { id: string }) => i.id === "median-income")?.coverage).toBe("observed");
+  // A ZIP lookup for the same county must not overwrite the FIPS label through the cache.
+  const zip = await (await page.request.get(`${BASE}/api/community-banks/profile?place=78664`)).json();
+  expect(zip.geography.label).toMatch(/ZIP 78664/);
+  const again = await (await page.request.get(`${BASE}/api/community-banks/profile?place=county%3A48491`)).json();
+  expect(again.geography.label).toMatch(/Williamson County, TX$/);
+  await page.goto(`${BASE}/community-banks?place=county%3A48491`);
+  await expectProfile(page, /Williamson County, TX/);
 });
 
 test("unresolvable place fails closed with guidance and a 404 from the API", async ({ page }) => {
