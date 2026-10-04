@@ -9,10 +9,12 @@
  * template before it is sent to the client.
  */
 
+import { POSITIONING_LINE, POSITIONING_SHORT } from "@shared/canonical-claims";
+
 const BASE_URL =
   process.env.PRODUCTION_URL ||
   process.env.REPLIT_DEPLOYMENT_URL ||
-  "https://ai-mastery-academy.replit.app";
+  "https://thrivingcommunitiesforall.com";
 
 interface RouteMeta {
   title: string;
@@ -22,17 +24,20 @@ interface RouteMeta {
 }
 
 const DEFAULT_META: RouteMeta = {
-  title:
-    "ThriveUp Academy | AI-Powered Workforce Development & Community Enablement",
-  description:
-    "ThriveUp Academy empowers under-resourced communities of all ages with AI education, workforce development, career pipelines, job readiness training, mentorship, and career advancement opportunities.",
-  ogTitle: "ThriveUp Academy",
-  ogDescription:
-    "Empowering under-resourced communities of all ages with AI mastery, workforce development, and career pipelines. Building the next generation of AI-ready professionals through mentorship, skill training, and career advancement.",
+  title: "TCAF + ThriveUp | The Community Integration and Implementation Platform",
+  description: POSITIONING_LINE,
+  ogTitle: "TCAF + ThriveUp — The Community Integration and Implementation Platform",
+  ogDescription: POSITIONING_SHORT,
 };
 
 /** Static path → metadata. Longest prefix wins for prefix-based lookups. */
 const STATIC_META: Record<string, RouteMeta> = {
+  "/community-banks": {
+    title: "Community Bank Impact View | TCAF + ThriveUp",
+    description: "A public county or metro snapshot for banks, funders, and CRA teams: poverty, vulnerability, housing, and child-care supply with every number labeled observed, modeled, or unavailable and traced to Census, CDC, or HUD.",
+    ogTitle: "Community Bank Impact View",
+    ogDescription: "Neighborhood evidence for community reinvestment decisions, with source and coverage disclosed on every number.",
+  },
   "/pricing": {
     title: "Pricing & Plans | ThriveUp Academy",
     description:

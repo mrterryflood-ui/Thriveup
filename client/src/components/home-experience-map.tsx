@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { ArrowRight } from "lucide-react";
 import { WORKSPACES, type WorkspaceId } from "@shared/workspace-catalog";
-import { PLATFORMS_PHRASE, AI_ENGINES_PHRASE, LANGUAGES_SHORT_PHRASE } from "@shared/canonical-claims";
+import { PLATFORMS_PHRASE, AI_ENGINES_PHRASE, LANGUAGES_SHORT_PHRASE, POSITIONING_LINE } from "@shared/canonical-claims";
 
 /**
  * Home "why + what you'll experience" layer.
@@ -49,6 +49,7 @@ export function HomeWhyStrip() {
       <div className="flex flex-col justify-center">
         <p className="text-[10px] font-bold uppercase tracking-[.16em] text-[#668078]">Why this exists</p>
         <h2 id="home-why-title" className="mt-1 font-[var(--font-display)] text-2xl font-semibold leading-tight tracking-[-.04em] text-[#203b38] sm:text-3xl">One front door for help, work, and community data.</h2>
+        <p className="mt-3 text-sm font-semibold leading-6 text-[#203b38]" data-testid="home-positioning">{POSITIONING_LINE}</p>
         <p className="mt-3 text-sm leading-6 text-[#4b5f58]">
           People in need, the organizations serving them, and the funders and leaders deciding where resources go usually use different systems that never talk. ThriveUp puts them on one platform: a resident finds a next step, a practitioner sees capacity and makes the referral, and a funder sees the same neighborhood evidence — each from their own door.
         </p>

@@ -10,6 +10,7 @@ import { useWorkspace } from "@/lib/workspace-context";
 import { GuidedStart } from "@/components/guided-start";
 import { FocusedInvitation } from "@/components/focused-invitation";
 import { HomeWhyStrip, HomeDoorCard, HOME_IMAGE_NOTE } from "@/components/home-experience-map";
+import { POSITIONING_SHORT } from "@shared/canonical-claims";
 
 function TaskLink({ task }: { task: WorkspaceTask }) {
   const { setWorkspace } = useWorkspace();
@@ -159,7 +160,7 @@ export default function FocusedHome() {
         </div>
 
         <footer className="mt-8 flex flex-col gap-2 border-t border-[#d4dfd7] pt-4 text-xs leading-5 text-[#687c73] sm:mt-12 sm:flex-row sm:items-center sm:justify-between">
-          <p>TCAF · ThriveUp — a nonprofit for residents, nonprofits, and communities to thrive.</p>
+          <p>TCAF · ThriveUp — {POSITIONING_SHORT}</p>
           <Link href="/tools" className="w-fit rounded-sm font-semibold text-[#3c7065] underline decoration-[#9ab7a8] underline-offset-4 hover:text-[#174b45] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#24756b]" data-testid="home-discover-tools">Explore all tools</Link>
         </footer>
       </div>

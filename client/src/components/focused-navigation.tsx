@@ -1,9 +1,17 @@
 import { Link, useLocation } from "wouter";
-import { Home, Compass, Search, ArrowLeft, ArrowRight } from "lucide-react";
+import { Home, Compass, Search, ArrowLeft, ArrowRight, MapPin } from "lucide-react";
 import { WORKSPACES, WORKSPACE_TASKS, canUseTask, homeEntryTasks } from "@shared/workspace-catalog";
 import { useWorkspace, useWorkspaceAccess } from "@/lib/workspace-context";
 import { Sidebar, SidebarHeader, SidebarContent, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/use-auth";
+
+/** Always-visible public destinations not already covered by the three starting tasks; reachable from any page without choosing a workspace first. */
+const KEY_DESTINATIONS = [
+  { id: "for-nonprofits", label: "Coordinate services (orgs)", href: "/for-nonprofits" },
+  { id: "partners", label: "Community partners & ambassadors", href: "/partners" },
+  { id: "community-banks", label: "Community Bank Impact View", href: "/community-banks" },
+  { id: "community-analysis", label: "Community analysis & maps", href: "/community-analysis" },
+] as const;
 
 export function FocusedSidebar() {
   const [location] = useLocation();
@@ -34,7 +42,11 @@ export function FocusedSidebar() {
         ) : (
           <>
             {homeEntryTasks().map(task => <Link key={task.id} href={task.href} onClick={() => { setWorkspace(task.workspace); close(); }} aria-label={task.label} data-testid={`focused-nav-${task.id}`} className="flex gap-3 items-center rounded-lg px-3 min-h-11 text-sm hover:bg-accent"><ArrowRight size={14} aria-hidden="true" />{task.label}</Link>)}
-            <details className="mt-4">
+            <nav className="mt-4" aria-labelledby="focused-nav-destinations-title">
+          <p id="focused-nav-destinations-title" className="px-3 text-[10px] font-bold uppercase tracking-[.14em] text-muted-foreground">Go directly to</p>
+          {KEY_DESTINATIONS.map(d => <Link key={d.id} href={d.href} onClick={close} aria-current={location === d.href ? "page" : undefined} data-testid={`focused-nav-dest-${d.id}`} className={`flex items-center gap-3 rounded-lg px-3 min-h-11 text-sm hover:bg-accent ${location === d.href ? "bg-accent font-semibold" : ""}`}><MapPin size={14} aria-hidden="true" /><span>{d.label}</span></Link>)}
+        </nav>
+            <details className="mt-4" open>
               <summary className="min-h-11 flex items-center px-3 text-sm font-semibold cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-testid="focused-nav-perspectives">Explore by audience</summary>
               {WORKSPACES.map(item => <Link key={item.id} href={`/workspace/${item.id}`} onClick={close} className="flex gap-3 items-center rounded-lg px-3 min-h-11 text-sm hover:bg-accent" aria-label={item.label} data-testid={`focused-nav-choose-${item.id}`}><Compass size={16} aria-hidden="true" />{item.label}</Link>)}
             </details>

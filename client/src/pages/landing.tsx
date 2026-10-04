@@ -20,7 +20,7 @@ import {
   Zap, FileText, Send, Lock, Star, Plug
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
-import { IDENTITY_STRAP, LANGUAGES_SHORT_PHRASE } from "@shared/canonical-claims";
+import { IDENTITY_STRAP, LANGUAGES_SHORT_PHRASE, POSITIONING_ROLE } from "@shared/canonical-claims";
 
 const PATHWAYS = [
   {
@@ -2515,7 +2515,7 @@ export default function LandingPage() {
 
           <p className="text-sm mb-3 px-2" data-testid="text-hero-mission"
             style={{ color: heroSub, maxWidth: 580, lineHeight: 1.65 }}>
-             National community infrastructure: we connect people to benefits and grant funding, align services with workforce pathways, and measure what actually changes.{" "}
+             {POSITIONING_ROLE.charAt(0).toUpperCase() + POSITIONING_ROLE.slice(1)}: we connect people to benefits and grant funding, align services with workforce pathways, and measure what actually changes.{" "}
             <Link href="/why-thriveup" className="font-semibold hover:underline" style={{ color: "#d97706" }} data-testid="link-hero-why-thriveup">
               Why ThriveUp
             </Link>
