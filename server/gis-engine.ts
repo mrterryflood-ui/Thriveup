@@ -5,7 +5,8 @@ import type { GisContextData } from "@shared/schema";
 const CDC_PLACES_URL = "https://data.cdc.gov/resource/swc5-untb.json";
 const CDC_SVI_URL = "https://data.cdc.gov/resource/4d8n-kk8a.json";
 // ATSDR SVI 2022 county-level (ArcGIS Feature Service) — used as primary, with Socrata fallback above.
-const ATSDR_SVI_COUNTY_URL = "https://services3.arcgis.com/ZvidGQkLaDJxRSJ2/arcgis/rest/services/SVI2022_US_county/FeatureServer/0/query";
+// CDC/ATSDR SVI 2022 — layer 1 is the US county layer (verified 2026-10; the old SVI2022_US_county service returns "Invalid URL").
+const ATSDR_SVI_COUNTY_URL = "https://services3.arcgis.com/ZvidGQkLaDJxRSJ2/arcgis/rest/services/CDC_ATSDR_Social_Vulnerability_Index_2022_USA/FeatureServer/1/query";
 const FBI_CRIME_URL = "https://api.usa.gov/crime/fbi/sapi/api/estimates/states";
 const CENSUS_ACS_URL = "https://api.census.gov/data/2022/acs/acs5";
 const SAMHSA_LOCATOR_URL = "https://findtreatment.gov/locator/listing";
@@ -65,6 +66,13 @@ const STATE_NAMES: Record<string, string> = {
   VA: "Virginia", WA: "Washington", WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming",
   DC: "District of Columbia"
 };
+
+/** Append a source tag without duplicating it ("census_acs,cdc_svi,census_acs" was accumulating on every refresh). */
+function appendSource(existing: string | null | undefined, tag: string): string {
+  const parts = (existing ?? "").split(",").map(t => t.trim()).filter(Boolean);
+  if (!parts.includes(tag)) parts.push(tag);
+  return parts.join(",");
+}
 
 async function fetchJson(url: string, opts?: { retries?: number; timeoutMs?: number; init?: RequestInit }): Promise<any> {
   const retries = opts?.retries ?? 3;
@@ -215,7 +223,7 @@ export async function ingestCdcPlacesData(
 async function fetchSviAtsdr(stateAbbr: string): Promise<any[]> {
   const stateFips = getStateFips(stateAbbr);
   if (!stateFips) return [];
-  const url = `${ATSDR_SVI_COUNTY_URL}?where=${encodeURIComponent(`ST_ABBR='${stateAbbr.toUpperCase()}'`)}&outFields=FIPS,COUNTY,STATE,RPL_THEMES,EP_POV150,EP_UNEMP,EP_NOHSDP&f=json&resultRecordCount=2000`;
+  const url = `${ATSDR_SVI_COUNTY_URL}?where=${encodeURIComponent(`ST_ABBR='${stateAbbr.toUpperCase()}'`)}&outFields=FIPS,COUNTY,STATE,RPL_THEMES,EP_POV150,EP_UNEMP,EP_NOHSDP&returnGeometry=false&f=json&resultRecordCount=2000`;
   try {
     const data = await fetchJson(url);
     const features = data?.features ?? [];
@@ -250,8 +258,9 @@ export async function ingestSviData(
 
     let upsertCount = 0;
     for (const record of data) {
-      const geographyKey = record.fips || record.FIPS;
+      const geographyKey = String(record.fips || record.FIPS || "");
       if (!geographyKey) continue;
+      const geographyType = geographyKey.length === 5 ? "county" : "tract";
 
       const rplThemes = parseFloat(record.rpl_themes ?? record.RPL_THEMES);
       const epPov150 = parseFloat(record.ep_pov150 ?? record.EP_POV150);
@@ -276,16 +285,15 @@ export async function ingestSviData(
         .limit(1);
 
       if (existing.length > 0) {
+        // EP_POV150 is the 150%-of-poverty share; never overwrite an ACS B17001 (100%) poverty rate with it.
         await db
           .update(gisContextData)
           .set({
             sviPercentile,
-            povertyRate,
+            povertyRate: existing[0].povertyRate ?? povertyRate,
             unemploymentRate,
             rawSviData,
-            dataSource: existing[0].dataSource
-              ? `${existing[0].dataSource},cdc_svi`
-              : "cdc_svi",
+            dataSource: appendSource(existing[0].dataSource, "cdc_svi"),
             dataYear: new Date().getFullYear(),
             updatedAt: new Date(),
           })
@@ -293,7 +301,7 @@ export async function ingestSviData(
       } else {
         await db.insert(gisContextData).values({
           geographyKey,
-          geographyType: "tract",
+          geographyType,
           sviPercentile,
           povertyRate,
           unemploymentRate,
@@ -370,9 +378,7 @@ export async function ingestFbiCrimeData(
           .set({
             crimeTrendPercentile,
             rawCrimeData,
-            dataSource: existing[0].dataSource
-              ? `${existing[0].dataSource},fbi_crime`
-              : "fbi_crime",
+            dataSource: appendSource(existing[0].dataSource, "fbi_crime"),
             dataYear: record.year || new Date().getFullYear(),
             updatedAt: new Date(),
           })
@@ -466,9 +472,7 @@ export async function ingestCensusAcsData(
             stateCode: stateAbbr.toUpperCase(),
             latitude: countyCoords.lat,
             longitude: countyCoords.lng,
-            dataSource: existing[0].dataSource
-              ? `${existing[0].dataSource},census_acs`
-              : "census_acs",
+            dataSource: appendSource(existing[0].dataSource, "census_acs"),
             dataYear: 2022,
             updatedAt: new Date(),
           })

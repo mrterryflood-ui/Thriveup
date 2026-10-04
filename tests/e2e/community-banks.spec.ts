@@ -21,6 +21,7 @@ test("Central Texas default resolves to the Austin MSA without sign-in", async (
   await expectProfile(page, /Austin MSA/);
   await expect(page.getByTestId("cb-tool-check-benefits")).toHaveAttribute("href", /\/benefits-screener\?zip=48453/);
   await expect(page.getByTestId("cb-coverage-poverty-rate")).toHaveText("observed");
+  await expect(page.getByTestId("cb-coverage-svi")).toHaveText("observed");
   await expect(page.getByTestId("cb-coverage-median-income")).toHaveText("modeled");
   // Every indicator is a real route, not a dead end.
   for (const id of [...INDICATORS, "poverty-rate"]) {
@@ -34,6 +35,10 @@ test("same page serves Chicago and Philadelphia with coverage caveats", async ({
   await page.goto(`${BASE}/community-banks?place=Chicago%2C%20IL`);
   await expectProfile(page, /Cook County, IL/);
   await expect(page.getByTestId("cb-limits")).toContainText("Texas-only depth not shown");
+  // Nationwide county context: no tile may be unavailable for a major non-Texas county.
+  for (const id of [...INDICATORS, "poverty-rate"]) await expect(page.getByTestId(`cb-coverage-${id}`)).not.toHaveText("unavailable");
+  await expect(page.getByTestId("cb-indicator-childcare-gap")).toContainText("not computed outside Texas");
+  await expect(page.getByTestId("cb-platform-finance-training-trading")).toHaveAttribute("href", "https://financetrainingandtrading.com");
   await page.getByTestId("input-cb-place").fill("Philadelphia, PA");
   await page.getByTestId("button-cb-place").click();
   await expect(page).toHaveURL(/place=Philadelphia/);

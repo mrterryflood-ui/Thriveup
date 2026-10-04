@@ -893,6 +893,24 @@ const ECOSYSTEM_PLATFORMS = [
     grantAlignment: ["wioa", "foundation", "st-davids"],
   },
   {
+    id: "finance-training-trading",
+    name: "Finance Training and Trading",
+    url: "https://financetrainingandtrading.com",
+    role: "financial-literacy",
+    domain: "education",
+    description: "Financial literacy and capability platform: budgeting, credit, saving, and investing education with practice trading so people can build money skills before risking real money. Complements ThriveUp Academy's financial literacy track and the Academy economy, and gives community banks, workforce programs, and reentry/youth services a shared financial-education destination. Integrates with ThriveUp Academy for learner pathways and with LifeBridge for referrals when a household needs benefits or housing stabilization alongside financial coaching.",
+    capabilities: {
+      features: ["Budgeting & Cash-Flow Education", "Credit & Debt Literacy", "Saving & Emergency Fund Planning", "Investing Fundamentals", "Practice Trading Environment", "Risk Awareness Coaching", "Learner Progress Tracking"],
+      integrationDepth: "Receives learner pathway handoffs from ThriveUp Academy; sends completion signals back; LifeBridge referral for households needing stabilization support",
+      grantNarrative: "Supports CRA community-development, financial-capability, and workforce-readiness narratives; no outcome counts are claimed until the platform reports them through the heartbeat/metrics loop",
+    },
+    dataFlowConfig: {
+      sends: ["learning_progress", "course_completions", "financial_capability_milestones"],
+      receives: ["learner_profiles", "academy_pathway_handoffs", "community_referrals"],
+    },
+    grantAlignment: ["wioa", "foundation", "st-davids"],
+  },
+  {
     id: "perfectly-different",
     name: "Perfectly Different",
     url: "https://neurodifferentassistant.app",

@@ -255,7 +255,7 @@ export async function buildIndicators(geo: BankGeography): Promise<{ indicators:
     }
     if (found.length === geo.counties.length && found.every(f => f.sviPercentile !== null)) {
       const avg = found.reduce((s, f) => s + (f.sviPercentile ?? 0), 0) / found.length;
-      indicators.push({ id: "svi", label: "Social Vulnerability Index (percentile)", value: Math.round(avg * (avg <= 1 ? 100 : 1)), unit: "percent", source: found[0].dataSource ?? "CDC/ATSDR SVI", vintage: String(found[0].dataYear ?? "—"), coverage: "observed", scope, note: scope === "msa" ? "Unweighted mean of county percentiles." : undefined, href: "/sdoh-explorer" });
+      indicators.push({ id: "svi", label: "Social Vulnerability Index (percentile)", value: Math.round(avg), unit: "percent", source: "CDC/ATSDR SVI 2022 (county)", vintage: "SVI 2022", coverage: "observed", scope, note: scope === "msa" ? "Unweighted mean of county percentiles." : undefined, href: "/sdoh-explorer" });
     } else {
       indicators.push(unavailable("svi", "Social Vulnerability Index", "percent", "CDC/ATSDR SVI", "/sdoh-explorer", scope, "County-level SVI has not been ingested for this area."));
     }
@@ -277,11 +277,17 @@ export async function buildIndicators(geo: BankGeography): Promise<{ indicators:
 
   // Childcare slot gap (TX = HHSC licensing; other states = Census CBP/ACS model).
   try {
-    const intel = await Promise.allSettled(geo.counties.map(c => withTimeout(getChildcareIntelByFips(c.fips.slice(0, 2), c.fips, c.name), 15000)));
+    const intel = await Promise.allSettled(geo.counties.map(c => withTimeout(getChildcareIntelByFips(c.fips.slice(0, 2), c.fips.slice(2), c.name), 15000)));
     const ok = intel.filter((r): r is PromiseFulfilledResult<Awaited<ReturnType<typeof getChildcareIntelByFips>>> => r.status === "fulfilled").map(r => r.value);
     const gaps = ok.map(i => i.slotGap.slotGap).filter((g): g is number => g !== null);
+    const demand = ok.map(i => i.slotGap.estimatedDemand).filter((d): d is number => d !== null);
+    const providers = ok.map(i => i.summary.totalProviders).filter((p): p is number => p !== null);
     if (ok.length === geo.counties.length && gaps.length === ok.length) {
       indicators.push({ id: "childcare-gap", label: "Estimated childcare slot gap (modeled demand − licensed capacity)", value: gaps.reduce((s, g) => s + g, 0), unit: "count", source: ok[0].slotGap.dataSource, vintage: geo.state === "TX" ? "HHSC CCL live + ACS" : "Census CBP 2022 / ACS", coverage: "modeled", scope, note: ok[0].slotGap.methodology, href: "/child-care" });
+    } else if (ok.length === geo.counties.length && demand.length === ok.length) {
+      // Outside Texas there is no federal licensed-capacity source, so the honest tile is demand + provider count, not a gap.
+      const providerNote = providers.length === ok.length ? `${providers.reduce((s, p) => s + p, 0).toLocaleString()} child day care establishments (Census CBP 2022, NAICS 6244). ` : "";
+      indicators.push({ id: "childcare-gap", label: "Children ages 0–12 (child-care demand estimate)", value: demand.reduce((s, d) => s + d, 0), unit: "count", source: "U.S. Census ACS 2022 B01001 + CBP 2022", vintage: "ACS 2022 / CBP 2022", coverage: "modeled", scope, note: `${providerNote}Licensed-slot capacity requires state licensing records, which are not federally standardized; a slot gap is not computed outside Texas.`, href: "/child-care" });
     } else {
       indicators.push(unavailable("childcare-gap", "Licensed childcare slot gap", "count", "HHSC CCL / Census CBP", "/child-care", scope, "Childcare supply data incomplete for this area."));
     }
@@ -290,7 +296,7 @@ export async function buildIndicators(geo: BankGeography): Promise<{ indicators:
   }
 
   if (geo.state !== "TX") {
-    limits.push("Texas-only depth not shown: HHSC licensing detail, CEDS regional alignment, and CHW network coverage. National Census fallbacks are used where available.");
+    limits.push("Texas-only depth not shown: HHSC child-care licensing detail, CEDS regional alignment, and CHW network coverage. Census ACS, CDC/ATSDR SVI, and HUD PIT cover every state.");
   }
   limits.push("No utilization, outcome, or return-on-investment figures are claimed. Indicators describe community conditions from public sources, not platform results.");
   return { indicators, limits };
