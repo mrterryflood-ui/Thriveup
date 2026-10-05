@@ -158,7 +158,7 @@ export const DEMO_VIEWS: Record<DemoAudienceKey, DemoAudienceView> = {
           "Begin evaluation before the program starts; design indicators that reflect program goals; well-designed evaluation is worth the expense — ThriveUp builds measurement in from day one.",
         source: "Wiley, Advancing Health Literacy",
         year: "2012",
-        url: "https://cashmere.io/v/JAzexyLXq",
+        url: "https://www.wiley.com/en-us/Advancing+Health+Literacy%3A+A+Framework+for+Understanding+and+Action-p-9780787984335",
       },
     ],
     cta: { label: "Open the academy", route: "/academy" },

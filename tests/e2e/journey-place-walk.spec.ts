@@ -34,9 +34,61 @@ test("invalid place is ignored; clear control removes place", async ({ page }) =
   await expect(page.getByTestId("journey-place-bar")).toHaveCount(0);
 });
 
-test("prefill: screener, analysis, chainweb take the carried ZIP", async ({ page }) => {
-  await page.goto(`${BASE}/community-analysis?place=78634`, { waitUntil: "domcontentloaded" });
-  await expect(page.getByTestId("input-zip")).toHaveValue("78634");
-  await page.goto(`${BASE}/chainweb?place=78634`, { waitUntil: "domcontentloaded" });
-  await expect(page.getByTestId("journey-place-showing")).toContainText("ZIP 78634");
+/**
+ * Phase A proof language: the place must be USED on arrival — visible and pre-filled in the tool's own
+ * control — not merely present in the URL or the shell bar. One assertion per Phase A route.
+ */
+const PLACE = "78634";
+const RESOLVED = /Williamson County, TX \(ZIP 78634\)/;
+
+test("Phase A: every named route pre-fills and shows the carried place on arrival", async ({ page }) => {
+  // /411 — ZIP input
+  await page.goto(`${BASE}/411?place=${PLACE}`, { waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("input-zip")).toHaveValue(PLACE);
+
+  // /benefits-screener — ZIP input (location step may be further in; the value is bound on arrival)
+  await page.goto(`${BASE}/benefits-screener?place=${PLACE}`, { waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("journey-place-showing")).toContainText(`ZIP ${PLACE}`);
+
+  // /parents — audience lane + shell bar (page has no geography control by design)
+  await page.goto(`${BASE}/parents?place=${PLACE}`, { waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("journey-place-showing")).toContainText(`ZIP ${PLACE}`);
+
+  // /community-analysis — ZIP input
+  await page.goto(`${BASE}/community-analysis?place=${PLACE}`, { waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("input-zip")).toHaveValue(PLACE);
+
+  // /chainweb — geography label field
+  await page.goto(`${BASE}/chainweb?place=${PLACE}`, { waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("input-geo-label")).toHaveValue(`ZIP ${PLACE}`);
+
+  // /corridor-intelligence — place evidence panel: input pre-filled, resolved county shown, indicators rendered
+  await page.goto(`${BASE}/corridor-intelligence?place=${PLACE}`, { waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("input-journey-place")).toHaveValue(PLACE);
+  await expect(page.getByTestId("journey-place-evidence-showing")).toContainText(RESOLVED, { timeout: 20_000 });
+  await expect(page.getByTestId("indicator-population")).toBeVisible();
+
+  // /impact — same panel
+  await page.goto(`${BASE}/impact?place=${PLACE}`, { waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("input-journey-place")).toHaveValue(PLACE);
+  await expect(page.getByTestId("journey-place-evidence-showing")).toContainText(RESOLVED, { timeout: 20_000 });
+  await expect(page.getByTestId("indicator-population")).toBeVisible();
+});
+
+test("place evidence panel: no place → no fetch, no default; clear removes it; unresolvable place fails visibly", async ({ page }) => {
+  const profileCalls: string[] = [];
+  page.on("request", (r) => { if (r.url().includes("/api/community-banks/profile")) profileCalls.push(r.url()); });
+  await page.goto(`${BASE}/corridor-intelligence`, { waitUntil: "networkidle" });
+  await expect(page.getByTestId("journey-place-evidence-empty")).toBeVisible();
+  expect(profileCalls).toEqual([]);
+
+  await page.goto(`${BASE}/impact?place=${PLACE}`, { waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("journey-place-evidence-showing")).toContainText(RESOLVED, { timeout: 20_000 });
+  await page.getByTestId("button-journey-place-clear").click();
+  await expect(page).not.toHaveURL(/place=/);
+  await expect(page.getByTestId("journey-place-evidence-empty")).toBeVisible();
+
+  await page.goto(`${BASE}/impact?place=00000`, { waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("journey-place-evidence-error")).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByTestId("journey-place-indicators")).toHaveCount(0);
 });

@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import { JourneyPlaceEvidence } from "@/components/journey-place-evidence";
 import { ArrowRight, Database, RefreshCw, Sparkles, ExternalLink, MapPin, Users, FileText, AlertTriangle, Link2, Shield, ShieldAlert, Lightbulb, Network, Baby } from "lucide-react";
 
 interface Claim<T = number | string> {
@@ -307,6 +308,13 @@ export default function CorridorIntelligencePage() {
           </a>
         </div>
       </div>
+
+      {/* Place-scoped county evidence — consumes the carried ?place= (resident chain) */}
+      <JourneyPlaceEvidence
+        path="/corridor-intelligence"
+        title="County evidence for your place"
+        description="The pilot stories below are fixed to the I-35 corridor. Enter or carry a place to see the same county baseline (Census ACS, CDC SVI, HUD PIT, childcare capacity) for anywhere in the U.S."
+      />
 
       {/* Active Pilots */}
       <div data-testid="section-active-pilots">

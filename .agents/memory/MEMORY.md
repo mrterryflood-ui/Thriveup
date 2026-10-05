@@ -75,6 +75,7 @@
 
 - [Boot seed multiplication](boot-seed-multiplication.md) — boot seeds without a unique key multiply rows across restarts; gates must fail on tab crashes/response size, not just layout.
 - [Playwright container limits](playwright-container-limits.md) — 1 worker; never alongside tsc; background gates via run_in_background only; hero-overlay contrast heuristic.
+- [Remote sync must diff both ways](remote-sync-bidirectional.md) — after an API push, `git reset --soft origin/<branch>` and inspect residual index; local-only imported modules are invisible if you iterate the remote tree.
 - [Stacked PRs via Git Data API](github-push-via-connector.md) — sibling PRs stack through a hand-built merge commit; read blobs with fs inside impure and verify sha1 — never carry base64 through shellExec output.
 
 ## ── AGENT SKILLS (load these, not just memory files) ──────────────────────

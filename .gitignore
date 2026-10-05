@@ -8,3 +8,5 @@ vite.config.ts.*
 # Trace archives (.trace, .network) may contain signed session cookies;
 # never commit them. The full test-results tree is transient runtime output.
 test-results/
+# Chat transcripts pasted into the workspace are not repository content
+attached_assets/Pasted-*.txt

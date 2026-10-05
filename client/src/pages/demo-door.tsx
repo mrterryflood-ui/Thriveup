@@ -105,7 +105,10 @@ export default function DemoDoor() {
     navigate(`/demo${qs ? `?${qs}` : ""}`, { replace: true });
   }
 
-  const ctaHref = audience === "banks" && explicitPlace
+  // Routes that read ?place= on arrival (pre-fill + "Showing: {place}"); carry the place only to these.
+  const PLACE_AWARE_ROUTES = new Set(["/community-banks", "/community-analysis", "/corridor-intelligence", "/impact", "/411", "/benefits-screener", "/parents", "/chainweb"]);
+  // Only audiences whose CTA destination consumes ?place= carry it (banks → /community-banks, governments → /corridor-intelligence).
+  const ctaHref = (audience === "banks" || audience === "governments") && explicitPlace
     ? `${view.cta.route}?place=${encodeURIComponent(explicitPlace)}`
     : view.cta.route;
   const liveTools = view.liveTools
@@ -235,7 +238,7 @@ export default function DemoDoor() {
           </div>
           <div className="border-t border-[#b8b9aa]">
             {liveTools.map((route) => (
-              <Link key={route.path} href={audience === "banks" && explicitPlace && route.path === "/community-banks" ? `${route.path}?place=${encodeURIComponent(explicitPlace)}` : route.path} className="group grid min-h-[84px] grid-cols-[1fr_40px] items-center gap-3 border-b border-[#b8b9aa] py-3 transition-colors hover:bg-[#e7e5d9]" data-testid={`demo-tool-${route.path.replace(/[^a-z0-9]+/gi, "-")}`}>
+              <Link key={route.path} href={explicitPlace && PLACE_AWARE_ROUTES.has(route.path) ? `${route.path}?place=${encodeURIComponent(explicitPlace)}` : route.path} className="group grid min-h-[84px] grid-cols-[1fr_40px] items-center gap-3 border-b border-[#b8b9aa] py-3 transition-colors hover:bg-[#e7e5d9]" data-testid={`demo-tool-${route.path.replace(/[^a-z0-9]+/gi, "-")}`}>
                 <span>
                   <span className="block text-base font-semibold tracking-tight">{route.title}</span>
                   <span className="mt-1 block max-w-xl text-sm leading-relaxed text-[#637067]">{route.description}</span>

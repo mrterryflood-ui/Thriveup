@@ -60,3 +60,50 @@ test("demo door shows all four audience views anonymously", async ({ page }) => 
     await expect(page.getByTestId("demo-measurement-note")).toContainText("measurable once local data is connected");
   }
 });
+
+/**
+ * G5 — one CTA per audience, browser-walked with place 78634. Audiences whose destination consumes the
+ * place (banks → /community-banks, governments → /corridor-intelligence) must arrive with it USED
+ * (pre-filled + "Showing: Williamson County"); the others must NOT carry a place their destination ignores.
+ */
+const G5 = [
+  { audience: "banks", route: "/community-banks", carries: true, input: "input-cb-place" },
+  { audience: "governments", route: "/corridor-intelligence", carries: true, input: "input-journey-place" },
+  { audience: "schools", route: "/academy", carries: false },
+  { audience: "entities", route: "/partners/join", carries: false },
+] as const;
+
+for (const c of G5) {
+  test(`G5 ${c.audience}: CTA lands on ${c.route}${c.carries ? " with the place used" : " without a place"}`, async ({ page }) => {
+    await page.goto(`${BASE}/demo?audience=${c.audience}&place=78634`, { waitUntil: "domcontentloaded" });
+    const cta = page.getByTestId("demo-cta");
+    await expect(cta).toBeVisible();
+    const href = await cta.getAttribute("href");
+    expect(href?.startsWith(c.route)).toBe(true);
+    expect(href?.includes("place=78634")).toBe(c.carries);
+    await cta.click();
+    await expect(page).toHaveURL(new RegExp(`${c.route.replace(/\//g, "\\/")}`));
+    if (c.carries) {
+      await expect(page.getByTestId(c.input)).toHaveValue("78634");
+      await expect(page.getByText(/Williamson County/).first()).toBeVisible({ timeout: 20_000 });
+    } else {
+      await expect(page).not.toHaveURL(/place=/);
+    }
+    await page.screenshot({ path: `screenshots/demo-door/g5-${c.audience}-destination.png`, fullPage: false });
+  });
+}
+
+test("demo door audience screenshots: schools, governments, entities at 1440 and 375", async ({ browser }) => {
+  for (const audience of ["schools", "governments", "entities"]) {
+    for (const width of [1440, 375]) {
+      const context = await browser.newContext({ viewport: { width, height: 900 } });
+      const page = await context.newPage();
+      await page.goto(`${BASE}/demo?audience=${audience}&place=78634`, { waitUntil: "networkidle" });
+      await expect(page.getByTestId("demo-door")).toHaveAttribute("data-audience", audience);
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(overflow).toBeLessThanOrEqual(1);
+      await page.screenshot({ path: `screenshots/demo-door/demo-${audience}-${width}.png`, fullPage: true });
+      await context.close();
+    }
+  }
+});
