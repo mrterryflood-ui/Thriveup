@@ -15,6 +15,7 @@
 // Run manually: npx tsx scripts/verify-two-click-reachability.ts
 // Chained into the `directory-links` validation gate.
 
+import { NAV_ROUTES } from "../shared/route-nav";
 import { readFileSync, existsSync } from "fs";
 import { WORKSPACE_TASKS, WORKSPACES } from "../shared/workspace-catalog";
 
@@ -152,6 +153,8 @@ function extractInternalLinks(file: string): string[] {
     for (const workspace of WORKSPACES) out.add(`/workspace/${workspace.id}`);
   }
   if (file === "client/src/pages/tool-directory.tsx") {
+    // Phase 3c: /tools renders every public canonical registry row (shared/route-nav.generated.json).
+    for (const r of NAV_ROUTES) if (r.access === "public") out.add(r.path);
     for (const task of WORKSPACE_TASKS.filter(task => task.access === "public")) out.add(task.href);
     for (const url of linksFromText(publicSidebarText(readFileSync(SIDEBAR_FILE, "utf8")))) out.add(url);
   }

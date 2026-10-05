@@ -582,7 +582,7 @@ function AppRouter() {
       <Route path="/veterans" component={VeteransProgramPage} />
       <Route path="/behavioral-health" component={BehavioralHealthProgramPage} />
       <Route path="/reentry-program" component={ReentryProgramPage} />
-      <Route path="/research" component={ResearchMethodologyPage} />
+      <Route path="/research"><Redirect to="/methodology" /></Route>
       <Route path="/methodology" component={ResearchMethodologyPage} />
       <Route path="/transparency-matrix" component={TransparencyMatrixPage} />
       <Route path="/stakeholder-map" component={StakeholderMapPage} />
@@ -599,8 +599,8 @@ function AppRouter() {
         </RequireAuth>
       </Route>
       <Route path="/reentry" component={ReentryRouterPage} />
-      <Route path="/intake-wizard" component={IntakeWizardPage} />
-      <Route path="/transparency-dashboard" component={TransparencyDashboardPage} />
+      <Route path="/intake-wizard"><Redirect to="/intake" /></Route>
+      <Route path="/transparency-dashboard"><Redirect to="/transparency" /></Route>
       <Route path="/partners" component={CommunityPartnersPage} />
       <Route path="/outcomes" component={OutcomeReportingPage} />
       <Route path="/justice-partners" component={JusticePartnersPage} />
@@ -671,7 +671,7 @@ function AppRouter() {
       </Route>
       <Route path="/north-wilco-childcare-coalition" component={NorthWilcoChildcareCoalitionPage} />
       <Route path="/our-approach" component={OurApproachPage} />
-      <Route path="/wab2-enrollment" component={WAB2EnrollmentHubPage} />
+      <Route path="/wab2-enrollment"><Redirect to="/st-davids" /></Route>
       <Route path="/st-davids" component={WAB2EnrollmentHubPage} />
       <Route path="/community-map" component={CommunityMapPage} />
       <Route path="/voice" component={VoiceIndexPage} />
@@ -1006,7 +1006,7 @@ function AppRouter() {
       <Route path="/corridor/docs/live" component={CorridorDocsLivePage} />
       <Route path="/network" component={NetworkMembersPage} />
       <Route path="/navigator" component={NavigatorPage} />
-      <Route path="/hub" component={FocusedHomePage} />
+      <Route path="/hub"><Redirect to="/" /></Route>
       <Route path="/hub/legacy" component={HubHomePage} />
       <Route path="/hub/serve" component={HubServePage} />
       <Route path="/hub/fund" component={HubFundPage} />

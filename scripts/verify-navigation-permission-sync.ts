@@ -45,7 +45,7 @@ if (!sidebarSource.includes('task?.access === "staff"') || !sidebarSource.includ
   failures.push("focused task role restrictions are not merged into the shared access predicate");
 }
 const directorySource = readFileSync("client/src/pages/tool-directory.tsx", "utf8");
-if (!directorySource.includes("getSidebarNavigationAccess(item.url)")) failures.push("tool directory does not consume the shared access predicate");
+if (!directorySource.includes("getSidebarNavigationAccess(item.path)")) failures.push("tool directory does not consume the shared access predicate");
 
 for (const path of expectedRestrictedPaths) {
   if (!palettePaths.has(path)) {

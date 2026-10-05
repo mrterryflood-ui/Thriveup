@@ -5137,7 +5137,8 @@
    ],
    "classified": true,
    "description": "Choose a practical next step or a workspace for getting help, learning, and community work.",
-   "guide": "Need a starting point → Home → choose a task or workspace"
+   "guide": "Need a starting point → Home → choose a task or workspace",
+   "aliasOf": "/"
   },
   {
    "path": "/hub/connect",
@@ -5433,7 +5434,8 @@
    ],
    "classified": true,
    "description": "Complete a needs, goals, background, and consent assessment for a case manager to review.",
-   "guide": "Need coordinated support → Intake Wizard → submit your assessment for case-manager follow-up"
+   "guide": "Need coordinated support → Intake Wizard → submit your assessment for case-manager follow-up",
+   "aliasOf": "/intake"
   },
   {
    "path": "/invasive-species",
@@ -7478,7 +7480,8 @@
    ],
    "classified": true,
    "description": "Read the research approach, evaluation frameworks, data safeguards, and research partnership information.",
-   "guide": "Need to inspect the evidence method → Inspect methodology → explore implementation-science tools"
+   "guide": "Need to inspect the evidence method → Inspect methodology → explore implementation-science tools",
+   "aliasOf": "/methodology"
   },
   {
    "path": "/research-hub",
@@ -8906,7 +8909,8 @@
    ],
    "classified": true,
    "description": "Review public platform activity, outcome and dosage summaries, and progress against commitments.",
-   "guide": "Need to inspect accountability → Stakeholder Transparency Dashboard → compare progress and review improvement work"
+   "guide": "Need to inspect accountability → Stakeholder Transparency Dashboard → compare progress and review improvement work",
+   "aliasOf": "/transparency"
   },
   {
    "path": "/transparency-matrix",
@@ -9238,7 +9242,8 @@
    "classified": true,
    "legacyGroup": "ctxHubItems",
    "description": "Build a household benefits checklist and, when signed in, track enrollment applications with the Central Texas initiative.",
-   "guide": "Need help enrolling in benefits → CTX Benefits Initiative → build a checklist or track application progress"
+   "guide": "Need help enrolling in benefits → CTX Benefits Initiative → build a checklist or track application progress",
+   "aliasOf": "/st-davids"
   },
   {
    "path": "/wab2-enrollment-hub",
