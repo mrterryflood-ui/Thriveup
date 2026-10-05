@@ -2824,12 +2824,14 @@
   },
   {
    "path": "/community-gravity",
-   "title": "See who is doing the work",
+   "title": "Community Rolodex",
    "outcome": "see-the-data",
    "audiences": [
+    "resident-family",
     "nonprofit-cbo",
     "agency-government",
-    "funder-evaluator"
+    "funder-evaluator",
+    "caregivers-chws"
    ],
    "access": "public",
    "upstream": [
@@ -2847,8 +2849,8 @@
    ],
    "classified": true,
    "legacyGroup": "partnersCoalitionsItems",
-   "description": "Browse organizations by community and domain using IRS records, staff verification, and cited research.",
-   "guide": "Need to understand local organizations → See who is doing the work → open a filing or explore coordination tools"
+   "description": "Browse staff-published, source-cited organizations by city and state. IRS Exempt Organizations filings are a separate nonprofit-only view; a listing does not imply partnership, referral acceptance, service area, or capacity.",
+   "guide": "Need to find community organizations → Community Rolodex → browse published profiles separately from IRS nonprofit filings"
   },
   {
    "path": "/community-impact",
@@ -4819,7 +4821,7 @@
   },
   {
    "path": "/grant-narrative-legacy",
-   "title": "Grant Narrative Builder",
+   "title": "Grant Narrative Builder (previous version)",
    "outcome": "operate",
    "audiences": [
     "nonprofit-cbo",
@@ -5286,7 +5288,7 @@
   },
   {
    "path": "/hub/more",
-   "title": "Connect",
+   "title": "More ways to connect",
    "outcome": "connect",
    "audiences": [
     "resident-family",
@@ -9493,9 +9495,9 @@
     "app-routes"
    ],
    "classified": true,
-   "description": "Redirects to /wab2-enrollment.",
-   "guide": "Alias of /wab2-enrollment",
-   "aliasOf": "/wab2-enrollment"
+   "description": "Redirects to /st-davids.",
+   "guide": "Alias of /st-davids",
+   "aliasOf": "/st-davids"
   },
   {
    "path": "/why-thriveup",

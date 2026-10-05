@@ -444,8 +444,11 @@ html[data-screen-reader-optimized] :focus-visible {
 }
 
 .skip-link {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
   position: absolute;
-  top: -40px;
+  top: -48px;
   left: 0;
   padding: 8px 16px;
   z-index: 10000;

@@ -27,7 +27,7 @@ export function HeaderControls() {
             variant="ghost"
             onClick={toggleBandwidth}
             data-testid="button-bandwidth-toggle"
-            className={`toggle-elevate ${isLowBandwidth ? "toggle-elevated" : ""}`}
+            className={`toggle-elevate h-11 w-11 ${isLowBandwidth ? "toggle-elevated" : ""}`}
             aria-label={isLowBandwidth ? "Disable low-bandwidth mode" : "Enable low-bandwidth mode"}
           >
             {isLowBandwidth ? <WifiOff className="h-4 w-4" /> : <Wifi className="h-4 w-4" />}
@@ -45,6 +45,7 @@ export function HeaderControls() {
         variant="ghost"
         onClick={toggleTheme}
         data-testid="button-theme-toggle"
+        className="h-11 w-11"
         aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
       >
         {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}

@@ -5,6 +5,7 @@
  * multi-layer community intelligence map with AI synthesis.
  */
 import { useState, useEffect } from "react";
+import { parseJourneyContext, placeToZip } from "@shared/journey-context";
 import { useLocation } from "wouter";
 import { MapContainer, TileLayer, CircleMarker, Popup, Rectangle, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -257,6 +258,9 @@ export default function CommunityAnalysisPage() {
     const qZip = visualState.geography;
     if (qZip && /^\d{5}$/.test(qZip)) {
       setZip(qZip);
+    } else {
+      const carriedZip = placeToZip(parseJourneyContext(window.location.search).place);
+      if (carriedZip) setZip(carriedZip);
     }
     if (visualState.selectedLayers.length > 0) {
       setVisualLayers(visualState.selectedLayers);
@@ -340,7 +344,7 @@ export default function CommunityAnalysisPage() {
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
-                  className="pl-9 w-32 bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-indigo-500"
+                  className="pl-9 w-32 min-h-11 bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-indigo-500"
                   placeholder="ZIP code"
                   value={zip}
                   onChange={e => setZip(e.target.value.replace(/\D/g, "").slice(0, 5))}
@@ -349,7 +353,7 @@ export default function CommunityAnalysisPage() {
                 />
               </div>
               <Button
-                className="bg-indigo-600 hover:bg-indigo-500 text-white px-6"
+                className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 min-h-11"
                 onClick={() => analyze.mutate()}
                 disabled={zip.length !== 5 || analyze.isPending}
                 data-testid="button-analyze"
@@ -374,7 +378,7 @@ export default function CommunityAnalysisPage() {
                 <button
                   key={i}
                   onClick={() => setPrompt(s)}
-                  className="text-xs text-slate-300 bg-slate-800/60 border border-slate-700 rounded-full px-3 py-1 hover:border-indigo-500 hover:text-white transition-colors"
+                  className="text-xs text-slate-300 bg-slate-800/60 border border-slate-700 rounded-full px-3 py-1 min-h-11 hover:border-indigo-500 hover:text-white transition-colors"
                   data-testid={`button-suggestion-${i}`}
                 >
                   {s.slice(0, 60)}…

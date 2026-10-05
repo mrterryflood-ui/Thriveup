@@ -24,7 +24,7 @@ export function LanguageSelector() {
         <Button
           size="sm"
           variant="ghost"
-          className="gap-1.5 toggle-elevate h-9 px-2"
+          className="gap-1.5 toggle-elevate min-h-11 px-2"
           data-testid="button-language-selector"
           aria-label={`Current language: ${current.name}. Click to change.`}
         >
