@@ -1137,7 +1137,7 @@ function AppLayoutInner() {
   const [location] = useLocation();
   const search = useSearch();
   const shellFreeEmbed = new URLSearchParams(search).get("embed") === "1";
-  const focusedEntry = location === "/" || location === "/hub" || location === "/workspaces" || location.startsWith("/workspace/") || location === "/academy/lessons" || location === "/community-banks" || location === "/community-gravity" || Boolean(entryTaskForPath(location));
+  const focusedEntry = location === "/" || location === "/hub" || location === "/workspaces" || location.startsWith("/workspace/") || location.startsWith("/start/") || location === "/academy/lessons" || location === "/community-banks" || location === "/community-gravity" || Boolean(entryTaskForPath(location));
   const currentWorkspace = WORKSPACES.find(item => item.id === workspace);
   const { t } = useLanguage();
   const style = { "--sidebar-width": "16rem", "--sidebar-width-icon": "3rem" };
