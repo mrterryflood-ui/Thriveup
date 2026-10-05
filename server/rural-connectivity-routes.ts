@@ -4,6 +4,7 @@
  *          USDA Rural Energy for America (REAP) · Census transportation data
  */
 import { type Request, type Response } from "express";
+import { FccBdcUnavailable, fccBdcStatus, listAsOfDates, listAvailabilityData, listChallengeData, listFundingData, listGeographyData } from "./fcc-bdc-client";
 
 async function fetchJson(url: string, opts?: RequestInit): Promise<any> {
   const r = await fetch(url, {
@@ -15,13 +16,27 @@ async function fetchJson(url: string, opts?: RequestInit): Promise<any> {
   return r.json();
 }
 
-// FCC Broadband availability by lat/lng
+// FCC Broadband availability by lat/lng.
+// NOTE: the official BDC Public Data API (docs/data-sources/fcc-bdc/) has no point lookup;
+// this legacy map endpoint answers 405 as of 2026-10-05. We fail closed: no verdict without data.
+const FCC_POINT_LOOKUP_UNAVAILABLE = {
+  error: "FCC point-lookup endpoint unavailable; no broadband verdict can be made for this location",
+  isBroadbandDesert: null as null,
+  providers: [] as any[],
+  source: "FCC National Broadband Map",
+};
+
 async function getFccBroadband(lat: number, lng: number) {
+  const sourceUrl = `https://broadbandmap.fcc.gov/location/fixed?location_id=&addr=&lat=${lat}&lon=${lng}&zoom=14`;
   try {
-    // FCC Broadband Map API — fabric location lookup
     const locationUrl = `https://broadbandmap.fcc.gov/api/public/map/listAvailability?latitude=${lat}&longitude=${lng}&unit=0&category=Fixed+Broadband`;
     const data = await fetchJson(locationUrl);
-    const providers = (data?.availability || []).map((p: any) => ({
+    if (!Array.isArray(data?.availability)) {
+      const detail = data?.status_code ? `upstream status_code ${data.status_code}: ${data.message ?? ""}`.trim() : "no availability array in response";
+      console.warn(`[RuralConnectivity] FCC point lookup unavailable (${detail})`);
+      return { lat, lng, ...FCC_POINT_LOOKUP_UNAVAILABLE, upstreamDetail: detail, sourceUrl, checkManuallyUrl: sourceUrl };
+    }
+    const providers = data.availability.map((p: any) => ({
       provider: p.brand_name || p.provider_id,
       technology: decodeTech(p.technology),
       maxDownMbps: p.max_advertised_download_speed,
@@ -42,12 +57,20 @@ async function getFccBroadband(lat: number, lng: number) {
       },
       reConnectEligible: !hasBroadband,
       source: "FCC National Broadband Map",
-      sourceUrl: `https://broadbandmap.fcc.gov/location/fixed?location_id=&addr=&lat=${lat}&lon=${lng}&zoom=14`,
+      sourceUrl,
     };
   } catch (e: any) {
     console.error("[RuralConnectivity] FCC broadband error:", e.message);
-    return { lat, lng, error: "FCC data unavailable", isBroadbandDesert: null, providers: [] };
+    return { lat, lng, ...FCC_POINT_LOOKUP_UNAVAILABLE, upstreamDetail: e.message, sourceUrl, checkManuallyUrl: sourceUrl };
   }
+}
+
+function sendBdcError(res: Response, e: any) {
+  if (e instanceof FccBdcUnavailable) {
+    const status = e.reason === "missing_credentials" ? 503 : e.reason === "rate_limited" ? 429 : (e.httpStatus && e.httpStatus >= 400 ? e.httpStatus : 502);
+    return res.status(status).json({ error: e.message, reason: e.reason, ...fccBdcStatus() });
+  }
+  return res.status(500).json({ error: e?.message ?? "unknown error" });
 }
 
 function decodeTech(code: number): string {
@@ -202,6 +225,34 @@ function getCellCoverageInfo(lat: number, lng: number) {
 
 export function registerRuralConnectivityRoutes(app: any) {
 
+  // Official FCC BDC Public Data API (spec v1.6) — bulk catalogue, credential-gated, truthful offline.
+  app.get("/api/rural-connectivity/bdc/status", (_req: Request, res: Response) => res.json(fccBdcStatus()));
+
+  app.get("/api/rural-connectivity/bdc/as-of-dates", async (_req: Request, res: Response) => {
+    try { res.json({ ...(await listAsOfDates()), source: fccBdcStatus().source }); } catch (e) { sendBdcError(res, e); }
+  });
+
+  app.get("/api/rural-connectivity/bdc/availability-files/:asOfDate", async (req: Request, res: Response) => {
+    const q = req.query as Record<string, string | undefined>;
+    try {
+      res.json({ ...(await listAvailabilityData(String(req.params.asOfDate), {
+        category: q.category as any, subcategory: q.subcategory, technology_type: q.technology_type as any, speed_tier: q.speed_tier as any,
+      })), source: fccBdcStatus().source });
+    } catch (e) { sendBdcError(res, e); }
+  });
+
+  app.get("/api/rural-connectivity/bdc/challenge-files/:asOfDate", async (req: Request, res: Response) => {
+    try { res.json({ ...(await listChallengeData(String(req.params.asOfDate), req.query.category as string | undefined)), source: fccBdcStatus().source }); } catch (e) { sendBdcError(res, e); }
+  });
+
+  app.get("/api/rural-connectivity/bdc/funding-files", async (_req: Request, res: Response) => {
+    try { res.json({ ...(await listFundingData()), source: fccBdcStatus().source }); } catch (e) { sendBdcError(res, e); }
+  });
+
+  app.get("/api/rural-connectivity/bdc/geographies", async (_req: Request, res: Response) => {
+    try { res.json({ ...(await listGeographyData()), source: fccBdcStatus().source }); } catch (e) { sendBdcError(res, e); }
+  });
+
   // FCC broadband by lat/lng
   app.get("/api/rural-connectivity/broadband", async (req: Request, res: Response) => {
     const lat = parseFloat(req.query.lat as string);
@@ -267,7 +318,9 @@ export function registerRuralConnectivityRoutes(app: any) {
       res.json({
         lat, lng, generatedAt: new Date().toISOString(),
         broadband: bb,
-        reconnect: getReConnectEligibility(isRural, !bb.summary?.isBroadbandDesert),
+        reconnect: typeof bb.summary?.isBroadbandDesert === "boolean"
+          ? getReConnectEligibility(isRural, !bb.summary.isBroadbandDesert)
+          : { eligible: null, reason: "Broadband status unknown — FCC point lookup unavailable; verify at the FCC map before applying.", checkUrl: bb.checkManuallyUrl ?? bb.sourceUrl },
         communityFacilities: getCommunityFacilitiesPrograms(),
         desertScore: v(desert, {}),
         cellCoverage: v(cell, {}),
