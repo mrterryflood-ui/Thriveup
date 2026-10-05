@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useJourneyContext, placeToZip } from "@/lib/journey-context";
+import { useJourneyContext, placeToZip, journeyLane } from "@/lib/journey-context";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -196,6 +196,11 @@ export default function Community411Page() {
   useEffect(() => {
     if (journeyZip) { setZip(journeyZip); setZipInput(journeyZip); }
   }, [journeyZip]);
+  // R1 Phase B: the carried audience sets the resident/navigator mode on arrival; the toggle still wins afterwards.
+  const journeyLaneOnArrival = journeyLane(journey.audience);
+  useEffect(() => {
+    if (journeyLaneOnArrival) setMode(journeyLaneOnArrival);
+  }, [journeyLaneOnArrival]);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // neighborhood context

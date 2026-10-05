@@ -96,3 +96,19 @@ export function journeyStepIndex(path: string): number {
   const clean = path.split("?")[0].replace(/\/+$/, "") || "/";
   return JOURNEY_STEPS.findIndex(step => step.path === clean);
 }
+
+/**
+ * R1 Phase B — audience continuity. The carried `audience` (10 registry audiences or the 4 demo-door keys)
+ * resolves to the lane a tool already distinguishes: people seeking help for themselves, or people helping
+ * others (CHWs, navigators, staff, funders, institutions). Unknown values resolve to null — the tool keeps
+ * its own default and never guesses.
+ */
+export type JourneyLane = "resident" | "navigator";
+const NAVIGATOR_AUDIENCES = new Set(["caregivers-chws", "nonprofit-cbo", "agency-government", "funder-evaluator", "banks", "schools", "governments", "entities"]);
+const RESIDENT_AUDIENCES = new Set(["resident-family", "students-youth", "foster-youth", "veterans", "returning-citizens", "rural-farm"]);
+export function journeyLane(audience: string | null | undefined): JourneyLane | null {
+  if (!audience) return null;
+  if (NAVIGATOR_AUDIENCES.has(audience)) return "navigator";
+  if (RESIDENT_AUDIENCES.has(audience)) return "resident";
+  return null;
+}
