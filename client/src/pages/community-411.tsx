@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useJourneyContext, placeToZip } from "@/lib/journey-context";
+import { useJourneyContext, placeToZip, journeyLane } from "@/lib/journey-context";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -163,7 +163,7 @@ const CRISIS_LINES = [
   { label: "Emergency", number: "911", color: "bg-red-600" },
   { label: "2-1-1 Texas", number: "211", color: "bg-blue-600" },
   { label: "988 Crisis", number: "988", color: "bg-purple-600" },
-  { label: "DV Hotline", number: "1-800-799-7233", color: "bg-orange-600" },
+  { label: "DV Hotline", number: "1-800-799-7233", color: "bg-orange-700" },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -196,6 +196,11 @@ export default function Community411Page() {
   useEffect(() => {
     if (journeyZip) { setZip(journeyZip); setZipInput(journeyZip); }
   }, [journeyZip]);
+  // R1 Phase B: the carried audience sets the resident/navigator mode on arrival; the toggle still wins afterwards.
+  const journeyLaneOnArrival = journeyLane(journey.audience);
+  useEffect(() => {
+    if (journeyLaneOnArrival) setMode(journeyLaneOnArrival);
+  }, [journeyLaneOnArrival]);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // neighborhood context
@@ -284,6 +289,7 @@ export default function Community411Page() {
                 size="sm"
                 variant={mode === "resident" ? "default" : "ghost"}
                 onClick={() => setMode("resident")}
+                className="min-h-11"
                 data-testid="button-mode-resident"
               >
                 <Users className="h-4 w-4 mr-1" /> I Need Help
@@ -292,6 +298,7 @@ export default function Community411Page() {
                 size="sm"
                 variant={mode === "navigator" ? "default" : "ghost"}
                 onClick={() => setMode("navigator")}
+                className="min-h-11"
                 data-testid="button-mode-navigator"
               >
                 <Stethoscope className="h-4 w-4 mr-1" /> Navigator / Staff
@@ -324,7 +331,7 @@ export default function Community411Page() {
               <div className="relative flex-1">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  className="pl-9"
+                  className="pl-9 min-h-11"
                   placeholder="Enter your ZIP code to see local resources"
                   value={zipInput}
                   onChange={e => setZipInput(e.target.value.replace(/\D/g, "").slice(0, 5))}
@@ -332,7 +339,7 @@ export default function Community411Page() {
                   maxLength={5}
                 />
               </div>
-              <Button type="submit" data-testid="button-zip-submit">
+              <Button type="submit" className="min-h-11" data-testid="button-zip-submit">
                 <Search className="h-4 w-4 mr-1" /> Look Up
               </Button>
               {zip && (

@@ -17,7 +17,7 @@ export function AccessibilityPanel() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button size="icon" variant="ghost" data-testid="button-accessibility" aria-label={isEs ? "Configuracion de accesibilidad" : "Accessibility settings"} className="relative">
+        <Button size="icon" variant="ghost" data-testid="button-accessibility" aria-label={isEs ? "Configuracion de accesibilidad" : "Accessibility settings"} className="relative h-11 w-11">
           <Accessibility className="h-4 w-4" />
           {activeCount > 0 && (
             <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px]" data-testid="badge-accessibility-count">

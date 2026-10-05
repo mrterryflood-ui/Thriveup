@@ -245,7 +245,7 @@ export default function ChainwebBuilderPage() {
                 Causal-chain analysis — model what inaction costs vs. what early investment saves, cited to primary sources, for any geography, any domain, any stakeholder.
               </p>
             </div>
-            <div className="flex items-center gap-2 text-xs text-slate-400 bg-slate-50 dark:bg-slate-800 border rounded-lg px-3 py-2">
+            <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 border rounded-lg px-3 py-2">
               <BookOpen className="h-3.5 w-3.5" />
               <span>Every coefficient cites a primary source</span>
             </div>
@@ -259,15 +259,15 @@ export default function ChainwebBuilderPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
           <TabsList className="mb-6 bg-white dark:bg-slate-800 border shadow-sm flex-wrap h-auto gap-1 p-1">
-            <TabsTrigger value="build" data-testid="tab-build">Build Scenario</TabsTrigger>
-            <TabsTrigger value="results" data-testid="tab-results" disabled={!selectedScenario}>
+            <TabsTrigger value="build" className="min-h-11" data-testid="tab-build">Build Scenario</TabsTrigger>
+            <TabsTrigger value="results" className="min-h-11" data-testid="tab-results" disabled={!selectedScenario}>
               ROI Results {selectedScenario && <span className="ml-1 text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">Ready</span>}
             </TabsTrigger>
-            <TabsTrigger value="story" data-testid="tab-story" className="flex items-center gap-1.5">
+            <TabsTrigger value="story" data-testid="tab-story" className="flex items-center gap-1.5 min-h-11">
               <Network className="h-3.5 w-3.5" />
               Community Story
             </TabsTrigger>
-            <TabsTrigger value="library" data-testid="tab-library">Coefficient Library</TabsTrigger>
+            <TabsTrigger value="library" className="min-h-11" data-testid="tab-library">Coefficient Library</TabsTrigger>
           </TabsList>
 
           {/* ── BUILD TAB ─────────────────────────────────────────────────── */}
@@ -360,7 +360,7 @@ export default function ChainwebBuilderPage() {
                       onChange={e => handleFormChange("populationSize", e.target.value)}
                       className="mt-1"
                     />
-                    <p className="text-xs text-slate-400 mt-1">Number of people the intervention reaches</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Number of people the intervention reaches</p>
                   </div>
                   <div>
                     <Label htmlFor="horizon" className="text-xs text-slate-500">Time Horizon (years)</Label>
@@ -399,7 +399,7 @@ export default function ChainwebBuilderPage() {
                         ))}
                       </SelectContent>
                     </Select>
-                    <p className="text-xs text-slate-400 mt-1">Where the causal chain starts</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Where the causal chain starts</p>
                   </div>
                   <div>
                     <Label htmlFor="int-name" className="text-xs text-slate-500">Intervention Name</Label>
@@ -434,7 +434,7 @@ export default function ChainwebBuilderPage() {
                       onChange={e => handleFormChange("interventionCostPerPerson", e.target.value)}
                       className="mt-1"
                     />
-                    <p className="text-xs text-slate-400 mt-1">e.g. $9,500 for quality pre-K</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">e.g. $9,500 for quality pre-K</p>
                   </div>
                 </CardContent>
               </Card>
@@ -532,7 +532,7 @@ export default function ChainwebBuilderPage() {
               </div>
             )}
             {!scenarioDetail && !scenarioDetailLoading && !scenarioDetailError && (
-              <div className="text-center py-16 text-slate-400">
+              <div className="text-center py-16 text-slate-600 dark:text-slate-400">
                 <Zap className="h-12 w-12 mx-auto mb-3 opacity-30" />
                 <p>Select or build a scenario to see results.</p>
               </div>
@@ -682,11 +682,11 @@ export default function ChainwebBuilderPage() {
                       <div className="space-y-3">
                         {(calc.keyStatements as any[]).map((s: any, i: number) => (
                           <div key={i} className="flex items-start gap-3 border-b border-slate-100 dark:border-slate-800 pb-3 last:border-0 last:pb-0">
-                            <span className="text-xs font-bold text-slate-400 w-5 shrink-0 mt-0.5">{i + 1}</span>
+                            <span className="text-xs font-bold text-slate-600 dark:text-slate-400 w-5 shrink-0 mt-0.5">{i + 1}</span>
                             <div className="flex-1 min-w-0">
                               <p className="text-sm text-slate-800 dark:text-slate-200">{s.claim}</p>
                               <div className="flex items-center gap-2 mt-1">
-                                <p className="text-xs text-slate-400 italic truncate">{s.citation}</p>
+                                <p className="text-xs text-slate-600 dark:text-slate-400 italic truncate">{s.citation}</p>
                                 {s.confidence && <ConfidenceBadge level={s.confidence} />}
                               </div>
                             </div>
@@ -714,7 +714,7 @@ export default function ChainwebBuilderPage() {
                         ))}
                       </div>
                       {scenarioDetail.edges?.length > 0 && (
-                        <p className="text-xs text-slate-400 mt-3">{scenarioDetail.edges.length} evidence-based connections modeled</p>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 mt-3">{scenarioDetail.edges.length} evidence-based connections modeled</p>
                       )}
                     </CardContent>
                   </Card>
@@ -737,7 +737,7 @@ export default function ChainwebBuilderPage() {
                             className={`text-left px-3 py-2 rounded-lg border text-xs transition-all ${audience === key ? "bg-blue-600 text-white border-blue-600" : "bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 hover:border-blue-300"}`}
                           >
                             <div className="font-semibold">{val.label}</div>
-                            <div className={`mt-0.5 ${audience === key ? "text-blue-100" : "text-slate-400"}`}>{val.desc}</div>
+                            <div className={`mt-0.5 ${audience === key ? "text-blue-100" : "text-slate-600 dark:text-slate-400"}`}>{val.desc}</div>
                           </button>
                         ))}
                       </div>
@@ -791,7 +791,7 @@ export default function ChainwebBuilderPage() {
                                 <div key={i} className="bg-slate-50 dark:bg-slate-800 border rounded-lg p-3">
                                   <div className="text-lg font-bold text-slate-900 dark:text-white">{s.value}</div>
                                   <div className="text-xs text-slate-600 dark:text-slate-400">{s.label}</div>
-                                  {s.citation && <div className="text-xs text-slate-400 italic mt-1">{s.citation}</div>}
+                                  {s.citation && <div className="text-xs text-slate-600 dark:text-slate-400 italic mt-1">{s.citation}</div>}
                                 </div>
                               ))}
                             </div>
@@ -859,7 +859,7 @@ export default function ChainwebBuilderPage() {
                     <span>
                       <strong>{form.geographyLabel || "Geography not set"}</strong>
                       {hasFips ? (
-                        <span className="ml-2 text-slate-400">
+                        <span className="ml-2 text-slate-600 dark:text-slate-400">
                           · State Census code {stateCode}, County Census code {countyCodes}
                           · Live Census/CDC/SVI data
                         </span>
@@ -947,17 +947,17 @@ export default function ChainwebBuilderPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-wrap items-center gap-2 mb-2">
                             <DomainChip domain={c.fromDomain} />
-                            <ArrowRight className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                            <ArrowRight className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400 shrink-0" />
                             <DomainChip domain={c.toDomain} />
                             <ConfidenceBadge level={c.confidenceLevel} />
                           </div>
                           <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                            {c.fromMetric} <span className="text-slate-400 mx-1">→</span> {c.toMetric}
+                            {c.fromMetric} <span className="text-slate-600 dark:text-slate-400 mx-1">→</span> {c.toMetric}
                           </p>
                           {c.populationNotes && (
                             <p className="text-xs text-slate-500 mt-1 italic">{c.populationNotes}</p>
                           )}
-                          <p className="text-xs text-slate-400 mt-1.5 flex items-start gap-1">
+                          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 flex items-start gap-1">
                             <ExternalLink className="h-3 w-3 shrink-0 mt-0.5" />
                             <span>{c.evidenceCitation}</span>
                           </p>
@@ -971,8 +971,8 @@ export default function ChainwebBuilderPage() {
                                 ? `${(Math.abs(c.coefficient) * 100).toFixed(0)}%`
                                 : `${c.coefficient}×`}
                           </div>
-                          {c.lagYears > 0 && <div className="text-xs text-slate-400">{c.lagYears}yr lag</div>}
-                          <div className="text-xs text-slate-400">{c.studyYear}</div>
+                          {c.lagYears > 0 && <div className="text-xs text-slate-600 dark:text-slate-400">{c.lagYears}yr lag</div>}
+                          <div className="text-xs text-slate-600 dark:text-slate-400">{c.studyYear}</div>
                         </div>
                       </div>
                     </CardContent>

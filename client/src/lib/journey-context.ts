@@ -2,7 +2,8 @@ import { useMemo } from "react";
 import { useSearch } from "wouter";
 import { parseJourneyContext, type JourneyContext } from "@shared/journey-context";
 
-export { buildJourneyHref, describeJourneyPlace, placeToZip, placeToCountyFips } from "@shared/journey-context";
+export { buildJourneyHref, describeJourneyPlace, placeToZip, placeToCountyFips, journeyLane } from "@shared/journey-context";
+export type { JourneyLane } from "@shared/journey-context";
 export type { JourneyContext } from "@shared/journey-context";
 
 /** Reads the validated JourneyContext from the current URL. No store, no server dependency. */

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useJourneyContext, journeyLane } from "@/lib/journey-context";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -396,6 +397,8 @@ export default function ParentResourcesPage() {
   useEffect(() => {
     document.title = "Family Resources & Workforce Readiness | ThriveUp Academy";
   }, []);
+  // R1 Phase B: helpers (CHWs, nonprofits, agencies) arrive on the workshops tab; families keep Prevention & Family.
+  const arrivalTab = journeyLane(useJourneyContext().audience) === "navigator" ? "training" : "prevention";
 
   return (
     <div className="min-h-screen">
@@ -479,7 +482,7 @@ export default function ParentResourcesPage() {
 
       <section className="py-8 px-6 bg-card">
         <div className="mx-auto max-w-5xl">
-          <Tabs defaultValue="prevention" className="w-full">
+          <Tabs key={arrivalTab} defaultValue={arrivalTab} className="w-full">
             <TabsList className="flex flex-wrap gap-1 mb-6" data-testid="tabs-parents">
               <TabsTrigger value="prevention" data-testid="tab-prevention-family">Prevention & Family</TabsTrigger>
               <TabsTrigger value="training" data-testid="tab-training">Training & Workshops</TabsTrigger>

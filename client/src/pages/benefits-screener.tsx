@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useLayoutEffect, useRef } from "react";
-import { useJourneyContext, placeToZip } from "@/lib/journey-context";
+import { useJourneyContext, placeToZip, journeyLane } from "@/lib/journey-context";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { logJourneyEvent } from "@/lib/journey-log";
@@ -741,7 +741,13 @@ export default function BenefitsScreenerPage() {
   const prefillAppliedForUser = useRef<string | null>(null);
   const navigatorPrefillDismissedForUser = useRef<string | null>(null);
   const locationEdits = useRef(new Set<"state" | "county" | "zipCode">());
-  const journeyZip = placeToZip(useJourneyContext().place);
+  const journey = useJourneyContext();
+  const journeyZip = placeToZip(journey.place);
+  // R1 Phase B: a helper audience (CHW, nonprofit, agency, funder) arrives in CHW mode; the switch still wins afterwards.
+  const journeyLaneOnArrival = journeyLane(journey.audience);
+  useEffect(() => {
+    if (journeyLaneOnArrival) setChwMode(journeyLaneOnArrival === "navigator");
+  }, [journeyLaneOnArrival]);
   // Pre-fill ZIP from the carried place unless the person already typed one.
   useEffect(() => {
     if (!journeyZip) return;
