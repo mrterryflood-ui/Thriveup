@@ -8,11 +8,11 @@
 
 ## 1. Purpose
 
-One stakeholder-facing **demo door** that lets schools and universities, community banks, governments, and community entities *see* what ThriveUp produces, for whom, in their own geography — tied to real tools and URLs that already exist in the platform — with images, charts, clearly labeled mock-data stories, reporting previews, and a path to go live in the meeting itself.
+One stakeholder-facing **demo door** that lets schools and universities, community banks, governments, and community entities *see* what ThriveUp produces, for whom, in their own geography — tied to real tools and URLs that already exist in the platform — with images, charts, real platform data, reporting previews, and a path to go live in the meeting itself.
 
 This is the rollout, funding, and ROI-legibility vehicle: "this platform already contains the operating system; here is the door that makes it legible to funders."
 
-**What this is NOT:** a fourth navigation system, a claims page with unsourced numbers, or a new backend. Everything shown either (a) runs today, (b) is a labeled mock story, or (c) is a cited external benchmark.
+**What this is NOT:** a fourth navigation system, a claims page with unsourced numbers, or a new backend. Everything shown either (a) runs today with real data, (b) is a format example carrying no city data, or (c) is a cited external benchmark. **Never synthetic data about a city.**
 
 ---
 
@@ -22,7 +22,7 @@ This is the rollout, funding, and ROI-legibility vehicle: "this platform already
 |---|---|---|
 | Stakeholder experience | Tools exist (373 classified routes) but a bank president, superintendent, or city manager has no single surface that shows them *their* value path | `/demo` — one door, audience selector, their place, their story, live tools |
 | ROI story | Value claims scattered across product pages | Value chain per audience: need → network → alignment → participation → measurable outputs (pathway, not fabricated dollars) |
-| Mock vs live | No rule | Three visible badges on every chart/story: **Mock story**, **Live platform data**, **External benchmark** |
+| Mock vs live | No rule | Real data only: live platform data with source and date, or cited external benchmarks; format examples use placeholders with no city. Never synthetic data about a city |
 | Meeting readiness | Demo = walking someone through the live app with no frame | Presentation-safe deep links (`/demo?audience=banks&place=78634&present=1`) with zero auth surprises |
 
 ---
@@ -33,10 +33,11 @@ This is the rollout, funding, and ROI-legibility vehicle: "this platform already
 2. **Default audience = banks.** The nearest-term funding meeting is bank-centered. `/demo` with no params opens the Community Banks view. Tabs for Schools & Universities, Governments, Community Entities remain first-class.
 3. **Registry is the only link source.** Every "Open the live tool" button resolves through `shared/route-nav.ts` (`navRoute` + `canSeeRoute` + legacy predicate), and every audience view lists only routes that exist in `route-registry.classified.ts`. No hardcoded URL lists in the demo component. The demo door itself gets a registry entry (see §5).
 4. **Place-first.** Every audience view carries a place selector (ZIP / county / city) using the same pattern as the outcome landings: no default city, explicit place, journey place only when signed in. Deep links accept `place=78634` (Hutto) or `place=county:48491` (Williamson).
-5. **Three data lanes, three badges — everywhere.**
-   - **Mock story** — static, hand-authored constants in `shared/demo-stories.ts`. Never fetched from an API, never mixed with live values, never used to compute ROI.
-   - **Live platform data** — actual route/tool output rendered inside the demo (e.g., Community Gravity counts, ZIP conditions). Label states the source route and date.
+5. **Three data lanes, three badges — everywhere. Real data only.**
+   - **Live platform data** — actual route/tool output rendered inside the demo (e.g., Community Gravity counts, ZIP conditions). Label states the source route and date. If the live route errors, show "Live data unavailable in this preview" — never a stand-in number.
    - **External benchmark** — cited statistic (Statista, Wiley, PitchBook) with publisher, year, and source URL in a footnote card.
+   - **Format example** — report-layout previews with placeholder fields and no city name, geography, or invented statistics. Badge reads: `Format example — report layout, not data.`
+   - **Hard rule: no synthetic data about any city.** Every number shown for a real place (Hutto, 78634, Williamson County) comes from live routes or cited benchmarks.
 6. **No fabricated ROI.** The demo shows an **ROI pathway** (value chain) and an explicit "measurable once local data is connected" statement. No dollar savings, no correlation claims, no percentage outcomes unless produced by a live platform tool or a cited benchmark.
 7. **Photorealistic imagery follows the existing landings standard.** Generated architectural photography consistent with `client/src/assets/generated_images/`, each labeled "Illustrative AI-generated imagery, not program photography." Do not reuse the six outcome-landing images; commission a small set for the demo door (one per audience view).
 8. **Presentation mode.** `present=1` query param (and any `/demo` visit): the demo route joins the `focusedEntry` predicate in `App.tsx` so the floating Navigator/help buttons never collide during a meeting (same fix as the outcome landings, commit `b70d929`). Meeting mode hides sign-in prompts, staff-only links, and any element that 401s anonymously.
@@ -88,13 +89,14 @@ Each view has the same five-section skeleton (balanced simple surface, drill-dow
 | Element | Content | Lane |
 |---|---|---|
 | Headline | "See your assessment area like never before — and act on it." | — |
-| Value chain | ZIP-level need (→ `/community-analysis`) → who does the work (→ `/community-gravity`) → CRA / community-development alignment (→ `/community-banks`) → referrals & participation (→ `/partners/join`) → measurable outputs (→ `/outcomes`) | Live |
-| Story A | "A Hutto family, end to end": need (`/411`) → eligibility (`/benefits-screener`) → family follow-through (`/parents/dashboard`) → learning (`/academy/financial-literacy`) → earning (`/academy/careers`) → documented outcome (`/outcome-reporting`) — then zoom out to the bank's lens: the same place in `/community-gravity` → `/corridor-intelligence` → `/community-banks`. Mock wrapper, live tools inside; every number carries its route and date. |
+| Value chain | ZIP-level need (→ `/community-analysis`) → who does the work (→ `/community-gravity`) → CRA / community-development alignment (→ `/community-banks`) → referrals & participation (→ `/partners/join`) → modeled intervention costs & benefits (→ `/chainweb`) → measurable outputs (→ `/outcomes`) | Live |
+| Story A | "A Hutto family, end to end": need (`/411`) → eligibility (`/benefits-screener`) → family follow-through (`/parents/dashboard`) → learning (`/academy/financial-literacy`) → earning (`/academy/careers`) → documented outcome (`/outcome-reporting`) — then zoom out to the bank's lens: the same place in `/community-gravity` → `/corridor-intelligence` → `/chainweb` → `/community-banks`. Every number is real platform data carrying its route and date. | Live walkthrough |
 | Chart A1 | US community bank count 17,401 (1984) → 6,146 (2013). Source: FDIC via Statista. | External benchmark |
 | Chart A2 | Organizations doing the work near the chosen place (live Community Gravity counts by domain). Source route + date on label. | Live platform data |
-| Chart A3 | Sample quarterly "community engagement report" (referrals, partner orgs touched, event participation) — explicitly "illustrative report format; not actual results." | Mock story |
+| Chart A3 | Quarterly "community engagement report" layout with placeholder fields — no city named, no synthetic numbers: "what your report will look like." | Format example |
 | Benchmark card | Unbanked households: 23.3% under $15k income; 13.8% of Black households; 21%+ where family head has no high school diploma (FDIC via Statista, 2019) — deposit-growth and inclusion framing. | External benchmark |
 | Benchmark card | Category validation: findhelp (US community resource navigation) raised $304M total funding; comparable platforms include Unite Us, Healthify, NowPow, Eccovia (PitchBook). Framing: "institutions already pay for this category." | External benchmark |
+| Funding ask | "You already fund United Way and 211 in this community — keep doing it. Those dollars fund the *find help* step. The same investment goes much deeper here: through eligibility, stability, learning, and earning to a documented outcome. `/chainweb` models intervention costs and benefits, so leadership sees the return on community thriving, not just the spend." Respectful extension of existing CRA and philanthropy budgets, not a replacement ask. | Narrative (no data lane) |
 | CTA | "Scope your assessment area now" → `/community-banks?place=<place>` |
 
 ### 5.2 Schools & Universities
@@ -103,9 +105,9 @@ Each view has the same five-section skeleton (balanced simple surface, drill-dow
 |---|---|---|
 | Headline | "One campus for student readiness, family support, and evidence." | — |
 | Value chain | Student learning (→ `/academy`) → family support (→ `/411`, `/benefits-screener`) → progress & evidence (→ `/academy/progress-report`, `/academy/longitudinal`) → community partners (→ `/partners`) → district reporting (→ `/outcomes`) | Live |
-| Story B | "A district connects students and families": academy adoption per campus → financial-literacy completion → family resource referrals → longitudinal dashboard. | Mock story |
+| Story B | "A district connects students and families": academy adoption per campus → financial-literacy completion → family resource referrals → longitudinal dashboard — live tools, real district place. | Live walkthrough |
 | Chart B1 | Academy capability map (live registry: careers, financial literacy, mentor finder, competitions, progress report, longitudinal dashboard). | Live platform data |
-| Chart B2 | Sample "campus readiness report" format (participation, lesson completion, referral follow-through) — labeled illustrative. | Mock story |
+| Chart B2 | "Campus readiness report" layout with placeholder fields — no city, no invented statistics. | Format example |
 | Benchmark card | Evaluation-before-launch principles (Wiley, *Advancing Health Literacy*): begin evaluation before program start; indicators reflect design and goals; well-designed evaluation is worth the expense. Framing: ThriveUp builds measurement in from day one. | External benchmark |
 | CTA | "Open the academy" → `/academy`; "See the rollout roadmap" → `/academy/phased-rollout` |
 
@@ -115,9 +117,9 @@ Each view has the same five-section skeleton (balanced simple surface, drill-dow
 |---|---|---|
 | Headline | "County-level evidence to coordination, without a data team." | — |
 | Value chain | Community evidence (→ `/corridor-intelligence`, `/data`) → policy comparison (→ `/policy-engine`, `/city-comparison`) → coalition coordination (→ `/coalition`) → shared outcomes (→ `/outcomes`, `/transparency`) | Live |
-| Story C | "A city sees who is doing the work": county intelligence → evidence vault → childcare coalition coordination → transparent reporting. | Mock story |
+| Story C | "A city sees who is doing the work": county intelligence → evidence vault → childcare coalition coordination → transparent reporting — live tools, real county. | Live walkthrough |
 | Chart C1 | County intelligence surface (live: sourced county conditions, coalition context). | Live platform data |
-| Chart C2 | Sample "quarterly community coordination report" format — labeled illustrative. | Mock story |
+| Chart C2 | "Quarterly community coordination report" layout with placeholder fields — no city, no invented statistics. | Format example |
 | CTA | "Open county intelligence" → `/corridor-intelligence`; "Where we operate" → `/coverage` |
 
 ### 5.4 Community Entities & Nonprofits
@@ -126,24 +128,24 @@ Each view has the same five-section skeleton (balanced simple surface, drill-dow
 |---|---|---|
 | Headline | "Your organization, visible and coordinated." | — |
 | Value chain | Org profile (→ `/onboarding/org`) → partner network (→ `/partners`) → referrals & warm handoffs (→ `/collaboration-hub`) → effectiveness (→ `/partner-scorecard`) → data integration (→ `/agency-connector`) | Live |
-| Story D | "A nonprofit joins the network": IRS-record visibility (gravity) → partnership → referrals → scorecard. | Mock story |
+| Story D | "A nonprofit joins the network": IRS-record visibility (gravity) → partnership → referrals → scorecard — live tools, real organization records. | Live walkthrough |
 | CTA | "Join as a partner" → `/partners/join` |
 
 ---
 
-## 6. Mock data stories — honesty rules
+## 6. Data stories — real-data-only rules
 
-- All mock story data lives in **one file**: `shared/demo-stories.ts`. Static constants, typed, no imports from server code, no API calls.
-- Every mock chart renders the badge: `Mock story — illustrative format, not actual results.`
-- Mock data never feeds an ROI calculation, a percentage outcome, or a correlation claim.
-- Mock stories reference real place types (ZIP 78634) but say "sample geography" in the fine print.
-- Live charts must fail gracefully: if the live route errors, show "Live data unavailable in this preview" rather than falling back to mock numbers.
+- **Never synthetic data about a city.** Any number shown for a real place (Hutto, 78634, Williamson County) comes from live platform routes or cited external benchmarks. If live data is unavailable for a place, the demo shows "Live data unavailable in this preview" — never a stand-in number.
+- **Format examples** (report layouts, chart shapes) use placeholder fields with no city name, no geography, and no invented statistics. Badge: `Format example — report layout, not data.`
+- Live charts state their source route and date; benchmarks carry publisher, year, and URL.
+- `shared/demo-stories.ts` holds narrative copy and format templates only — no synthetic community statistics, ever.
+- This rule is a gate (G2). The reviewer fails any build that shows an invented number next to a real place name.
 
 ---
 
 ## 7. Reporting preview
 
-- Section 5 of every audience view embeds a **report preview panel**: a static, high-fidelity mock of the report format (brand-consistent, PDF-like card layout) labeled mock, next to a "Generate a real one" button into the existing live reporting routes: `/community-story-pack` (community data story + downloadable reports + slides), `/outcomes` (outcome measurement), `/academy/progress-report` (schools).
+- Section 5 of every audience view embeds a **report preview panel**: a high-fidelity format example of the report (brand-consistent, PDF-like card layout) with placeholder fields and no city data, next to a "Generate a real one" button into the existing live reporting routes: `/community-story-pack` (community data story + downloadable reports + slides), `/outcomes` (outcome measurement), `/academy/progress-report` (schools).
 - No new export engine. The preview demonstrates format; live links demonstrate function.
 
 ---
@@ -167,7 +169,7 @@ In-meeting "go live" = the presenter switches from mock story to live tool in th
 | Day | Task |
 |---|---|
 | 1 | `DemoDoor` skeleton: route, registry entry, audience tabs, place selector, presentation-mode predicate in `focusedEntry` |
-| 2 | `shared/demo-stories.ts` + badge components (Mock story / Live platform data / External benchmark) + value-chain diagram component |
+| 2 | `shared/demo-stories.ts` (copy + format templates only) + badge components (Live platform data / External benchmark / Format example) + value-chain diagram component |
 | 3 | Banks view complete (Story A, charts A1–A3, benchmark cards, live tool list, CTA) |
 | 4 | Reporting preview panel + go-live checklist section |
 | 5 | Schools view |
@@ -181,7 +183,7 @@ In-meeting "go live" = the presenter switches from mock story to live tool in th
 ## 10. Acceptance gates (reviewer enforces)
 
 - **G1 — One door, registry-driven.** No hardcoded route lists; every link resolves via `route-nav.ts`; `/demo` present in the classified registry with access rules.
-- **G2 — Three badges everywhere.** Every chart, story, and stat carries exactly one lane badge; mock data confined to `demo-stories.ts`.
+- **G2 — Real data only.** No synthetic data about any city, ever; every place-specific number is live platform data or a cited benchmark; format examples carry placeholders only.
 - **G3 — No fabricated ROI.** Value chains only; "measurable once local data is connected" statement present in all four views; no dollar/percentage outcomes from mock data.
 - **G4 — Meeting-safe.** Anonymous visit to `/demo?audience=banks&place=78634&present=1` shows zero auth walls, zero floating-widget collisions (Navigator/help suppressed), no 401s; verified at 375/1024/1440.
 - **G5 — Every audience has one clear CTA** into a live tool that actually works with the chosen place.
@@ -242,8 +244,8 @@ Reach & intake (`/intake`, `/411`, `/get-help`) → eligibility (`/benefits-scre
 
 ## 14. Before → Changed → Why → Proof → Limits (this plan)
 
-- **Before:** No stakeholder demo surface; value story assembled ad hoc per meeting; mock/live distinction unmanaged. First differentiation draft framed from competitors' claims; user corrected it — finding help is one step, the platform follows through end to end.
-- **Changed:** Spec now grounds the demo in the complete-chain capability map (§12): four interlocking chains, the links between them as the differentiator, a journey-walk demo spine, and a stage-by-stage market matrix (§13). `/demo` design unchanged: one door, four audience views, three data lanes with badges, reporting previews, go-live checklist, 9-day build order, 8 acceptance gates.
+- **Before:** No stakeholder demo surface; value story assembled ad hoc per meeting; mock/live distinction unmanaged. First correction: finding help is one step — the platform follows through end to end. Second correction: never synthetic data about a city; the demo is real-data-only, with the chainweb cost-benefit model at the center of the funding story.
+- **Changed:** Spec now grounds the demo in the complete-chain capability map (§12), a real-data-only policy (§3, §6, gate G2), a chainweb-centered ROI narrative and United Way-respectful funding ask (§5.1), plus a journey-walk demo spine and a stage-by-stage market matrix (§13). `/demo` design unchanged: one door, four audience views, reporting previews, go-live checklist, 9-day build order, 8 acceptance gates.
 - **Why:** The Oct 14 Hutto ISD/Chamber meeting and the community-bank meeting need a repeatable, honest demonstration of an integrated system; funders respond to "the operating system already exists, here is the door."
 - **Proof:** Every tool/URL named above exists in the registry at branch tip `0ad5f3b` (373 classified routes verified by extraction); benchmarks carry live source URLs; the design reuses verified patterns (outcome landings, place selector, `focusedEntry`).
 - **Limits:** Not yet built — this is the architecture. Live-data behavior inside the demo depends on the routes' own availability (some aggregate views are authenticated-only and will be shown as "signed-in snapshot" per existing patterns). Similarweb benchmarks unavailable. Hutto-specific ZIP conditions depend on live platform data at demo time; rehearse with the actual place before the meeting.
