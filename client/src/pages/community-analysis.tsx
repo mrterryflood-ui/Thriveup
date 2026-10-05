@@ -5,6 +5,7 @@
  * multi-layer community intelligence map with AI synthesis.
  */
 import { useState, useEffect } from "react";
+import { parseJourneyContext, placeToZip } from "@shared/journey-context";
 import { useLocation } from "wouter";
 import { MapContainer, TileLayer, CircleMarker, Popup, Rectangle, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -257,6 +258,9 @@ export default function CommunityAnalysisPage() {
     const qZip = visualState.geography;
     if (qZip && /^\d{5}$/.test(qZip)) {
       setZip(qZip);
+    } else {
+      const carriedZip = placeToZip(parseJourneyContext(window.location.search).place);
+      if (carriedZip) setZip(carriedZip);
     }
     if (visualState.selectedLayers.length > 0) {
       setVisualLayers(visualState.selectedLayers);

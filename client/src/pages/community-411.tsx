@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useJourneyContext, placeToZip } from "@/lib/journey-context";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -189,6 +190,12 @@ export default function Community411Page() {
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [conversationId] = useState(() => `c411-${Date.now()}`);
+  const journey = useJourneyContext();
+  const journeyZip = placeToZip(journey.place);
+  // Pre-fill the ZIP from the carried place (URL wins; no default city).
+  useEffect(() => {
+    if (journeyZip) { setZip(journeyZip); setZipInput(journeyZip); }
+  }, [journeyZip]);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // neighborhood context
