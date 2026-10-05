@@ -176,13 +176,31 @@
 
 ---
 
+## R10. Ecosystem showcase — external URLs presented as the wraparound, not a link list
+
+**Problem.** The platform holds dozens of verified external URLs — the partner directory, state-parameterized federal networks (Cooperative Extension, American Job Centers, SBDCs), state benefit program URLs, navigator recommendations, and benchmark citations — but they live on separate operational surfaces. An external audience (bank, district, county) sees either a partner CRM or scattered links, so the strongest visual proof of the claim — "we run the whole chain, and these are the trusted handoffs" — is never shown. The ecosystem is real in the data and invisible in the experience.
+
+**Solution.** One audience-facing ecosystem surface, registry-driven, that lays out every external resource in an aligned and linked way: grouped by wraparound domain and the chain step each serves (find help → refer → track → measure → fund), each entry carrying an honest relationship label, a plain-language purpose, who it's for, and a state-aware deep link. Curated by relationship, not alphabetized — the difference between "hey, we have these websites too" and a wraparound map.
+
+**Fix.**
+1. **Consolidate into one registry** (`shared/external-resources.ts`): merge federal-partners, federal-programs, navigator recommendations, and benchmark links into one typed registry — `{ name, url | urlByState, domain, chainStep, relationship, purpose, audience, lastVerified }`.
+2. **Honest relationship labels** — the anti-overclaim rule: **Verified partner** (MOU or active relationship) · **Official referral** (we send people there; not a partnership) · **Federal/state network** (official locator, state-parameterized) · **Data source** (feeds our numbers) · **Benchmark** (how the sector is measured). Nothing is implied beyond what the label states.
+3. **The showcase surface**: `/ecosystem` (linked from /partners and the demo door) — grouped by domain, filterable by audience (resident / organization / funder / government) and chain step; each card: name, relationship badge, one-line purpose, "who it's for," deep link. Same visual language as the demo door.
+4. **State-aware links**: federal-partner and program URLs are already parameterized by jurisdiction — drive them from JourneyContext place → state, so a Texas visitor gets Texas extension, job centers, and benefits URLs without asking.
+5. **Demo door integration**: each audience view gains an "your ecosystem" section showing only the slice relevant to that audience — banks see the funding and benchmark slice; districts see education and family wraparound.
+6. **Currency**: extend the existing link-verification gate to the new registry; every entry carries `lastVerified`; staleness per R6.
+
+**Proof (gate).** Every registry entry renders with its relationship label, purpose, audience, and verified URL; state-aware links resolve correctly for a Hutto/Texas context; link verification passes with zero dead links; each demo door audience shows the correct ecosystem slice; no partnership is implied that the relationship label does not state.
+
+---
+
 ## Phase schedule
 
 | Phase | Window | Items | Milestone |
 |---|---|---|---|
 | 0 | Now → Oct 13 | **R1 Phase A** (place handoff, 8 routes) + demo rehearsal | Oct 14 Hutto meeting: the walk carries context end to end |
 | 1 | Oct 15 – Nov 9 | **R2**, **R4**, **R1 Phase B**, **R8a** (auto example panels, every door) | Single access truth; every door explains itself; stakeholder surfaces zero-defect |
-| 2 | Nov 10 – Dec 21 | **R1 Phases C–D**, **R3**, **R5**, **R6**, **R8b** (curated walkthroughs) | Live cohort report; data-currency system operating; walkthroughs teach the chain |
+| 2 | Nov 10 – Dec 21 | **R1 Phases C–D**, **R3**, **R5**, **R6**, **R8b** (curated walkthroughs), **R10** (ecosystem showcase) | Live cohort report; data-currency system operating; walkthroughs teach the chain; the wraparound is visible to audiences |
 | 3 | Q1 2027 | **R7** (HSDS), **R8c** (first-run teaching), **R9** (data expansion), national mechanics (county pilots, channels) | Open Referral-compatible export live; six new sources live or key-ready; first out-of-region county pilot signed |
 
 ## Master gates — the definition of "no gaps"
@@ -196,6 +214,7 @@
 - **G7:** HSDS (Open Referral) export validates and round-trips with a real consumer.
 - **G8:** Every real route renders its example panel; the 12 curated walkthroughs pass the new-user test.
 - **G9:** Every R9 adapter is live-or-dark per key status; surfaced figures carry source and date; no key ever touches the repo.
+- **G10:** Every external URL renders with relationship label, purpose, audience, and a verified link; no dead links; no partnership implied beyond its label.
 - **Standing:** real-data-only; non-destructive; main untouched; every phase verified by the independent reviewer before it is called complete.
 
 ---
@@ -203,7 +222,7 @@
 ## Reporting
 
 - **Before:** Five gaps named but not work-ordered; "connected" was a claim the code did not yet fully honor; no mechanism to keep data factual over time.
-- **Changed:** This plan converts every gap into a Problem → Solution → Fix → Proof work order (R1–R9), sequenced into four gated phases, with a data-currency system (R6) that keeps the platform factual after the fixes land, an example layer (R8) that collapses the learning curve on every door, and a key-gated data expansion (R9) whose only manual step is the owner supplying API keys.
+- **Changed:** This plan converts every gap into a Problem → Solution → Fix → Proof work order (R1–R10), sequenced into four gated phases, with a data-currency system (R6) that keeps the platform factual after the fixes land, an example layer (R8) that collapses the learning curve on every door, and a key-gated data expansion (R9) whose only manual step is the owner supplying API keys.
 - **Why:** The platform's claim — superior to any single-link competitor because it runs the whole chain — must be true in the resident's experience, not only in the architecture; and an implementation-science platform must run its own fidelity loop.
 - **Proof:** Every claim above traces to the route registry, the parameter audit, or the file list — the same evidence base as the companion inventory. Gates define what "done" means before work starts.
 - **Limits:** Phases 1–3 are planned, not built. R3 recommends integration over building for the four system domains — that is a sustainment decision and can be overridden by the owner. R5's timeline depends on partner adoption pace, not code. The quarterly re-verification job needs a scheduler in the deployment environment (Replit cron or Vercel cron) — an operations task, not a code gap.
