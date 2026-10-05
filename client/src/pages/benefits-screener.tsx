@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useLayoutEffect, useRef } from "react";
+import { useJourneyContext, placeToZip } from "@/lib/journey-context";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { logJourneyEvent } from "@/lib/journey-log";
@@ -740,6 +741,12 @@ export default function BenefitsScreenerPage() {
   const prefillAppliedForUser = useRef<string | null>(null);
   const navigatorPrefillDismissedForUser = useRef<string | null>(null);
   const locationEdits = useRef(new Set<"state" | "county" | "zipCode">());
+  const journeyZip = placeToZip(useJourneyContext().place);
+  // Pre-fill ZIP from the carried place unless the person already typed one.
+  useEffect(() => {
+    if (!journeyZip) return;
+    setData(prev => (prev.zipCode || locationEdits.current.has("zipCode")) ? prev : { ...prev, zipCode: journeyZip });
+  }, [journeyZip]);
   const situationEdits = useRef(new Set<NavigatorSituationKey>());
   const navigatorPrefillOwnedFields = useRef(new Set<NavigatorPrefillOwnedField>());
   const screeningIdentityRef = useRef<string | null>(screeningIdentity);
