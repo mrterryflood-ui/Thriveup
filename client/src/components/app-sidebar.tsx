@@ -339,7 +339,7 @@ const connectedSiteItems: NavItem[] = [
   { title: "SafeReport", url: "https://safereports.net", icon: FileText },
   { title: "The Gun Violence Project", url: "https://thegunviolenceproject.com", icon: ShieldCheck },
   { title: "SafeCogniCare", url: "https://safecognicare.com", icon: Activity },
-  { title: "Integrated Supports for Thriving Youth", url: "https://implementationineducatio.com", icon: GraduationCap },
+  { title: "ChildCORE", url: "https://childcore.app", icon: GraduationCap },
   { title: "Minority Center of Excellence", url: "https://minoritycenterofexcellence.com", icon: Briefcase },
   { title: "RPLICE Research Hub", url: "https://www.bettersciencelab.com", icon: Microscope },
 ];

@@ -34,8 +34,8 @@
 ## Education (3 platforms)
 | ID | Name | URL | What it does | Grants | Status |
 |---|---|---|---|---|---|
-| `isss` | ISSS — Integrated Supports for Thriving Youth | implementationineducatio.com *(shared)* | Whole-child MTSS engine, early-warning indicators, Thrive Score, CFIR/RE-AIM fidelity tracking. | WIOA, Foundation, St. David's | ✅ |
-| `betterscience` | RPLICE — Research-to-Practice Lifecycle | implementationineducatio.com *(shared)* | Closes science→practice gap: live evidence search, project assessment, implementation planning, outcome tracking. CFIR 2.0 + RE-AIM. | SSG Fox, Foundation, WIOA, St. David's | ✅ |
+| `isss` | ChildCORE | childcore.app *(shared)* | Community intelligence for child and family services — provider availability, school intelligence, and social-determinants data integrated directly into ThriveUp navigation and referral pathways. | WIOA, Foundation, St. David's | ✅ |
+| `betterscience` | RPLICE — Research-to-Practice Lifecycle | bettersciencelab.com *(shared)* | Closes science→practice gap: live evidence search, project assessment, implementation planning, outcome tracking. CFIR 2.0 + RE-AIM. | SSG Fox, Foundation, WIOA, St. David's | ✅ |
 | `wholemind` | WholeMind Learning | wholemindlearning.com | Free Pre-K-12 visual-first learning, silent accessibility mode, AI homework help, gamified engagement. | WIOA, Foundation, St. David's | ❌ (parking lander) |
 
 ## Compliance / Operations / Marketing / System (7 platforms)
@@ -56,7 +56,7 @@
 1. **Civic Signal is not in the hub DB.** It's part of the quintet but missing from `ecosystem_platforms`. Register it before next ecosystem-wide claim.
 2. **TYT row's URL is wrong.** DB says `lexibridge.net` (dead). True URL is `talkyourtalk.net`. The TYT connector self-registers as "LexiBridge" on every heartbeat — fix lives in TYT workspace, not here.
 3. **9 of 24 platforms are not currently public-facing** (DNS dead, parked, or 404). Never link to a platform in a proposal without re-probing first. **Probe ALL known aliases before declaring a platform dead** — `sankofa-feminine-health` was nearly removed because `yourfeminineneeds.com` 404s, but the same site is live at `herhealthmatters2.com` AND `myhealthybreast.com` (same payload). Always check the project's Publishing → Domains tab for verified alternate URLs. The ecosystem-alignment-scan script (`scripts/ecosystem-alignment-scan.sh`) and the probe pattern in `docs/active-commitments.md` ("SPA route 200 ≠ real page") apply here too.
-4. **Some URLs are shared.** `implementationineducatio.com` hosts BOTH `isss` and `betterscience`. `yourhealthbirthright.net` hosts BOTH `sankofa` and `sankofa-maternal-health`. `thrivingcommunitiesforall.com/academy` is ThriveUp Academy on the `collaborative-advocate` domain.
+4. **Some URLs are shared.** `isss` now resolves to ChildCORE (`childcore.app`), which replaced Implementation in Education; `betterscience` (RPLICE) lives at `bettersciencelab.com`. `yourhealthbirthright.net` hosts BOTH `sankofa` and `sankofa-maternal-health`. `thrivingcommunitiesforall.com/academy` is ThriveUp Academy on the `collaborative-advocate` domain.
 5. **Always pull the full table before locking a narrative.** The cost of working from in-context guesses instead of the live DB is missed grant fits.
 
 ---

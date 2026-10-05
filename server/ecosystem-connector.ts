@@ -737,11 +737,11 @@ const ECOSYSTEM_PLATFORMS = [
   },
   {
     id: "isss",
-    name: "ISSS — Integrated Supports for Thriving Youth",
-    url: "https://implementationineducatio.com",
+    name: "ChildCORE",
+    url: "https://childcore.app",
     role: "student-support",
     domain: "education",
-    description: "Whole-child implementation infrastructure enabling schools, districts, and regions to implement evidence-based student support at scale. Multi-Tiered System of Supports (MTSS) engine with early warning indicators, Thrive Score tracking, multi-stakeholder coordination across teachers/counselors/parents/community, and implementation fidelity measurement using CFIR and RE-AIM frameworks. District-level analytics dashboard provides real-time intervention effectiveness data. Integrates with WholeMind Learning for academic data, Perfectly Different for IEP/504 accommodations, SafeReport for incident management, and Whole-Person Health for crisis routing. Produces grant-ready outcome data for WIOA youth employment and foundation education grants.",
+    description: "ChildCORE replaced Implementation in Education (ISSS). Community intelligence for child and family services — provider availability, school intelligence, and social-determinants data integrated directly into ThriveUp navigation and referral pathways. Formerly: whole-child implementation infrastructure enabling schools, districts, and regions to implement evidence-based student support at scale. Multi-Tiered System of Supports (MTSS) engine with early warning indicators, Thrive Score tracking, multi-stakeholder coordination across teachers/counselors/parents/community, and implementation fidelity measurement using CFIR and RE-AIM frameworks. District-level analytics dashboard provides real-time intervention effectiveness data. Integrates with WholeMind Learning for academic data, Perfectly Different for IEP/504 accommodations, SafeReport for incident management, and Whole-Person Health for crisis routing. Produces grant-ready outcome data for WIOA youth employment and foundation education grants.",
     capabilities: {
       features: ["Multi-Stakeholder Coordination", "Evidence-Based Student Support", "District-Level Analytics", "Data-Driven Decision Making", "Implementation Fidelity Tracking", "MTSS Tiered Intervention Engine", "Thrive Score Algorithm", "Early Warning System", "Parent Engagement Portal", "IEP/504 Integration", "Trauma-Informed Practices", "School Climate Assessment", "Community Partner Coordination", "Grant Outcome Reporting"],
       frameworks: ["MTSS", "CFIR", "RE-AIM", "PBIS"],
@@ -4914,12 +4914,12 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
             pitch: "Parents and students get learning tools. Schools and companies get implementation infrastructure. Government gets evidence-based education programs.",
             platforms: [
               {
-                name: "ISSS — Integrated Supports for Thriving Youth",
-                capability: "Whole-child implementation infrastructure — multi-stakeholder coordination, evidence-based student support, district-level analytics",
+                name: "ChildCORE",
+                capability: "Community intelligence for child and family services — provider availability, school intelligence, and social-determinants data integrated directly into ThriveUp navigation and referral pathways.",
                 forIndividuals: ["Parent engagement portal", "Student support tracking", "Family resource connections"],
                 forCompanies: ["Corporate school partnerships", "Education CSR programs", "Youth mentorship infrastructure"],
                 forGovernment: ["School districts", "Education service centers", "State education agencies", "After-school programs"],
-                url: "https://implementationineducatio.com",
+                url: "https://www.bettersciencelab.com",
               },
               {
                 name: "WholeMind Learning",
@@ -4977,7 +4977,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
                 forIndividuals: ["Search live evidence", "Assess projects against community data", "Build implementation plans", "Track outcomes"],
                 forCompanies: ["Program evaluation consulting", "ROI measurement for social programs", "Evidence-based program design", "Implementation plan builder"],
                 forGovernment: ["University research centers", "Public health departments", "Foundation-funded programs", "Government program evaluation"],
-                url: "https://implementationineducatio.com",
+                url: "https://www.bettersciencelab.com",
               },
             ],
           },

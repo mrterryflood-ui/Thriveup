@@ -736,7 +736,7 @@ const ECOSYSTEM_PLATFORMS_DATA = [
     domain: "Education & Youth",
     color: "from-amber-500 to-orange-600",
     platforms: [
-      { name: "ISSS — Integrated Supports for Thriving Youth", url: "https://implementationineducatio.com", desc: "MTSS engine with Thrive Scores, early warning indicators, multi-stakeholder coordination for student support at scale", icon: School },
+      { name: "ChildCORE", url: "https://childcore.app", desc: "Community intelligence for child and family services — provider availability, school intelligence, and social-determinants data integrated directly into ThriveUp navigation and referral pathways.", icon: School },
       { name: "Perfectly Different", url: "https://neurodifferentassistant.app", desc: "Neurodiversity-affirming support for autism, ADHD, AuDHD — IEP/504 plan builder, executive function coaching, sensory tools", icon: Sparkles },
       { name: "Better Science Lab / RPLICE", url: "https://www.bettersciencelab.com", desc: "Implementation science engine — CFIR, RE-AIM, EPIS frameworks, evidence-based practice registry, research translation tools", icon: Microscope },
     ],

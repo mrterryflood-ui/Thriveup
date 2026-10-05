@@ -35,7 +35,7 @@
 | 5 | Whole-Person Health | mentalwellnesssupport.net | Clinical & behavioral health connective tissue | Health/Mental Health |
 | 6 | Mission Transition (M2C) | vetmissiontransition.com | Military-to-civilian transition | Veteran Services |
 | 7 | Sankofa Health Network | yourhealthbirthright.net | Health equity gateway — parent of 3 sub-networks | Health Equity |
-| 8 | ISSS | implementationineducatio.com | Integrated student supports for school districts | Education |
+| 8 | ChildCORE (replaced ISSS) | childcore.app | Community intelligence for child and family services | Education |
 | 9 | WholeMind Learning | life-pals-standalone.replit.app | Visual-first Pre-K to 12th grade academics | Education |
 | 10 | SafeReport | safereports.net | Mandatory reporter & incident management | Safety/Compliance |
 | 11 | PillScheduler | pillscheduler.net | Medication management & adherence | Health/Medication |
