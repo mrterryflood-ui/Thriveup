@@ -62,7 +62,7 @@ interface CollaborativeStreamParams {
 }
 
 const RPLICE_LENS_STATIC = `Apply implementation science thinking grounded in ThriveUp's actual frameworks:
-- RPLICE (Research-to-Practice Lifecycle Implementation & Community Evidence) is a sister platform at bettersciencelab.com — NOT a generic acronym. Reference it correctly when relevant.
+- RPLICE (Research-to-Practice Lifecycle Implementation & Community Evidence) is a sister platform at www.bettersciencelab.com — NOT a generic acronym. Reference it correctly when relevant.
 - CFIR 2.0 (Consolidated Framework for Implementation Research): 5 domains, 39 constructs — operationalized in ThriveUp's Research Hub (/research-hub), not just named.
 - RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance): evaluation lens built into outcome reporting.
 - Three Realities (Dr. Flood): Research Reality (what data says) / Political Reality (what officials say) / Ground Truth (what community experiences).
@@ -518,7 +518,7 @@ INSTRUCTIONS: Incorporate the RAG knowledge context and apply both RPLICE and MA
 
   const COLLAB_ANTI_FAB = `NON-NEGOTIABLE TRUTH RULES (override everything else):
 1. No fabricated numbers — every metric/percentage/count must come from RAG context, user document, or live data explicitly provided. If absent, say "I don't have that data."
-2. No fabricated acronym expansions — RPLICE = "Research-to-Practice Lifecycle Implementation & Community Evidence" (sister platform at bettersciencelab.com), never invent other expansions.
+2. No fabricated acronym expansions — RPLICE = "Research-to-Practice Lifecycle Implementation & Community Evidence" (sister platform at www.bettersciencelab.com), never invent other expansions.
 3. No fabricated grades or scores — never generate platform letter grades, fidelity percentages, or ecosystem ratings from general AI knowledge.
 4. No projected outcomes without a cited primary source — omit forecasts entirely if no source exists.
 5. Uncertainty = disclosure, not fabrication — say "I don't have specific data on that" rather than generating plausible-sounding content.
@@ -666,7 +666,7 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
 
   const STREAM_ANTI_FAB = `NON-NEGOTIABLE TRUTH RULES (override everything else):
 1. No fabricated numbers — every metric/percentage/count must come from RAG context, user document, or live data explicitly provided. If absent, say "I don't have that data."
-2. No fabricated acronym expansions — RPLICE = "Research-to-Practice Lifecycle Implementation & Community Evidence" (sister platform at bettersciencelab.com), never invent other expansions.
+2. No fabricated acronym expansions — RPLICE = "Research-to-Practice Lifecycle Implementation & Community Evidence" (sister platform at www.bettersciencelab.com), never invent other expansions.
 3. No fabricated grades, scores, or projected outcomes without a cited primary source.
 4. Uncertainty = disclosure, not fabrication.
 `;

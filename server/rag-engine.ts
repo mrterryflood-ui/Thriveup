@@ -144,8 +144,8 @@ Three-layer architecture: Learn It (Academy) → Apply It (RPLICE/MCE/Ecosystem)
   },
   {
     source: "platform", category: "platform", title: "RPLICE — Research-to-Practice Lifecycle Implementation & Community Evidence",
-    content: `RPLICE (Research-to-Practice Lifecycle Implementation & Community Evidence) is a free, AI-powered platform that helps researchers, practitioners, and planners close the gap between what science proves works and what actually gets implemented in communities. Search live evidence, assess projects against real community data, build implementation plans, and track outcomes -- all in one place. Uses CFIR 2.0, RE-AIM, and EPIS frameworks. Evidence-based practice registry, fidelity measurement, research translation, community application guides. Quality gate -- all platform work verified through RPLICE. RPLICE uses collaborative multi-AI review: multiple AI models independently analyze the same document, then a synthesis step builds consensus. URL: bettersciencelab.com. Connected to SALP Science research platform (salp-science--mrterryflood.replit.app / Research-Science-Collaborator on Replit). Grants: DFC, SSG Fox, SAMHSA, Spencer Foundation.`,
-    keywords: ["rplice", "research", "cfir", "re-aim", "epis", "implementation science", "evidence", "fidelity", "quality", "collaborative ai", "multi ai", "research-to-practice", "lifecycle", "community evidence", "implementationineducatio"],
+    content: `RPLICE (Research-to-Practice Lifecycle Implementation & Community Evidence) is a free, AI-powered platform that helps researchers, practitioners, and planners close the gap between what science proves works and what actually gets implemented in communities. Search live evidence, assess projects against real community data, build implementation plans, and track outcomes -- all in one place. Uses CFIR 2.0, RE-AIM, and EPIS frameworks. Evidence-based practice registry, fidelity measurement, research translation, community application guides. Quality gate -- all platform work verified through RPLICE. RPLICE uses collaborative multi-AI review: multiple AI models independently analyze the same document, then a synthesis step builds consensus. URL: www.bettersciencelab.com. Connected to SALP Science research platform (salp-science--mrterryflood.replit.app / Research-Science-Collaborator on Replit). Grants: DFC, SSG Fox, SAMHSA, Spencer Foundation.`,
+    keywords: ["rplice", "research", "cfir", "re-aim", "epis", "implementation science", "evidence", "fidelity", "quality", "collaborative ai", "multi ai", "research-to-practice", "lifecycle", "community evidence", "bettersciencelab.com"],
   },
   {
     source: "platform", category: "platform", title: "LifeBridge — Resource Navigation",
@@ -163,9 +163,9 @@ Three-layer architecture: Learn It (Academy) → Apply It (RPLICE/MCE/Ecosystem)
     keywords: ["m2c", "mission transition", "veterans", "military", "career translation", "transition", "benefits", "civilian"],
   },
   {
-    source: "platform", category: "platform", title: "ISSS — Integrated Supports for Thriving Youth",
-    content: `Whole-child implementation infrastructure for schools, districts, and regions. Evidence-based student support at scale through multi-stakeholder coordination. Youth development, wraparound services, school-based mental health, preventing school-to-prison pipeline. MTSS compliance, SEL curriculum, early warning systems (thrive_scores, early_warning_flags), wraparound coordination. Serves PfISD across 5 high schools, 120 students Year 1. Built-in data: fidelity scores, readiness assessments, Proctor's 8 implementation outcomes, practice-policy reports. Powered by RPLICE implementation science engine (bettersciencelab.com). SALP Science (salp-science--mrterryflood.replit.app) provides research analysis capability. Grants: DFC, WIOA, Foundation, Spencer Foundation.`,
-    keywords: ["isss", "youth", "schools", "students", "education", "wraparound", "implementation", "children", "kids", "mtss", "sel", "thrive_scores", "early_warning", "fidelity", "pfisd"],
+    source: "platform", category: "platform", title: "ChildCORE",
+    content: `ChildCORE provides community intelligence for child and family services: provider availability, school intelligence, and social-determinants data integrated into ThriveUp navigation and referral pathways. Current ChildCORE destination: childcore.app.`,
+    keywords: ["childcore", "isss", "youth", "schools", "students", "education", "children", "families", "providers", "social determinants", "navigation", "referrals"],
   },
   {
     source: "platform", category: "platform", title: "WholeMind Learning",
@@ -313,7 +313,7 @@ WHAT IT DOES NOT MEASURE: Whether platforms are online. All 26 platform URLs are
 
 COMMON MISREAD TO AVOID: Do NOT interpret a fidelity percentage below 100% as "X platforms are disconnected." That is factually wrong. A platform can be 100% online (serving users every day) and have a fidelity grade below A because it hasn't yet acknowledged a directive.
 
-EXTERNAL PARTNER PLATFORMS: Organizations with their own domains and technology stacks (e.g., bettersciencelab.com, lifetransitionsaid.org, vetmissiontransition.com) cannot send automated heartbeats to ThriveUp Academy's hub — they are separate organizations. They integrate via API and data-sharing agreements. Their participation is counted separately from internal governance fidelity.
+EXTERNAL PARTNER PLATFORMS: Organizations with their own domains and technology stacks (e.g., www.bettersciencelab.com, lifetransitionsaid.org, vetmissiontransition.com) cannot send automated heartbeats to ThriveUp Academy's hub — they are separate organizations. They integrate via API and data-sharing agreements. Their participation is counted separately from internal governance fidelity.
 
 CORRECT FRAMING FOR FUNDERS: "ThriveUp operates a self-governing compliance infrastructure where every internally-operated platform acknowledges directives and proves compliance with evidence URLs. The 44% current directive acknowledgment rate reflects the early-stage governance ramp-up as platforms complete onboarding to the directive system — not any platform being offline."
 
@@ -575,7 +575,7 @@ The pattern: Every major tech company is selling the IDEA of what ThriveUp has a
 
 INNOVATION VELOCITY:
 - MAP-GAP continuous improvement framework runs systematic audit cycles
-- RPLICE (Research-to-Practice Lifecycle Implementation & Community Evidence) — ThriveUp's sister platform at bettersciencelab.com — provides implementation science quality gates ensuring improvements are evidence-grounded
+- RPLICE (Research-to-Practice Lifecycle Implementation & Community Evidence) — ThriveUp's sister platform at www.bettersciencelab.com — provides implementation science quality gates ensuring improvements are evidence-grounded
 - 4-provider AI architecture means no single vendor bottleneck — when one provider innovates, the ecosystem absorbs it immediately
 - Collaborative multi-AI intelligence means every major decision gets multiple AI perspectives before implementation
 
@@ -775,7 +775,7 @@ IMPLEMENTATION SCIENCE (operationalized, not aspirational):
 - NRRC and CFIR 2.0 fidelity benchmarks mapped in server/standards-routes.ts.
 - MAP-GAP continuous quality improvement (1,705 lines of CQI logic at /map-gap-cqi).
 - RE-AIM evaluation lens built into outcome reporting.
-- RPLICE is a sister platform (Research-to-Practice Lifecycle Implementation & Community Evidence, bettersciencelab.com) — NOT a generic framework acronym.
+- RPLICE is a sister platform (Research-to-Practice Lifecycle Implementation & Community Evidence, www.bettersciencelab.com) — NOT a generic framework acronym.
 
 ECOSYSTEM STATUS (verified):
 - 26 total platforms — all 26 URLs online (pinger-verified).
@@ -991,7 +991,7 @@ VERIFIED PLATFORM FACTS (use these exact numbers — never fabricate alternative
 - 4 industry-grade physics engines: MNA electrical/automotive · Hardy-Cross plumbing · AWS D1.1 welding · HVAC thermal-airflow
 - 4-engine collaborative AI (Claude, GPT-4o-mini, Gemini, DeepSeek R1) with automatic failover
 - 39 CFIR constructs operationalized in code at /research-hub (not just named — instantiated)
-- RPLICE = Research-to-Practice Lifecycle Implementation & Community Evidence (sister platform at bettersciencelab.com) — never a generic acronym
+- RPLICE = Research-to-Practice Lifecycle Implementation & Community Evidence (sister platform at www.bettersciencelab.com) — never a generic acronym
 - Two legal entities: TCAF 501(c)(3) UEI KDDVD1FGLW35 · ISS LLC for-profit UEI C7YDV3P8EHL7
 - Fidelity metric: directive acknowledgment rate across internally-governed platforms; external partner platforms (separate orgs/domains) are counted separately
 

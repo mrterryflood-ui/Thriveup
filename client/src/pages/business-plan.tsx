@@ -140,7 +140,7 @@ const FUNDER_LENSES: Record<FunderLensKey, {
     points: [
       { label: "12-sector coalition", value: "Dashboard maps all 12 ONDCP-required DFC sectors · gap analysis · recruitment targets · capacity assessments aligned to evidence-based frameworks" },
       { label: "Prevention curriculum", value: "24-module youth substance prevention · 8 substance topics · 3 age tiers (10-14, 15-18, 19-24) · 13 parent education modules · fidelity scoring per session" },
-      { label: "Evidence base", value: "SAMHSA/NIDA evidence registry · CFIR 2.0 fidelity benchmarks · RE-AIM evaluation · RPLICE implementation science at bettersciencelab.com" },
+      { label: "Evidence base", value: "SAMHSA/NIDA evidence registry · CFIR 2.0 fidelity benchmarks · RE-AIM evaluation · RPLICE implementation science at www.bettersciencelab.com" },
       { label: "Community engagement", value: "Sankofa Health Network for behavioral health baseline data · LifeBridge virtual 211 · 107-language reach · promotora/CHW integration via ITI doctrine" },
       { label: "Logic model auto-population", value: "Grant Narrative Builder pulls live platform data · DFC Readiness checklist tracks every requirement with status · budget builder with in-kind match calculator" },
       { label: "Applicant status", value: "First-time applicant — infrastructure is the differentiator. Coalition dashboard, prevention delivery, and outcome tracking are live, not proposed." },

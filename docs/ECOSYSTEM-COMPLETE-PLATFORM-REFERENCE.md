@@ -29,7 +29,7 @@
 | # | Platform | URL | Role | Domain |
 |---|---|---|---|---|
 | 1 | ThriveUp Academy (Hub) | thrivingcommunitiesforall.com | Central coordination & delivery engine | Education/Workforce |
-| 2 | RPLICE / Better Science Lab | bettersciencelab.com | Implementation science & evidence registry | Research/Evaluation |
+| 2 | RPLICE / Better Science Lab | www.bettersciencelab.com | Implementation science & evidence registry | Research/Evaluation |
 | 3 | Minority Center of Excellence (MCE) | minoritycenterofexcellence.com | Minority business ecosystem | Economic Empowerment |
 | 4 | LifeBridge | lifetransitionsaid.org | Virtual 211 / CHW hub / SDOH navigation | Social Services |
 | 5 | Whole-Person Health | mentalwellnesssupport.net | Clinical & behavioral health connective tissue | Health/Mental Health |

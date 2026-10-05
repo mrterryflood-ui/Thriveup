@@ -784,7 +784,7 @@ export function registerEcosystemRpliceBridgeRoutes(app: Express) {
         domainFilter: domainFilter || null,
         resultCount: studies.length,
         studies: studies.slice(0, limit),
-        source: "RPLICE — bettersciencelab.com live research database",
+        source: "RPLICE — www.bettersciencelab.com live research database",
         rpliceAvailable: rpliceResults !== null,
         note: rpliceResults === null
           ? "RPLICE live database is temporarily unreachable. Results may be empty or incomplete."
@@ -895,7 +895,7 @@ export function registerEcosystemRpliceBridgeRoutes(app: Express) {
           grants: grantProfiles !== null,
           cfir: cfirConstructs !== null,
         },
-        source: "RPLICE equity evaluation rubric — bettersciencelab.com",
+        source: "RPLICE equity evaluation rubric — www.bettersciencelab.com",
         note: `Equity analysis scoped to ${platform.name}'s ${platformDomains.length} domain(s): ${platformDomains.join(", ")}. ${uniqueDimensions.length} equity dimensions identified.`,
       });
     } catch (e: any) {

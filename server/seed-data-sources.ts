@@ -52,7 +52,7 @@ const SOURCES = [
     coverage: "Community health, workforce, education, justice, housing interventions",
     knownLimitations: "Peer-reviewed literature may lag practice by 3-7 years. Community-specific adaptations may differ from study conditions. Fidelity to original context must be assessed.",
     suppressionRules: "None",
-    primarySourceUrl: "https://bettersciencelab.com",
+    primarySourceUrl: "https://www.bettersciencelab.com",
     citationFormat: "RPLICE, [framework], [study title], [year]",
     steward: "RPLICE Integration",
   },

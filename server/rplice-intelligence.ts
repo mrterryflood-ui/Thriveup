@@ -705,7 +705,7 @@ export async function buildRpliceIntelligencePackage(params: {
   // ─── AI context block ──────────────────────────────────────────────────────
   const lines: string[] = [];
   lines.push("=== RPLICE MAXIMUM INTELLIGENCE PACKAGE ===");
-  lines.push(`Source: bettersciencelab.com | Platform: RPLICE | ${new Date().toISOString().slice(0, 10)}`);
+  lines.push(`Source: www.bettersciencelab.com | Platform: RPLICE | ${new Date().toISOString().slice(0, 10)}`);
   lines.push(`Region: ${regionName} | Crisis domains: ${crisisDomains.join(", ") || "general"}`);
   lines.push(`Data layer: ${hasAuthenticatedData ? "AUTHENTICATED (full API)" : "PUBLIC (add RPLICE_API_KEY for full depth)"}`);
   lines.push("");
