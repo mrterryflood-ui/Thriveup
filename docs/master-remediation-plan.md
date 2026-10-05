@@ -145,6 +145,17 @@
 
 **Solution.** Build one adapter per source through the R6 source registry. APIs that need keys ship dark — fully built, hidden until the owner supplies the key in environment secrets — so nothing blocks on key acquisition and no half-configured surface ever shows a user an error.
 
+**Logic model — what each adapter is for.** Every adapter follows the same chain: place context (R1) → adapter → source registry entry (R6, dated) → one existing surface (no new doors) → example panel (R8) → decision. Per source:
+
+| Source | Input | Output (surface) | Outcome (who decides what) | Counterfactual today |
+|---|---|---|---|---|
+| EJScreen (EPA) | County / tract / ZIP from place context | Environmental justice indicator percentiles (PM2.5, diesel, traffic, Superfund proximity) on community analysis and corridor intelligence | Grant writers, cities, and banks make sourced EJ claims for a specific tract — CDBG, EPA, and Justice40-scored applications become competitive | Environmental layer absent; every EJ claim hand-assembled off-platform; EJ-scored applications weaker |
+| NIH RePORTER | Institution, district, or researcher name | Live award history (dollars, years, mechanism) on grant prior-awards / GrantPath | Clients write grants knowing what was actually funded in their space; universities see research dollars in their district | Static link; users leave the platform, proposals written blind to funding history |
+| FBI CDE | County + agency ORI | Agency-level offense/arrest trends in the community violence register and regional briefings | Violence-prevention coalitions cite local official trendlines vs. state/national in grant applications | Curated national datasets only; local claims uncited or stale |
+| FRED | County FIPS from place context | Economic time series (unemployment, labor force, income, poverty) as trend charts in community analysis and the banks demo view | Banks, EDOs, and corridor decisions see trajectory — improving or declining — not one-year snapshots | Single-year ACS figures; "is this place getting better or worse" cannot be answered |
+| CareerOneStop | Occupation/SOC code + learner location | Live job postings, wages, in-demand skills, nearby training providers in workforce surfaces and LineReady | Learners choose trades with real local demand; program designers align curriculum to live demand | Static occupation profiles; training decisions on stale national data |
+| HUD USPS crosswalk | ZIP code | Correct ZIP↔county↔tract↔entitlement-area joins so HUD program data attaches to place pages | Housing counts and HUD dollars cite the right jurisdiction every time | ZIP-level data cannot join HUD jurisdictions reliably; county briefings risk misattributed numbers — a correctness gap, not just coverage |
+
 **Fix.**
 1. **No-key adapters first** (value ships immediately, nothing to wait on):
    - EJScreen Report API (EPA) — environmental justice scores per geography for corridor intelligence and community analysis.
