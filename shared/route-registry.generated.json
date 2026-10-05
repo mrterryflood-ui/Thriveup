@@ -1,5 +1,5 @@
 {
- "routeCount": 419,
+ "routeCount": 420,
  "entries": [
   {
    "path": "/",
@@ -3649,6 +3649,34 @@
    "legacyGroup": "whereWeOperateItems",
    "description": "Inspect the federal, state, local, and internal sources and integration status behind platform data.",
    "guide": "Need to verify a data source → Data Sources → inspect provenance and open the related tool"
+  },
+  {
+   "path": "/demo",
+   "title": "Stakeholder Demo Door",
+   "outcome": "fund",
+   "audiences": [
+    "funder-evaluator",
+    "agency-government",
+    "nonprofit-cbo",
+    "students-youth"
+   ],
+   "access": "public",
+   "upstream": [
+    "/hub/fund",
+    "/community-banks"
+   ],
+   "downstream": [
+    "/community-banks",
+    "/academy",
+    "/corridor-intelligence",
+    "/partners"
+   ],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": true,
+   "description": "See what ThriveUp produces for banks, schools, governments, and community entities in a chosen place — live tools, cited benchmarks, and reporting previews.",
+   "guide": "Need to show stakeholders the platform → Stakeholder Demo Door → choose an audience and place, then open a live tool"
   },
   {
    "path": "/dfc-command-center",
