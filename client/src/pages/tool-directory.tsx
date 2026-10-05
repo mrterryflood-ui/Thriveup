@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useSearch } from "wouter";
 import { Search, ArrowRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getSidebarNavigationAccess } from "@/components/app-sidebar";
+import { canOpenPath } from "@shared/route-access";
 import { OUTCOME_ICONS } from "@/components/focused-navigation";
 import { useWorkspace, useWorkspaceAccess } from "@/lib/workspace-context";
 import { useAudience } from "@/lib/audience-preference";
@@ -41,13 +41,8 @@ export default function ToolDirectory() {
   };
 
   const groups = useMemo(() => {
-    const routes = filterNavRoutes({ viewer, audience, outcome, query }).filter(item => {
-      const access = getSidebarNavigationAccess(item.path);
-      if (access.authOnly && !viewer.authenticated) return false;
-      if (access.adminOnly && !viewer.admin) return false;
-      if (access.staffOnly && !viewer.staff) return false;
-      return true;
-    });
+    // Registry is the only access predicate (shared/route-access).
+    const routes = filterNavRoutes({ viewer, audience, outcome, query }).filter(item => canOpenPath(item.path, viewer));
     return groupByOutcome(routes);
   }, [query, outcome, audience, viewer]);
   const total = groups.reduce((n, g) => n + g.routes.length, 0);

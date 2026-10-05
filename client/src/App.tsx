@@ -328,7 +328,6 @@ const FosterYouthPolicyComparisonPage = lazy(() => import("@/pages/foster-youth/
 const VannCollaborationHubPage = lazy(() => import("@/pages/partners/vann-collaboration-hub"));
 const FamilyProgramTrackerPage = lazy(() => import("@/pages/partners/family-program-tracker"));
 const RfpStorytellerPage = lazy(() => import("@/pages/partners/rfp-storyteller"));
-const HubHomePage = lazy(() => import("@/pages/hub-home"));
 const FocusedHomePage = lazy(() => import("@/pages/focused-home"));
 const WorkspaceHomePage = lazy(() => import("@/pages/workspace-home"));
 const ToolDirectoryPage = lazy(() => import("@/pages/tool-directory"));
@@ -1019,7 +1018,7 @@ function AppRouter() {
       <Route path="/network" component={NetworkMembersPage} />
       <Route path="/navigator" component={NavigatorPage} />
       <Route path="/hub"><Redirect to="/" /></Route>
-      <Route path="/hub/legacy" component={HubHomePage} />
+      <Route path="/hub/legacy"><Redirect to="/workspaces" /></Route>
       <Route path="/hub/serve" component={HubServePage} />
       <Route path="/hub/fund" component={HubFundPage} />
       <Route path="/hub/grow" component={HubGrowPage} />

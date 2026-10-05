@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { canOpenPath } from "@shared/route-access";
 import { useLocation, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -203,7 +204,7 @@ const justiceReentryItems: NavItem[] = [
   { title: "Fair-Chance Employers", url: "/jobs", icon: Trophy },
   { title: "Housing Court FOIA Tracker", url: "/foia-tracker", icon: FileText, authOnly: true },
   { title: "Partner Effectiveness Scorecard", url: "/partner-scorecard", icon: BarChart3, authOnly: true },
-  { title: "Reentry Dashboard", url: "/reentry", icon: Scale, authOnly: true },
+  { title: "Reentry Dashboard", url: "/reentry", icon: Scale },
   { title: "TX Reentry Stipend Pilot", url: "/reentry-stipend-pilot", icon: Landmark, authOnly: true },
   { title: "Reentry Strategic Plan", url: "/reentry/strategic-plan", icon: Scale, authOnly: true },
   { title: "Reentry Outcome Reports", url: "/reentry/outcome-reports", icon: FileBarChart, authOnly: true },
@@ -220,7 +221,7 @@ const preventionHealthItems: NavItem[] = [
   { title: "Parent Education", url: "/parent-education", icon: Heart },
   { title: "Health & Wellness Hub", url: "/health-wellness", icon: Activity },
   { title: "Facilitator Hub", url: "/facilitator-hub", icon: ClipboardCheck, authOnly: true },
-  { title: "Health Network", url: "/health-network", icon: Heart, authOnly: true },
+  { title: "Health Network", url: "/health-network", icon: Heart },
   { title: "CHW Dashboard", url: "/chw-dashboard", icon: Stethoscope, authOnly: true },
   { title: "Member Health Engagement", url: "/member-health", icon: ClipboardList, authOnly: true },
 ];
@@ -306,13 +307,13 @@ const partnersCoalitionsItems: NavItem[] = [
   { title: "My Initiatives", url: "/initiatives", icon: Lightbulb },
   { title: "Community Partners", url: "/partners", icon: Handshake },
   { title: "Coalition Dashboard", url: "/coalition", icon: Users },
-  { title: "Collaboration Hub", url: "/collaboration-hub", icon: Building2, authOnly: true },
+  { title: "Collaboration Hub", url: "/collaboration-hub", icon: Building2 },
   { title: "Vann Partner Hub", url: "/partners/vann-hub", icon: Handshake, authOnly: true },
   { title: "Family & Program Tracker", url: "/partners/family-program-tracker", icon: Users, authOnly: true },
   { title: "RFP-Match Storyteller", url: "/partners/rfp-storyteller", icon: Sparkles, authOnly: true },
   { title: "Ecosystem Hub", url: "/ecosystem", icon: Globe },
   { title: "Ecosystem Story", url: "/ecosystem-story", icon: BookMarked },
-  { title: "Ecosystem Orchestration", url: "/ecosystem-orchestration", icon: Activity, authOnly: true },
+  { title: "Ecosystem Orchestration", url: "/ecosystem-orchestration", icon: Activity },
   { title: "Ecosystem AI", url: "/ecosystem-ai", icon: Brain, authOnly: true },
   { title: "Civic Signal", url: "/civic-signal", icon: Activity },
   { title: "Advisory Board", url: "/advisory-board", icon: Users },
@@ -360,7 +361,7 @@ const whereWeOperateItems: NavItem[] = [
   { title: "Opportunity Youth", url: "/opportunity-youth", icon: Users },
   { title: "Transparency Dashboard", url: "/transparency", icon: Activity },
   { title: "Impact Dashboard", url: "/impact", icon: TrendingUp },
-  { title: "Platform Metrics", url: "/platform-metrics", icon: BarChart3, authOnly: true },
+  { title: "Platform Metrics", url: "/platform-metrics", icon: BarChart3 },
   { title: "Pilot Dashboard", url: "/pilot", icon: Users, authOnly: true },
   { title: "Dosage Report", url: "/dosage", icon: Activity, authOnly: true },
   { title: "Outcome Reporting", url: "/outcomes", icon: FileBarChart, adminOnly: true },
@@ -539,22 +540,8 @@ export function getSidebarNavigationCatalog(): NavItem[] {
   return Array.from(new globalThis.Map([...focused, ...SIDEBAR_NAV_ITEMS].map(item => [item.url, item])).values());
 }
 
-export function getSidebarNavigationAccess(url: string): Pick<NavItem, "authOnly" | "adminOnly" | "staffOnly"> & { matched: boolean } {
-  const path = url.split(/[?#]/)[0];
-  const match = SIDEBAR_NAV_ITEMS
-    .filter((item) => {
-      const itemPath = item.url.split("?")[0];
-      return path === itemPath || path.startsWith(`${itemPath}/`);
-    })
-    .sort((a, b) => b.url.length - a.url.length)[0];
-  const task = [...WORKSPACE_TASKS].sort((a, b) => b.href.length - a.href.length).find(task => path === task.href || path.startsWith(`${task.href}/`));
-  return {
-    authOnly: match?.authOnly || (task ? task.access !== "public" : false),
-    adminOnly: match?.adminOnly || task?.access === "admin",
-    staffOnly: match?.staffOnly || task?.access === "staff",
-    matched: Boolean(match || task),
-  };
-}
+// R2: the legacy per-item authOnly/adminOnly/staffOnly flags are presentation metadata only.
+// Visibility is decided by the route registry through shared/route-access (one source of truth).
 
 const rankIcons: Record<string, typeof Shield> = {
   Shield, ShieldCheck, ShieldPlus, Swords, Medal,
@@ -578,13 +565,8 @@ function isItemActive(location: string, url: string): boolean {
 }
 
 function filterAuth(items: NavItem[], isAuthenticated: boolean, isAdmin: boolean, isStaff = false): NavItem[] {
-  return items.filter((i) => {
-    const access = getSidebarNavigationAccess(i.url);
-    if (access.adminOnly && !isAdmin) return false;
-    if (access.staffOnly && !isStaff) return false;
-    if (access.authOnly && !isAuthenticated) return false;
-    return true;
-  });
+  const viewer = { authenticated: isAuthenticated, staff: isStaff, admin: isAdmin };
+  return items.filter((i) => !i.url.startsWith("/") || canOpenPath(i.url, viewer));
 }
 
 function groupContainsActive(location: string, items: NavItem[]): boolean {

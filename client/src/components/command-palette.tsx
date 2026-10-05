@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useLocation } from "wouter";
-import { getSidebarNavigationAccess, getSidebarNavigationCatalog } from "@/components/app-sidebar";
+import { getSidebarNavigationCatalog } from "@/components/app-sidebar";
+import { canOpenPath } from "@shared/route-access";
 import { useWorkspace, useWorkspaceAccess } from "@/lib/workspace-context";
 import { workspaceForPath } from "@shared/workspace-catalog";
 import { rankNavigationSearch } from "@shared/navigation-search";
@@ -175,14 +176,8 @@ export function CommandPalette() {
       return { ...item, keywords: [item.keywords, route?.title, route?.description, route?.guide].filter(Boolean).join(" ") };
     });
     return merged.filter((item) => {
-    const access = getSidebarNavigationAccess(item.path);
-    if (access.adminOnly && !isAdmin) return false;
-    if (access.staffOnly && !isStaff) return false;
-    if (access.authOnly && !isAuthenticated) return false;
-    const routeAccess = metadata.get(item.path.split("?")[0])?.access;
-    if (routeAccess === "admin" && !isAdmin) return false;
-    if (routeAccess === "staff" && !isStaff) return false;
-    if (routeAccess === "authenticated" && !isAuthenticated) return false;
+    // Registry is the only access predicate (shared/route-access).
+    if (!canOpenPath(item.path, { authenticated: isAuthenticated, staff: isStaff, admin: isAdmin })) return false;
     if (workspace && !allWorkspaces && item.group !== "Start" && workspaceForPath(item.path) !== workspace) return false;
     return true;
     }).sort((a, b) => Number(b.group === "Start") - Number(a.group === "Start"));

@@ -289,7 +289,7 @@ export const LANE_OPERATE: RouteClassificationLane = {
   },
   "/stakeholder-map": {
     title: "Stakeholder Engagement Map", description: "Review named stakeholder roles and relationship stages in an internal partnership-pursuit map.",
-    outcome: "operate", audiences: ["nonprofit-cbo"], upstream: ["/transparency-matrix"], downstream: ["/transparency-matrix"], access: "authenticated",
+    outcome: "operate", audiences: ["nonprofit-cbo"], upstream: ["/transparency-matrix"], downstream: ["/transparency-matrix"], access: "admin",
     guide: "Need to review partnership status → Stakeholder Engagement Map → check relationship stages or request verification",
   },
   "/teacher-dashboard": {
