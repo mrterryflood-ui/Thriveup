@@ -139,6 +139,32 @@
 
 ---
 
+## R9. Data expansion — verified public sources, key-gated orchestration
+
+**Problem.** The live data spine (Census ACS, CDC PLACES, IRS, ProPublica Nonprofit Explorer, SAMHSA FindTreatment, plus agency datasets) is strong, but six verified gaps remain: EJScreen environmental justice scores, FRED county economic series, NIH RePORTER live queries, CareerOneStop live job/training data, FBI CDE agency-level crime data, and the HUD USPS ZIP crosswalk join. Three of the six are already named or registered in the platform without live calls (CareerOneStop as a registered source, RePORTER as a link, FBI as curated datasets) — the gap is adapters, not awareness.
+
+**Solution.** Build one adapter per source through the R6 source registry. APIs that need keys ship dark — fully built, hidden until the owner supplies the key in environment secrets — so nothing blocks on key acquisition and no half-configured surface ever shows a user an error.
+
+**Fix.**
+1. **No-key adapters first** (value ships immediately, nothing to wait on):
+   - EJScreen Report API (EPA) — environmental justice scores per geography for corridor intelligence and community analysis.
+   - NIH RePORTER API — replace the static link in grant prior-awards with live award-history queries (GrantPath).
+   - FBI Crime Data Explorer — agency-level offense data supplementing the curated gun-violence cache (community violence register).
+2. **Key-gated adapters, built dark** (render nothing, not an error, while the key is absent):
+   - FRED API (St. Louis Fed) — county economic time series.
+   - CareerOneStop Web API (DOL) — live job postings and training providers; upgrade the registered source to live calls.
+   - HUD USPS ZIP-crosswalk API — join ZIP-level work to HUD program data.
+3. **Owner key checklist — the only manual step in R9:**
+   - FRED: register at `api.stlouisfed.org` (instant).
+   - HUD: register at `huduser.gov` API portal (instant).
+   - CareerOneStop: request at `careeronestop.org/Developers/` (approval may take a day or more).
+   - Store each as `FRED_API_KEY`, `CAREERONESTOP_API_KEY`, `HUD_API_KEY` in Replit environment secrets. Keys never appear in the repo, commits, or code.
+4. **Per-adapter standard:** registry entry with `lastVerified`; source label and date on every surfaced figure; graceful dark behavior with the key absent; a verification record row per source showing live / dark / key-pending status. Build no-key adapters first so the phase produces value from day one; keyed adapters light up without a rebuild the moment the owner adds the secret.
+
+**Proof (gate).** Each adapter returns live real data for a Hutto/Travis test geography when its key is present (or is key-free); each keyed adapter stays dark and error-free with the key absent; every surfaced figure carries source and date; no synthetic data about any city.
+
+---
+
 ## Phase schedule
 
 | Phase | Window | Items | Milestone |
@@ -146,7 +172,7 @@
 | 0 | Now → Oct 13 | **R1 Phase A** (place handoff, 8 routes) + demo rehearsal | Oct 14 Hutto meeting: the walk carries context end to end |
 | 1 | Oct 15 – Nov 9 | **R2**, **R4**, **R1 Phase B**, **R8a** (auto example panels, every door) | Single access truth; every door explains itself; stakeholder surfaces zero-defect |
 | 2 | Nov 10 – Dec 21 | **R1 Phases C–D**, **R3**, **R5**, **R6**, **R8b** (curated walkthroughs) | Live cohort report; data-currency system operating; walkthroughs teach the chain |
-| 3 | Q1 2027 | **R7** (HSDS), **R8c** (first-run teaching), national mechanics (county pilots, channels) | Open Referral-compatible export live; first out-of-region county pilot signed |
+| 3 | Q1 2027 | **R7** (HSDS), **R8c** (first-run teaching), **R9** (data expansion), national mechanics (county pilots, channels) | Open Referral-compatible export live; six new sources live or key-ready; first out-of-region county pilot signed |
 
 ## Master gates — the definition of "no gaps"
 
@@ -158,6 +184,7 @@
 - **G6:** Every data surface is dated; staleness is visible; CI enforces currency.
 - **G7:** HSDS (Open Referral) export validates and round-trips with a real consumer.
 - **G8:** Every real route renders its example panel; the 12 curated walkthroughs pass the new-user test.
+- **G9:** Every R9 adapter is live-or-dark per key status; surfaced figures carry source and date; no key ever touches the repo.
 - **Standing:** real-data-only; non-destructive; main untouched; every phase verified by the independent reviewer before it is called complete.
 
 ---
@@ -165,7 +192,7 @@
 ## Reporting
 
 - **Before:** Five gaps named but not work-ordered; "connected" was a claim the code did not yet fully honor; no mechanism to keep data factual over time.
-- **Changed:** This plan converts every gap into a Problem → Solution → Fix → Proof work order (R1–R8), sequenced into four gated phases, with a data-currency system (R6) that keeps the platform factual after the fixes land and an example layer (R8) that collapses the learning curve on every door.
+- **Changed:** This plan converts every gap into a Problem → Solution → Fix → Proof work order (R1–R9), sequenced into four gated phases, with a data-currency system (R6) that keeps the platform factual after the fixes land, an example layer (R8) that collapses the learning curve on every door, and a key-gated data expansion (R9) whose only manual step is the owner supplying API keys.
 - **Why:** The platform's claim — superior to any single-link competitor because it runs the whole chain — must be true in the resident's experience, not only in the architecture; and an implementation-science platform must run its own fidelity loop.
 - **Proof:** Every claim above traces to the route registry, the parameter audit, or the file list — the same evidence base as the companion inventory. Gates define what "done" means before work starts.
 - **Limits:** Phases 1–3 are planned, not built. R3 recommends integration over building for the four system domains — that is a sustainment decision and can be overridden by the owner. R5's timeline depends on partner adoption pace, not code. The quarterly re-verification job needs a scheduler in the deployment environment (Replit cron or Vercel cron) — an operations task, not a code gap.
