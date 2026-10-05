@@ -109,14 +109,44 @@
 
 ---
 
+## R7. Open Referral alignment — speak the ecosystem's shared language
+
+**Problem.** The integration-first posture (R3) lacks the handshake with the wider ecosystem: most 211s, United Way systems, and resource directories exchange organization and service data in Open Referral's Human Services Data Specification (HSDS). Without an HSDS-compatible surface, ThriveUp is easy to integrate with only for partners who write custom code — the opposite of reducing friction for the nonprofit sector.
+
+**Solution.** Make the partner API HSDS-compatible in both directions: export a place's organization/service data as valid HSDS (so any Open Referral consumer can load it, including 211 systems), and import HSDS (so a partner's existing directory can seed the platform instead of being retyped).
+
+**Fix.**
+1. Map the platform's organization / service / location / schedule models to the HSDS tables; document the mapping in `/api-docs` with the HSDS version pinned.
+2. Add an HSDS export endpoint (CSV and JSON) for a place's Community Gravity organization records first — IRS-sourced orgs are the highest-value dataset the ecosystem wants.
+3. Add HSDS import to the `/agency-connector` flow so partner directories load without manual entry.
+4. Validate exports against the HSDS spec (required fields, table shapes); round-trip test one partner dataset.
+5. Label the surface in `/api-docs`: "Open Referral (HSDS) compatible."
+
+**Proof (gate).** An HSDS-valid export for a Travis/Hutto place loads into an Open Referral-compatible consumer with zero transformation; an import round-trips; the mapping is documented with the spec version pinned.
+
+## R8. Every door has an example — the show-me layer (adoption curve)
+
+**Problem.** 340 real pages, and a first-time nonprofit director, caseworker, or resident faces the same question at every door: what does this do, who is it for, what happens next? The full chain's value is invisible from any single tool. Sensibility, learning curve, and adoption friction — not capability — are the binding constraint on growth.
+
+**Solution.** A universal example layer powered by the registry. Every route already carries `guide` ("Need → this page → next action"), `upstream`, `downstream`, `audiences`, and `outcome` — the raw material for a per-door example already exists in classified form. Render it as a consistent "How this fits" panel on every tool page, then curate walkthroughs for the doors that carry stakeholder weight.
+
+**Fix.**
+1. **R8a — auto-generated panels, every door at once (quick win):** build one `ToolExamplePanel` component that renders the registry entry — who it's for (audience labels), what it does (description), where you likely came from (upstream), what's next (downstream), and the guide line. Mount it through `PageFrame`, which is already on every page. One component = all 340 doors have examples immediately, zero per-page work.
+2. **R8b — curated walkthroughs:** for the 12 stakeholder-visible routes and the four demo door audiences, add curated step-by-step walkthroughs in the demo-door story pattern — 3–5 steps, real data or clearly-badged format examples, "Leads to" links that carry journey context (R1).
+3. **R8c — first-run teaching:** empty states teach instead of sitting blank — a "Try it" affordance with a real sample input the user can replace (e.g., a ZIP), so first-use friction drops to one click; a guided tour mode for organization onboarding.
+
+**Proof (gate).** E2E asserts the example panel renders on every real route (registry-driven, not a hardcoded list); the 12 curated walkthroughs are reviewed at three widths; a new-user test — stakeholder goes from `/tools` to a completed action inside a walkthrough without assistance — passes. No synthetic data about any city appears in any example.
+
+---
+
 ## Phase schedule
 
 | Phase | Window | Items | Milestone |
 |---|---|---|---|
 | 0 | Now → Oct 13 | **R1 Phase A** (place handoff, 8 routes) + demo rehearsal | Oct 14 Hutto meeting: the walk carries context end to end |
-| 1 | Oct 15 – Nov 9 | **R2**, **R4**, **R1 Phase B** | Single access truth; stakeholder surfaces zero-defect |
-| 2 | Nov 10 – Dec 21 | **R1 Phases C–D**, **R3**, **R5**, **R6** | Live cohort report; data-currency system operating |
-| 3 | Q1 2027 | National mechanics (county pilots, channels) | First out-of-region county pilot signed |
+| 1 | Oct 15 – Nov 9 | **R2**, **R4**, **R1 Phase B**, **R8a** (auto example panels, every door) | Single access truth; every door explains itself; stakeholder surfaces zero-defect |
+| 2 | Nov 10 – Dec 21 | **R1 Phases C–D**, **R3**, **R5**, **R6**, **R8b** (curated walkthroughs) | Live cohort report; data-currency system operating; walkthroughs teach the chain |
+| 3 | Q1 2027 | **R7** (HSDS), **R8c** (first-run teaching), national mechanics (county pilots, channels) | Open Referral-compatible export live; first out-of-region county pilot signed |
 
 ## Master gates — the definition of "no gaps"
 
@@ -126,6 +156,8 @@
 - **G4:** All 12 stakeholder routes zero-defect at three widths; internal tools labeled.
 - **G5:** A real cohort outcome report exists — real data, consented, receipt-grade.
 - **G6:** Every data surface is dated; staleness is visible; CI enforces currency.
+- **G7:** HSDS (Open Referral) export validates and round-trips with a real consumer.
+- **G8:** Every real route renders its example panel; the 12 curated walkthroughs pass the new-user test.
 - **Standing:** real-data-only; non-destructive; main untouched; every phase verified by the independent reviewer before it is called complete.
 
 ---
@@ -133,7 +165,7 @@
 ## Reporting
 
 - **Before:** Five gaps named but not work-ordered; "connected" was a claim the code did not yet fully honor; no mechanism to keep data factual over time.
-- **Changed:** This plan converts every gap into a Problem → Solution → Fix → Proof work order (R1–R6), sequenced into four gated phases, with a data-currency system (R6) that keeps the platform factual after the fixes land.
+- **Changed:** This plan converts every gap into a Problem → Solution → Fix → Proof work order (R1–R8), sequenced into four gated phases, with a data-currency system (R6) that keeps the platform factual after the fixes land and an example layer (R8) that collapses the learning curve on every door.
 - **Why:** The platform's claim — superior to any single-link competitor because it runs the whole chain — must be true in the resident's experience, not only in the architecture; and an implementation-science platform must run its own fidelity loop.
 - **Proof:** Every claim above traces to the route registry, the parameter audit, or the file list — the same evidence base as the companion inventory. Gates define what "done" means before work starts.
 - **Limits:** Phases 1–3 are planned, not built. R3 recommends integration over building for the four system domains — that is a sustainment decision and can be overridden by the owner. R5's timeline depends on partner adoption pace, not code. The quarterly re-verification job needs a scheduler in the deployment environment (Replit cron or Vercel cron) — an operations task, not a code gap.
