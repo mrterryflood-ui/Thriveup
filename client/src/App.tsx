@@ -5,6 +5,7 @@ import { FocusedBottomTabs as BottomTabBar, FocusedSidebar as AppSidebar } from 
 import { WorkspaceProvider, useWorkspace } from "@/lib/workspace-context";
 import { WORKSPACES, entryTaskForPath } from "@shared/workspace-catalog";
 import { TaskStartHint } from "@/components/task-start-hint";
+import { JourneyPlaceBar } from "@/components/journey-place-bar";
 import { PageFrame } from "@/components/page-frame";
 import { queryClient, apiRequest } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -1183,6 +1184,7 @@ function AppLayoutInner() {
               <Suspense fallback={<PageFallback />}>
                 <PageFrame key={`frame-${location}`} path={location} />
                 <TaskStartHint key={location} path={location} />
+                <JourneyPlaceBar path={location} />
                 <AppRouter />
               </Suspense>
             </ErrorBoundary>

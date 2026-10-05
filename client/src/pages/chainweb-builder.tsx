@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useJourneyContext, describeJourneyPlace, placeToZip, placeToCountyFips } from "@/lib/journey-context";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -200,6 +201,20 @@ export default function ChainwebBuilderPage() {
   };
 
   const handleFormChange = (key: string, value: string) => setForm(f => ({ ...f, [key]: value }));
+
+  // Carry the journey place into the builder. The county-FIPS field is cleared (it is optional)
+  // unless the place is itself a county code, so a carried place never keeps another county's FIPS.
+  const journeyPlace = useJourneyContext().place;
+  useEffect(() => {
+    if (!journeyPlace) return;
+    const fips = placeToCountyFips(journeyPlace);
+    setForm(f => ({
+      ...f,
+      geographyLabel: describeJourneyPlace(journeyPlace),
+      geographyFips: fips ?? "",
+      geographyType: fips ? "county" : placeToZip(journeyPlace) ? "zip" : "city",
+    }));
+  }, [journeyPlace]);
 
   const calc = scenarioDetail?.calculation;
   const persistedNarrative = scenarioDetail?.narratives?.find((item: any) => item.audienceType === audience && item.narrativeText);
