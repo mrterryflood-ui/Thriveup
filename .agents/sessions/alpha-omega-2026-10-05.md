@@ -15,3 +15,11 @@
 - Final proof: TypeScript zero, lint zero, build exit 0; 19/19 browser cases; 18 three-width screenshots; 419/419 registry rows; 2/2 distance/dynamic-frame units; access sync, two-click and touch pass. `.verification/2026-10-04-magnet-ia-final.md` is the complete record.
 - Findings corrected: stale geographic commit, live-region omission, nearby disclosure, permission-prefix collision, audience completeness, dynamic specificity/optional route, partial-ingest cache invalidation, labeled example city, existing admin report route floor.
 - Learning deposit: resource-budget memory updated. No architect run, pull, production repair or publish.
+
+## Alpha — responsive advisor
+- End-state: immediate feedback; first-answer target 10 seconds, explicit updates if it takes longer, no multi-minute silent wait.
+- In-state: shared AI Navigator defaults to Detailed, waits for optional enrichment before SSE, uses collaborative collection/synthesis even in Quick, has a 90-second client deadline, and shows unsubstantiated “almost there” R1 messages.
+- Baseline: development-proxy Quick housing request had TTFB 0.203s but no answer after 12s; only conversation/meta events and a keepalive. Cold-geography latency remains unknown.
+- Hypotheses: transport buffering, enrichment delay, and multi-provider collection/synthesis. Source confirms enrichment precedes headers and multi-provider orchestration is used in Quick; the warm request disproves transport buffering as the sole cause.
+- Reuse/extend: shared Navigator, provider ethical wrapper, grounding gate, request ownership/cancellation; extend SSE with phase/elapsed progress and bounded optional context, add single-engine Quick mode. No new model vendor, auth, database schema, publication, pull or push.
+- Proof plan: helper deadlines/cleanup units, zero-error TS/lint, real anonymous Quick latency/grounding receipt, delayed-server/10-second feedback/Stop browser checks, six narrow read-only adversarial domains. UI remains accessible and honest for anonymous and signed-in users; saved-thread ownership remains checked before SSE.

@@ -31,6 +31,7 @@
  */
 
 import { db } from "./storage";
+import { guardNavigatorContextDb } from "./navigator-progress";
 import {
   proposalPipeline,
   communityPartnerOrgs,
@@ -97,10 +98,14 @@ export interface PersonalContext {
   audienceMode: AudienceMode;
 }
 
+const personalContextDatabase = db;
 export async function getPersonalContext(
   userId: string | null,
   message: string,
+  signal?: AbortSignal,
 ): Promise<PersonalContext> {
+  signal?.throwIfAborted();
+  const db = guardNavigatorContextDb(personalContextDatabase, signal);
   const lower = message.toLowerCase();
 
   // ─── Detect audience mode ─────────────────────────────────────────────────
@@ -232,6 +237,7 @@ export async function getPersonalContext(
         let countyFips = storedCountyFips;
 
         if (storedZip) {
+          signal?.throwIfAborted();
           const resolved = await resolveZipBestEffort(storedZip);
           countyFips = resolved.countyFips ?? null;
         }

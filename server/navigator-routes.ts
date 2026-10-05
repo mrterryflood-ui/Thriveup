@@ -52,6 +52,7 @@ import * as os from "os";
 import * as path from "path";
 import { pdfBufferToText } from "./rfp-ingestion";
 import { getPersonalContext } from "./personal-context";
+import { startNavigatorProgress, withinNavigatorBudget, guardNavigatorContextDb } from "./navigator-progress";
 import { YOUTH_MODE_KNOWLEDGE } from "./yhsi-program-knowledge";
 import { getGunViolenceIntelligenceData } from "./gun-violence-routes";
 import { getChildcareContextSummary } from "./childcare-provider-intel";
@@ -533,14 +534,18 @@ interface NavigatorGvTotals {
   totalSuicides: number | null;
 }
 
+const navigatorContextDatabase = db;
 async function assembleContext(
   req: Request,
   userMessage: string,
+  signal?: AbortSignal,
 ): Promise<{
   context: string;
   censusIndicators: NavigatorCensusIndicators | null;
   gvTotals: NavigatorGvTotals | null;
 }> {
+  signal?.throwIfAborted();
+  const db = guardNavigatorContextDb(navigatorContextDatabase, signal);
   const contextParts: string[] = [];
   const userId = getUserId(req);
   const userName = getUserName(req);
@@ -670,6 +675,7 @@ When discussing workforce, grants, or economic development — align TCAF progra
   }
 
   // ── Gun violence intelligence injection ──────────────────────────────────────
+  signal?.throwIfAborted();
   // When the query touches violence, safety, shootings, homicide, or related
   // topics, surface the full CDC/FBI/NCVS/ACE/RPLICE dataset so the Navigator
   // can give a grounded, evidence-based answer instead of a generic one.
@@ -803,6 +809,7 @@ SOURCE DISCIPLINE: Cite CDC WONDER, FBI UCR, NCVS, or WISQARS by name. Never fab
         const { stateFips: sf, countyFips: cf } = countyRow[0];
         // County name is optional — getChildcareIntelByFips resolves it from
         // the TX FIPS table for Texas; non-TX states use FIPS for labeling.
+        signal?.throwIfAborted();
         const childcareCtx = await getChildcareContextSummary(sf, cf, "").catch(() => null);
         if (childcareCtx) {
           contextParts.push(childcareCtx);
@@ -1532,6 +1539,7 @@ export function registerNavigatorRoutes(app: Express) {
     }
 
     const { message, conversationId, responseMode } = req.body;
+    const quickFirst = !responseMode || responseMode === "brief";
 
     if (!message || typeof message !== "string") {
       return res.status(400).json({ error: "Message is required" });
@@ -1544,6 +1552,20 @@ export function registerNavigatorRoutes(app: Express) {
       return res.status(400).json({
         error: `Message is too long (max ${MAX_MESSAGE_CHARS} characters). Please shorten it and try again.`,
       });
+    }
+
+    // Check saved-thread authority before opening SSE; never weaken a 403
+    // into a successful transport merely to get an earlier acknowledgment.
+    if (!userId && conversationId) {
+      return res.status(403).json({ error: "Anonymous users cannot continue saved conversations" });
+    }
+    let ownedConversation: typeof navigatorConversations.$inferSelect | undefined;
+    if (userId && conversationId) {
+      [ownedConversation] = await db.select().from(navigatorConversations)
+        .where(and(eq(navigatorConversations.id, conversationId), eq(navigatorConversations.userId, userId))).limit(1);
+      if (!ownedConversation) {
+        return res.status(403).json({ error: "Conversation not found or access denied" });
+      }
     }
 
     // Attach disconnect handling before context assembly so an abandoned
@@ -1564,22 +1586,25 @@ export function registerNavigatorRoutes(app: Express) {
         throw new Error("Navigator client disconnected before provider work");
       }
     };
+    const progress = startNavigatorProgress(res, requestAbortController);
+    const safeWrite = (payload: string): boolean => {
+      if (clientDisconnected || res.destroyed || res.writableEnded || requestAbortController.signal.aborted) return false;
+      res.write(payload);
+      return true;
+    };
+    progress.setPhase("context");
 
     let contextResult: Awaited<ReturnType<typeof assembleContext>>;
     try {
-      contextResult = await Promise.race([
-        assembleContext(req, message),
-        new Promise<Awaited<ReturnType<typeof assembleContext>>>((_, reject) => {
-          requestAbortController.signal.addEventListener(
-            "abort",
-            () => reject(new Error("Navigator request cancelled during context assembly")),
-            { once: true },
-          );
-        }),
-      ]);
+      contextResult = await withinNavigatorBudget(signal => assembleContext(req, message, signal), quickFirst ? 3_000 : 8_000, requestAbortController.signal);
     } catch (error) {
       if (requestAbortController.signal.aborted) return;
-      throw error;
+      console.warn("[Navigator] Community context unavailable within interactive budget:", error instanceof Error ? error.message : "context failure");
+      contextResult = {
+        context: "\n[CONTEXT UNAVAILABLE: Community data could not be loaded for this first answer. Disclose this limit. Do not invent local facts, contacts, eligibility, or figures.]",
+        censusIndicators: null, gvTotals: null,
+      };
+      progress.setPhase("context", "Community information is unavailable for this first answer. Continuing with general guidance, not verified local facts.");
     }
     const {
       context: contextData,
@@ -1628,13 +1653,14 @@ export function registerNavigatorRoutes(app: Express) {
     let personalContextBlock = "";
     if (userId) {
       try {
-        const personalCtx = await getPersonalContext(userId, message);
+        const personalCtx = await withinNavigatorBudget(signal => getPersonalContext(userId, message, signal), 2_000, requestAbortController.signal);
         personalContextBlock = personalCtx.contextBlock;
       } catch (err) {
         console.error("[Navigator] Personal context error:", err);
       }
     }
 
+    if (requestAbortController.signal.aborted) return;
     // Only persist conversations for authenticated users
     // Generate a per-request UUID for the DeepSeek R1 poll job.
     // This is SEPARATE from activeConversationId — anonymous users get no DB
@@ -1643,7 +1669,7 @@ export function registerNavigatorRoutes(app: Express) {
     // Deep reasoning is optional work. Do not start an unbounded collection of
     // background jobs when providers are slow or clients abandon requests.
     const deepThinkAdmitted =
-      Boolean(
+      !quickFirst && Boolean(
         process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY &&
           process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
       ) && admitDeepThinkJob(deepThinkJobId);
@@ -1679,16 +1705,7 @@ export function registerNavigatorRoutes(app: Express) {
             .returning();
           activeConversationId = newConvo.id;
         } else {
-          const [owned] = await db
-            .select()
-            .from(navigatorConversations)
-            .where(
-              and(
-                eq(navigatorConversations.id, activeConversationId),
-                eq(navigatorConversations.userId, userId),
-              ),
-            )
-            .limit(1);
+          const owned = ownedConversation;
 
           if (!owned) {
             return res
@@ -1783,16 +1800,6 @@ export function registerNavigatorRoutes(app: Express) {
       }
     }
 
-    res.setHeader("Content-Type", "text/event-stream");
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader("Connection", "keep-alive");
-    res.setHeader("X-Conversation-Id", activeConversationId || "");
-    const safeWrite = (payload: string): boolean => {
-      if (clientDisconnected || res.destroyed || res.writableEnded) return false;
-      res.write(payload);
-      return true;
-    };
-
     safeWrite(
       `data: ${JSON.stringify({ conversationId: activeConversationId })}\n\n`,
     );
@@ -1802,6 +1809,7 @@ export function registerNavigatorRoutes(app: Express) {
       contextData +
       personalContextBlock +
       modeInstruction +
+      (quickFirst ? "\n[QUICK FIRST ANSWER: Give concise initial guidance. No live grant hunt, nonprofit web research, or multi-engine review has run for this answer. Disclose this when relevant; invite the user to select Detailed for source research. Do not imply current contacts, funding deadlines, eligibility, or local statistics were verified unless explicitly present in supplied context.]" : "") +
       buildYouthModeInstruction();
 
     const msgs: Array<{
@@ -1868,7 +1876,8 @@ export function registerNavigatorRoutes(app: Express) {
         message.trim(),
       );
 
-    if (grantHuntMatch) {
+    if (grantHuntMatch && !quickFirst) {
+      progress.setPhase("research");
       const orgDesc = grantHuntMatch[1].trim().replace(/['"]/g, "");
       try {
         console.log(`[Navigator] Grant hunt intent for: "${orgDesc}"`);
@@ -2039,7 +2048,8 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
     const NONPROFIT_INTENT_RE =
       /\b(501\s?\(?c\)?\s?\(?3\)?|501c3|\bein\b|tax[- ]exempt|nonprofit status|is\s+[a-z][a-z\s]+\s+a\s+(?:real\s+)?(?:nonprofit|charity)|past performance|funding history|grant history|financials?|form\s?990|\b990\b)\b/i;
     let orgInfoBlock = "";
-    if (NONPROFIT_INTENT_RE.test(message)) {
+    if (NONPROFIT_INTENT_RE.test(message) && !quickFirst) {
+      progress.setPhase("research");
       const capRuns =
         message.match(
           /\b[A-Z][a-zA-Z&'.-]*(?:\s+(?:of|for|the|and)?\s*[A-Z][a-zA-Z&'.-]*){0,5}\b/g,
@@ -2113,19 +2123,23 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
 
     let fullResponse = "";
     const persistNavigatorAnswer = async (answer: string, honesty: ReturnType<typeof navigatorHonesty>) => {
+      progress.dispose();
       if (!userId || !activeConversationId || clientDisconnected) return;
       try {
-        await db.insert(navigatorMessages).values({
-          conversationId: activeConversationId, role: "assistant",
-          content: answer, metadata: { honesty },
-        });
-        if (answer.length > 50) {
-          await db.update(navigatorConversations)
-            .set({ summary: answer.substring(0, 200).replace(/\n/g, " ") })
-            .where(eq(navigatorConversations.id, activeConversationId));
-        }
+        await withinNavigatorBudget((async () => {
+          await db.insert(navigatorMessages).values({
+            conversationId: activeConversationId, role: "assistant",
+            content: answer, metadata: { honesty },
+          });
+          if (answer.length > 50) {
+            await db.update(navigatorConversations)
+              .set({ summary: answer.substring(0, 200).replace(/\n/g, " ") })
+              .where(eq(navigatorConversations.id, activeConversationId));
+          }
+        })(), 2_000, requestAbortController.signal);
       } catch (error) {
         console.error("[Navigator] Error saving response:", error);
+        safeWrite(`data: ${JSON.stringify({ content: "\n\nHistory: saving this answer has not been confirmed. Keep a copy if you need it; a pending database write may still finish." })}\n\n`);
       }
     };
     const sourceMetadata = {
@@ -2157,12 +2171,14 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
 
     try {
       const tokensByMode: Record<string, number> = {
-        brief: 1500,
+        brief: 600,
         detailed: 5000,
         report: 16000,
       };
-      const modeTokens = tokensByMode[responseMode] || 5000;
+      const modeTokens = quickFirst ? 600 : tokensByMode[responseMode] || 5000;
+      progress.setPhase("answer");
       await collaborativeStream(({
+        fastFirst: quickFirst,
         prompt: augmentedMessage,
         systemPrompt: msgs.find((m) => m.role === "system")?.content,
         maxTokens: hasAttachedDocuments ? 8000 : modeTokens,
@@ -2187,7 +2203,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
           );
         },
         onSynthesisComplete: () => {
-          safeWrite(`data: ${JSON.stringify({ synthesisComplete: true })}\n\n`);
+          progress.setPhase("checking");
         },
         onKeepAlive: () => {
           // SSE comment — keeps the proxy / mobile connection alive during R1 wait
@@ -2235,6 +2251,9 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
           // Emit the grounded response text to the client as a content SSE event.
           // The response was buffered (not streamed live) so the client receives
           // only the verified, grounded text.
+          // Generation is complete. Do not let its deadline claim there is no
+          // answer while an authenticated conversation write is finishing.
+          progress.dispose();
           if (groundedResponse.length > 0) {
             safeWrite(
               `data: ${JSON.stringify({ content: groundedResponse })}\n\n`,
@@ -2245,10 +2264,9 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
           // the user always see the same thing.
           await persistNavigatorAnswer(groundedResponse, honesty);
 
-          // Always send deepThinkJobId (per-request UUID) so both authenticated
-          // and anonymous users can poll for the DeepSeek R1 result.
+          // Only advertise a deep job when one was actually admitted.
           safeWrite(
-            `data: ${JSON.stringify({ done: true, deepThinkJobId, sourceMetadata, gunViolenceContext: gunViolenceContext.injected ? { geography: gunViolenceContext.geography, state: gunViolenceContext.state } : null, collaborative: { engines: result.engines.filter((e: any) => !e.error).map((e: any) => e.engine), consensusMethod: result.consensusMethod, ragChunks: result.ragContext.chunkCount, timeMs: result.totalTimeMs } })}\n\n`,
+            `data: ${JSON.stringify({ done: true, deepThinkJobId: deepThinkAdmitted ? deepThinkJobId : undefined, sourceMetadata, gunViolenceContext: gunViolenceContext.injected ? { geography: gunViolenceContext.geography, state: gunViolenceContext.state } : null, collaborative: { engines: result.engines.filter((e: any) => !e.error).map((e: any) => e.engine), consensusMethod: result.consensusMethod, ragChunks: result.ragContext.chunkCount, timeMs: result.totalTimeMs } })}\n\n`,
           );
           responseCompleted = true;
           res.end();

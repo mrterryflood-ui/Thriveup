@@ -5,6 +5,7 @@ import { TrainingGuideButton } from "@/components/training-guide";
 import { EvidenceSummary } from "@/components/evidence-label";
 import { AIAugmentationDisclosure } from "@/components/ai-augmentation-disclosure";
 import { GrantCoach } from "@/components/grant-coach";
+import { OpportunityManager } from "@/components/opportunity-manager";
 import { EngineSelector, getPreferredEngine } from "@/components/engine-selector";
 import { PillarFlowNav } from "@/components/dfc-cross-nav";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -683,6 +684,7 @@ export default function GrantHubPage() {
 
   return (
     <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
+      <OpportunityManager />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold" data-testid="text-grant-hub-title">Grant Discovery Hub</h1>

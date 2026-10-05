@@ -65,6 +65,10 @@ interface NavigatorMessage {
   honestyNotRecorded?: boolean;
   deepThinking?: string;
   deepThinkingPending?: boolean;
+  requestStatus?: string;
+  requestProgress?: string;
+  requestProgressElapsedMs?: number;
+  requestElapsedSeconds?: number;
   grantResults?: HuntGrant[];
   grantOrgName?: string;
   totalFound?: number;
@@ -434,7 +438,7 @@ export function AINavigator({
   const [savedIdx, setSavedIdx] = useState<number | null>(null);
   const [responseMode, setResponseMode] = useState<
     "brief" | "detailed" | "report"
-  >("detailed");
+  >("brief");
   const [youthMode, setYouthMode] = useState<boolean>(() => {
     try {
       return localStorage.getItem("tcaf_youth_mode") === "true";
@@ -450,6 +454,10 @@ export function AINavigator({
   const deepThinkPollingRef = useRef<DeepThinkPolling | null>(null);
   const requestAbortRef = useRef<AbortController | null>(null);
   const requestTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const requestElapsedTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [activeRequestId, setActiveRequestId] = useState<number | null>(null);
+  const [activeRequestAssistantIdx, setActiveRequestAssistantIdx] = useState<number | null>(null);
+  const activeRequestAssistantIdxRef = useRef<number | null>(null);
   const navigatorRequestIdRef = useRef(0);
   const submittedDraftRef = useRef<{
     message: string;
@@ -606,6 +614,7 @@ export function AINavigator({
     return () => {
       mountedRef.current = false;
       if (requestTimeoutRef.current) clearTimeout(requestTimeoutRef.current);
+      if (requestElapsedTimerRef.current) clearInterval(requestElapsedTimerRef.current);
       requestAbortRef.current?.abort();
       youthModeSaveAbortRef.current?.abort();
       conversationLoadRef.current?.abort();
@@ -641,6 +650,13 @@ export function AINavigator({
     }
     requestAbortRef.current?.abort();
     requestAbortRef.current = null;
+    if (requestElapsedTimerRef.current) {
+      clearInterval(requestElapsedTimerRef.current);
+      requestElapsedTimerRef.current = null;
+    }
+    setActiveRequestId(null);
+    setActiveRequestAssistantIdx(null);
+    activeRequestAssistantIdxRef.current = null;
     navigatorRequestIdRef.current += 1;
     stopDeepThinkPolling(undefined, false);
     setMessages([]);
@@ -783,6 +799,11 @@ export function AINavigator({
     requestAbortRef.current = null;
     if (requestTimeoutRef.current) clearTimeout(requestTimeoutRef.current);
     requestTimeoutRef.current = null;
+    if (requestElapsedTimerRef.current) clearInterval(requestElapsedTimerRef.current);
+    requestElapsedTimerRef.current = null;
+    setActiveRequestId(null);
+    setActiveRequestAssistantIdx(null);
+    activeRequestAssistantIdxRef.current = null;
     stopDeepThinkPolling();
     setIsStreaming(false);
     const generation = ++conversationLoadGenerationRef.current;
@@ -857,6 +878,17 @@ export function AINavigator({
     // Persist across hard-refresh within the same browser tab. Safe helper
     // never throws in private mode (falls back to in-memory for this tab).
     safeSetRaw("navigator_skip_resume", "1", "session");
+    requestAbortRef.current?.abort();
+    requestAbortRef.current = null;
+    if (requestTimeoutRef.current) clearTimeout(requestTimeoutRef.current);
+    requestTimeoutRef.current = null;
+    if (requestElapsedTimerRef.current) clearInterval(requestElapsedTimerRef.current);
+    requestElapsedTimerRef.current = null;
+    navigatorRequestIdRef.current += 1;
+    setActiveRequestId(null);
+    setActiveRequestAssistantIdx(null);
+    activeRequestAssistantIdxRef.current = null;
+    setIsStreaming(false);
     setMessages([]);
     setActiveConversationId(null);
     setAttachedDocs([]);
@@ -1119,6 +1151,47 @@ export function AINavigator({
     [toast],
   );
 
+  const stopCurrentRequest = useCallback(() => {
+    const requestId = activeRequestId;
+    const assistantIdx = activeRequestAssistantIdxRef.current;
+    const controller = requestAbortRef.current;
+    if (requestId === null || !controller || assistantIdx === null) return;
+
+    const draft = submittedDraftRef.current;
+    if (draft) {
+      setInput(draft.message);
+      setAttachedDocs(draft.attachments);
+    }
+    submittedDraftRef.current = null;
+    navigatorRequestIdRef.current += 1;
+    controller.abort();
+    requestAbortRef.current = null;
+    if (requestTimeoutRef.current) clearTimeout(requestTimeoutRef.current);
+    requestTimeoutRef.current = null;
+    if (requestElapsedTimerRef.current) clearInterval(requestElapsedTimerRef.current);
+    requestElapsedTimerRef.current = null;
+    setActiveRequestId(null);
+    setActiveRequestAssistantIdx(null);
+    activeRequestAssistantIdxRef.current = null;
+    setIsStreaming(false);
+    setMessages((prev) => {
+      const updated = [...prev];
+      if (updated[assistantIdx]) {
+        updated[assistantIdx] = {
+          ...updated[assistantIdx],
+          content:
+            "Request cancelled. Your message and attachments have been restored so you can edit or send them again.",
+          requestStatus: undefined,
+          requestProgress: undefined,
+          requestProgressElapsedMs: undefined,
+          requestElapsedSeconds: undefined,
+          deepThinkingPending: false,
+        };
+      }
+      return updated;
+    });
+  }, [activeRequestId]);
+
   const sendMessage = useCallback(
     async (text?: string) => {
       const messageText = text || input.trim();
@@ -1147,13 +1220,25 @@ export function AINavigator({
       // dispose prior work so it cannot update this new request later.
       requestAbortRef.current?.abort();
       if (requestTimeoutRef.current) clearTimeout(requestTimeoutRef.current);
+      if (requestElapsedTimerRef.current) clearInterval(requestElapsedTimerRef.current);
       stopDeepThinkPolling();
       const requestId = ++navigatorRequestIdRef.current;
 
       setMessages((prev) => [
-        ...prev,
+        ...prev.map((entry) => ({
+          ...entry,
+          requestStatus: undefined,
+          requestProgress: undefined,
+          requestProgressElapsedMs: undefined,
+          requestElapsedSeconds: undefined,
+        })),
         { role: "user", content: displayText },
-        { role: "assistant", content: "" },
+        {
+          role: "assistant",
+          content: "",
+          requestStatus: "Your message is submitted. Waiting for the Navigator to connect.",
+          requestElapsedSeconds: 0,
+        },
       ]);
       setInput("");
       setAttachedDocs([]);
@@ -1162,15 +1247,43 @@ export function AINavigator({
         attachments: attachedDocs,
       };
       setIsStreaming(true);
+      setActiveRequestId(requestId);
+      setActiveRequestAssistantIdx(assistantIdx);
+      activeRequestAssistantIdxRef.current = assistantIdx;
       let fullText = ""; // hoisted so the catch block can inspect it
       let requestTimedOut = false;
+      const requestStartedAt = Date.now();
       const controller = new AbortController();
       requestAbortRef.current = controller;
       const requestTimeout = setTimeout(() => {
         requestTimedOut = true;
         controller.abort();
-      }, 90_000);
+      }, 45_000);
       requestTimeoutRef.current = requestTimeout;
+      let lastElapsedBucket = 0;
+      const requestElapsedTimer = setInterval(() => {
+        if (
+          navigatorRequestIdRef.current !== requestId ||
+          !mountedRef.current
+        ) return;
+        const elapsedSeconds = Math.floor((Date.now() - requestStartedAt) / 1000);
+        const elapsedBucket = Math.floor(elapsedSeconds / 10);
+        if (elapsedBucket <= lastElapsedBucket) return;
+        lastElapsedBucket = elapsedBucket;
+        const reportedElapsedSeconds = elapsedBucket * 10;
+        setMessages((prev) => {
+          const updated = [...prev];
+          const pending = updated[assistantIdx];
+          if (!pending) return prev;
+          updated[assistantIdx] = {
+            ...pending,
+            requestStatus: "Waiting for the Navigator response.",
+            requestElapsedSeconds: reportedElapsedSeconds,
+          };
+          return updated;
+        });
+      }, 1000);
+      requestElapsedTimerRef.current = requestElapsedTimer;
 
       try {
         const response = await fetch("/api/navigator/chat", {
@@ -1236,6 +1349,28 @@ export function AINavigator({
                   setMessages(prev => prev.map((entry, index) => index === assistantIdx ? { ...entry, honesty: parsed.honesty } : entry));
                 }
 
+                if (
+                  parsed.progress &&
+                  typeof parsed.progress.phase === "string" &&
+                  typeof parsed.progress.message === "string"
+                ) {
+                  setMessages((prev) => {
+                    const updated = [...prev];
+                    if (updated[assistantIdx]) {
+                      updated[assistantIdx] = {
+                        ...updated[assistantIdx],
+                        requestProgress: `${parsed.progress.phase}: ${parsed.progress.message}`,
+                        requestProgressElapsedMs:
+                          typeof parsed.progress.elapsedMs === "number" &&
+                          Number.isFinite(parsed.progress.elapsedMs)
+                            ? parsed.progress.elapsedMs
+                            : undefined,
+                      };
+                    }
+                    return updated;
+                  });
+                }
+
                 if (parsed.conversationId && !activeConversationId) {
                   setActiveConversationId(parsed.conversationId);
                 }
@@ -1251,10 +1386,21 @@ export function AINavigator({
                         content:
                           "I wasn't able to generate a response right now. The AI engines may be temporarily unavailable — please try again in a moment.",
                         deepThinkingPending: false,
+                        requestStatus: undefined,
+                        requestProgress: undefined,
+                        requestProgressElapsedMs: undefined,
+                        requestElapsedSeconds: undefined,
                       };
                     }
                     return updated;
                   });
+                  setActiveRequestId(null);
+                  setActiveRequestAssistantIdx(null);
+                  activeRequestAssistantIdxRef.current = null;
+                  if (requestElapsedTimerRef.current) {
+                    clearInterval(requestElapsedTimerRef.current);
+                    requestElapsedTimerRef.current = null;
+                  }
                   setIsStreaming(false);
                   break;
                 }
@@ -1342,6 +1488,26 @@ export function AINavigator({
                 }
 
                 if (parsed.done) {
+                  setActiveRequestId(null);
+                  setActiveRequestAssistantIdx(null);
+                  activeRequestAssistantIdxRef.current = null;
+                  if (requestElapsedTimerRef.current) {
+                    clearInterval(requestElapsedTimerRef.current);
+                    requestElapsedTimerRef.current = null;
+                  }
+                  setMessages((prev) => {
+                    const updated = [...prev];
+                    if (updated[assistantIdx]) {
+                      updated[assistantIdx] = {
+                        ...updated[assistantIdx],
+                        requestStatus: undefined,
+                        requestProgress: undefined,
+                        requestProgressElapsedMs: undefined,
+                        requestElapsedSeconds: undefined,
+                      };
+                    }
+                    return updated;
+                  });
                   refetchConversations();
                   if (parsed.gunViolenceContext) {
                     setMessages((prev) => {
@@ -1469,7 +1635,7 @@ export function AINavigator({
         // Only replace content with an error if nothing was streamed yet.
         // If synthesis already completed (fullText has content), a connection
         // drop during the Phase-2 R1 wait is benign — don't overwrite good output.
-        if (requestTimedOut) {
+        if (requestTimedOut || !fullText) {
           // The composer is the retry path. Restore the exact submitted payload
           // even when a partial answer arrived before the absolute deadline.
           const draft = submittedDraftRef.current;
@@ -1485,9 +1651,13 @@ export function AINavigator({
               updated[assistantIdx] = {
                 ...updated[assistantIdx],
                 content: requestTimedOut
-                  ? "I'm sorry, this Navigator request took longer than 90 seconds and was stopped. Your message and attachments have been restored below—press Send to retry."
-                  : "I'm sorry, I'm having trouble connecting right now. Please try again in a moment.",
+                  ? "This Navigator request reached the 45-second client limit and was stopped. Your message and attachments have been restored below; you can edit or retry."
+                  : "The connection failed before an answer arrived. Your message and attachments have been restored below; you can edit or retry.",
                 deepThinkingPending: false,
+                requestStatus: undefined,
+                requestProgress: undefined,
+                requestProgressElapsedMs: undefined,
+                requestElapsedSeconds: undefined,
               };
             }
             return updated;
@@ -1500,9 +1670,13 @@ export function AINavigator({
               updated[assistantIdx] = {
                 ...updated[assistantIdx],
                 content: requestTimedOut
-                  ? `${updated[assistantIdx].content}\n\n⚠️ This request reached the 90-second limit. Your message and attachments have been restored below—press Send to retry.`
+                  ? `${updated[assistantIdx].content}\n\nThis request reached the 45-second client limit. Your message and attachments have been restored below; you can edit or retry.`
                   : updated[assistantIdx].content,
                 deepThinkingPending: false,
+                requestStatus: undefined,
+                requestProgress: undefined,
+                requestProgressElapsedMs: undefined,
+                requestElapsedSeconds: undefined,
               };
             }
             return updated;
@@ -1513,6 +1687,10 @@ export function AINavigator({
           clearTimeout(requestTimeout);
           requestTimeoutRef.current = null;
         }
+        if (requestElapsedTimerRef.current === requestElapsedTimer) {
+          clearInterval(requestElapsedTimer);
+          requestElapsedTimerRef.current = null;
+        }
         if (requestAbortRef.current === controller) {
           requestAbortRef.current = null;
         }
@@ -1520,6 +1698,22 @@ export function AINavigator({
           mountedRef.current &&
           navigatorRequestIdRef.current === requestId
         ) {
+          setActiveRequestId(null);
+          setActiveRequestAssistantIdx(null);
+          activeRequestAssistantIdxRef.current = null;
+          setMessages((prev) => {
+            const updated = [...prev];
+            if (updated[assistantIdx]) {
+              updated[assistantIdx] = {
+                ...updated[assistantIdx],
+                requestStatus: undefined,
+                requestProgress: undefined,
+                requestProgressElapsedMs: undefined,
+                requestElapsedSeconds: undefined,
+              };
+            }
+            return updated;
+          });
           setIsStreaming(false);
         }
       }
@@ -1883,6 +2077,45 @@ export function AINavigator({
                           )}
                         </div>
                         {msg.role === "assistant" &&
+                          activeRequestAssistantIdx === idx &&
+                          activeRequestId !== null &&
+                          (msg.requestStatus || msg.requestProgress) && (
+                            <div
+                              className="ml-11 mt-2 flex items-center justify-between gap-3 text-xs text-muted-foreground"
+                              role="status"
+                              aria-live="polite"
+                              aria-atomic="true"
+                              data-testid="navigator-request-status-page"
+                            >
+                              <span className="min-w-0">
+                                {msg.requestProgress && (
+                                  <span className="block text-foreground">
+                                    {msg.requestProgress}
+                                    {typeof msg.requestProgressElapsedMs === "number"
+                                      ? ` · ${Math.floor(msg.requestProgressElapsedMs / 1000)}s server elapsed`
+                                      : ""}
+                                  </span>
+                                )}
+                                <span className="block">
+                                  {msg.requestStatus}
+                                  {msg.requestElapsedSeconds
+                                    ? ` · ${msg.requestElapsedSeconds} seconds elapsed`
+                                    : ""}
+                                </span>
+                              </span>
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                onClick={stopCurrentRequest}
+                                className="h-7 shrink-0"
+                                data-testid="button-stop-navigator-page"
+                              >
+                                Stop
+                              </Button>
+                            </div>
+                          )}
+                        {msg.role === "assistant" &&
                           msg.grantResults &&
                           msg.grantResults.length > 0 && (
                             <GrantResultCards
@@ -1977,11 +2210,7 @@ export function AINavigator({
                                   R1 deep analysis — {deepThinkElapsed}s...
                                 </span>
                                 <span className="text-muted-foreground hidden sm:inline">
-                                  {deepThinkElapsed < 20
-                                    ? "Starting up DeepSeek R1 reasoning engine"
-                                    : deepThinkElapsed < 50
-                                      ? "R1 is reasoning through the problem deeply"
-                                      : "Almost there — R1 is finishing its analysis"}
+                                  {`Waiting for deep analysis. ${deepThinkElapsed}s elapsed. No completion estimate is available.`}
                                 </span>
                               </div>
                             </div>
@@ -2560,6 +2789,46 @@ export function AINavigator({
                       )}
                     </div>
 
+                    {msg.role === "assistant" &&
+                      activeRequestAssistantIdx === idx &&
+                      activeRequestId !== null &&
+                      (msg.requestStatus || msg.requestProgress) && (
+                        <div
+                          className="ml-9 mt-1.5 flex items-center justify-between gap-2 text-[10px] text-muted-foreground"
+                          role="status"
+                          aria-live="polite"
+                          aria-atomic="true"
+                          data-testid="navigator-request-status-bubble"
+                        >
+                          <span className="min-w-0">
+                            {msg.requestProgress && (
+                              <span className="block text-foreground">
+                                {msg.requestProgress}
+                                {typeof msg.requestProgressElapsedMs === "number"
+                                  ? ` · ${Math.floor(msg.requestProgressElapsedMs / 1000)}s server elapsed`
+                                  : ""}
+                              </span>
+                            )}
+                            <span className="block">
+                              {msg.requestStatus}
+                              {msg.requestElapsedSeconds
+                                ? ` · ${msg.requestElapsedSeconds} seconds elapsed`
+                                : ""}
+                            </span>
+                          </span>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={stopCurrentRequest}
+                            className="h-6 px-2 text-[10px] shrink-0"
+                            data-testid="button-stop-navigator-bubble"
+                          >
+                            Stop
+                          </Button>
+                        </div>
+                      )}
+
                     {/* Assistant action bar: copy + download */}
                     {msg.role === "assistant" && msg.content && (
                       <div className="ml-9 mt-1 flex items-center gap-1">
@@ -2603,11 +2872,7 @@ export function AINavigator({
                             <span className="animate-pulse">...</span>
                           </span>
                           <span className="text-violet-400 dark:text-violet-500 text-[10px]">
-                            {deepThinkElapsed < 20
-                              ? "Starting up DeepSeek R1 reasoning engine"
-                              : deepThinkElapsed < 50
-                                ? "R1 is reasoning through the problem deeply"
-                                : "Almost there — R1 is finishing its analysis"}
+                            {`Waiting for deep analysis. ${deepThinkElapsed}s elapsed. No completion estimate is available.`}
                           </span>
                         </div>
                         <Loader2 className="h-3 w-3 animate-spin flex-shrink-0 ml-auto" />

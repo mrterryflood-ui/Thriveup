@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { OpportunityManager } from "@/components/opportunity-manager";
 import { Trophy, FileText, ExternalLink, Trash2, TrendingUp, DollarSign, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 
@@ -63,6 +64,8 @@ export default function MyGrantsPage() {
         </div>
         <Link href="/grants"><Button data-testid="button-browse-grants">Browse grants</Button></Link>
       </div>
+
+      <OpportunityManager />
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <Card><CardContent className="pt-6"><div className="text-2xl font-bold" data-testid="stat-total">{s?.totalTracked ?? 0}</div><div className="text-xs text-muted-foreground">Tracked</div></CardContent></Card>

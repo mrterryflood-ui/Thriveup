@@ -14,6 +14,7 @@ import { collaborativeResponse } from "./collaborative-ai";
 import { communityNarrativeBlock } from "./community-intel";
 import PDFDocument from "pdfkit";
 import type { SQL } from "drizzle-orm";
+import { registerGrantManagementRoutes } from "./grant-management-routes";
 
 interface AIAnalysisResult {
   summary: string;
@@ -734,6 +735,7 @@ function grantToCSVRow(g: GrantOpportunity): string {
 }
 
 export function registerGrantRoutes(app: Express) {
+  registerGrantManagementRoutes(app, () => runDailyGrantDiscovery());
   app.get("/api/grants", async (req, res) => {
     try {
       const { category, minFit, status, search, state, geography, scope } = req.query;
@@ -1727,7 +1729,7 @@ Return ONLY JSON:
 
   app.get("/api/grants/:id", async (req, res, next) => {
     // Reserved subpaths handled by other routes; let Express continue to them.
-    const reserved = new Set(["this-week", "digest", "discovery", "stats", "alerts", "report", "platform", "section-drafts", "collaborator-value-map", "for-agencies", "next-90-days"]);
+    const reserved = new Set(["management", "this-week", "digest", "discovery", "stats", "alerts", "report", "platform", "section-drafts", "collaborator-value-map", "for-agencies", "next-90-days"]);
     if (reserved.has(getParamId(req))) return next();
     try {
       const [grant] = await db.select().from(grantOpportunities).where(eq(grantOpportunities.id, getParamId(req)));
@@ -3869,7 +3871,14 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
   // Results sorted by fit score — most relevant first.
   // ===================================================================
 
-  async function runDailyGrantDiscovery() {
+  let discoveryWork: ReturnType<typeof runDailyGrantDiscoveryWork> | null = null;
+  function runDailyGrantDiscovery() {
+    if (!discoveryWork) {
+      discoveryWork = runDailyGrantDiscoveryWork().finally(() => { discoveryWork = null; });
+    }
+    return discoveryWork;
+  }
+  async function runDailyGrantDiscoveryWork() {
     console.log("[GrantDiscovery] Starting daily automated grant scan...");
     let imported = 0;
     let skipped = 0;
@@ -4596,6 +4605,7 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
   app.post("/api/grants/discovery/run-now", requireAuth, async (_req, res) => {
     try {
       const result = await runDailyGrantDiscovery();
+      lastDiscoveryResult = result;
       lastDailyDiscoveryRun = new Date();
       res.json({ success: true, ...result, ranAt: lastDailyDiscoveryRun.toISOString() });
     } catch (error) {

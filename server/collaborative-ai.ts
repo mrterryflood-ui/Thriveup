@@ -29,6 +29,8 @@ interface CollaborativeResult {
 
 interface CollaborativeStreamParams {
   prompt: string;
+  /** Interactive first pass: one fast engine, no synthesis or background R1. */
+  fastFirst?: boolean;
   systemPrompt?: string;
   maxTokens?: number;
   /** When true, skip RAG retrieval entirely (e.g. user has already supplied
@@ -616,8 +618,12 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
   // Separate DeepSeek R1 (deep thinker, 30-90s) from the fast engines
   // (Claude, OpenAI, Gemini, ~3-8s). R1 starts immediately on its own
   // track — it will NOT block the initial synthesis.
-  const deepThinkEngine = engines.find(e => e.id === "deepseek-r1");
+  const deepThinkEngine = params.fastFirst ? undefined : engines.find(e => e.id === "deepseek-r1");
   const allFastEngines = engines.filter(e => e.id !== "deepseek-r1");
+  if (params.fastFirst && allFastEngines.length === 0) {
+    await params.onError(new Error("No fast AI engine configured; Quick mode will not use the slow reasoning engine"));
+    return;
+  }
 
   // When the user has supplied document context (skipRAG=true), prefer Claude
   // as the sole fast engine — it has a 200K-token context window and handles
@@ -628,12 +634,15 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
     const claudeEngine = allFastEngines.find(e => e.id === "claude");
     if (claudeEngine) enginesForFastPass = [claudeEngine];
   }
+  if (params.fastFirst && allFastEngines.length > 0) {
+    enginesForFastPass = [allFastEngines.find(e => e.id === "claude") || allFastEngines[0]];
+  }
 
   let ragSources: string[] = [];
   let ragContext = "";
   let ragChunkCount = 0;
 
-  if (!params.skipRAG) {
+  if (!params.skipRAG && !params.fastFirst) {
     try {
       if (params.signal?.aborted) return;
       const searchQuery = params.prompt.slice(0, 200);
@@ -664,7 +673,7 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
   const baseSystem = params.systemPrompt || (STREAM_ANTI_FAB + "You are part of the ThriveUp Academy Collaborative Intelligence System — evidence-grounded synthesis for a 26-platform community-infrastructure ecosystem. Use the RAG context provided. Never fabricate facts.");
 
   params.onMeta({
-    engines: engines.map(e => e.id),
+    engines: (params.fastFirst ? enginesForFastPass : engines).map(e => e.id),
     ragSources,
     frameworks: ["RPLICE", "MAP-GAP"],
   });
