@@ -24,6 +24,7 @@ import { z } from "zod";
 import { communityContextSchema } from "@shared/community-context";
 import { generateAIJSON } from "./ai-provider";
 import { filterByItiConsent } from "./integration-invitation-routes";
+import { isItiAccessWithinWindow } from "./iti-token-policy";
 
 // Deterministic category → ecosystem-platform routing map.
 // Used both for AI theme recommendations and the chain-web visualization.
@@ -319,12 +320,15 @@ export function registerVoiceRoutes(app: Express) {
                 id: integrationInvitations.id,
                 accessToken: integrationInvitations.accessToken,
                 status: integrationInvitations.status,
+                createdAt: integrationInvitations.createdAt,
               })
               .from(integrationInvitations)
               .where(eq(integrationInvitations.id, data.itiInvitationId))
               .for("update");
             const presented = (req.header("x-iti-token") || "").trim();
-            if (!invitation || invitation.status === "withdrawn" || !tokensMatch(invitation.accessToken, presented)) {
+            if (!invitation || invitation.status === "withdrawn" ||
+                !isItiAccessWithinWindow(invitation.createdAt) ||
+                !tokensMatch(invitation.accessToken, presented)) {
               return { error: "invalid-invitation" as const };
             }
           }

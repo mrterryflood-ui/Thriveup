@@ -14,7 +14,14 @@ import {
 } from "@shared/schema";
 import { communityContextSchema } from "@shared/community-context";
 import { and, desc, eq, sql } from "drizzle-orm";
-import { randomBytes, timingSafeEqual } from "crypto";
+import { createHmac, randomBytes, timingSafeEqual } from "crypto";
+import { isItiAccessWithinWindow } from "./iti-token-policy";
+
+function deriveWithdrawalToken(invitationId: string, accessToken: string): string {
+  return createHmac("sha256", accessToken)
+    .update(`iti-withdrawal:v1:${invitationId}`)
+    .digest("hex");
+}
 
 function getUser(req: Request) {
   const u = (req as unknown as Record<string, unknown>).user as
@@ -74,8 +81,29 @@ export async function authorizeInvitation(req: Request, invitationId: string): P
   const [invitation] = await db.select().from(integrationInvitations).where(eq(integrationInvitations.id, invitationId)).limit(1);
   if (!invitation) return null;
   if (isAdmin(req)) return { invitation };
+  if (!isItiAccessWithinWindow(invitation.createdAt)) return null;
   const presented = (req.header("x-iti-token") || "").trim();
   if (tokensMatch(invitation.accessToken, presented)) return { invitation };
+  return null;
+}
+
+/** Withdrawal-only authorization is intentionally separate from read/edit access. */
+async function authorizeInvitationForWithdrawal(req: Request, invitationId: string): Promise<{ invitation: IntegrationInvitation } | null> {
+  const [invitation] = await db.select().from(integrationInvitations).where(eq(integrationInvitations.id, invitationId)).limit(1);
+  if (!invitation) return null;
+  if (isAdmin(req)) return { invitation };
+
+  const accessToken = (req.header("x-iti-token") || "").trim();
+  if (
+    isItiAccessWithinWindow(invitation.createdAt) &&
+    tokensMatch(invitation.accessToken, accessToken)
+  ) {
+    return { invitation };
+  }
+
+  const expectedWithdrawalToken = deriveWithdrawalToken(invitation.id, invitation.accessToken);
+  const presentedWithdrawalToken = (req.header("x-iti-withdrawal-token") || "").trim();
+  if (tokensMatch(expectedWithdrawalToken, presentedWithdrawalToken)) return { invitation };
   return null;
 }
 
@@ -120,7 +148,7 @@ export async function filterByItiConsent<T extends { itiInvitationId?: string | 
 
 const ALLOWED_SURFACES = new Set([
   "voice-project", "foster-intake", "lifebridge", "justice-hub",
-  "trade-sims", "wph", "workforce-readiness", "public-site", "direct", "shadow-worker-hub",
+  "trade-sims", "wph", "workforce-readiness", "public-site", "direct", "shadow-worker-hub", "community-gravity",
 ]);
 
 const MAX_TEXT = 4000;
@@ -204,10 +232,12 @@ export function registerIntegrationInvitationRoutes(app: Express) {
         return created;
       });
 
+      const withdrawalToken = deriveWithdrawalToken(row.id, accessToken);
+
       await logRecognition(row.id, "heard", "Self-identified through Integration through Invitation", { actorRole: "system", surfaceRef: surface });
 
       const { accessToken: _t, ...safe } = row;
-      res.status(201).json({ invitation: safe, accessToken });
+      res.status(201).json({ invitation: safe, accessToken, withdrawalToken });
     } catch (err) {
       console.error("[ITI] create failed:", err);
       res.status(500).json({ error: "Failed to create invitation" });
@@ -220,7 +250,13 @@ export function registerIntegrationInvitationRoutes(app: Express) {
     if (!auth) return res.status(404).json({ error: "Not found" });
     const [consents] = await db.select().from(invitationConsents).where(eq(invitationConsents.invitationId, auth.invitation.id)).limit(1);
     const { accessToken: _t, ...safe } = auth.invitation;
-    res.json({ invitation: safe, consents: consents ?? null });
+    res.json({
+      invitation: safe,
+      consents: consents ?? null,
+      // Returned only while full access is valid, so browser storage can be refreshed.
+      // This capability cannot read or edit the invitation.
+      withdrawalToken: deriveWithdrawalToken(auth.invitation.id, auth.invitation.accessToken),
+    });
   });
 
   // --- PUBLIC (token-authed): update profile fields ---
@@ -249,9 +285,24 @@ export function registerIntegrationInvitationRoutes(app: Express) {
       }
     }
     updates.lastSeenAt = new Date();
-    const [updated] = await db.update(integrationInvitations).set(updates).where(eq(integrationInvitations.id, auth.invitation.id)).returning();
+    const result = await db.transaction(async (tx) => {
+      const [lockedInvitation] = await tx
+        .select({ id: integrationInvitations.id, status: integrationInvitations.status })
+        .from(integrationInvitations)
+        .where(eq(integrationInvitations.id, auth.invitation.id))
+        .for("update");
+      if (!lockedInvitation) return { kind: "missing" as const };
+      if (lockedInvitation.status === "withdrawn") return { kind: "withdrawn" as const };
+      const [updated] = await tx.update(integrationInvitations)
+        .set(updates)
+        .where(eq(integrationInvitations.id, auth.invitation.id))
+        .returning();
+      return updated ? { kind: "updated" as const, invitation: updated } : { kind: "missing" as const };
+    });
+    if (result.kind === "missing") return res.status(404).json({ error: "Not found" });
+    if (result.kind === "withdrawn") return res.status(409).json({ error: "This invitation was withdrawn; profile updates are no longer allowed." });
     await logRecognition(auth.invitation.id, "corrected-record", "Profile updated by invitee", { actorRole: "invitee" });
-    const { accessToken: _t, ...safe } = updated;
+    const { accessToken: _t, ...safe } = result.invitation;
     res.json({ invitation: safe });
   });
 
@@ -303,15 +354,16 @@ export function registerIntegrationInvitationRoutes(app: Express) {
 
   // --- PUBLIC (token-authed): withdraw ---
   app.post("/api/iti/invitations/:id/withdraw", async (req, res) => {
-    const auth = await authorizeInvitation(req, req.params.id);
+    const auth = await authorizeInvitationForWithdrawal(req, req.params.id);
     if (!auth) return res.status(404).json({ error: "Not found" });
-    const withdrawn = await db.transaction(async (tx) => {
+    const result = await db.transaction(async (tx) => {
       const [lockedInvitation] = await tx
-        .select({ id: integrationInvitations.id })
+        .select({ id: integrationInvitations.id, status: integrationInvitations.status })
         .from(integrationInvitations)
         .where(eq(integrationInvitations.id, auth.invitation.id))
         .for("update");
-      if (!lockedInvitation) return false;
+      if (!lockedInvitation) return "missing" as const;
+      if (lockedInvitation.status === "withdrawn") return "already-withdrawn" as const;
       // Reset all consents while holding the invitation row lock. The consent
       // PATCH path takes the same lock, so withdrawal wins deterministically.
       await tx.update(invitationConsents).set({
@@ -320,11 +372,13 @@ export function registerIntegrationInvitationRoutes(app: Express) {
         updatedAt: new Date(),
       }).where(eq(invitationConsents.invitationId, auth.invitation.id));
       await tx.update(integrationInvitations).set({ status: "withdrawn", withdrawnAt: new Date() }).where(eq(integrationInvitations.id, auth.invitation.id));
-      return true;
+      return "withdrawn" as const;
     });
-    if (!withdrawn) return res.status(404).json({ error: "Not found" });
-    await logRecognition(auth.invitation.id, "corrected-record", "Invitee withdrew. All consents revoked.", { actorRole: "invitee" });
-    res.json({ ok: true });
+    if (result === "missing") return res.status(404).json({ error: "Not found" });
+    if (result === "withdrawn") {
+      await logRecognition(auth.invitation.id, "corrected-record", "Invitee withdrew. All consents revoked.", { actorRole: "invitee" });
+    }
+    res.json({ ok: true, alreadyWithdrawn: result === "already-withdrawn" });
   });
 
   // --- PUBLIC (token-authed): witness loop — who heard you, what was done with it ---

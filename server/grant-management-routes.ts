@@ -76,9 +76,9 @@ export function registerGrantManagementRoutes(app: Express, refreshCorpus: () =>
         rows, total, page, pageSize: 50, refresh, lifecycle: {
           lastCompletedRun: await getGrantLifecycleReceipt(),
           schedule: "00:45 UTC nightly; boot catch-up; before/after source refresh",
-          gppSync: process.env.THRIVEUP_CALLBACK_API_KEY?.trim()
-            ? "GPP catalogue lifecycle receiver configured; sender delivery and nightly GPP execution still require verification."
-            : "GPP catalogue lifecycle receiver blocked: dedicated callback credential not configured. No upstream removals are assumed.",
+          gppSync: (process.env.THRIVEUP_CALLBACK_API_KEY?.trim() || process.env.THRIVEUP_API_KEY?.trim())
+            ? "GPP catalogue lifecycle receiver configured (dedicated or issued partner key); sender delivery and nightly GPP execution still require verification."
+            : "GPP catalogue lifecycle receiver blocked: no callback credential configured. No upstream removals are assumed.",
         },
       });
     } catch (error) {

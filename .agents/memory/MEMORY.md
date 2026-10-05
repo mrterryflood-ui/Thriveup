@@ -53,6 +53,7 @@
 - [Equity-Loss Engine](equity-loss-engine.md) — 3-frame divergence must never be structurally zero; peer-class = 1 representative county, disclosed; Census now hard-requires its API key (302, not clean error).
 - [Express route ID shadowing](express-route-id-shadowing.md) — `/api/grants/:id` in grant-routes.ts has a manual reserved-word allowlist; any new literal `/api/grants/<word>` route must be added to it or it gets swallowed.
 - [Benefits How-to-Apply walkthroughs](benefits-apply-walkthroughs.md) — server catalog + shared meta + screener cards must stay in lockstep; parity gate fails one-sided program adds.
+- [ITI consent revocation policy](iti-consent-revocation.md) — consents persist past 24-hour private access, but separate recovery can only turn them off, never reopen profile/history.
 - [Nav findability & two-click gate](nav-findability.md) — task-first nav; sidebar flags must match route gates (staffOnly ≠ adminOnly); auth-aware BFS gate guards two-click reachability.
 - [Health federation partner connectors](health-federation.md) — HerHealth/MaleHealth have public no-auth APIs; honest-offline gateway; Nia=/ai-navigator, Malik=/malik deep links.
 - [GrantPathPro address is env-driven](grantpathpro-env-driven.md) — no hardcoded GrantPathPro domain in code; outbound integration URL lives in `GPP_API_URL` env var, not a source-code string.
@@ -71,6 +72,10 @@
 - [Childcare nationwide intelligence](childcare-nationwide-intel.md) — TX→HHSC CCL (county name lookup); non-TX→Census CBP 2022 NAICS 6244 + ACS B01001 child pop; getChildcareIntelByFips is the unified entry point; zctaCountyMap uses .zip not .zcta; buildSummary bug fixed (license_status is "Full Permit" not "LICENSED").
 - [ChildCORE Partner API](childcore-partner-api.md) — outbound calls use CHILDCORE_API_KEY; inbound access uses a separate scoped tcaf_ key that ChildCORE stores as THRIVEUP_API_KEY.
 - [ChildCORE production contract drift](childcore-production-contract-drift.md) — source, public docs, and published routes can diverge; validate all three before calling a capability live.
+
+- [Boot seed multiplication](boot-seed-multiplication.md) — boot seeds without a unique key multiply rows across restarts; gates must fail on tab crashes/response size, not just layout.
+- [Playwright container limits](playwright-container-limits.md) — 1 worker; never alongside tsc; background gates via run_in_background only; hero-overlay contrast heuristic.
+- [Stacked PRs via Git Data API](github-push-via-connector.md) — sibling PRs stack through a hand-built merge commit; read blobs with fs inside impure and verify sha1 — never carry base64 through shellExec output.
 
 ## ── AGENT SKILLS (load these, not just memory files) ──────────────────────
 - [Platform DNA Skill](.agents/skills/platform-dna/SKILL.md) — ADIS v4 governing: Tier A constitution + Tier B pipeline + deployment map; full v4 spec + v3 archive in same dir; pass to EVERY subagent via relevantSkills.
@@ -104,3 +109,4 @@
 - [Community bank impact view](community-bank-view.md) — public composer over existing organs; coverage per tile; nationwide county ACS+SVI ingested via script (no scheduler); childcare engine wants 3-digit county suffix; curated city list, else ZIP/county:FIPS.
 - [Geographic provenance](geographic-provenance.md) — populated coordinates do not prove accuracy; preserve FIPS/ZIP scope and distinguish filing locations, seeded pins, and metric definitions.
 - [Verification resource budget](verification-resource-budget.md) — serialize compiler/build and browser checks in constrained containers; interrupted checks are not passing proof.
+- [Access truth = route registry](access-truth-registry.md) — one predicate (shared/route-access); sidebar group flags over-restrict; regenerate registry JSON from the target branch inputs, never local.

@@ -80,11 +80,14 @@ try {
   assert.equal((await database.query("SELECT count(*)::int AS n FROM grant_opportunities WHERE id=ANY($1)", [ids])).rows[0].n, ids.length);
   await expected(await request("/api/grants/management/bulk", cookies[1], { ids: [ids[0]], action: "purge", confirmation: "PURGE 1" }), 200);
   assert.equal((await database.query("SELECT count(*)::int AS n FROM grant_opportunities WHERE id=$1", [ids[0]])).rows[0].n, 0);
-  const change = { grantId: ids[4], status: "expired" as const, sourceTimestamp: new Date(Date.now() - 1000).toISOString(), sourceUrl: "https://issuer.example/verification-fixture" };
+  // External-identity resolution: match by exact sourceUrl, not grantId.
+  await database.query("UPDATE grant_opportunities SET source_url='https://issuer.example/verification-fixture' WHERE id=$1", [ids[4]]);
+  const change = { externalId: "https://issuer.example/verification-fixture", status: "expired" as const, sourceTimestamp: new Date(Date.now() - 1000).toISOString(), sourceUrl: "https://issuer.example/verification-fixture" };
   const event = { contractVersion: "v1" as const, eventId: eventIds[0], changes: [change] };
   assert.equal((await applyGppLifecycleEvent(event)).accepted, true);
   assert.equal((await applyGppLifecycleEvent(event)).duplicate, true);
-  await assert.rejects(applyGppLifecycleEvent({ ...event, changes: [{ ...change, status: "cancelled" }] }), /reused/);
+  // Same identity, same source timestamp, different status = conflicting replay, rejected.
+  await assert.rejects(applyGppLifecycleEvent({ ...event, changes: [{ ...change, status: "cancelled" }] }), /Superseded/);
   await assert.rejects(applyGppLifecycleEvent({ ...event, eventId: eventIds[1], changes: [{ ...change, sourceTimestamp: "2020-01-01T00:00:00Z" }] }), /Superseded/);
   await database.query("UPDATE grant_opportunities SET status='identified' WHERE id=$1", [ids[4]]);
   const suppressed = await expected(await request(`/api/grants?search=${encodeURIComponent(run)}`), 200);

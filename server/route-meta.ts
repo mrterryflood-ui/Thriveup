@@ -33,10 +33,10 @@ const DEFAULT_META: RouteMeta = {
 /** Static path → metadata. Longest prefix wins for prefix-based lookups. */
 const STATIC_META: Record<string, RouteMeta> = {
   "/community-gravity": {
-    title: "Community Gravity: who is doing the work | TCAF + ThriveUp",
-    description: "The organizations that anchor each domain of community life in a city, drawn from public IRS records, with staff verification and cited facts disclosed. Not an endorsement.",
+    title: "Community Gravity | Community Rolodex",
+    description: "Browse staff-published, source-cited organization profiles by city and state. IRS Exempt Organizations filings appear separately and cover nonprofits only. Listing does not imply partnership, endorsement, referral acceptance, service area, or capacity.",
     ogTitle: "Community Gravity",
-    ogDescription: "Who is doing the work in your community, by domain, from public records with provenance.",
+    ogDescription: "Browse source-cited community organization profiles separately from IRS nonprofit filings.",
   },
   "/community-banks": {
     title: "Community Bank Impact View | TCAF + ThriveUp",

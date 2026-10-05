@@ -7,22 +7,33 @@ receipt does not prove GPP ran, nor does GPP's receipt prove ThriveUp applied it
 
 The separate **catalogue** callback is:
 `POST <THRIVEUP_API_BASE_URL>/api/inbound/grantpathpro/opportunity-lifecycle`.
-It requires `x-api-key` matching the **dedicated** `THRIVEUP_CALLBACK_API_KEY`;
-the legacy shared ingest credential cannot authorize catalogue-wide effects.
-Missing configuration returns 503 without changing records.
+It requires `x-api-key` matching `THRIVEUP_CALLBACK_API_KEY` when configured,
+otherwise the partner-issued `THRIVEUP_API_KEY` already provisioned to GPP.
+The legacy shared ingest credentials cannot authorize catalogue-wide effects.
+No configured credential returns 503 without changing records.
+
+Identity: `grantId` (ThriveUp id) OR `externalId` — an exact issuer URL or
+SAM.gov notice id that ThriveUp matches exactly against its stored source URL /
+notice id. Never fuzzy title matching. At least one identity field is required.
 
 ```json
 {
   "contractVersion": "v1",
   "eventId": "ca3b8923-4500-4e9e-9160-846b6a61bfe9",
   "changes": [{
-    "grantId": "the-canonical-ThriveUp-opportunity-id",
+    "externalId": "https://issuer.example/official-opportunity",
     "status": "expired",
     "sourceTimestamp": "2026-10-05T00:30:00Z",
     "sourceUrl": "https://issuer.example/official-opportunity"
   }]
 }
 ```
+
+Re-sending an already-known change (same identity, same timestamp, same status)
+is an acknowledged no-op (`duplicate: true`), so batch composition may change
+as the retired set grows. GPP's sender lives at
+`convex/thriveup/lifecyclePush.ts` and runs nightly at 00:45 UTC after its
+00:30 retirement sweeps.
 
 Up to 100 unique identities per atomic event. Never map by fuzzy title or treat
 absence from an incomplete snapshot as deletion. Unknown identities, stale

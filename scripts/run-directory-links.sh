@@ -78,7 +78,7 @@ E2E_BASE_URL="$BASE" npx playwright test tests/e2e/community-banks.spec.ts \
 E2E_BASE_URL="$BASE" npx playwright test tests/e2e/community-gravity.spec.ts \
   --workers=1 --output="/tmp/community-gravity-gate-$$" || exit 1
 E2E_BASE_URL="$BASE" npx playwright test tests/e2e/demo-door.spec.ts \
-  --workers=1 --output="/tmp/demo-door-gate-$" || exit 1
+  --workers=1 --output="/tmp/demo-door-gate-$$" || exit 1
 E2E_BASE_URL="$BASE" npx playwright test tests/e2e/outcome-nav.spec.ts \
   --workers=1 --output="/tmp/outcome-nav-gate-$$" || exit 1
 E2E_BASE_URL="$BASE" npx playwright test tests/e2e/page-frame.spec.ts \

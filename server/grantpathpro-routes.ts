@@ -831,7 +831,7 @@ async function persistOpportunityHandoffDelivery(
 }
 
 export function registerGrantPathProRoutes(app: Express) {
-  registerGppLifecycleCallback(app, requireGppOpportunityFeedbackKey);
+  registerGppLifecycleCallback(app);
 
   const manorBootstrapSchema = z.object({}).strict();
 

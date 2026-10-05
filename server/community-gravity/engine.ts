@@ -17,6 +17,7 @@ import { COUNTY_CENTROID_SOURCE, countyCentroid } from "@shared/nationwide/count
 import { resolveZip } from "@shared/nationwide/zip-resolver";
 import type { MagnetMapPayload, MapZipCluster, MapCountyNeed, MapResourcePin } from "@shared/magnet-map";
 import { generateAIJSON, isPerplexityAvailable, perplexityResearch } from "../ai-provider";
+import { isPublicHttpUrl } from "./validation";
 
 export const BMF_URL = (state: string) => `https://www.irs.gov/pub/irs-soi/eo_${state.toLowerCase()}.csv`;
 
@@ -100,7 +101,7 @@ export async function ingestState(state: string, city?: string, countyFips?: str
 }
 
 // ── Gravity: clusters, magnets, connections ─────────────────────────────────
-export interface GravityOrg { ein: string; name: string; city: string; state: string; zip: string | null; nteeCode: string | null; domain: string; revenueAmt: number | null; taxPeriod: string | null; verified: boolean; verifiedNote: string | null; profileUrl: string; }
+export interface GravityOrg { ein: string; name: string; city: string; state: string; zip: string | null; nteeCode: string | null; domain: string; revenueAmt: number | null; taxPeriod: string | null; verified: boolean; profileUrl: string; }
 export interface DomainCluster { domain: string; label: string; count: number; magnets: GravityOrg[]; nearbyCount: number; nearbyCities: { city: string; count: number; distanceMiles: number }[]; }
 export interface GravityField {
   community: { city: string; state: string }; builtFrom: { source: string; sourceUrl: string; fetchedAt: string | null; orgCount: number } | null;
@@ -113,7 +114,7 @@ export const EVIDENCE_NOTE = "Inclusion is drawn from public IRS records and is 
 
 function toOrg(r: Record<string, unknown>): GravityOrg {
   return { ein: String(r.ein), name: String(r.name), city: String(r.city), state: String(r.state), zip: (r.zip as string) ?? null, nteeCode: (r.ntee_code as string) ?? null, domain: String(r.domain),
-    revenueAmt: r.revenue_amt == null ? null : Number(r.revenue_amt), taxPeriod: (r.tax_period as string) ?? null, verified: Boolean(r.verified_at), verifiedNote: (r.verified_note as string) ?? null,
+    revenueAmt: r.revenue_amt == null ? null : Number(r.revenue_amt), taxPeriod: (r.tax_period as string) ?? null, verified: Boolean(r.verified_at),
     profileUrl: `https://projects.propublica.org/nonprofits/organizations/${String(r.ein)}` };
 }
 
@@ -125,8 +126,9 @@ export async function buildGravityField(city: string, state: string, magnetsPerD
   if (!m || m.n === 0) return { community: { city: c, state: s }, builtFrom: null, method, clusters: [] };
   const counts = await db.execute(sql`SELECT domain, count(*)::int AS n FROM community_gravity_orgs WHERE city = ${c} AND state = ${s} GROUP BY domain ORDER BY n DESC`);
   const magnets = await db.execute(sql`
-    SELECT * FROM (
-      SELECT o.*, row_number() OVER (PARTITION BY domain ORDER BY (verified_at IS NOT NULL) DESC, revenue_amt DESC NULLS LAST, name) AS rn
+    SELECT ein, name, city, state, zip, ntee_code, domain, revenue_amt, tax_period, verified_at FROM (
+       SELECT o.ein, o.name, o.city, o.state, o.zip, o.ntee_code, o.domain, o.revenue_amt, o.tax_period, o.verified_at,
+         row_number() OVER (PARTITION BY domain ORDER BY (verified_at IS NOT NULL) DESC, revenue_amt DESC NULLS LAST, name) AS rn
       FROM community_gravity_orgs o WHERE city = ${c} AND state = ${s}
     ) t WHERE rn <= ${magnetsPerDomain}`);
   const origins = await db.execute(sql`SELECT DISTINCT LEFT(zip, 5) AS zip FROM community_gravity_orgs WHERE state = ${s} AND city = ${c}`);
@@ -151,7 +153,8 @@ export async function buildGravityField(city: string, state: string, magnetsPerD
 
 export async function searchOrgs(city: string, state: string, q: string, domain?: string, limit = 40): Promise<GravityOrg[]> {
   const like = `%${q.trim().toUpperCase()}%`;
-  const r = await db.execute(sql`SELECT * FROM community_gravity_orgs WHERE city = ${city.toUpperCase()} AND state = ${state.toUpperCase()}
+  const r = await db.execute(sql`SELECT ein, name, city, state, zip, ntee_code, domain, revenue_amt, tax_period, verified_at
+    FROM community_gravity_orgs WHERE city = ${city.toUpperCase()} AND state = ${state.toUpperCase()}
     AND (${q.trim() === ""} OR upper(name) LIKE ${like}) AND (${!domain} OR domain = ${domain ?? ""})
     ORDER BY (verified_at IS NOT NULL) DESC, revenue_amt DESC NULLS LAST, name LIMIT ${Math.min(limit, 100)}`);
   return (r.rows as Record<string, unknown>[]).map(toOrg);
@@ -183,16 +186,20 @@ export async function researchOrg(ein: string): Promise<{ added: number; skipped
     `What does the nonprofit "${org.name}" (EIN ${ein}, ${org.city}, ${org.state}) do? Report only verifiable facts: mission/services, populations served, programs, official website, public contact page, and named partner organizations. Say "unknown" when a fact is not found.`,
     "You are a research assistant for a community platform. Report only facts supported by the sources you cite. Never guess.", 900);
   if (!citations.length) return { added: 0, skipped: 0, reason: "no citations returned" };
+  const citationCandidates = citations.slice(0, 20);
+  const safetyChecks = await Promise.all(citationCandidates.map(async url => ({ url, safe: await isPublicHttpUrl(url) })));
+  const safeCitations = safetyChecks.filter(item => item.safe).map(item => item.url);
+  if (!safeCitations.length) return { added: 0, skipped: citations.length, reason: "citations did not resolve to public HTTP(S) addresses" };
   type Extracted = { facts: { predicate: string; object: string; citation: string }[] };
   const extracted = await generateAIJSON<Extracted>(
     `Extract facts about "${org.name}" from the research text as JSON {"facts":[{"predicate":..., "object":..., "citation":...}]}.
-Allowed predicates: ${ALLOWED_PREDICATES.join(", ")}. "citation" must be one of these URLs exactly: ${citations.join(" | ")}.
+Allowed predicates: ${ALLOWED_PREDICATES.join(", ")}. "citation" must be one of these URLs exactly: ${safeCitations.join(" | ")}.
 Omit anything the text marks unknown or that has no supporting citation. Max 12 facts.
 
 RESEARCH TEXT:
 ${text}`,
     "Return strict JSON only. Do not invent facts or URLs.");
-  const facts = (extracted?.facts ?? []).filter(f => ALLOWED_PREDICATES.includes(f.predicate as typeof ALLOWED_PREDICATES[number]) && citations.includes(f.citation) && f.object && f.object.length <= 500);
+  const facts = (extracted?.facts ?? []).filter(f => ALLOWED_PREDICATES.includes(f.predicate as typeof ALLOWED_PREDICATES[number]) && safeCitations.includes(f.citation) && f.object && f.object.length <= 500);
   if (facts.length) await db.execute(sql`INSERT INTO community_gravity_facts (subject_ein, predicate, object, context, method) VALUES ${sql.join(facts.map(f => sql`(${ein}, ${f.predicate}, ${f.object.trim()}, ${f.citation}, 'web_research_llm')`), sql`, `)}`);
   return { added: facts.length, skipped: (extracted?.facts?.length ?? 0) - facts.length };
 }
