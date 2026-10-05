@@ -1,5 +1,5 @@
 {
- "routeCount": 420,
+ "routeCount": 421,
  "entries": [
   {
    "path": "/",
@@ -1426,6 +1426,31 @@
    "legacyGroup": "aboutTrustItems",
    "description": "Review AI strategy, implementation, and training services and contact the team about a consultation.",
    "guide": "Need help implementing AI → AI Consulting Services → request a consultation"
+  },
+  {
+   "path": "/ai-navigator",
+   "title": "Full-page AI Navigator",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family",
+    "students-youth",
+    "caregivers-chws"
+   ],
+   "access": "public",
+   "upstream": [
+    "/navigator",
+    "/411"
+   ],
+   "downstream": [
+    "/navigator",
+    "/benefits-screener"
+   ],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": true,
+   "description": "Open the floating AI navigator as a full page for a longer conversation; same assistant, same community evidence, nothing extra required.",
+   "guide": "Need more room to talk with the navigator → full-page AI Navigator → continue into the screener or Navigator history"
   },
   {
    "path": "/ai-tools",
@@ -5229,7 +5254,7 @@
    ],
    "access": "public",
    "upstream": [
-    "/hub/legacy"
+    "/workspaces"
    ],
    "downstream": [
     "/workforce",
@@ -5245,28 +5270,19 @@
   },
   {
    "path": "/hub/legacy",
-   "title": "Choose a platform starting point",
+   "title": "Choose your workspace",
    "outcome": "get-help",
-   "audiences": [
-    "resident-family",
-    "nonprofit-cbo",
-    "funder-evaluator"
-   ],
+   "audiences": [],
    "access": "public",
-   "upstream": [
-    "/"
-   ],
-   "downstream": [
-    "/navigator",
-    "/grants",
-    "/for-nonprofits"
-   ],
+   "upstream": [],
+   "downstream": [],
    "sources": [
     "app-routes"
    ],
    "classified": true,
-   "description": "Browse sector hubs, role-relevant tools, saved work, and grant deadlines in the legacy home dashboard.",
-   "guide": "Need a role-based starting point → legacy hub → choose a sector or resume saved work"
+   "description": "Redirects to /workspaces.",
+   "guide": "Alias of /workspaces",
+   "aliasOf": "/workspaces"
   },
   {
    "path": "/hub/more",
@@ -5279,7 +5295,7 @@
    ],
    "access": "public",
    "upstream": [
-    "/hub/legacy"
+    "/workspaces"
    ],
    "downstream": [
     "/partners",
@@ -5304,7 +5320,7 @@
    ],
    "access": "public",
    "upstream": [
-    "/hub/legacy"
+    "/workspaces"
    ],
    "downstream": [
     "/resources",
@@ -8518,7 +8534,7 @@
    "audiences": [
     "nonprofit-cbo"
    ],
-   "access": "authenticated",
+   "access": "admin",
    "upstream": [
     "/transparency-matrix"
    ],

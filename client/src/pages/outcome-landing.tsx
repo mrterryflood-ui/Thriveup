@@ -4,7 +4,7 @@ import { ArrowDown, ArrowRight, ArrowUpRight, Check, Compass, MapPin, Radio, Sea
 import type { PublicOutcome } from "@shared/outcome-landings";
 import { OUTCOME_LANDINGS, outcomeLandingPath } from "@shared/outcome-landings";
 import { AUDIENCE_LABELS, OUTCOME_LABELS, canSeeRoute, navRoute } from "@shared/route-nav";
-import { getSidebarNavigationAccess } from "@/components/app-sidebar";
+import { canOpenPath } from "@shared/route-access";
 import { useWorkspaceAccess } from "@/lib/workspace-context";
 import { useAudience } from "@/lib/audience-preference";
 import { useAuth } from "@/hooks/use-auth";
@@ -40,11 +40,7 @@ const OUTCOME_NOTES: Record<PublicOutcome, string> = {
 
 function visiblePath(path: string, viewer: ReturnType<typeof useWorkspaceAccess>) {
   const route = navRoute(path);
-  if (!route || !canSeeRoute(route, viewer)) return false;
-  const legacy = getSidebarNavigationAccess(path);
-  return !(legacy.authOnly && !viewer.authenticated)
-    && !(legacy.adminOnly && !viewer.admin)
-    && !(legacy.staffOnly && !viewer.staff);
+  return !!route && canSeeRoute(route, viewer) && canOpenPath(path, viewer);
 }
 
 export default function OutcomeLandingPage({ outcome }: { outcome: PublicOutcome }) {

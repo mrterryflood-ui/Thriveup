@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
-import { canSeeRoute, connectionsFor, upstreamFor, OUTCOME_LABELS, type NavRoute, type NavViewer } from "@shared/route-nav";
-import { getSidebarNavigationAccess } from "@/components/app-sidebar";
+import { canSeeRoute, connectionsFor, upstreamFor, OUTCOME_LABELS, type NavRoute } from "@shared/route-nav";
+import { canOpenPath } from "@shared/route-access";
 import { OUTCOME_ICONS } from "@/components/focused-navigation";
 import { useWorkspaceAccess } from "@/lib/workspace-context";
 import { NetworkStatus } from "@/components/network-status";
@@ -12,17 +12,9 @@ import { frameRoute } from "@shared/frame-route";
  * Phase 4a: one rail under the shell header for every registered page. Reads the route
  * registry only (outcome, guide line, upstream need, downstream next steps). Hidden on the
    * home page and on any path without registry metadata. Dynamic routes retain their access floor.
- * Access = registry floor AND the legacy sidebar predicate — never widened.
+ * Access = the route registry (shared/route-access), the single access predicate.
  */
 const COLLAPSE_KEY = "thriveup.pageframe.collapsed";
-
-function legacyAllows(path: string, viewer: NavViewer): boolean {
-  const a = getSidebarNavigationAccess(path);
-  if (a.authOnly && !viewer.authenticated) return false;
-  if (a.adminOnly && !viewer.admin) return false;
-  if (a.staffOnly && !viewer.staff) return false;
-  return true;
-}
 
 function readCollapsed(): boolean {
   const phone = typeof window !== "undefined" && window.innerWidth < 768;
@@ -40,9 +32,9 @@ export function PageFrame({ path }: { path: string }) {
   }
 
   const route: NavRoute | undefined = frameRoute(path);
-  if (!route || route.path === "/" || !canSeeRoute(route, viewer) || !legacyAllows(route.path, viewer)) return null;
+  if (!route || route.path === "/" || !canSeeRoute(route, viewer)) return null;
 
-  const visible = (rows: NavRoute[]) => rows.filter(r => legacyAllows(r.path, viewer));
+  const visible = (rows: NavRoute[]) => rows.filter(r => canOpenPath(r.path, viewer));
   const next = visible(connectionsFor(route, viewer)).slice(0, 3);
   const from = visible(upstreamFor(route, viewer)).filter(r => r.path !== "/").slice(0, 2);
   const Icon = OUTCOME_ICONS[route.outcome];
