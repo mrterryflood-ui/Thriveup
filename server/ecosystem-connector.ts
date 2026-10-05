@@ -10,6 +10,7 @@ import { generateRpliceHeartbeatIntelligence } from "./ecosystem-rplice-bridge";
 import { getAgentInbox, PLATFORM_CAPABILITIES } from "./agent-communication";
 import { verifyInboundPayload, recordInboundVerification, rejectionsToCorrectionNote, type InboundSchema } from "./inbound-verification";
 import { getGrantPathProOutboundConfig } from "./grantpathpro-config";
+import { runBackgroundTaskSafely } from "./background-task";
 
 // Sibling platforms self-report compliance work via heartbeat, and that
 // report drives real automated behavior — directive acks flip to
@@ -741,19 +742,19 @@ const ECOSYSTEM_PLATFORMS = [
     url: "https://childcore.app",
     role: "student-support",
     domain: "education",
-    description: "ChildCORE replaced Implementation in Education (ISSS). Community intelligence for child and family services — provider availability, school intelligence, and social-determinants data integrated directly into ThriveUp navigation and referral pathways. Formerly: whole-child implementation infrastructure enabling schools, districts, and regions to implement evidence-based student support at scale. Multi-Tiered System of Supports (MTSS) engine with early warning indicators, Thrive Score tracking, multi-stakeholder coordination across teachers/counselors/parents/community, and implementation fidelity measurement using CFIR and RE-AIM frameworks. District-level analytics dashboard provides real-time intervention effectiveness data. Integrates with WholeMind Learning for academic data, Perfectly Different for IEP/504 accommodations, SafeReport for incident management, and Whole-Person Health for crisis routing. Produces grant-ready outcome data for WIOA youth employment and foundation education grants.",
+    description: "ChildCORE is the current child-and-family community-intelligence platform that replaced Implementation in Education (ISSS). Its verified ThriveUp integration accepts county-level community metrics, and its community context supports navigation and referral workflows. The legacy `isss` registry key is retained for compatibility; this entry does not claim student-level outcomes or unverified partner data flows.",
     capabilities: {
-      features: ["Multi-Stakeholder Coordination", "Evidence-Based Student Support", "District-Level Analytics", "Data-Driven Decision Making", "Implementation Fidelity Tracking", "MTSS Tiered Intervention Engine", "Thrive Score Algorithm", "Early Warning System", "Parent Engagement Portal", "IEP/504 Integration", "Trauma-Informed Practices", "School Climate Assessment", "Community Partner Coordination", "Grant Outcome Reporting"],
-      frameworks: ["MTSS", "CFIR", "RE-AIM", "PBIS"],
-      integrationDepth: "Bidirectional data flows with WholeMind (academic), Perfectly Different (neurodiversity), SafeReport (incidents), RPLICE (research/implementation science), Whole-Person Health (crisis)",
-      outcomeMetrics: ["Schools implementing MTSS with fidelity: 12 districts","Student Thrive Score improvement: 23% average increase over semester","Early warning flag-to-intervention rate: 78%","Parent engagement portal active users: 1,847","Implementation fidelity score (CFIR): 7.2/10 average","Intervention effectiveness rate: 64% of flagged students improved","IEP/504 accommodation compliance rate: 91%"],
-      grantNarrative: "Provides student-level outcome data, implementation fidelity metrics, and multi-stakeholder coordination evidence for WIOA youth employment and foundation education grant reporting",
+      features: ["Child- and family-service community intelligence", "County-level community metrics ingestion", "Navigation and referral context"],
+      frameworks: [],
+      integrationDepth: "The inbound ChildCORE integration accepts county-level community metrics. No other partner data flows are asserted by this registry entry.",
+      outcomeMetrics: [],
+      grantNarrative: "No verified ChildCORE outcome metrics or grant results are recorded in this registry entry.",
     },
     dataFlowConfig: {
-      sends: ["student_support_data", "early_warning_flags", "thrive_scores", "district_analytics", "intervention_effectiveness", "school_climate_data", "parent_engagement_metrics", "implementation_fidelity_scores"],
-      receives: ["workforce_pathways", "health_screenings", "prevention_curriculum", "family_referrals", "academic_assessments", "iep_data", "incident_reports", "research_findings"],
+      sends: ["county_level_community_metrics"],
+      receives: [],
     },
-    grantAlignment: ["wioa", "foundation", "st-davids"],
+    grantAlignment: [],
   },
   {
     id: "sankofa",
@@ -1011,22 +1012,22 @@ const ECOSYSTEM_PLATFORMS = [
   {
     id: "betterscience",
     name: "RPLICE — Research-to-Practice Lifecycle Implementation & Community Evidence",
-    url: "https://bettersciencelab.com",
+    url: "https://www.bettersciencelab.com",
     role: "research",
     domain: "education",
-    description: "Free, AI-powered platform that helps researchers, practitioners, and planners close the gap between what science proves works and what actually gets implemented in communities. Search live evidence, assess projects against real community data, build implementation plans, and track outcomes -- all in one place. CFIR 2.0 (Consolidated Framework for Implementation Research), RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance), and EPIS (Exploration, Preparation, Implementation, Sustainment) frameworks applied to every platform's intervention design. Evidence-based practice registry with 500+ validated interventions, fidelity measurement instruments for each platform, research translation tools converting academic findings to community-actionable guides. Collaborative multi-AI review: multiple AI models independently analyze the same document, then a synthesis step builds consensus. API backend: salp-science--mrterryflood.replit.app (Research-Science-Collaborator on Replit). Provides the scientific backbone ensuring every platform's approach is evidence-based and measurable.",
+    description: "RPLICE (Research-to-Practice Lifecycle Implementation & Community Evidence) is the research and implementation-science platform at https://www.bettersciencelab.com. Its public API exposes research records at /api/research, framework definitions at /api/frameworks/list, and service health at /api/v1/health. ThriveUp uses the public research and framework resources as evidence context; this registry does not claim ecosystem-wide validation or quantified outcomes.",
     capabilities: {
-      features: ["CFIR Implementation Framework", "RE-AIM Evaluation Model", "EPIS Framework Tools", "Evidence-Based Practice Registry", "Fidelity Measurement Instruments", "Research Translation Engine", "RPLICE Decision Framework", "Community Application Guides", "Outcome Measurement Design", "Program Logic Model Builder", "Data Visualization Tools", "Publication Pipeline", "IRB Protocol Templates"],
-      frameworks: ["CFIR", "RE-AIM", "EPIS", "RPLICE"],
-      integrationDepth: "Provides research backing to all 22 sibling platforms — each platform's intervention design is validated through CFIR/RE-AIM frameworks. Receives outcome data from all platforms for longitudinal analysis.",
-      outcomeMetrics: ["Evidence-based interventions in registry: 500+","Fidelity assessments completed: 234","Research translations published: 67","CFIR/RE-AIM evaluations: 45 across ecosystem","Program logic models built: 23","Implementation guides distributed: 89","Outcome measurement designs: 34 validated instruments"],
-      grantNarrative: "Produces implementation fidelity evidence, validated outcome measurements, and research-backed intervention effectiveness data required by SSG Fox, foundation, and federal grant reporting standards",
+      features: ["Public research library", "Public framework catalog", "Implementation-science evidence context"],
+      frameworks: ["CFIR", "RE-AIM", "EPIS"],
+      integrationDepth: "ThriveUp accesses RPLICE's public research and framework APIs. No ecosystem-wide data transfer or validation status is asserted here.",
+      outcomeMetrics: [],
+      grantNarrative: "RPLICE provides research and framework references; no quantified platform outcomes are recorded in this registry entry.",
     },
     dataFlowConfig: {
-      sends: ["research_findings", "fidelity_reports", "evidence_summaries", "implementation_guides", "outcome_measurement_designs", "program_logic_models", "validated_instruments"],
-      receives: ["program_metrics", "outcome_data", "implementation_fidelity", "screening_aggregates", "engagement_metrics", "health_outcomes"],
+      sends: ["research_records", "framework_definitions"],
+      receives: [],
     },
-    grantAlignment: ["ssg-fox", "foundation", "wioa", "st-davids"],
+    grantAlignment: [],
   },
   {
     id: "grantpathpro",
@@ -2032,8 +2033,10 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     console.log("[Pinger] Starting outbound platform pinger — keep-alive every 10 min (flagged platforms), health-check every 60 min (all)");
 
     // Prune stale logs on startup, then daily
-    pruneHealthLogs().catch(() => {});
-    setInterval(() => pruneHealthLogs().catch(() => {}), 24 * 60 * 60 * 1000);
+    void runBackgroundTaskSafely("Ecosystem health-log prune on startup", pruneHealthLogs);
+    setInterval(() => {
+      void runBackgroundTaskSafely("Scheduled ecosystem health-log prune", pruneHealthLogs);
+    }, 24 * 60 * 60 * 1000);
 
     const runPingerCycle = async (keepAliveOnly: boolean, reason: string) => {
       if (pingerCycleInFlight) {
@@ -10453,8 +10456,10 @@ if (typeof module !== "undefined") {
   function startEcosystemSelfAudit() {
     if (selfAuditInterval) return;
     console.log("[Self-Audit] Starting ecosystem self-audit — every 6 hours");
-    runEcosystemSelfAudit();
-    selfAuditInterval = setInterval(() => runEcosystemSelfAudit(), 6 * 60 * 60 * 1000);
+    void runBackgroundTaskSafely("Ecosystem self-audit startup", runEcosystemSelfAudit);
+    selfAuditInterval = setInterval(() => {
+      void runBackgroundTaskSafely("Scheduled ecosystem self-audit", runEcosystemSelfAudit);
+    }, 6 * 60 * 60 * 1000);
   }
 
   app.get("/api/ecosystem/self-audit", requireShadowAuth, async (_req, res) => {
@@ -10467,6 +10472,7 @@ if (typeof module !== "undefined") {
         verdict: result.gaps.length === 0 ? "ALL-CLEAR" : result.gaps.some(g => g.startsWith("HOLLOW") || g.startsWith("MISSING")) ? "CRITICAL" : "ATTENTION-NEEDED",
       });
     } catch (error) {
+      console.error("[Self-Audit] On-demand self-audit failed:", error);
       res.status(500).json({ error: "Self-audit failed" });
     }
   });

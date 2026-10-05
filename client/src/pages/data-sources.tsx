@@ -26,7 +26,7 @@ interface DataSource {
   agency: string;
   description: string;
   dataTypes: string[];
-  url: string;
+  url?: string;
   apiEndpoint?: string;
   status: SourceStatus;
   updateFrequency: string;
@@ -249,13 +249,13 @@ const STATE_SOURCES: DataSource[] = [
     name: "Texas Education Agency (TEA)",
     shortName: "TEA",
     agency: "State of Texas",
-    description: "School performance data, STAAR scores, dropout rates, discipline data, special education, and Title I eligibility used for education grant narratives and ISSS implementation.",
+    description: "School performance data, STAAR scores, dropout rates, discipline data, special education, and Title I eligibility used for education grant narratives and school planning.",
     dataTypes: ["STAAR Performance", "Dropout Rates", "Discipline Data", "Special Ed Enrollment", "Title I Status", "Economically Disadvantaged %"],
     url: "https://tea.texas.gov",
     status: "available",
     updateFrequency: "Annual",
     geographyLevel: "Campus, District, Region",
-    usedBy: ["ISSS", "ThriveUp Academy", "Grant Packages", "RPLICE Toolkit"],
+    usedBy: ["ThriveUp Academy", "Grant Packages", "RPLICE Toolkit"],
     icon: GraduationCap,
     category: "state"
   },
@@ -309,19 +309,19 @@ const STATE_SOURCES: DataSource[] = [
 const LOCAL_SOURCES: DataSource[] = [
   {
     id: "pfisd",
-    name: "Pflugerville ISD -- Student Support Data",
+    name: "Pflugerville ISD -- Student Support Data (unverified feed)",
     shortName: "PfISD",
     agency: "Pflugerville Independent School District",
-    description: "Active ISSS pilot partner. Year 1: 5 high schools, 120 students. Data includes Thrive Scores, early warning flags, IEP compliance, CFIR fidelity scores, and practice-policy reports. Real implementation data powering Spencer Foundation research proposal.",
-    dataTypes: ["Thrive Scores", "Early Warning Flags (78% flag-to-intervention)", "IEP Compliance (91%)", "CFIR Fidelity (7.2/10)", "Attendance", "Behavior", "Course Performance", "SEL Assessment"],
+    description: "Pflugerville ISD is listed as a potential school-data source. This registry does not verify a current ChildCORE feed or a current student-outcome dataset.",
+    dataTypes: [],
     url: "https://pfisd.net",
-    status: "live",
-    updateFrequency: "Real-time (via ISSS)",
-    geographyLevel: "Campus, Student",
-    usedBy: ["ISSS", "ThriveUp Academy", "Spencer Foundation Grant", "RPLICE Toolkit"],
+    status: "available",
+    updateFrequency: "Not verified",
+    geographyLevel: "District source; feed scope not verified",
+    usedBy: ["ThriveUp Academy"],
     icon: GraduationCap,
     category: "local",
-    localCallout: "Active pilot -- Year 1 data collection in progress. 5 campuses, 120 students. Thrive Score improvement: 23%. Primary data source for Spencer Foundation Small Research Grant."
+    localCallout: "No current ChildCORE feed, cohort denominator, or student outcome metrics are verified here. Earlier ISSS pilot figures are not represented as current data."
   },
   {
     id: "travis-county",
@@ -491,29 +491,28 @@ const INTERNAL_SOURCES: DataSource[] = [
     name: "RPLICE -- Research-to-Practice Lifecycle Implementation and Community Evidence",
     shortName: "RPLICE",
     agency: "ThriveUp / TCAF",
-    description: "Live AI-powered implementation science platform. CFIR 2.0, RE-AIM, EPIS frameworks. Multi-AI consensus engine (Gemini, Claude, OpenAI). Produces fidelity scores, readiness assessments, Proctor's 8 outcomes.",
-    dataTypes: ["CFIR 2.0 Fidelity", "RE-AIM Scores", "EPIS Phases", "Readiness Assessments", "Implementation Outcomes", "Practice-Policy Reports"],
+    description: "RPLICE public API provides research records, implementation-framework definitions, and service-health status.",
+    dataTypes: ["Research library records", "Framework definitions", "Service health"],
     url: "https://www.bettersciencelab.com",
-    apiEndpoint: "https://salp-science--mrterryflood.replit.app/api",
+    apiEndpoint: "https://www.bettersciencelab.com/api",
     status: "live",
-    updateFrequency: "Real-time",
-    geographyLevel: "Program, District, Organization",
-    usedBy: ["RPLICE Toolkit", "Grant Packages", "Research Hub", "Spencer Foundation Grant"],
+    updateFrequency: "Provider-managed",
+    geographyLevel: "Research and framework resources",
+    usedBy: ["RPLICE Toolkit", "Research Hub"],
     icon: Zap,
     category: "internal"
   },
   {
     id: "isss",
-    name: "ISSS -- Integrated Supports for Thriving Youth",
-    shortName: "ISSS",
+    name: "ChildCORE -- Child and Family Community Intelligence",
+    shortName: "ChildCORE",
     agency: "ThriveUp / TCAF",
-    description: "Whole-child implementation infrastructure for K-12 schools. Measures Thrive Scores, early warning flags, IEP compliance, attendance, behavior, course performance, and SEL across 12 districts.",
-    dataTypes: ["Thrive Scores (23% improvement)", "Early Warning Flags (78% flag-to-intervention)", "IEP Compliance (91%)", "CFIR Fidelity (7.2/10)", "Attendance/Behavior/Course"],
-    url: "https://thrivingcommunitiesforall.com",
-    status: "live",
-    updateFrequency: "Real-time",
-    geographyLevel: "Student, Campus, District",
-    usedBy: ["ISSS Platform", "Spencer Foundation Grant", "RPLICE Toolkit", "ThriveUp Academy"],
+    description: "ChildCORE replaced the former Implementation in Education identity. ThriveUp's verified integration accepts county-level community metrics; its community context supports navigation and referral workflows. Current API and documentation destinations are resolved from validated integration settings rather than hard-coded in this source list. No student-level outcomes are claimed here.",
+    dataTypes: ["County-level community metrics", "Child and family community context"],
+    status: "available",
+    updateFrequency: "Not verified",
+    geographyLevel: "County and community",
+    usedBy: ["ThriveUp navigation", "Referral workflows"],
     icon: GraduationCap,
     category: "internal"
   },
@@ -856,7 +855,7 @@ export default function DataSourcesPage() {
           </div>
           <div className="p-3 rounded-lg bg-purple-50 dark:bg-purple-950/30 text-center">
             <p className="font-bold text-purple-700">TCAF Engine</p>
-            <p className="text-xs text-muted-foreground mt-1">RPLICE, ISSS, Ecosystem Connector, Grant Discovery -- 15 service platforms</p>
+            <p className="text-xs text-muted-foreground mt-1">RPLICE, ChildCORE, Ecosystem Connector, Grant Discovery -- 15 service platforms</p>
           </div>
         </div>
       </Card>

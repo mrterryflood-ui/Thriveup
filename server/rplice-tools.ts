@@ -856,7 +856,7 @@ Be specific. Use actual numbers from the data. Reference specific tracts. This i
       const PLATFORM_INTERVENTIONS: Record<string, { platforms: { id: string; name: string; domain: string; url: string; interventions: string[] }[] }> = {
         "education": {
           platforms: [
-            { id: "isss", name: "ChildCORE", domain: "education", url: "https://childcore.app", interventions: ["MTSS implementation", "Student support coordination", "Early warning system", "Implementation fidelity tracking"] },
+            { id: "isss", name: "ChildCORE", domain: "education", interventions: ["Child and family community intelligence", "Provider availability and school information", "County-level community metrics", "Navigation and referral context"] },
             { id: "wholemind", name: "WholeMind Learning", domain: "education", url: "https://wholemindlearning.com", interventions: ["Pre-K to 12th grade curriculum", "AI homework help", "Adaptive learning", "Skill mastery tracking"] },
             { id: "betterscience", name: "RPLICE — Research-to-Practice Lifecycle Implementation & Community Evidence", domain: "education", url: "https://www.bettersciencelab.com", interventions: ["Evidence-based practice registry", "CFIR/RE-AIM evaluation", "Research translation", "Fidelity measurement", "Live community data assessment", "Implementation plan builder"] },
           ],

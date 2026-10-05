@@ -419,7 +419,7 @@ External Ecosystem Tools (sister platforms you can recommend):
 - https://pillscheduler.net — PillScheduler: Pill reminder & medication care management
  - https://herhealthmatters2.com — HerHealth Matters: women's health education and support
  - https://malehealthmatters2.com — MaleHealth Matters: men's health education and support
-- https://childcore.app — ChildCORE: Whole-child implementation infrastructure
+- ChildCORE — child-and-family community intelligence for provider availability, school information, and navigation/referral context. Resolve destinations from validated integration settings; do not assume a public host.
 - https://neurodifferentassistant.app — Perfectly Different: Neurodivergent support (autism, ADHD, AuDHD)
 - https://lifetransitionsaid.org — LifeBridge: Virtual 211 & life issues resource navigation
 - https://vetmissiontransition.com — M2C Transition: Military veteran support & transition

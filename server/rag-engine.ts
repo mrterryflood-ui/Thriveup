@@ -144,7 +144,7 @@ Three-layer architecture: Learn It (Academy) → Apply It (RPLICE/MCE/Ecosystem)
   },
   {
     source: "platform", category: "platform", title: "RPLICE — Research-to-Practice Lifecycle Implementation & Community Evidence",
-    content: `RPLICE (Research-to-Practice Lifecycle Implementation & Community Evidence) is a free, AI-powered platform that helps researchers, practitioners, and planners close the gap between what science proves works and what actually gets implemented in communities. Search live evidence, assess projects against real community data, build implementation plans, and track outcomes -- all in one place. Uses CFIR 2.0, RE-AIM, and EPIS frameworks. Evidence-based practice registry, fidelity measurement, research translation, community application guides. Quality gate -- all platform work verified through RPLICE. RPLICE uses collaborative multi-AI review: multiple AI models independently analyze the same document, then a synthesis step builds consensus. URL: www.bettersciencelab.com. Connected to SALP Science research platform (salp-science--mrterryflood.replit.app / Research-Science-Collaborator on Replit). Grants: DFC, SSG Fox, SAMHSA, Spencer Foundation.`,
+    content: `RPLICE (Research-to-Practice Lifecycle Implementation & Community Evidence) is the research and implementation-science platform at https://www.bettersciencelab.com. Its public API exposes research records at /api/research, framework definitions at /api/frameworks/list, and service health at /api/v1/health. ThriveUp uses the public research and framework resources as evidence context. This entry does not claim ecosystem-wide validation, quantified outcomes, grant awards, or a connection to the obsolete Replit-hosted SALP Science service.`,
     keywords: ["rplice", "research", "cfir", "re-aim", "epis", "implementation science", "evidence", "fidelity", "quality", "collaborative ai", "multi ai", "research-to-practice", "lifecycle", "community evidence", "bettersciencelab.com"],
   },
   {
@@ -164,7 +164,7 @@ Three-layer architecture: Learn It (Academy) → Apply It (RPLICE/MCE/Ecosystem)
   },
   {
     source: "platform", category: "platform", title: "ChildCORE",
-    content: `ChildCORE provides community intelligence for child and family services: provider availability, school intelligence, and social-determinants data integrated into ThriveUp navigation and referral pathways. Current ChildCORE destination: childcore.app.`,
+    content: `ChildCORE is the current child-and-family community-intelligence platform that replaced Implementation in Education (ISSS). Its verified ThriveUp integration accepts county-level community metrics, and its community context supports navigation and referral workflows. Resolve API and documentation destinations from the validated ChildCORE integration settings; do not infer a public host from this RAG entry. This entry does not assert student-level outcomes.`,
     keywords: ["childcore", "isss", "youth", "schools", "students", "education", "children", "families", "providers", "social determinants", "navigation", "referrals"],
   },
   {
