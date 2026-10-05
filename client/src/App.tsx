@@ -21,6 +21,7 @@ import { ContextualHelpButton } from "@/components/contextual-help";
 import { openCommandPalette } from "@/components/command-palette";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+const DemoDoorPage = lazy(() => import("@/pages/demo-door"));
 const LandingPage = lazy(() => import("@/pages/landing"));
 const CoveragePage = lazy(() => import("@/pages/coverage"));
 const CurriculumPage = lazy(() => import("@/pages/curriculum"));
@@ -591,6 +592,7 @@ function AppRouter() {
       <Route path="/open-innovation-lab" component={OpenInnovationLabPage} />
       <Route path="/resources" component={ResourceFinderPage} />
       <Route path="/get-help" component={GetHelpPage} />
+      <Route path="/demo" component={DemoDoorPage} />
       <Route path="/start/get-help"><OutcomeLandingPage outcome="get-help" /></Route>
       <Route path="/start/learn"><OutcomeLandingPage outcome="learn" /></Route>
       <Route path="/start/work-earn"><OutcomeLandingPage outcome="work-earn" /></Route>
@@ -1138,7 +1140,7 @@ function AppLayoutInner() {
   const [location] = useLocation();
   const search = useSearch();
   const shellFreeEmbed = new URLSearchParams(search).get("embed") === "1";
-  const focusedEntry = location === "/" || location === "/hub" || location === "/workspaces" || location.startsWith("/workspace/") || location.startsWith("/start/") || location === "/academy/lessons" || location === "/community-banks" || location === "/community-gravity" || Boolean(entryTaskForPath(location));
+  const focusedEntry = location === "/" || location === "/hub" || location === "/workspaces" || location.startsWith("/workspace/") || location.startsWith("/start/") || location.startsWith("/demo") || location === "/academy/lessons" || location === "/community-banks" || location === "/community-gravity" || Boolean(entryTaskForPath(location));
   const currentWorkspace = WORKSPACES.find(item => item.id === workspace);
   const { t } = useLanguage();
   const style = { "--sidebar-width": "16rem", "--sidebar-width-icon": "3rem" };
