@@ -495,14 +495,13 @@ HerHealth covers **70 women's health conditions** organized into **7 specialized
 
 ## 15. REMAINING PLATFORMS {#remaining-platforms}
 
-### ISSS (Integrated Supports for Thriving Youth)
-- Serves school districts with MTSS compliance, SEL curriculum, early warning systems, wraparound coordination
-- PfISD partnership: 120 students Year 1, rotating across 5 high schools
+### ChildCORE (replaced ISSS / Implementation in Education)
+- Community intelligence for child and family services: provider availability, school intelligence, and social-determinants data integrated into ThriveUp navigation and referral pathways.
 
 ### WholeMind Learning
 - Visual-first Pre-K to 12th grade academic platform
 - AI homework help, adaptive learning, silent-first accessibility design
-- Connected to ISSS for student support
+- Connected to ChildCORE for provider, school, and community context where configured
 
 ### SafeReport
 - Mandatory reporter and incident management

@@ -43,7 +43,7 @@ Talk Your Talk · Civic Signal · LifeBridge · ThriveUp Academy · Whole-Person
 
 - **TYT row URL self-overwrites to `lexibridge.net`** on every heartbeat (real fix lives in TYT workspace)
 - **10/25 DB rows aren't public services** (don't expose externally)
-- ISSS uses `implementationineducatio.com`; RPLICE uses `bettersciencelab.com`
+- ChildCORE (`childcore.app`) replaced Implementation in Education / ISSS; RPLICE uses Better Science Lab (`bettersciencelab.com`).
 - Always **re-probe before linking** externally
 
 ## Editing rules
