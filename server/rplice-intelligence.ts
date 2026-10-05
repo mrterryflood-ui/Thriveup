@@ -289,7 +289,7 @@ const PLATFORM_INTERVENTION_MAP: Record<string, {
 }> = {
   "education": {
     platforms: [
-      { id: "isss", name: "ISSS — Integrated Supports for Thriving Youth", url: "https://implementationineducatio.com", interventions: ["MTSS implementation", "Student support coordination", "Early warning system", "Implementation fidelity tracking"] },
+      { id: "isss", name: "ChildCORE", url: "https://childcore.app", interventions: ["MTSS implementation", "Student support coordination", "Early warning system", "Implementation fidelity tracking"] },
       { id: "wholemind", name: "WholeMind Learning", url: "https://wholemindlearning.com", interventions: ["Pre-K to 12th grade curriculum", "AI homework help", "Adaptive learning", "Skill mastery tracking"] },
     ],
   },
@@ -705,7 +705,7 @@ export async function buildRpliceIntelligencePackage(params: {
   // ─── AI context block ──────────────────────────────────────────────────────
   const lines: string[] = [];
   lines.push("=== RPLICE MAXIMUM INTELLIGENCE PACKAGE ===");
-  lines.push(`Source: bettersciencelab.com | Platform: RPLICE | ${new Date().toISOString().slice(0, 10)}`);
+  lines.push(`Source: www.bettersciencelab.com | Platform: RPLICE | ${new Date().toISOString().slice(0, 10)}`);
   lines.push(`Region: ${regionName} | Crisis domains: ${crisisDomains.join(", ") || "general"}`);
   lines.push(`Data layer: ${hasAuthenticatedData ? "AUTHENTICATED (full API)" : "PUBLIC (add RPLICE_API_KEY for full depth)"}`);
   lines.push("");

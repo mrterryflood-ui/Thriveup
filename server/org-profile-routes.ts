@@ -447,10 +447,18 @@ export function registerOrgProfileRoutes(app: Express) {
     const grantId = String(req.params.grantId);
     try {
       const parsed = insertGrantOrgTrackingSchema.parse({ ...req.body, orgId: org.id, grantId });
-      const [row] = await db.insert(grantOrgTracking).values(parsed).onConflictDoUpdate({
-        target: [grantOrgTracking.orgId, grantOrgTracking.grantId],
-        set: { ...parsed, updatedAt: new Date() },
-      }).returning();
+      const row = await db.transaction(async tx => {
+        // The corpus purge path locks this same parent. No tracking insert
+        // may race past its dependency check and leave an orphan pursuit.
+        const [grant] = await tx.select({ id: grantOpportunities.id }).from(grantOpportunities)
+          .where(eq(grantOpportunities.id, grantId)).for("update");
+        if (!grant) throw new Error("Opportunity no longer exists; reload the corpus");
+        const [tracked] = await tx.insert(grantOrgTracking).values(parsed).onConflictDoUpdate({
+          target: [grantOrgTracking.orgId, grantOrgTracking.grantId],
+          set: { ...parsed, updatedAt: new Date() },
+        }).returning();
+        return tracked;
+      });
       res.json({ tracking: row });
     } catch (err) {
       console.error("[org-profile] track failed:", err);

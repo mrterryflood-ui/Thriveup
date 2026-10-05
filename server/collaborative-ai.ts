@@ -29,6 +29,8 @@ interface CollaborativeResult {
 
 interface CollaborativeStreamParams {
   prompt: string;
+  /** Interactive first pass: one fast engine, no synthesis or background R1. */
+  fastFirst?: boolean;
   systemPrompt?: string;
   maxTokens?: number;
   /** When true, skip RAG retrieval entirely (e.g. user has already supplied
@@ -60,7 +62,7 @@ interface CollaborativeStreamParams {
 }
 
 const RPLICE_LENS_STATIC = `Apply implementation science thinking grounded in ThriveUp's actual frameworks:
-- RPLICE (Research-to-Practice Lifecycle Implementation & Community Evidence) is a sister platform at implementationineducatio.com — NOT a generic acronym. Reference it correctly when relevant.
+- RPLICE (Research-to-Practice Lifecycle Implementation & Community Evidence) is a sister platform at www.bettersciencelab.com — NOT a generic acronym. Reference it correctly when relevant.
 - CFIR 2.0 (Consolidated Framework for Implementation Research): 5 domains, 39 constructs — operationalized in ThriveUp's Research Hub (/research-hub), not just named.
 - RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance): evaluation lens built into outcome reporting.
 - Three Realities (Dr. Flood): Research Reality (what data says) / Political Reality (what officials say) / Ground Truth (what community experiences).
@@ -516,7 +518,7 @@ INSTRUCTIONS: Incorporate the RAG knowledge context and apply both RPLICE and MA
 
   const COLLAB_ANTI_FAB = `NON-NEGOTIABLE TRUTH RULES (override everything else):
 1. No fabricated numbers — every metric/percentage/count must come from RAG context, user document, or live data explicitly provided. If absent, say "I don't have that data."
-2. No fabricated acronym expansions — RPLICE = "Research-to-Practice Lifecycle Implementation & Community Evidence" (sister platform at implementationineducatio.com), never invent other expansions.
+2. No fabricated acronym expansions — RPLICE = "Research-to-Practice Lifecycle Implementation & Community Evidence" (sister platform at www.bettersciencelab.com), never invent other expansions.
 3. No fabricated grades or scores — never generate platform letter grades, fidelity percentages, or ecosystem ratings from general AI knowledge.
 4. No projected outcomes without a cited primary source — omit forecasts entirely if no source exists.
 5. Uncertainty = disclosure, not fabrication — say "I don't have specific data on that" rather than generating plausible-sounding content.
@@ -616,8 +618,12 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
   // Separate DeepSeek R1 (deep thinker, 30-90s) from the fast engines
   // (Claude, OpenAI, Gemini, ~3-8s). R1 starts immediately on its own
   // track — it will NOT block the initial synthesis.
-  const deepThinkEngine = engines.find(e => e.id === "deepseek-r1");
+  const deepThinkEngine = params.fastFirst ? undefined : engines.find(e => e.id === "deepseek-r1");
   const allFastEngines = engines.filter(e => e.id !== "deepseek-r1");
+  if (params.fastFirst && allFastEngines.length === 0) {
+    await params.onError(new Error("No fast AI engine configured; Quick mode will not use the slow reasoning engine"));
+    return;
+  }
 
   // When the user has supplied document context (skipRAG=true), prefer Claude
   // as the sole fast engine — it has a 200K-token context window and handles
@@ -628,12 +634,15 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
     const claudeEngine = allFastEngines.find(e => e.id === "claude");
     if (claudeEngine) enginesForFastPass = [claudeEngine];
   }
+  if (params.fastFirst && allFastEngines.length > 0) {
+    enginesForFastPass = [allFastEngines.find(e => e.id === "claude") || allFastEngines[0]];
+  }
 
   let ragSources: string[] = [];
   let ragContext = "";
   let ragChunkCount = 0;
 
-  if (!params.skipRAG) {
+  if (!params.skipRAG && !params.fastFirst) {
     try {
       if (params.signal?.aborted) return;
       const searchQuery = params.prompt.slice(0, 200);
@@ -657,14 +666,14 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
 
   const STREAM_ANTI_FAB = `NON-NEGOTIABLE TRUTH RULES (override everything else):
 1. No fabricated numbers — every metric/percentage/count must come from RAG context, user document, or live data explicitly provided. If absent, say "I don't have that data."
-2. No fabricated acronym expansions — RPLICE = "Research-to-Practice Lifecycle Implementation & Community Evidence" (sister platform at implementationineducatio.com), never invent other expansions.
+2. No fabricated acronym expansions — RPLICE = "Research-to-Practice Lifecycle Implementation & Community Evidence" (sister platform at www.bettersciencelab.com), never invent other expansions.
 3. No fabricated grades, scores, or projected outcomes without a cited primary source.
 4. Uncertainty = disclosure, not fabrication.
 `;
   const baseSystem = params.systemPrompt || (STREAM_ANTI_FAB + "You are part of the ThriveUp Academy Collaborative Intelligence System — evidence-grounded synthesis for a 26-platform community-infrastructure ecosystem. Use the RAG context provided. Never fabricate facts.");
 
   params.onMeta({
-    engines: engines.map(e => e.id),
+    engines: (params.fastFirst ? enginesForFastPass : engines).map(e => e.id),
     ragSources,
     frameworks: ["RPLICE", "MAP-GAP"],
   });

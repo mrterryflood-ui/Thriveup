@@ -1,8 +1,12 @@
-import { useEffect, useRef, lazy, Suspense, useState } from "react";
-import { Switch, Route, Redirect } from "wouter";
-import { cn } from "@/lib/utils";
-import { NavModeProvider, useNavMode } from "@/lib/nav-mode";
-import { BottomTabBar } from "@/components/bottom-tab-bar";
+import { useEffect, useRef, lazy, Suspense } from "react";
+import { Switch, Route, Redirect, Link, useLocation, useSearch } from "wouter";
+import { NavModeProvider } from "@/lib/nav-mode";
+import { FocusedBottomTabs as BottomTabBar, FocusedSidebar as AppSidebar } from "@/components/focused-navigation";
+import { WorkspaceProvider, useWorkspace } from "@/lib/workspace-context";
+import { WORKSPACES, entryTaskForPath } from "@shared/workspace-catalog";
+import { TaskStartHint } from "@/components/task-start-hint";
+import { JourneyPlaceBar } from "@/components/journey-place-bar";
+import { PageFrame } from "@/components/page-frame";
 import { queryClient, apiRequest } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -11,15 +15,14 @@ import { OrgRedirectGuard } from "@/components/org-redirect-guard";
 import { useAuth } from "@/hooks/use-auth";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Skeleton } from "@/components/ui/skeleton";
 import NotFound from "@/pages/not-found";
 import { ContextualHelpButton } from "@/components/contextual-help";
 import { openCommandPalette } from "@/components/command-palette";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+const DemoDoorPage = lazy(() => import("@/pages/demo-door"));
 const LandingPage = lazy(() => import("@/pages/landing"));
 const CoveragePage = lazy(() => import("@/pages/coverage"));
 const CurriculumPage = lazy(() => import("@/pages/curriculum"));
@@ -131,6 +134,7 @@ const StakeholderMapPage = lazy(() => import("@/pages/stakeholder-map"));
 const OpenInnovationLabPage = lazy(() => import("@/pages/open-innovation-lab"));
 const ResourceFinderPage = lazy(() => import("@/pages/resource-finder"));
 const GetHelpPage = lazy(() => import("@/pages/get-help"));
+const OutcomeLandingPage = lazy(() => import("@/pages/outcome-landing"));
 const ImpactPage = lazy(() => import("@/pages/impact"));
 const APIDocsPage = lazy(() => import("@/pages/api-docs"));
 const StakeholderPresentationPage = lazy(() => import("@/pages/stakeholder-presentation"));
@@ -151,6 +155,8 @@ const WIOAOutcomesPage = lazy(() => import("@/pages/wioa-outcomes"));
 const EquityDashboardPage = lazy(() => import("@/pages/EquityDashboard"));
 const EquityLossEnginePage = lazy(() => import("@/pages/EquityLossEngine"));
 const EquityLossNationalPage = lazy(() => import("@/pages/EquityLossNational"));
+const CommunityBanksPage = lazy(() => import("@/pages/community-banks"));
+const CommunityGravityPage = lazy(() => import("@/pages/community-gravity"));
 const CivicSignalPage = lazy(() => import("@/pages/CivicSignal"));
 const HouseholdProfilePage = lazy(() => import("@/pages/HouseholdProfile"));
 const PolicyEnginePage = lazy(() => import("@/pages/PolicyEngine"));
@@ -322,7 +328,10 @@ const FosterYouthPolicyComparisonPage = lazy(() => import("@/pages/foster-youth/
 const VannCollaborationHubPage = lazy(() => import("@/pages/partners/vann-collaboration-hub"));
 const FamilyProgramTrackerPage = lazy(() => import("@/pages/partners/family-program-tracker"));
 const RfpStorytellerPage = lazy(() => import("@/pages/partners/rfp-storyteller"));
-const HubHomePage = lazy(() => import("@/pages/hub-home"));
+const FocusedHomePage = lazy(() => import("@/pages/focused-home"));
+const WorkspaceHomePage = lazy(() => import("@/pages/workspace-home"));
+const ToolDirectoryPage = lazy(() => import("@/pages/tool-directory"));
+const WorkspaceChooserPage = lazy(() => import("@/pages/workspace-chooser"));
 const HubServePage = lazy(() => import("@/pages/hub-serve"));
 const HubFundPage = lazy(() => import("@/pages/hub-fund"));
 const HubGrowPage = lazy(() => import("@/pages/hub-grow"));
@@ -433,7 +442,11 @@ function NavigatorPage() {
 function AppRouter() {
   return (
     <Switch>
-      <Route path="/" component={LandingPage} />
+      <Route path="/" component={FocusedHomePage} />
+      <Route path="/platform-overview" component={LandingPage} />
+      <Route path="/tools" component={ToolDirectoryPage} />
+      <Route path="/workspaces" component={WorkspaceChooserPage} />
+      <Route path="/workspace/:workspace">{params => <WorkspaceHomePage workspace={params.workspace} />}</Route>
       <Route path="/coverage" component={CoveragePage} />
       <Route path="/subjects" component={SubjectsPage} />
       <Route path="/subject/:subjectId" component={SubjectDetailPage} />
@@ -572,27 +585,35 @@ function AppRouter() {
       <Route path="/veterans" component={VeteransProgramPage} />
       <Route path="/behavioral-health" component={BehavioralHealthProgramPage} />
       <Route path="/reentry-program" component={ReentryProgramPage} />
-      <Route path="/research" component={ResearchMethodologyPage} />
+      <Route path="/research"><Redirect to="/methodology" /></Route>
       <Route path="/methodology" component={ResearchMethodologyPage} />
       <Route path="/transparency-matrix" component={TransparencyMatrixPage} />
       <Route path="/stakeholder-map" component={StakeholderMapPage} />
       <Route path="/open-innovation-lab" component={OpenInnovationLabPage} />
       <Route path="/resources" component={ResourceFinderPage} />
       <Route path="/get-help" component={GetHelpPage} />
+      <Route path="/demo" component={DemoDoorPage} />
+      <Route path="/start/get-help"><OutcomeLandingPage outcome="get-help" /></Route>
+      <Route path="/start/learn"><OutcomeLandingPage outcome="learn" /></Route>
+      <Route path="/start/work-earn"><OutcomeLandingPage outcome="work-earn" /></Route>
+      <Route path="/start/connect"><OutcomeLandingPage outcome="connect" /></Route>
+      <Route path="/start/fund"><OutcomeLandingPage outcome="fund" /></Route>
+      <Route path="/start/see-the-data"><OutcomeLandingPage outcome="see-the-data" /></Route>
       <Route path="/411" component={Community411Page} />
       <Route path="/community-analysis" component={CommunityAnalysisPage} />
       <Route path="/impact" component={ImpactPage} />
       <Route path="/api-docs" component={APIDocsPage} />
+      <Route path="/ai-navigator"><AINavigator mode="page" /></Route>
       <Route path="/grants">
         <RequireAuth adminOnly reason="Your grant pipeline is restricted to TCAF admins.">
           <GrantHubPage />
         </RequireAuth>
       </Route>
       <Route path="/reentry" component={ReentryRouterPage} />
-      <Route path="/intake-wizard" component={IntakeWizardPage} />
-      <Route path="/transparency-dashboard" component={TransparencyDashboardPage} />
+      <Route path="/intake-wizard"><Redirect to="/intake" /></Route>
+      <Route path="/transparency-dashboard"><Redirect to="/transparency" /></Route>
       <Route path="/partners" component={CommunityPartnersPage} />
-      <Route path="/outcomes" component={OutcomeReportingPage} />
+      <Route path="/outcomes"><RequireAuth adminOnly><OutcomeReportingPage /></RequireAuth></Route>
       <Route path="/justice-partners" component={JusticePartnersPage} />
       <Route path="/justice-command-center" component={JusticeCommandCenterPage} />
       <Route path="/resource-directory" component={CommunityResourceDirectoryPage} />
@@ -609,6 +630,8 @@ function AppRouter() {
       <Route path="/mos-translator" component={MOSTranslatorPage} />
       <Route path="/equity-dashboard" component={EquityDashboardPage} />
       <Route path="/equity-loss/national" component={EquityLossNationalPage} />
+      <Route path="/community-banks" component={CommunityBanksPage} />
+      <Route path="/community-gravity" component={CommunityGravityPage} />
       <Route path="/equity-loss" component={EquityLossEnginePage} />
       <Route path="/civic-signal" component={CivicSignalPage} />
       <Route path="/household/:id" component={HouseholdProfilePage} />
@@ -659,7 +682,7 @@ function AppRouter() {
       </Route>
       <Route path="/north-wilco-childcare-coalition" component={NorthWilcoChildcareCoalitionPage} />
       <Route path="/our-approach" component={OurApproachPage} />
-      <Route path="/wab2-enrollment" component={WAB2EnrollmentHubPage} />
+      <Route path="/wab2-enrollment"><Redirect to="/st-davids" /></Route>
       <Route path="/st-davids" component={WAB2EnrollmentHubPage} />
       <Route path="/community-map" component={CommunityMapPage} />
       <Route path="/voice" component={VoiceIndexPage} />
@@ -698,7 +721,7 @@ function AppRouter() {
       <Route path="/prevention" component={PreventionPage} />
       <Route path="/coalition" component={CoalitionPage} />
       <Route path="/parent-education" component={ParentEducationPage} />
-      <Route path="/my-journey" component={MyJourneyPage} />
+      <Route path="/my-journey"><RequireAuth reason="Sign in to continue your own saved journey."><MyJourneyPage /></RequireAuth></Route>
       <Route path="/cohort-onboarding" component={CohortOnboardingPage} />
       <Route path="/cqi" component={MapGapCqiPage} />
       <Route path="/logic-model" component={LogicModelPage} />
@@ -786,7 +809,7 @@ function AppRouter() {
         </RequireAuth>
       </Route>
       <Route path="/research-hub" component={ResearchHubPage} />
-      <Route path="/chw-dashboard" component={ChwDashboardPage} />
+      <Route path="/chw-dashboard"><RequireAuth staffOnly reason="CHW tools require existing staff authorization."><ChwDashboardPage /></RequireAuth></Route>
       <Route path="/mapgap-framework" component={MapGapFrameworkPage} />
       <Route path="/transparency" component={TransparencyDashboardPage} />
       <Route path="/case-studies" component={CaseStudiesPage} />
@@ -902,8 +925,8 @@ function AppRouter() {
       <Route path="/sdoh-explorer" component={SDOHExplorerPage} />
       <Route path="/resident-journey" component={ResidentJourneyPage} />
       <Route path="/resident-journey/:id" component={ResidentJourneyPage} />
-      <Route path="/case-manager" component={CaseManagerViewPage} />
-      <Route path="/case-manager/:id" component={CaseManagerViewPage} />
+      <Route path="/case-manager"><RequireAuth staffOnly reason="Case review requires existing staff authorization."><CaseManagerViewPage /></RequireAuth></Route>
+      <Route path="/case-manager/:id"><RequireAuth staffOnly reason="Case review requires existing staff authorization."><CaseManagerViewPage /></RequireAuth></Route>
       <Route path="/city-comparison" component={CityComparisonPage} />
       <Route path="/transition-plans" component={TransitionPlansPage} />
       <Route path="/ai-workforce" component={AIWorkforcePage} />
@@ -982,6 +1005,7 @@ function AppRouter() {
       <Route path="/for-agencies" component={ForAgenciesPage} />
       <Route path="/community-story-pack" component={CommunityStoryPackPage} />
       <Route path="/community-story/:shareId" component={CommunityStoryPackPage} />
+      <Route path="/community-story"><Redirect to="/community-story-pack" /></Route>
       <Route path="/widget-install" component={WidgetInstallPage} />
       <Route path="/agency-connector" component={AgencyConnectorPage} />
       <Route path="/partner-dashboard" component={PartnerDashboardPage} />
@@ -993,7 +1017,8 @@ function AppRouter() {
       <Route path="/corridor/docs/live" component={CorridorDocsLivePage} />
       <Route path="/network" component={NetworkMembersPage} />
       <Route path="/navigator" component={NavigatorPage} />
-      <Route path="/hub" component={HubHomePage} />
+      <Route path="/hub"><Redirect to="/" /></Route>
+      <Route path="/hub/legacy"><Redirect to="/workspaces" /></Route>
       <Route path="/hub/serve" component={HubServePage} />
       <Route path="/hub/fund" component={HubFundPage} />
       <Route path="/hub/grow" component={HubGrowPage} />
@@ -1059,8 +1084,8 @@ function AppRouter() {
       <Route path="/align/community" component={AlignCommunityPage} />
       <Route path="/why-thriveup" component={WhyThriveUpPage} />
       <Route path="/thrive" component={ThrivePage} />
-      <Route path="/my-documents" component={MyDocumentsPage} />
-      <Route path="/my-appointments" component={MyAppointmentsPage} />
+      <Route path="/my-documents"><RequireAuth reason="Sign in to manage your own documents."><MyDocumentsPage /></RequireAuth></Route>
+      <Route path="/my-appointments"><RequireAuth reason="Sign in to review your own appointments."><MyAppointmentsPage /></RequireAuth></Route>
       <Route path="/my-household" component={MyHouseholdPage} />
       <Route path="/shadow-worker-hub" component={ShadowWorkerHubPage} />
       <Route path="/data-council" component={DataCouncilPage} />
@@ -1068,7 +1093,7 @@ function AppRouter() {
       <Route path="/reentry-dashboard"><Redirect to="/reentry" /></Route>
       <Route path="/corridor"><Redirect to="/corridor-intelligence" /></Route>
       <Route path="/network/members"><Redirect to="/network" /></Route>
-      <Route path="/wab2-enrollment-hub"><Redirect to="/wab2-enrollment" /></Route>
+      <Route path="/wab2-enrollment-hub"><Redirect to="/st-davids" /></Route>
       <Route path="/benefits-command-center"><Redirect to="/benefits" /></Route>
       <Route path="/about-leadership"><Redirect to="/about" /></Route>
       <Route path="/career-pathways"><Redirect to="/academy/careers" /></Route>
@@ -1109,66 +1134,46 @@ function useAttendanceLog() {
   }, [authLoading, isAuthenticated]);
 }
 
-function NavModeToggle() {
-  const { mode, toggle } = useNavMode();
-  return (
-    <button
-      onClick={toggle}
-      className="text-xs font-medium px-3 py-1.5 rounded-full border border-border hover:bg-muted transition-colors whitespace-nowrap flex-shrink-0"
-      data-testid="button-nav-mode-toggle"
-      title={mode === "hub" ? "Switch to classic sidebar" : "Switch to hub view"}
-    >
-      {mode === "hub" ? "☰ Classic" : "⊞ Hub View"}
-    </button>
-  );
-}
-
 function AppLayoutInner() {
   useAttendanceLog();
-  const { mode } = useNavMode();
+  const { workspace } = useWorkspace();
+  const [location] = useLocation();
+  const search = useSearch();
+  const shellFreeEmbed = new URLSearchParams(search).get("embed") === "1";
+  const focusedEntry = location === "/" || location === "/hub" || location === "/workspaces" || location.startsWith("/workspace/") || location.startsWith("/start/") || location.startsWith("/demo") || location === "/academy/lessons" || location === "/community-banks" || location === "/community-gravity" || Boolean(entryTaskForPath(location));
+  const currentWorkspace = WORKSPACES.find(item => item.id === workspace);
   const { t } = useLanguage();
-  const [isInIframe] = useState(() => typeof window !== "undefined" && window.self !== window.top);
   const style = { "--sidebar-width": "16rem", "--sidebar-width-icon": "3rem" };
 
-  if (isInIframe) {
-    return (
-      <SidebarProvider style={style as React.CSSProperties}>
-        <main className="w-full min-h-screen overflow-auto" tabIndex={-1}>
-          <ErrorBoundary>
-            <Suspense fallback={<PageFallback />}>
-              <AppRouter />
-            </Suspense>
-          </ErrorBoundary>
-        </main>
-      </SidebarProvider>
-    );
-  }
+  // Replit preview is itself an iframe. Ordinary iframes must not silently
+  // remove navigation; supported embed routes and ?embed=1 opt out explicitly.
+  if (shellFreeEmbed) return <main id="main-content" className="w-full min-h-screen" tabIndex={-1}><ErrorBoundary><Suspense fallback={<PageFallback />}><TaskStartHint key={location} path={location} /><AppRouter /></Suspense></ErrorBoundary></main>;
 
   return (
-    <SidebarProvider defaultOpen={false} style={style as React.CSSProperties}>
+    <SidebarProvider defaultOpen={true} style={style as React.CSSProperties}>
       <div className="flex h-screen w-full">
         <AppSidebar />
-        <div className={cn("flex flex-col flex-1 min-w-0", mode === "hub" && "pb-[calc(60px+env(safe-area-inset-bottom))]")}>
+        <div className="flex flex-col flex-1 min-w-0 pb-[calc(60px+env(safe-area-inset-bottom))] md:pb-0">
           <a href="#main-content" className="skip-link bg-primary text-primary-foreground" data-testid="link-skip-nav">
             {t("shell.skipToContent")}
           </a>
           <header className="flex items-center gap-2 px-3 py-2 border-b sticky top-0 z-50 bg-background/95 backdrop-blur-md">
-            <SidebarTrigger data-testid="button-sidebar-toggle" className="shrink-0" />
+            <SidebarTrigger data-testid="button-sidebar-toggle" className="shrink-0 h-11 w-11" />
             <div className="flex items-center gap-1.5 flex-1 min-w-0">
-              <span className="font-bold text-sm tracking-wide uppercase leading-none select-none truncate">ThriveUp</span>
+              <Link href={workspace ? `/workspace/${workspace}` : "/"} aria-label={currentWorkspace ? `${currentWorkspace.label} workspace` : "TCAF and ThriveUp home"} className="inline-flex items-center min-h-11 min-w-11 font-semibold text-sm leading-none truncate" data-testid="header-workspace">{currentWorkspace?.label ?? "TCAF + ThriveUp"}</Link>
             </div>
             <div className="flex items-center gap-1 shrink-0">
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={openCommandPalette}
-                className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground px-2.5 h-8 rounded-lg border border-border/60 bg-muted/50 hover:bg-muted"
+                className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground px-2.5 min-h-11 min-w-11 rounded-lg border border-border/60 bg-muted/50 hover:bg-muted"
                 data-testid="button-search-palette"
-                aria-label={t("shell.searchAll")}
+                aria-label={workspace ? "Search this workspace or all tools" : t("shell.searchAll")}
               >
                 <Search className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline text-xs">{t("shell.search")}</span>
-                <kbd className="hidden md:flex h-4 items-center rounded border bg-background px-1 text-[10px] font-mono text-muted-foreground/70 select-none">⌘K</kbd>
+                <kbd className="hidden md:flex h-4 items-center rounded border bg-background px-1 text-[10px] font-mono text-muted-foreground select-none">⌘K</kbd>
               </Button>
               <AccessibilityPanel />
               <HeaderControls />
@@ -1177,16 +1182,19 @@ function AppLayoutInner() {
           <main id="main-content" className="flex-1 overflow-auto" tabIndex={-1}>
             <ErrorBoundary>
               <Suspense fallback={<PageFallback />}>
+                <PageFrame key={`frame-${location}`} path={location} />
+                <TaskStartHint key={location} path={location} />
+                <JourneyPlaceBar path={location} />
                 <AppRouter />
               </Suspense>
             </ErrorBoundary>
           </main>
         </div>
       </div>
-      {mode === "hub" && <BottomTabBar />}
+      <BottomTabBar />
       <CommandPalette />
-      <AINavigator />
-      <ContextualHelpButton />
+      {!focusedEntry && location !== "/ai-navigator" && <AINavigator />}
+      {!focusedEntry && <ContextualHelpButton />}
     </SidebarProvider>
   );
 }
@@ -1194,7 +1202,7 @@ function AppLayoutInner() {
 function AppLayout() {
   return (
     <NavModeProvider>
-      <AppLayoutInner />
+      <WorkspaceProvider><AppLayoutInner /></WorkspaceProvider>
     </NavModeProvider>
   );
 }

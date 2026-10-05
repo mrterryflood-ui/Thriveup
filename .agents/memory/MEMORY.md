@@ -1,4 +1,5 @@
 - [Anti-fabrication guardrails](anti-fabrication-guardrails.md) — where guardrails live, what failed, six prohibitions; must be at TOP of every system prompt.
+- [Platform vision — PBS analogy](platform-vision-pbs.md) — north star + 6-outcome/10-audience IA; picture on every page; IRS EO BMF is the magnet org source.
 - [RequireAuth + wouter routing pattern](require-auth-routing.md) — Route must WRAP RequireAuth, not the other way around; outer-RequireAuth bleeds to all pages.
 - [El Buen Samaritano Collaboration](el-buen-collaboration.md) — active contract conversation with Isaac Pozos; disparity analysis on rental assistance data for Austin City Council advocacy; Dads Care 2 / fatherhood / Chainweb are the differentiated contribution.
 - [Navigator Personal RAG](navigator-personal-rag.md) — personal context injects live DB data when authenticated; audience-aware, never promotional.
@@ -52,6 +53,7 @@
 - [Equity-Loss Engine](equity-loss-engine.md) — 3-frame divergence must never be structurally zero; peer-class = 1 representative county, disclosed; Census now hard-requires its API key (302, not clean error).
 - [Express route ID shadowing](express-route-id-shadowing.md) — `/api/grants/:id` in grant-routes.ts has a manual reserved-word allowlist; any new literal `/api/grants/<word>` route must be added to it or it gets swallowed.
 - [Benefits How-to-Apply walkthroughs](benefits-apply-walkthroughs.md) — server catalog + shared meta + screener cards must stay in lockstep; parity gate fails one-sided program adds.
+- [ITI consent revocation policy](iti-consent-revocation.md) — consents persist past 24-hour private access, but separate recovery can only turn them off, never reopen profile/history.
 - [Nav findability & two-click gate](nav-findability.md) — task-first nav; sidebar flags must match route gates (staffOnly ≠ adminOnly); auth-aware BFS gate guards two-click reachability.
 - [Health federation partner connectors](health-federation.md) — HerHealth/MaleHealth have public no-auth APIs; honest-offline gateway; Nia=/ai-navigator, Malik=/malik deep links.
 - [GrantPathPro address is env-driven](grantpathpro-env-driven.md) — no hardcoded GrantPathPro domain in code; outbound integration URL lives in `GPP_API_URL` env var, not a source-code string.
@@ -71,6 +73,11 @@
 - [ChildCORE Partner API](childcore-partner-api.md) — outbound calls use CHILDCORE_API_KEY; inbound access uses a separate scoped tcaf_ key that ChildCORE stores as THRIVEUP_API_KEY.
 - [ChildCORE production contract drift](childcore-production-contract-drift.md) — source, public docs, and published routes can diverge; validate all three before calling a capability live.
 
+- [Boot seed multiplication](boot-seed-multiplication.md) — boot seeds without a unique key multiply rows across restarts; gates must fail on tab crashes/response size, not just layout.
+- [Playwright container limits](playwright-container-limits.md) — 1 worker; never alongside tsc; background gates via run_in_background only; hero-overlay contrast heuristic.
+- [Remote sync must diff both ways](remote-sync-bidirectional.md) — after an API push, `git reset --soft origin/<branch>` and inspect residual index; local-only imported modules are invisible if you iterate the remote tree.
+- [Stacked PRs via Git Data API](github-push-via-connector.md) — sibling PRs stack through a hand-built merge commit; read blobs with fs inside impure and verify sha1 — never carry base64 through shellExec output.
+
 ## ── AGENT SKILLS (load these, not just memory files) ──────────────────────
 - [Platform DNA Skill](.agents/skills/platform-dna/SKILL.md) — ADIS v4 governing: Tier A constitution + Tier B pipeline + deployment map; full v4 spec + v3 archive in same dir; pass to EVERY subagent via relevantSkills.
 - [Fable Standard Skill](.agents/skills/fable-standard/SKILL.md) — All 11 Iron Rules; Five-Lens thinking; pre-response checklist; behavioral audit; anti-fabrication 6 prohibitions; P-L12/P-L13 lessons; communication norms.
@@ -85,7 +92,7 @@
 - [ChildCORE causal-chain architecture](childcore-causal-chain.md) — ChildCORE attacks 10 interdependent problems simultaneously via a shared journey spine; ThriveUp needs the same pattern: user journey envelope, bidirectional county-metric sync, proactive community context priming.
 - [GIS Maps Architecture](gis-maps-architecture.md) — Leaflet GisNeedHeatMap component; GeoPoint shape; Bezier correlation arcs; wired into community-impact Geographic Map tab; SDOH explorer uses OSM not Google Maps.
 - [Visual intelligence workspace](visual-intelligence-workspace.md) — /community-analysis is the primary evidence-aware GIS shell; legacy routes remain compatibility destinations.
-- [User Journey Spine](user-journey-spine.md) — user_journeys table breaks silo: Navigator writes identifiedNeeds fire-and-forget; personal-context reads first; Benefits Screener/CHW/YHSI write hooks not yet wired.
+- [User Journey Spine](user-journey-spine.md) — preserve context across tools so people do not repeat intake; verify live capture hooks rather than trusting old wiring notes.
 - [ChildCORE Inbound County Metrics](childcore-inbound-metrics.md) — POST /api/childcore/county-metrics/ingest; partner-key auth; partnerApiKeys.active (not isActive); batch 500; feeds childcore_county_metrics table.
 - [International surface boundaries](international-surface-boundaries.md) — Community Voice, WPH, and LifeBridge stay domestic until country-specific local contracts and safeguards exist.
 - [Youth Mode persistence](youth-mode-persistence.md) — identity-scoped caches need explicit fixed-path fetchers; account changes cancel and clear all Navigator-owned state.
@@ -95,3 +102,12 @@
 - [Mirror verifier safety](mirror-verifier-safety.md) — verify HTTP and database targets before fixture writes; surface cleanup failures; make retryable partner snapshots idempotent.
 - [DB connection retry boundary](db-connection-retry-boundary.md) — do not retry ambiguous query timeouts; read-replica success does not prove deployed write connectivity.
 - [Deployment log time windows](deployment-log-time-windows.md) — CodeExecution's durable runtime may disable Date.now(); use an observed timestamp for log windows.
+- [Published custom-domain split](published-custom-domain-split.md) — a domain listed in Replit deployment metadata may actually serve an independent Vercel release; verify each hostname separately.
+- [Platform focus and distinction](platform-focus-distinction.md) — user reports overwhelming breadth; going forward, focus, separation, and distinction must precede integration.
+- [AI honesty calibration](ai-honesty-calibration.md) — advisory receipts do not replace binding grounding; external-domain benchmarks are not ThriveUp scores.
+- [Preview viewport evidence](preview-viewport-evidence.md) — development-domain banners can reduce usable height; local screenshots alone do not prove first-screen fit.
+- [GitHub push via connector replay](github-push-via-connector.md) — shell has no git creds; replay commits via the GitHub connector's Git Data API to identical SHAs; branch push = Vercel Preview boot proof.
+- [Community bank impact view](community-bank-view.md) — public composer over existing organs; coverage per tile; nationwide county ACS+SVI ingested via script (no scheduler); childcare engine wants 3-digit county suffix; curated city list, else ZIP/county:FIPS.
+- [Geographic provenance](geographic-provenance.md) — populated coordinates do not prove accuracy; preserve FIPS/ZIP scope and distinguish filing locations, seeded pins, and metric definitions.
+- [Verification resource budget](verification-resource-budget.md) — serialize compiler/build and browser checks in constrained containers; interrupted checks are not passing proof.
+- [Access truth = route registry](access-truth-registry.md) — one predicate (shared/route-access); sidebar group flags over-restrict; regenerate registry JSON from the target branch inputs, never local.

@@ -62,10 +62,10 @@ const ALL_PLATFORMS: GatewayPlatform[] = [
   },
   {
     id: "isss",
-    name: "ISSS",
-    tagline: "K-12 implementation science · MTSS · IEP · school system support",
+    name: "ChildCORE",
+    tagline: "Child & family services intelligence · providers · schools · SDOH",
     emoji: "📚",
-    href: "https://implementationineducation.com",
+    href: "https://childcore.app",
     external: true,
     color: "border-emerald-300 bg-emerald-50 dark:bg-emerald-950/30 dark:border-emerald-800",
     tags: ["education", "youth", "k12", "school", "families"],

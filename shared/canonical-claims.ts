@@ -58,3 +58,11 @@ export const NATIONWIDE_ARCHITECTURE_PHRASE = `${STATES_COVERED_BY_ARCHITECTURE}
 
 /** Value used in machine-readable /api-info geographicReach fields. */
 export const GEOGRAPHIC_REACH = `${STATES_COVERED_BY_ARCHITECTURE}-state architecture (built to cover all ${STATES_COVERED_BY_ARCHITECTURE} states; not a claim of active deployment in every state)`;
+
+// ── Positioning (vision statement; wording is the single source for every surface) ──
+// Honesty rules: describe the role, never claim "first" or "only". Peer platforms exist
+// for each slice (closed-loop referrals, benefits navigation, community data for funders,
+// civic data); the distinct claim is the combination under one free, evidence-disclosing roof.
+export const POSITIONING_ROLE = "the community integration and implementation platform";
+export const POSITIONING_LINE = `TCAF + ThriveUp is ${POSITIONING_ROLE}: one free, shared system for the people who live in a community, the organizations that serve them, and the funders, banks, and public institutions that support them — so help, coordination, and evidence happen in the same place.`;
+export const POSITIONING_SHORT = "The community integration and implementation platform — for residents, the organizations that serve them, and the institutions that support them.";

@@ -29,13 +29,13 @@
 | # | Platform | URL | Role | Domain |
 |---|---|---|---|---|
 | 1 | ThriveUp Academy (Hub) | thrivingcommunitiesforall.com | Central coordination & delivery engine | Education/Workforce |
-| 2 | RPLICE / Better Science Lab | bettersciencelab.com | Implementation science & evidence registry | Research/Evaluation |
+| 2 | RPLICE / Better Science Lab | www.bettersciencelab.com | Implementation science & evidence registry | Research/Evaluation |
 | 3 | Minority Center of Excellence (MCE) | minoritycenterofexcellence.com | Minority business ecosystem | Economic Empowerment |
 | 4 | LifeBridge | lifetransitionsaid.org | Virtual 211 / CHW hub / SDOH navigation | Social Services |
 | 5 | Whole-Person Health | mentalwellnesssupport.net | Clinical & behavioral health connective tissue | Health/Mental Health |
 | 6 | Mission Transition (M2C) | vetmissiontransition.com | Military-to-civilian transition | Veteran Services |
 | 7 | Sankofa Health Network | yourhealthbirthright.net | Health equity gateway — parent of 3 sub-networks | Health Equity |
-| 8 | ISSS | implementationineducatio.com | Integrated student supports for school districts | Education |
+| 8 | ChildCORE (replaced ISSS) | childcore.app | Community intelligence for child and family services | Education |
 | 9 | WholeMind Learning | life-pals-standalone.replit.app | Visual-first Pre-K to 12th grade academics | Education |
 | 10 | SafeReport | safereports.net | Mandatory reporter & incident management | Safety/Compliance |
 | 11 | PillScheduler | pillscheduler.net | Medication management & adherence | Health/Medication |
@@ -495,14 +495,13 @@ HerHealth covers **70 women's health conditions** organized into **7 specialized
 
 ## 15. REMAINING PLATFORMS {#remaining-platforms}
 
-### ISSS (Integrated Supports for Thriving Youth)
-- Serves school districts with MTSS compliance, SEL curriculum, early warning systems, wraparound coordination
-- PfISD partnership: 120 students Year 1, rotating across 5 high schools
+### ChildCORE (replaced ISSS / Implementation in Education)
+- Community intelligence for child and family services: provider availability, school intelligence, and social-determinants data integrated into ThriveUp navigation and referral pathways.
 
 ### WholeMind Learning
 - Visual-first Pre-K to 12th grade academic platform
 - AI homework help, adaptive learning, silent-first accessibility design
-- Connected to ISSS for student support
+- Connected to ChildCORE for provider, school, and community context where configured
 
 ### SafeReport
 - Mandatory reporter and incident management

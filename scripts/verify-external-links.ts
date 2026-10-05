@@ -28,6 +28,10 @@ const seen = new Set<string>();
 for (const file of listTsxFiles(PAGES_DIR)) {
   const text = readFileSync(file, "utf-8");
   for (const m of text.matchAll(urlPattern)) {
+    // A URL documented as a non-GET endpoint ("POST https://…", "PUT https://…") is an API
+    // contract, not a browsable link; a GET/HEAD 404 there says nothing about its liveness.
+    const before = text.slice(Math.max(0, m.index! - 8), m.index!);
+    if (/\b(POST|PUT|PATCH|DELETE)\s+$/.test(before)) continue;
     seen.add(m[0].replace(/[,;.]+$/, ""));
   }
 }

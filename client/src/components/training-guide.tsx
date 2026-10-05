@@ -362,7 +362,7 @@ function TrainingGuideButtonInner({ guide }: { guide: GuideSection }) {
       <Button
         variant="outline"
         size="sm"
-        className="gap-2 text-xs"
+        className="gap-2 text-xs min-h-11"
         onClick={() => setState("open")}
         data-testid="guide-open-button"
       >

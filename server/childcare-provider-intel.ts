@@ -1055,6 +1055,8 @@ export async function getChildcareIntelByFips(
   countyFips: string,
   countyName = "",
 ): Promise<ChildcareIntelResult> {
+  // Accept a full 5-digit county GEOID as well as the 3-digit suffix; Census "for=county:" needs the suffix.
+  if (/^\d{5}$/.test(countyFips) && countyFips.startsWith(stateFips)) countyFips = countyFips.slice(2);
   if (stateFips === "48") {
     // Texas: resolve county name from FIPS if not supplied, then use HHSC CCL
     const resolved =

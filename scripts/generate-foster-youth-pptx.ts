@@ -348,7 +348,7 @@ const pptxPath = path.join(outDir, "Foster-Youth-Leave-Behind.pptx");
   md.push(``);
   md.push(`**Tiers: 0–19 Stable · 20–39 Watch · 40–59 Elevated · 60+ Critical.** Tiers communicate urgency of system response, never deficit in the youth.`);
   md.push(``);
-  md.push(`**ISS-style stakeholder loop** (modeled on the integrated student-support pattern at <https://implementationineducatio.com>): caseworker · foster parent · school counselor · ILP coordinator · healthcare PCP · mental-health clinician · CASA/GAL · court · PHA (FYI voucher pre-screen) · education advocate.`);
+  md.push(`**ChildCORE-informed stakeholder loop** (community intelligence for child and family services: provider availability, school intelligence, and social-determinants data at <https://childcore.app>): caseworker · foster parent · school counselor · ILP coordinator · healthcare PCP · mental-health clinician · CASA/GAL · court · PHA (FYI voucher pre-screen) · education advocate.`);
   md.push(``);
   md.push(`**Live vs. roadmap (honest):** the engine, the upload pipeline, the stratification view, and the stakeholder coordination panel are LIVE. CCWIS direct integration, FERPA/HIPAA data-sharing MOUs, and SOC 2 audit are ROADMAP.`);
   md.push(``);

@@ -1,0 +1,69 @@
+Independent review, grounded in my own fresh check of the repo just now (not your numbers — mine). Three things worth putting on the record, then my calls on your three decisions.
+
+## What I confirmed independently
+
+**The trunk is already forked — that's not hypothetical, it's verified.** Your `/tools` page and the "4 workspaces × 24 tasks" focused sidebar exist in the live Replit tree but do **not** exist in the GitHub repo I read. I confirmed this directly: no `/tools` route, no workspace-based focused sidebar in `mrterryflood-ui/Thriveup`. My repo also shows 359 page files / 406 route declarations against your live 287 / 413. Different counting partly explains it, but `/tools` and the new sidebar being absent on one side is real drift, not a rounding difference.
+
+This makes Phase 0 the actual first "cut," not an option. Every phase after it — registry, re-map, frame — reads from a codebase that's already diverged. If you layer the registry on the repo side while Replit keeps editing the live side, we orchestrate a fork.
+
+## On the model and the backward plan
+
+I endorse the 6-outcome × 10-audience adoption and the backward plan outright. Acceptance-gates-first is "measure twice, cut once" done correctly, and the completeness gate (tagged routes = total routes) is the right sharp test. The live-check ledger running read-only, in parallel from day one, is exactly how we avoid the "unverified" trap I flagged.
+
+One thing I want to pin down as your reviewer, because it's the single point where the plan could reintroduce the defect it's fixing:
+
+**Verify what the "4 workspaces" actually are before calling them "audience groups."** My whole diagnosis rests on separating *what you need* (outcome/verb) from *who you are* (audience/noun). If the 4 workspaces are **Serve / Fund / Grow / Connect** — verbs, not audiences — then labeling them "audience groups" re-blurs the very line the 6-outcome model exists to keep clean. If they're genuinely people/entity-scoped (e.g. Resident / Organization / Funder / Staff), the reconciliation is correct and nothing needs to change. Please paste the four workspace labels so this is decided on evidence, not naming.
+
+## My calls on the three decisions
+
+1. **Approve 6 outcomes + 10 audiences** — yes, with the reconciliation held to the check above. If the workspaces turn out to be verbs, keep them as an *outcome sub-layer*, not "audience groups."
+2. **GitHub sync check** — authorize it **now**, first, before Phase 1 work continues. The drift is already live; every hour widens it.
+3. **Net-new builds after the ledger** — yes, confirm. CVR ingest bridge, RPLICE exchange route, and the provider cutover are separate scoped builds that must not race ahead of the ledger or the IA. That ordering is correct and matches how I scoped it.
+
+## Go signal
+
+Proceed with Phase 1 (Connect/Magnet), and open the Phase 2 registry generator and Phase 6 ledger in parallel. Two conditions attached: (a) confirm the trunk sync as step one of this session, and (b) send the four workspace labels so the "audience groups" reconciliation is either confirmed or corrected before it propagates into the registry.
+
+I'll keep reviewing as a black box — against the acceptance gates and live behavior, not your self-report — and flag anything un-wired as open rather than done. If you paste a digest-cycle and a welcome-signup log, I'll also start flipping the ledger's "unverified" rows to definitive verdicts.
+
+Sources
+[1] Avoid Format-Based Primary Navigation https://www.nngroup.com/articles/format-based-navigation/
+[2] Intranet Information Architecture (IA) Trends https://www.nngroup.com/articles/intranet-information-architecture-ia/
+[3] Mini-IA: Structuring the Information About a Concept https://www.nngroup.com/articles/mini-ia-structuring-information/
+[4] 2015 Nielsen Norman Group Usability Week Recap & Review https://www.linkedin.com/pulse/2015-nielsen-norman-group-usability-week-recap-review-bielewicz
+[5] Intranet Portals: UX Design https://media.nngroup.com/media/reports/free/Intranet_Portals-_UX_Design_Experience_from_Real-Life_Projects.pdf
+[6] Information Architecture: Study Guide https://www.nngroup.com/articles/ia-study-guide/
+[7] Intranet Best Practices: Research Findings from Nielsen ... https://www.knowledge-architecture.com/blog/intranet-best-practices-research-findings-from-nielsen-norman-group-and-knowledge-architecture
+[8] Vol. 2: Intranet Information Architecture, Navigation, and Menus https://www.nngroup.com/reports/intranet-information-architecture-navigation/
+[9] Information Architecture Articles & Videos https://www.nngroup.com/topic/information-architecture/
+[10] Navigation Articles, Videos, Reports, and Training Courses - NN/G https://www.nngroup.com/topic/navigation/
+[11] Top Tasks – A how-to guide | Gerry McGovern https://gerrymcgovern.com/books/top-tasks-a-how-to-guide/read-the-first-chapter/
+[12] Top Tasks: To Focus On What Matters You Must De- ... https://www.smashingmagazine.com/2022/05/top-tasks-focus-what-matters-must-defocus-what-doesnt/
+[13] Gerry McGovern 'Top Tasks; A method for understanding ... https://www.thisishcd.com/episodes/gerry-mcgovern-top-tasks-a-method-for-understanding-peoples-product-and-service-requirements
+[14] Most of customer experience is cleaning and sweeping - LinkedIn https://www.linkedin.com/pulse/most-customer-experience-cleaning-sweeping-interview-gerry-swinscoe
+[15] Serving the customer better by understanding their top tasks https://gerrymcgovern.com/wp-content/uploads/2018/10/Marketing-Analytics-Top-Tasks-Gerry-McGovern.pdf
+[16] Gerry McGovern, Top tasks https://www.slideshare.net/slideshow/gerry-mcgovern-top-tasks/32028040?nway-content_model=A
+[17] Top Tasks – A how-to guide - Gerry McGovern https://gerrymcgovern.com/books/top-tasks-a-how-to-guide/
+[18] Gerry McGovern, Top tasks | PDF https://www.slideshare.net/slideshow/gerry-mcgovern-top-tasks/32028040
+[19] Top Tasks: A How-to Guide - Lulu https://www.lulu.com/shop/gerry-mcgovern/top-tasks-a-how-to-guide/paperback/product-23824878.html
+[20] Top Tasks – A how to-guide https://www.linkedin.com/pulse/top-tasks-how-to-guide-gerry-mcgovern
+[21] Aliia Kodzhoshalieva https://www.doria.fi/bitstream/handle/10024/177793/kodzhoshalieva_aliia.pdf?sequence=2
+[22] Mastering Cognitive Load in UX Design: A Practical Framework ... https://timgraf.com/ux-design/mastering-cognitive-load-in-ux-design-a-practical-framework-for-designing-interfaces-that-dont-exhaust-your-users/
+[23] Laws of UX (Hick's, Fitts's, Jakob's, Miller's, Tesler's ... https://uiuxatlas.com/lessons/foundations/laws-of-ux/
+[24] HCI Foundations: The Laws That Govern Every Click https://www.abyiber.com/blog/hci-foundations
+[25] Cognitive Load Theory... https://skillsmp.com/creators/phazurlabs/ux-ui-mastery/skills-cognitive-psychology-ux
+[26] The Psychology of Design https://lawsofux.com/articles/2018/the-psychology-of-design/
+[27] Easier Decision-Making: Designing Low Cognitive Load ... https://www.diva-portal.org/smash/get/diva2:2075759/FULLTEXT01.pdf
+[28] 13 III March 2025 https://doi.org/10.22214/ijraset.2025 https://www.ijraset.com/best-journal/reducing-cognitive-load-in-ui-design
+[29] ENTD120 Week 7: Schema Alignment & Mental Models in ... https://www.studocu.com/en-us/document/american-university-usa/comp-systems-of-law-justice/entd120-week-7-schema-alignment-mental-models-in-ux-design/167671760
+[30] Minimize Cognitive Load to Maximize Usability - NN/G https://www.nngroup.com/articles/minimize-cognitive-load/
+[31] Government Design Principles - GOV.UK https://www.gov.uk/guidance/government-design-principles
+[32] Government Functional Standard - GovS 005: Digital (HTML) https://www.gov.uk/government/publications/government-functional-standard-govs-005-digital/government-functional-standard-govs-005-digital-html
+[33] Designing good government services: an introduction https://www.gov.uk/service-manual/design/introduction-designing-government-services
+[34] Services for government users - Service Manual https://www.gov.uk/service-manual/design/services-for-government-users
+[35] 2_Methodology for user experience FINAL 2.indd https://www.local.gov.uk/sites/default/files/documents/download-briefing-2-metho-21f.pdf
+[36] Learning about users and their needs - Service Manual - GOV.UK https://www.gov.uk/service-manual/user-research/start-by-learning-user-needs
+[37] Help users start using a service https://design-system.service.gov.uk/patterns/start-using-a-service/
+[38] www.gov.uk · service-manual · designDesign - Service Manual - GOV.UK https://www.gov.uk/service-manual/design
+[39] Three top tips for designing the next generation of government ... https://civilservice.blog.gov.uk/2016/07/20/three-top-tips-for-designing-the-next-generation-of-government-services/
+[40] GOV.UK Design System Live Assessment https://www.gov.uk/service-standard-reports/gov-dot-uk-design-system-live-assessment

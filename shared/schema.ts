@@ -3,6 +3,7 @@ import { pgTable, text, varchar, integer, boolean, timestamp, jsonb, decimal, re
 import { nanoid } from "nanoid";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { isUsStateCode } from "./us-state-codes";
 import type { StudioManifest } from "./studio-manifest";
 import type { CommunityContext } from "./community-context";
 
@@ -1657,6 +1658,37 @@ export const insertCommunityPartnerSchema = createInsertSchema(communityPartners
 export type InsertCommunityPartner = z.infer<typeof insertCommunityPartnerSchema>;
 export type CommunityPartner = typeof communityPartners.$inferSelect;
 
+// Public organization profiles live separately from operational referral partners:
+// appearing in the Rolodex must not imply service capacity or referral acceptance.
+export const communityNetworkProfiles = pgTable("community_network_profiles", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name", { length: 300 }).notNull(),
+  stakeholderType: varchar("stakeholder_type", { length: 120 }).notNull(),
+  description: text("description"),
+  city: varchar("city", { length: 120 }).notNull(),
+  state: varchar("state", { length: 2 }).notNull(),
+  communityArea: varchar("community_area", { length: 160 }),
+  focusAreas: text("focus_areas").array().notNull().default(sql`'{}'::text[]`),
+  serviceArea: text("service_area"),
+  website: varchar("website", { length: 500 }),
+  sourceUrl: varchar("source_url", { length: 500 }).notNull(),
+  status: varchar("status", { length: 20 }).notNull().default("draft"),
+  createdByUserId: varchar("created_by_user_id", { length: 255 }),
+  verifiedByUserId: varchar("verified_by_user_id", { length: 255 }),
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => [
+  index("community_network_location_status_idx").on(table.status, table.state, table.city),
+]);
+export const insertCommunityNetworkProfileSchema = createInsertSchema(communityNetworkProfiles).omit({
+  id: true, status: true, createdByUserId: true, verifiedByUserId: true, publishedAt: true, createdAt: true, updatedAt: true,
+}).extend({
+  state: z.string().trim().transform(value => value.toUpperCase()).refine(isUsStateCode, "Use a valid U.S. state or territory abbreviation."),
+});
+export type InsertCommunityNetworkProfile = z.infer<typeof insertCommunityNetworkProfileSchema>;
+export type CommunityNetworkProfile = typeof communityNetworkProfiles.$inferSelect;
+
 export const partnerReferrals = pgTable("partner_referrals", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
   partnerId: varchar("partner_id", { length: 100 }).notNull(),
@@ -1871,7 +1903,9 @@ export const grantAlerts = pgTable("grant_alerts", {
   fitScore: integer("fit_score"),
   isRead: boolean("is_read").default(false),
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => [
+  index("grant_alerts_lifecycle_lookup_idx").on(table.grantId, table.alertType, table.createdAt),
+]);
 
 export const insertGrantAlertSchema = createInsertSchema(grantAlerts).omit({ id: true, createdAt: true });
 export type InsertGrantAlert = z.infer<typeof insertGrantAlertSchema>;

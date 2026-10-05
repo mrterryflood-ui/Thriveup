@@ -10,7 +10,7 @@ import { hasValidCommunityEvidence } from "./community-evidence";
 import { db, storage } from "./storage";
 import {
   partnerApiKeys, partnerApiAuditLog, partnerInboundData, ecosystemPlatforms,
-  programs, partnerOutcomeSubmissions,
+  programs, partnerOutcomeSubmissions, grantOpportunities,
   studentProgress, academyPantherPower, pathwayPlans,
   attendanceLogs, earlyWarningFlags,
   partnerWebhooks,
@@ -25,14 +25,15 @@ import {
   buildChainwebScenario, calculateChainwebROI, generateChainwebNarrative,
 } from "./chainweb-engine";
 import { CHAINWEB_COEFFICIENTS, CHAINWEB_TEMPLATES } from "./chainweb-coefficients";
-import { eq, desc, and, sql, gte } from "drizzle-orm";
+import { eq, desc, and, sql, gte, gt, inArray, ne, or, ilike } from "drizzle-orm";
 import { AI_TRANSLATION_LANGUAGE_COUNT, GEOGRAPHIC_REACH } from "@shared/canonical-claims";
 import { SUPPRESSION_FLOOR, suppress } from "./yhsi-routes";
 import { fireWebhook } from "./webhook-dispatcher";
 import crypto, { randomBytes } from "crypto";
 import { verifyInboundPayload, hasBlockingRejection, recordInboundVerification, rejectionsToCorrectionNote, type InboundSchema } from "./inbound-verification";
 import { getMsEcosystemDirectory, searchMsProviders } from "./ms-provider-intelligence";
-import { handleCommunityOpportunities } from "./community-api-routes";
+import { getStatesList, searchResources } from "./resource-engine";
+import { presentFundingCandidate, safeFundingUrl } from "./partner-community-opportunities";
 
 // Schema for POST /api/partner/v1/heartbeat.
 // message: optional free-text status note (max 500 chars)
@@ -829,7 +830,6 @@ export function registerPartnerApiRoutes(app: Express) {
 
   // ── Community data (community:read) ──────────────────────────────────────
 
-  app.get("/api/partner/v1/community-opportunities", requirePartnerAuth, requireScope("community:read"), handleCommunityOpportunities);
 
   app.get("/api/partner/v1/community", requirePartnerAuth, requireScope("community:read"), async (_req, res) => {
     try {
@@ -1702,6 +1702,87 @@ export function registerPartnerApiRoutes(app: Express) {
     } catch (err) {
       console.error("[PartnerAPI] community-story failed:", err);
       res.status(500).json({ error: "Community story pack request failed." });
+    }
+  });
+
+  // Existing ECS community:read credentials can fetch public-oriented leads
+  // without granting access to internal grant reports or resident records.
+  app.get("/api/partner/v1/community-opportunities", requirePartnerAuth, requireScope("community:read"), async (req, res) => {
+    const state = req.query.state;
+    const focus = req.query.focus;
+    const rawLimit = req.query.limit;
+    if (typeof state !== "string" || !/^[A-Za-z]{2}$/.test(state) ||
+        (focus !== undefined && (typeof focus !== "string" || focus.trim().length < 2 || focus.trim().length > 80)) ||
+        (rawLimit !== undefined && (typeof rawLimit !== "string" || !/^[1-9]\d?$/.test(rawLimit) || Number(rawLimit) > 50))) {
+      return res.status(400).json({ error: "Provide a valid two-letter state, optional focus (2–80 characters), and limit (1–50)." });
+    }
+    const stateCode = state.toUpperCase();
+    const stateInfo = getStatesList().find((item) => item.code === stateCode);
+    if (!stateInfo) return res.status(400).json({ error: "Unsupported state code." });
+    try {
+      const now = new Date();
+      const focusText = typeof focus === "string" ? focus.trim() : null;
+      // Grant rows have no verified county/eligibility fields. Return only
+      // sourced, future-deadline candidates, never internal fit/notes/AI fields.
+      const rows = await db.select({
+        id: grantOpportunities.id,
+        title: grantOpportunities.title,
+        agency: grantOpportunities.agency,
+        description: grantOpportunities.description,
+        eligibilityCriteria: grantOpportunities.eligibilityCriteria,
+        fundingAmount: grantOpportunities.fundingAmount,
+        deadline: grantOpportunities.deadline,
+        source: grantOpportunities.source,
+        sourceUrl: grantOpportunities.sourceUrl,
+        verificationStatus: grantOpportunities.verificationStatus,
+        lastVerifiedAt: grantOpportunities.lastVerifiedAt,
+      }).from(grantOpportunities)
+        .where(and(
+          inArray(grantOpportunities.status, ["identified", "verifying"]),
+          ne(grantOpportunities.source, "usaspending"),
+          gt(grantOpportunities.deadline, now),
+          or(
+            ilike(grantOpportunities.description, `%${stateInfo.name}%`),
+            ilike(grantOpportunities.eligibilityCriteria, `%${stateInfo.name}%`),
+            sql`(coalesce(${grantOpportunities.description}, '') || ' ' || coalesce(${grantOpportunities.eligibilityCriteria}, '')) ~* ${"nationwide|all (50 |fifty )?states"}`,
+          ),
+          ...(focusText ? [or(
+            ilike(grantOpportunities.title, `%${focusText.replace(/[\\%_]/g, "\\$&")}%`),
+            ilike(grantOpportunities.description, `%${focusText.replace(/[\\%_]/g, "\\$&")}%`),
+          )!] : []),
+        ))
+        .orderBy(grantOpportunities.deadline)
+        .limit(500);
+      const candidates = rows.map((row) => presentFundingCandidate(row, stateInfo.name, now))
+        .filter((row): row is NonNullable<typeof row> => row !== null);
+      const fundingCandidates = candidates
+        .sort((a, b) => Number(b.geographyEvidence !== "not established") - Number(a.geographyEvidence !== "not established"))
+        .slice(0, rawLimit ? Number(rawLimit) : 20);
+      const residentResources = searchResources({ stateCode, categories: [], limit: 100 })
+        .filter((resource) => safeFundingUrl(resource.url))
+        .map(({ name, category, description, url, phone, eligibility, stateCode: resourceState }) => ({
+          name, category, description, url, phone: phone ?? null, eligibility: eligibility ?? null,
+          coverage: resourceState === stateCode ? "state-level directory link" : "federal directory link",
+          availability: "not verified — check the provider for local service and current eligibility",
+        }));
+      return res.json({
+        state: stateCode,
+        stateName: stateInfo.name,
+        generatedAt: now.toISOString(),
+        focus: focusText,
+        fundingCandidates,
+        fundingSearch: {
+          method: "POST",
+          path: "/api/grants/live-search",
+          body: { query: `${stateInfo.name} nonprofit ${focusText ?? "community services"}` },
+          note: "On-demand Grants.gov keyword search of posted notices. Keyword matches are not location or nonprofit eligibility verification; review each source notice.",
+        },
+        residentResources,
+        disclosure: "Funding listings are candidates, not confirmed open awards or nonprofit eligibility. Only records mentioning this state or nationwide coverage are included; a mention does not establish county eligibility. Zero results means no sourced, geographically mentioned candidate was found, not that no funding exists. Resident resources are directory links, not live availability or an eligibility determination. Check each source before sharing or applying.",
+      });
+    } catch (error) {
+      console.error("[PartnerAPI] community opportunities failed:", error);
+      return res.status(503).json({ error: "Community opportunities temporarily unavailable." });
     }
   });
 

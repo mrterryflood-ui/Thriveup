@@ -1,7 +1,7 @@
 {
   "name": "ThriveUp Academy",
   "short_name": "ThriveUp",
-  "description": "AI-powered workforce development and community enablement platform for all ages.",
+  "description": "The community integration and implementation platform — for residents, the organizations that serve them, and the institutions that support them.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

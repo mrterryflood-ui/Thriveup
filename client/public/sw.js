@@ -1,7 +1,7 @@
 // Bump this on any deploy that must invalidate the static cache. The activate
 // handler deletes prior app caches, so a version bump alone evicts stale
 // ThriveUp assets without touching caches owned by another library.
-const CACHE_VERSION = "v3";
+const CACHE_VERSION = "v4";
 const CACHE_NAME = `thriveup-benefits-${CACHE_VERSION}`;
 const CACHE_PREFIX = "thriveup-benefits-";
 
@@ -89,14 +89,24 @@ self.addEventListener("fetch", (event) => {
   // they contain no user-specific response data.
   const isStaticAsset = STATIC_ASSETS.includes(url.pathname) || url.pathname.startsWith("/assets/");
 
-  // Navigation fallback: for same-origin HTML navigations that aren't a cached
-  // static asset, try the network first. If offline and the root shell is
+  // All HTML navigation is network-first, including the public root, so a
+  // cached old entry page cannot hide a new focused experience. If offline and the root shell is
   // cached, return it so the SPA can hydrate rather than showing a browser
   // network-error page. API routes are excluded above; this only reaches
   // navigations to app routes like /hub, /grants, etc.
-  if (!isStaticAsset && request.mode === "navigate") {
+  if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request).catch(async () => {
+      fetch(request).then(async response => {
+        if (response.ok && url.pathname === "/") {
+          try {
+            const cache = await caches.open(CACHE_NAME);
+            await cache.put(cacheKey(request), response.clone());
+          } catch (error) {
+            console.warn("[ServiceWorker] Public shell cache update failed:", error);
+          }
+        }
+        return response;
+      }).catch(async () => {
         const cache = await caches.open(CACHE_NAME);
         const shell = await cache.match("/");
         return shell || Response.error();

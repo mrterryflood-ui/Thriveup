@@ -107,6 +107,7 @@ export async function requireOrg(req: Request, res: Response, next: NextFunction
   // Re-run the resolution path so requireOrg can stand on its own without
   // requiring callers to also use loadCallerOrg first.
   await loadCallerOrg(req, res, () => {});
+  if (res.headersSent) return; // Resolution already denied the requested tenant.
   const resolved = (req as unknown as Record<string, unknown>).org;
   if (!resolved) {
     return res.status(404).json({ error: "No organization profile found", code: "ORG_REQUIRED" });

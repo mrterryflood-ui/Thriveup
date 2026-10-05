@@ -3,7 +3,7 @@
 // Task-282 guarantee: every major public tool must be reachable within TWO
 // clicks of the homepage. This is a static BFS over the client link graph:
 //
-//   depth 0 (homepage surface): landing page + sidebar + bottom tab bar
+//   depth 0 (homepage surface): focused home + focused sidebar/mobile tabs
 //            (all rendered on "/" for a first-time visitor)
 //   depth 1: every page those surfaces link to
 //   depth 2: every page depth-1 pages link to
@@ -15,7 +15,9 @@
 // Run manually: npx tsx scripts/verify-two-click-reachability.ts
 // Chained into the `directory-links` validation gate.
 
+import { NAV_ROUTES } from "../shared/route-nav";
 import { readFileSync, existsSync } from "fs";
+import { WORKSPACE_TASKS, WORKSPACES } from "../shared/workspace-catalog";
 
 const APP = "client/src/App.tsx";
 const PAGES_PREFIX = "client/src/pages/";
@@ -107,10 +109,13 @@ function linksFromText(text: string): string[] {
 // signed-out first-time visitor never sees authOnly/adminOnly items, so for
 // the public click graph we must drop any NavItem line carrying those flags.
 function publicSidebarText(text: string): string {
-  return text
-    .split("\n")
-    .filter((line) => !/\b(authOnly|adminOnly)\s*:\s*true/.test(line))
-    .join("\n");
+  let restrictedGroup = false;
+  return text.split("\n").filter(line => {
+    const group = line.match(/^const\s+(\w+)\s*:\s*NavItem\[\]\s*=\s*\[/)?.[1];
+    if (group) restrictedGroup = /^(?:myOrg|admin)/.test(group);
+    if (/^\];/.test(line)) { const skip = restrictedGroup; restrictedGroup = false; return !skip; }
+    return !restrictedGroup && !/\b(authOnly|adminOnly|staffOnly)\s*:\s*true/.test(line);
+  }).join("\n");
 }
 
 // Pages compose link strips from shared components (e.g. RelatedTools,
@@ -141,6 +146,18 @@ function extractInternalLinks(file: string): string[] {
   }
   if (file === SIDEBAR_FILE) text = publicSidebarText(text);
   const out = new Set<string>(linksFromText(text));
+  // These surfaces render typed catalogs, not literal href strings. Model only
+  // links visible to a signed-out visitor, and only on the surface using them.
+  if (file === "client/src/pages/focused-home.tsx") {
+    for (const task of WORKSPACE_TASKS.filter(task => task.primary && task.access === "public")) out.add(task.href);
+    for (const workspace of WORKSPACES) out.add(`/workspace/${workspace.id}`);
+  }
+  if (file === "client/src/pages/tool-directory.tsx") {
+    // Phase 3c: /tools renders every public canonical registry row (shared/route-nav.generated.json).
+    for (const r of NAV_ROUTES) if (r.access === "public") out.add(r.path);
+    for (const task of WORKSPACE_TASKS.filter(task => task.access === "public")) out.add(task.href);
+    for (const url of linksFromText(publicSidebarText(readFileSync(SIDEBAR_FILE, "utf8")))) out.add(url);
+  }
   for (const compFile of componentImports(text)) {
     let compText: string;
     try {
@@ -148,7 +165,8 @@ function extractInternalLinks(file: string): string[] {
     } catch {
       continue;
     }
-    if (compFile === SIDEBAR_FILE) compText = publicSidebarText(compText);
+    // A registry import is not a rendered sidebar on the current surface.
+    if (compFile === SIDEBAR_FILE) continue;
     for (const u of linksFromText(compText)) out.add(u);
   }
   return [...out];
@@ -156,9 +174,8 @@ function extractInternalLinks(file: string): string[] {
 
 // ─── 3. BFS from the homepage surface ───────────────────────────────────────
 const DEPTH0_FILES = [
-  "client/src/pages/landing.tsx",
-  "client/src/components/app-sidebar.tsx",
-  "client/src/components/bottom-tab-bar.tsx",
+  "client/src/pages/focused-home.tsx",
+  "client/src/components/focused-navigation.tsx",
 ];
 
 const reachedAtDepth = new Map<string, number>(); // route path -> depth
@@ -198,7 +215,7 @@ for (const req of REQUIRED) {
 console.log(`\n${reachedAtDepth.size} routes reachable within 2 clicks of the homepage surface.`);
 if (failures > 0) {
   console.error(`\n${failures} required tool(s) failed the two-click reachability check.`);
-  console.error(`Fix: link the tool from the homepage (landing.tsx), sidebar (app-sidebar.tsx), or a page they link to.`);
+    console.error(`Fix: link the tool from the focused home, focused navigation, or full tools catalog.`);
   process.exit(1);
 }
 console.log("Two-click reachability gate passed.");

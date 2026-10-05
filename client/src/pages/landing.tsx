@@ -20,7 +20,7 @@ import {
   Zap, FileText, Send, Lock, Star, Plug
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
-import { IDENTITY_STRAP, LANGUAGES_SHORT_PHRASE } from "@shared/canonical-claims";
+import { IDENTITY_STRAP, LANGUAGES_SHORT_PHRASE, POSITIONING_ROLE } from "@shared/canonical-claims";
 
 const PATHWAYS = [
   {
@@ -736,7 +736,7 @@ const ECOSYSTEM_PLATFORMS_DATA = [
     domain: "Education & Youth",
     color: "from-amber-500 to-orange-600",
     platforms: [
-      { name: "ISSS — Integrated Supports for Thriving Youth", url: "https://implementationineducatio.com", desc: "MTSS engine with Thrive Scores, early warning indicators, multi-stakeholder coordination for student support at scale", icon: School },
+      { name: "ChildCORE", url: "https://childcore.app", desc: "Community intelligence for child and family services — provider availability, school intelligence, and social-determinants data integrated directly into ThriveUp navigation and referral pathways.", icon: School },
       { name: "Perfectly Different", url: "https://neurodifferentassistant.app", desc: "Neurodiversity-affirming support for autism, ADHD, AuDHD — IEP/504 plan builder, executive function coaching, sensory tools", icon: Sparkles },
       { name: "Better Science Lab / RPLICE", url: "https://www.bettersciencelab.com", desc: "Implementation science engine — CFIR, RE-AIM, EPIS frameworks, evidence-based practice registry, research translation tools", icon: Microscope },
     ],
@@ -2523,7 +2523,7 @@ export default function LandingPage() {
 
           <p className="text-sm mb-3 px-2" data-testid="text-hero-mission"
             style={{ color: heroSub, maxWidth: 580, lineHeight: 1.65 }}>
-             National community infrastructure: we connect people to benefits and grant funding, align services with workforce pathways, and measure what actually changes.{" "}
+             {POSITIONING_ROLE.charAt(0).toUpperCase() + POSITIONING_ROLE.slice(1)}: we connect people to benefits and grant funding, align services with workforce pathways, and measure what actually changes.{" "}
             <Link href="/why-thriveup" className="font-semibold hover:underline" style={{ color: "#d97706" }} data-testid="link-hero-why-thriveup">
               Why ThriveUp
             </Link>

@@ -107,7 +107,7 @@ export default function StatePortalPage() {
           <h1 className="text-3xl font-bold" data-testid="text-page-title">State-Agency Foster-Youth Portal</h1>
         </div>
         <p className="text-muted-foreground max-w-3xl">
-          Designed for state &amp; county child-welfare agencies to upload de-identified caseload data, see who needs coordinated attention, and route every youth to the right stakeholders before they age out unsupported. Modeled on the integrated student-support pattern used at <a className="underline" href="https://implementationineducatio.com" target="_blank" rel="noreferrer">implementationineducatio.com</a>.
+          Designed for state &amp; county child-welfare agencies to upload de-identified caseload data, see who needs coordinated attention, and route every youth to the right stakeholders before they age out unsupported. Modeled on the child and family services intelligence pattern used at <a className="underline" href="https://childcore.app" target="_blank" rel="noreferrer">childcore.app</a>.
         </p>
       </div>
 

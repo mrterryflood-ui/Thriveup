@@ -14,6 +14,14 @@ description: Bidirectional partner connection between ThriveUp and ChildCORE. Tw
 
 ## ChildCORE API
 
+## Product identity
+
+ChildCORE (`childcore.app`) replaced the former Implementation in Education / ISSS product identity. Keep ChildCORE distinct from RPLICE / Better Science Lab (`bettersciencelab.com`); the platforms have separate roles and destinations.
+
+**Why:** The prior shared-domain description was stale and caused links and platform references to point ChildCORE and RPLICE at the same retired host.
+
+**How to apply:** In current platform directories, use `childcore.app` for ChildCORE and `bettersciencelab.com` for RPLICE. Preserve old names only when describing historical materials.
+
 - Base URL: `https://useful-viper-536.convex.site/api/v1`
 - Auth: `Authorization: Bearer <CHILDCORE_API_KEY>` OR `X-ChildCORE-Key: <CHILDCORE_API_KEY>`
 - `/ping` — unauthenticated health check (returns `{"status":"ok","service":"ChildCORE Partner API","version":"1.0.0"}`)

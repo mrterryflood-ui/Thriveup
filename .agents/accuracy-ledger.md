@@ -10,6 +10,26 @@ written from impression.
 
 ---
 
+## 2026-09-28 — ECS community opportunities
+
+**Claim:** Existing community-scoped partner access can return state/federal resource links while refusing to present unsupported NC grant matches as verified local opportunities.
+
+**Verified by:** development HTTP probes after workflow restart (200 NC response with 33 directory links and zero geographically supported stored grant candidates; 400 invalid state, 403 missing scope, 401 unauthenticated), three unit tests, 28 contract-probe tests, zero-error TypeScript check, and independent six-domain/architect audit. A separate live Grants.gov keyword search returned posted-notice hits.
+
+**Outcome:** Confirmed in development only. Initial design was partially overturned by audit because it could include unrelated out-of-state grants; repaired with explicit geography evidence filtering. Production publication, county eligibility, and ECS backend integration remain unverified.
+
+**Class:** Data-availability and geography-methodology gap; independent review caught a false-relevance path before publication.
+
+## 2026-09-28 — ECS published-host split
+
+**Claim:** Republishing the Replit app would make the new route live on the domain ECS tested.
+
+**Verified by:** fresh GET probes of the custom, primary, and generated publishing hosts; their docs and status responses; response headers; deployment metadata; and repository Vercel routing configuration.
+
+**Outcome:** Overturned for the custom domain. The Replit primary and generated hosts served the new route (401/200/400/403 on the primary); the tested custom domain served a separate stale Vercel build and still returned 404, even on cache MISS. ECS's own key and backend were not tested.
+
+**Class:** Deployment topology gap — an additional domain in deployment metadata did not imply common serving infrastructure.
+
 ## 2026-09-09 — Production publish CommonJS startup
 
 **Claim:** The latest publish failure was caused by a production-bundle startup

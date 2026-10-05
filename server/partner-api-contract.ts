@@ -41,7 +41,7 @@ export const PARTNER_API_SCOPES = [
   { scope: "content:read", description: "Ecosystem platform list and content export" },
   { scope: "platforms:read", description: "Live platform health status and metadata" },
   { scope: "health:read", description: "MS provider intelligence, public health-platform URLs, and RPLICE MS evidence links" },
-  { scope: "community:read", description: "Community impact metrics, service-platform summary, and community brief generation" },
+  { scope: "community:read", description: "Community summaries, briefs, stories, and source-labeled resident resources and nonprofit funding candidates" },
   { scope: "benefits:read", description: "Public benefits program catalog" },
   { scope: "impact:read", description: "Community intervention impact scores and outcome data" },
   { scope: "student:read", description: "AGGREGATE, suppression-floored youth metrics only — no per-student PII. See students/* endpoints." },
@@ -165,6 +165,13 @@ export const PARTNER_API_CONTRACT: readonly PartnerRouteEntry[] = [
     path: "/api/partner/v1/community-story",
     auth: { kind: "partner", scope: "community:read" },
     description: "aggregate community story pack for a geography (community:read)",
+  },
+  {
+    method: "GET",
+    path: "/api/partner/v1/community-opportunities",
+    auth: { kind: "partner", scope: "community:read" },
+    description: "state/federal resident resource links and nonprofit funding candidates (community:read); query: state (required, two-letter code), focus?, limit?; not county-verified or live eligibility",
+    probe: true,
   },
   {
     method: "POST",

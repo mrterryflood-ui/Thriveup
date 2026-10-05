@@ -49,11 +49,11 @@ This is the **second truth-in-claims primitive**, parallel to `<PartnershipStatu
 
 ### Routes (`server/integration-invitation-routes.ts`)
 - **Public + capability-token (same pattern as foster-youth-intake-routes.ts):**
-  - `POST /api/iti/invitations` — create + return token ONCE
+  - `POST /api/iti/invitations` — create + return a 24-hour read/edit token and a distinct withdrawal-only capability
   - `GET /api/iti/invitations/:id` — read own record
   - `PATCH /api/iti/invitations/:id` — update profile
-  - `PATCH /api/iti/invitations/:id/consents` — flip any toggle
-  - `POST /api/iti/invitations/:id/withdraw` — withdraw + all consents revoked + logged
+  - `PATCH /api/iti/invitations/:id/consents` — update any toggle; the browser UI only enables consent after withdrawal-only recovery is saved
+  - `POST /api/iti/invitations/:id/withdraw` — revoke all consents + log; after 24 hours, this is the only operation accepted with the withdrawal-only capability
   - `GET /api/iti/invitations/:id/recognition` — witness loop
 - **Admin (`requireAdmin`):**
   - `GET /api/iti/admin/invitations?surface=&surfaceContext=` — list shadow workers per surface
@@ -62,15 +62,19 @@ This is the **second truth-in-claims primitive**, parallel to `<PartnershipStatu
 
 ### Component (`client/src/components/integration-invitation.tsx`)
 - `<IntegrationInvitation surface=... surfaceContext=... prompt=... description=... suggestedRoleTags=... />`
-- State 1 (no token in localStorage): invitation prompt + form
-- State 2 (token in localStorage): witness loop dashboard with 8 consent toggles + recognition events
-- Capability token persisted in `localStorage` under `iti-token:<surface>:<context>` so invitee can return without an account
+- State 1 (no active 24-hour token): invitation prompt + form, plus any saved withdrawal-only actions
+- State 2 (active 24-hour token): witness loop dashboard with 8 consent toggles + recognition events
+- Read/edit token stays in tab `sessionStorage` for at most 24 hours; a separate withdrawal-only capability and invitation ID stay in browser `localStorage`
+- Legacy storage migrates only when surface/context identity is unambiguous; omitted and literal `default` contexts never inherit the shared legacy key
+- Withdrawal-only access can turn all consents off but cannot read profile fields or recognition history. Clearing site data removes this self-service recovery path.
+- The withdrawal-only capability is deterministically derived from the invitation's high-entropy access capability and its invitation ID. It is a distinct, attenuated token accepted only by the withdrawal endpoint, so rotating the application session secret does not disable saved withdrawal access.
+- Background refresh failures remain visible with retry; an expired or unavailable ITI access token cannot authorize a linked Community Voice pin.
 
 ---
 
 ## Doctrine (load-bearing — don't drift)
 
-1. **All consents default false.** Anti-extraction is the default. The system asks permission, the person grants it explicitly, the person can revoke any time.
+1. **All consents default false.** Anti-extraction is the default. The system asks permission and the person grants explicitly. Consent remains active after private read/edit access expires until the person withdraws it; a separate withdrawal-only capability preserves revocation without restoring access to profile or history.
 2. **Witness loop is always on.** Even with all consents off, the invitee sees what we know and what we've done. Transparency is not a toggle.
 3. **No translation tax.** The form accepts free text in their language. Suggested tags are optional and additive — never required, never used as a taxonomy filter.
 4. **No credentials, ever.** Self-identification is the whole point. Verification (if ever needed for stipend payout) happens downstream, with consent, with respect.

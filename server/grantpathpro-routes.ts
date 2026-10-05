@@ -35,6 +35,7 @@ import { buildCommunityAIContextWithStatus } from "./rplice-intelligence";
 import { timingSafeEqual, randomUUID, createHash } from "crypto";
 import { z } from "zod";
 import { getGrantPathProDisplayOrigin, getGrantPathProOutboundConfig, getGrantPathProEmbedConfig, getGrantPathProMirrorConfig, getGrantPathProOpportunityHandoffConfig } from "./grantpathpro-config";
+import { registerGppLifecycleCallback } from "./gpp-opportunity-lifecycle";
 import { hasBlockingRejection, recordInboundVerification, rejectionsToCorrectionNote, verifyInboundPayload } from "./inbound-verification";
 import {
   MANOR_FUNDING_PACKAGE_PROFILE_KEY,
@@ -830,6 +831,7 @@ async function persistOpportunityHandoffDelivery(
 }
 
 export function registerGrantPathProRoutes(app: Express) {
+  registerGppLifecycleCallback(app);
 
   const manorBootstrapSchema = z.object({}).strict();
 

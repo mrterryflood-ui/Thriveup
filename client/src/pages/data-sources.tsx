@@ -493,7 +493,7 @@ const INTERNAL_SOURCES: DataSource[] = [
     agency: "ThriveUp / TCAF",
     description: "Live AI-powered implementation science platform. CFIR 2.0, RE-AIM, EPIS frameworks. Multi-AI consensus engine (Gemini, Claude, OpenAI). Produces fidelity scores, readiness assessments, Proctor's 8 outcomes.",
     dataTypes: ["CFIR 2.0 Fidelity", "RE-AIM Scores", "EPIS Phases", "Readiness Assessments", "Implementation Outcomes", "Practice-Policy Reports"],
-    url: "https://implementationineducatio.com",
+    url: "https://www.bettersciencelab.com",
     apiEndpoint: "https://salp-science--mrterryflood.replit.app/api",
     status: "live",
     updateFrequency: "Real-time",

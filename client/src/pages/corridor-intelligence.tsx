@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import { JourneyPlaceEvidence } from "@/components/journey-place-evidence";
 import { ArrowRight, Database, RefreshCw, Sparkles, ExternalLink, MapPin, Users, FileText, AlertTriangle, Link2, Shield, ShieldAlert, Lightbulb, Network, Baby } from "lucide-react";
 
 interface Claim<T = number | string> {
@@ -284,7 +285,7 @@ export default function CorridorIntelligencePage() {
           <span className="bg-white/10 rounded px-2 py-1">any U.S. county · FIPS-keyed</span>
         </div>
         <div className="flex flex-wrap gap-2 mt-5">
-          <Button size="sm" variant="secondary" onClick={() => chainweb.mutate()} disabled={chainweb.isPending} data-testid="button-run-chainweb">
+          <Button size="sm" variant="secondary" className="min-h-11" onClick={() => chainweb.mutate()} disabled={chainweb.isPending} data-testid="button-run-chainweb">
             <Network className={`w-4 h-4 mr-1 ${chainweb.isPending ? "animate-spin" : ""}`} /> Run chain web (pull &amp; link all)
           </Button>
           <Button size="sm" variant="secondary" onClick={() => refresh.mutate()} disabled={refresh.isPending} data-testid="button-refresh">
@@ -308,6 +309,13 @@ export default function CorridorIntelligencePage() {
         </div>
       </div>
 
+      {/* Place-scoped county evidence — consumes the carried ?place= (resident chain) */}
+      <JourneyPlaceEvidence
+        path="/corridor-intelligence"
+        title="County evidence for your place"
+        description="The pilot stories below are fixed to the I-35 corridor. Enter or carry a place to see the same county baseline (Census ACS, CDC SVI, HUD PIT, childcare capacity) for anywhere in the U.S."
+      />
+
       {/* Active Pilots */}
       <div data-testid="section-active-pilots">
         <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Active Deployments</div>
@@ -316,10 +324,10 @@ export default function CorridorIntelligencePage() {
           <div className="rounded-xl border-2 border-sky-500/50 bg-sky-50 dark:bg-sky-950/30 p-5 space-y-3" data-testid="card-pilot-williamson">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <div className="text-[10px] font-semibold uppercase tracking-wider text-sky-600 dark:text-sky-400 mb-1">Pilot 1 · Featured</div>
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-400 mb-1">Pilot 1 · Featured</div>
                 <h2 className="text-lg font-bold leading-tight">Williamson County × United Way of Greater Austin</h2>
               </div>
-              <Badge className="bg-sky-600 text-white shrink-0">Active</Badge>
+              <Badge className="bg-sky-700 text-white shrink-0">Active</Badge>
             </div>
             <p className="text-sm text-muted-foreground">
               Implementation science + community health worker deployment across Williamson County in partnership
@@ -367,10 +375,10 @@ export default function CorridorIntelligencePage() {
           <div className="rounded-xl border-2 border-amber-500/40 bg-amber-50 dark:bg-amber-950/20 p-5 space-y-3" data-testid="card-pilot-i35">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <div className="text-[10px] font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-1">Pilot 2</div>
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-amber-800 dark:text-amber-400 mb-1">Pilot 2</div>
                 <h2 className="text-lg font-bold leading-tight">I-35 Corridor: Waco ↔ Austin</h2>
               </div>
-              <Badge className="bg-amber-600 text-white shrink-0">Active</Badge>
+              <Badge className="bg-amber-700 text-white shrink-0">Active</Badge>
             </div>
             <p className="text-sm text-muted-foreground">
               Cross-city evidence alignment showing that Black children along the I-35 corridor face the same
@@ -447,7 +455,7 @@ export default function CorridorIntelligencePage() {
             ))}
           </ol>
           <div className="mt-3">
-            <Button size="sm" onClick={() => chainweb.mutate()} disabled={chainweb.isPending} data-testid="button-run-chainweb-inline">
+            <Button size="sm" className="min-h-11" onClick={() => chainweb.mutate()} disabled={chainweb.isPending} data-testid="button-run-chainweb-inline">
               <Network className={`w-4 h-4 mr-1 ${chainweb.isPending ? "animate-spin" : ""}`} />
               {chainweb.isPending ? "Running…" : "Run chain web now"}
             </Button>
@@ -504,7 +512,7 @@ export default function CorridorIntelligencePage() {
                 <div className="text-xs uppercase text-muted-foreground">{k}</div>
                 <div className="text-sm font-mono mt-1">W: {v.waco != null ? v.waco.toFixed(1) : "—"}</div>
                 <div className="text-sm font-mono">A: {v.austin != null ? v.austin.toFixed(1) : "—"}</div>
-                <div className={`text-[11px] mt-1 ${v.deltaPct == null ? "text-muted-foreground" : Math.abs(v.deltaPct) < 15 ? "text-emerald-600" : "text-amber-600"}`}>
+                <div className={`text-[11px] mt-1 ${v.deltaPct == null ? "text-muted-foreground" : Math.abs(v.deltaPct) < 15 ? "text-emerald-700" : "text-amber-800"}`}>
                   Δ {v.deltaPct != null ? v.deltaPct.toFixed(0) + "%" : "—"}
                 </div>
               </div>

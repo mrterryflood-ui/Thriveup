@@ -109,7 +109,7 @@ export default function HubConnectPage() {
   const { role } = useHubRole();
   return (
     <HubShell
-      title="Connect"
+      title="More ways to connect"
       subtitle="Services · Workforce · Partners · Impact · Community"
       headerGradient="from-teal-600 via-cyan-600 to-teal-800"
       chips={["All", "Services", "Workforce", "Justice", "Rural", "Partners", "Impact", "Central Texas", "About"]}

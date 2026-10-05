@@ -1,11 +1,13 @@
 import { eq, like } from "drizzle-orm";
 import { gisContextData } from "@shared/schema";
 import type { GisContextData } from "@shared/schema";
+import { countyCentroid } from "@shared/nationwide/county-centroids";
 
 const CDC_PLACES_URL = "https://data.cdc.gov/resource/swc5-untb.json";
 const CDC_SVI_URL = "https://data.cdc.gov/resource/4d8n-kk8a.json";
 // ATSDR SVI 2022 county-level (ArcGIS Feature Service) — used as primary, with Socrata fallback above.
-const ATSDR_SVI_COUNTY_URL = "https://services3.arcgis.com/ZvidGQkLaDJxRSJ2/arcgis/rest/services/SVI2022_US_county/FeatureServer/0/query";
+// CDC/ATSDR SVI 2022 — layer 1 is the US county layer (verified 2026-10; the old SVI2022_US_county service returns "Invalid URL").
+const ATSDR_SVI_COUNTY_URL = "https://services3.arcgis.com/ZvidGQkLaDJxRSJ2/arcgis/rest/services/CDC_ATSDR_Social_Vulnerability_Index_2022_USA/FeatureServer/1/query";
 const FBI_CRIME_URL = "https://api.usa.gov/crime/fbi/sapi/api/estimates/states";
 const CENSUS_ACS_URL = "https://api.census.gov/data/2022/acs/acs5";
 const SAMHSA_LOCATOR_URL = "https://findtreatment.gov/locator/listing";
@@ -66,6 +68,13 @@ const STATE_NAMES: Record<string, string> = {
   DC: "District of Columbia"
 };
 
+/** Append a source tag without duplicating it ("census_acs,cdc_svi,census_acs" was accumulating on every refresh). */
+function appendSource(existing: string | null | undefined, tag: string): string {
+  const parts = (existing ?? "").split(",").map(t => t.trim()).filter(Boolean);
+  if (!parts.includes(tag)) parts.push(tag);
+  return parts.join(",");
+}
+
 async function fetchJson(url: string, opts?: { retries?: number; timeoutMs?: number; init?: RequestInit }): Promise<any> {
   const retries = opts?.retries ?? 3;
   const timeoutMs = opts?.timeoutMs ?? 25000;
@@ -111,20 +120,17 @@ export function getStateName(stateAbbr: string): string {
   return STATE_NAMES[stateAbbr.toUpperCase()] || stateAbbr;
 }
 
-function estimateCountyCoords(stateAbbr: string, countyFips: string, index: number, total: number): { lat: number; lng: number } {
-  const stateCenter = STATE_COORDS[stateAbbr.toUpperCase()];
-  if (!stateCenter) return { lat: 39.8283, lng: -98.5795 };
-
-  const fipsNum = parseInt(countyFips) || index;
-  const angle = (fipsNum * 137.508) % 360;
-  const radius = 0.5 + (fipsNum % 20) * 0.1;
-  const latOffset = radius * Math.cos((angle * Math.PI) / 180);
-  const lngOffset = radius * Math.sin((angle * Math.PI) / 180) * 1.3;
-
-  return {
-    lat: stateCenter.lat + latOffset,
-    lng: stateCenter.lng + lngOffset,
-  };
+/**
+ * County coordinates come from the Census Gazetteer interior point — never an estimate.
+ * Before 2026-10-04 this function spread points across the state (Travis County rendered near
+ * Arlington); scripts/verify-county-centroids.ts guards against that regressing.
+ */
+function officialCountyCoords(stateAbbr: string, countyFips: string): { lat: number | null; lng: number | null } {
+  const stateFips = STATE_FIPS[stateAbbr.toUpperCase()];
+  const c = stateFips ? countyCentroid(countyFips.length === 5 ? countyFips : `${stateFips}${countyFips.padStart(3, "0")}`) : undefined;
+  if (c) return { lat: c.lat, lng: c.lon };
+  console.warn(`[GIS] No official county interior point for ${stateAbbr} ${countyFips}; coordinates unavailable`);
+  return { lat: null, lng: null };
 }
 
 export async function ingestCdcPlacesData(
@@ -215,7 +221,7 @@ export async function ingestCdcPlacesData(
 async function fetchSviAtsdr(stateAbbr: string): Promise<any[]> {
   const stateFips = getStateFips(stateAbbr);
   if (!stateFips) return [];
-  const url = `${ATSDR_SVI_COUNTY_URL}?where=${encodeURIComponent(`ST_ABBR='${stateAbbr.toUpperCase()}'`)}&outFields=FIPS,COUNTY,STATE,RPL_THEMES,EP_POV150,EP_UNEMP,EP_NOHSDP&f=json&resultRecordCount=2000`;
+  const url = `${ATSDR_SVI_COUNTY_URL}?where=${encodeURIComponent(`ST_ABBR='${stateAbbr.toUpperCase()}'`)}&outFields=FIPS,COUNTY,STATE,RPL_THEMES,EP_POV150,EP_UNEMP,EP_NOHSDP&returnGeometry=false&f=json&resultRecordCount=2000`;
   try {
     const data = await fetchJson(url);
     const features = data?.features ?? [];
@@ -250,8 +256,9 @@ export async function ingestSviData(
 
     let upsertCount = 0;
     for (const record of data) {
-      const geographyKey = record.fips || record.FIPS;
+      const geographyKey = String(record.fips || record.FIPS || "");
       if (!geographyKey) continue;
+      const geographyType = geographyKey.length === 5 ? "county" : "tract";
 
       const rplThemes = parseFloat(record.rpl_themes ?? record.RPL_THEMES);
       const epPov150 = parseFloat(record.ep_pov150 ?? record.EP_POV150);
@@ -276,16 +283,15 @@ export async function ingestSviData(
         .limit(1);
 
       if (existing.length > 0) {
+        // EP_POV150 is the 150%-of-poverty share; never overwrite an ACS B17001 (100%) poverty rate with it.
         await db
           .update(gisContextData)
           .set({
             sviPercentile,
-            povertyRate,
+            povertyRate: existing[0].povertyRate ?? povertyRate,
             unemploymentRate,
             rawSviData,
-            dataSource: existing[0].dataSource
-              ? `${existing[0].dataSource},cdc_svi`
-              : "cdc_svi",
+            dataSource: appendSource(existing[0].dataSource, "cdc_svi"),
             dataYear: new Date().getFullYear(),
             updatedAt: new Date(),
           })
@@ -293,7 +299,7 @@ export async function ingestSviData(
       } else {
         await db.insert(gisContextData).values({
           geographyKey,
-          geographyType: "tract",
+          geographyType,
           sviPercentile,
           povertyRate,
           unemploymentRate,
@@ -370,9 +376,7 @@ export async function ingestFbiCrimeData(
           .set({
             crimeTrendPercentile,
             rawCrimeData,
-            dataSource: existing[0].dataSource
-              ? `${existing[0].dataSource},fbi_crime`
-              : "fbi_crime",
+            dataSource: appendSource(existing[0].dataSource, "fbi_crime"),
             dataYear: record.year || new Date().getFullYear(),
             updatedAt: new Date(),
           })
@@ -451,7 +455,7 @@ export async function ingestCensusAcsData(
         .where(eq(gisContextData.geographyKey, geographyKey))
         .limit(1);
 
-      const countyCoords = estimateCountyCoords(stateAbbr, countyFips, i - 1, data.length - 1);
+      const countyCoords = officialCountyCoords(stateAbbr, countyFips);
 
       if (existing.length > 0) {
         await db
@@ -466,9 +470,7 @@ export async function ingestCensusAcsData(
             stateCode: stateAbbr.toUpperCase(),
             latitude: countyCoords.lat,
             longitude: countyCoords.lng,
-            dataSource: existing[0].dataSource
-              ? `${existing[0].dataSource},census_acs`
-              : "census_acs",
+            dataSource: appendSource(existing[0].dataSource, "census_acs"),
             dataYear: 2022,
             updatedAt: new Date(),
           })

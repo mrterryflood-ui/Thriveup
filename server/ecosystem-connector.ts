@@ -737,11 +737,11 @@ const ECOSYSTEM_PLATFORMS = [
   },
   {
     id: "isss",
-    name: "ISSS — Integrated Supports for Thriving Youth",
-    url: "https://implementationineducatio.com",
+    name: "ChildCORE",
+    url: "https://childcore.app",
     role: "student-support",
     domain: "education",
-    description: "Whole-child implementation infrastructure enabling schools, districts, and regions to implement evidence-based student support at scale. Multi-Tiered System of Supports (MTSS) engine with early warning indicators, Thrive Score tracking, multi-stakeholder coordination across teachers/counselors/parents/community, and implementation fidelity measurement using CFIR and RE-AIM frameworks. District-level analytics dashboard provides real-time intervention effectiveness data. Integrates with WholeMind Learning for academic data, Perfectly Different for IEP/504 accommodations, SafeReport for incident management, and Whole-Person Health for crisis routing. Produces grant-ready outcome data for WIOA youth employment and foundation education grants.",
+    description: "ChildCORE replaced Implementation in Education (ISSS). Community intelligence for child and family services — provider availability, school intelligence, and social-determinants data integrated directly into ThriveUp navigation and referral pathways. Formerly: whole-child implementation infrastructure enabling schools, districts, and regions to implement evidence-based student support at scale. Multi-Tiered System of Supports (MTSS) engine with early warning indicators, Thrive Score tracking, multi-stakeholder coordination across teachers/counselors/parents/community, and implementation fidelity measurement using CFIR and RE-AIM frameworks. District-level analytics dashboard provides real-time intervention effectiveness data. Integrates with WholeMind Learning for academic data, Perfectly Different for IEP/504 accommodations, SafeReport for incident management, and Whole-Person Health for crisis routing. Produces grant-ready outcome data for WIOA youth employment and foundation education grants.",
     capabilities: {
       features: ["Multi-Stakeholder Coordination", "Evidence-Based Student Support", "District-Level Analytics", "Data-Driven Decision Making", "Implementation Fidelity Tracking", "MTSS Tiered Intervention Engine", "Thrive Score Algorithm", "Early Warning System", "Parent Engagement Portal", "IEP/504 Integration", "Trauma-Informed Practices", "School Climate Assessment", "Community Partner Coordination", "Grant Outcome Reporting"],
       frameworks: ["MTSS", "CFIR", "RE-AIM", "PBIS"],
@@ -889,6 +889,24 @@ const ECOSYSTEM_PLATFORMS = [
     dataFlowConfig: {
       sends: ["learning_progress", "engagement_metrics", "parent_reports", "academic_assessments", "skill_mastery_data", "grade_progression", "attendance_patterns"],
       receives: ["student_profiles", "iep_accommodations", "prevention_content", "family_referrals", "neurodiversity_guides", "evidence_based_curriculum"],
+    },
+    grantAlignment: ["wioa", "foundation", "st-davids"],
+  },
+  {
+    id: "finance-training-trading",
+    name: "Finance Training and Trading",
+    url: "https://financetrainingandtrading.com",
+    role: "financial-literacy",
+    domain: "education",
+    description: "Financial literacy and capability platform: budgeting, credit, saving, and investing education with practice trading so people can build money skills before risking real money. Complements ThriveUp Academy's financial literacy track and the Academy economy, and gives community banks, workforce programs, and reentry/youth services a shared financial-education destination. Integrates with ThriveUp Academy for learner pathways and with LifeBridge for referrals when a household needs benefits or housing stabilization alongside financial coaching.",
+    capabilities: {
+      features: ["Budgeting & Cash-Flow Education", "Credit & Debt Literacy", "Saving & Emergency Fund Planning", "Investing Fundamentals", "Practice Trading Environment", "Risk Awareness Coaching", "Learner Progress Tracking"],
+      integrationDepth: "Receives learner pathway handoffs from ThriveUp Academy; sends completion signals back; LifeBridge referral for households needing stabilization support",
+      grantNarrative: "Supports CRA community-development, financial-capability, and workforce-readiness narratives; no outcome counts are claimed until the platform reports them through the heartbeat/metrics loop",
+    },
+    dataFlowConfig: {
+      sends: ["learning_progress", "course_completions", "financial_capability_milestones"],
+      receives: ["learner_profiles", "academy_pathway_handoffs", "community_referrals"],
     },
     grantAlignment: ["wioa", "foundation", "st-davids"],
   },
@@ -4896,12 +4914,12 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
             pitch: "Parents and students get learning tools. Schools and companies get implementation infrastructure. Government gets evidence-based education programs.",
             platforms: [
               {
-                name: "ISSS — Integrated Supports for Thriving Youth",
-                capability: "Whole-child implementation infrastructure — multi-stakeholder coordination, evidence-based student support, district-level analytics",
+                name: "ChildCORE",
+                capability: "Community intelligence for child and family services — provider availability, school intelligence, and social-determinants data integrated directly into ThriveUp navigation and referral pathways.",
                 forIndividuals: ["Parent engagement portal", "Student support tracking", "Family resource connections"],
                 forCompanies: ["Corporate school partnerships", "Education CSR programs", "Youth mentorship infrastructure"],
                 forGovernment: ["School districts", "Education service centers", "State education agencies", "After-school programs"],
-                url: "https://implementationineducatio.com",
+                url: "https://www.bettersciencelab.com",
               },
               {
                 name: "WholeMind Learning",
@@ -4959,7 +4977,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
                 forIndividuals: ["Search live evidence", "Assess projects against community data", "Build implementation plans", "Track outcomes"],
                 forCompanies: ["Program evaluation consulting", "ROI measurement for social programs", "Evidence-based program design", "Implementation plan builder"],
                 forGovernment: ["University research centers", "Public health departments", "Foundation-funded programs", "Government program evaluation"],
-                url: "https://implementationineducatio.com",
+                url: "https://www.bettersciencelab.com",
               },
             ],
           },

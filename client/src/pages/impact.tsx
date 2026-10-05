@@ -18,6 +18,7 @@ import { ErrorRetry } from "@/components/error-retry";
 import { PageHeader } from "@/components/page-header";
 import { TrainingGuideButton } from "@/components/training-guide";
 import { EvidenceSummary } from "@/components/evidence-label";
+import { JourneyPlaceEvidence } from "@/components/journey-place-evidence";
 
 interface ImpactData {
   dataAvailable?: boolean;
@@ -172,6 +173,12 @@ export default function ImpactPage() {
           </Button>
         </div>
       </div>
+
+      <JourneyPlaceEvidence
+        path="/impact"
+        title="Community context for your place"
+        description="Platform outputs above are nationwide totals. This panel scopes the surrounding county conditions to the place you arrived with, with the source and vintage of every figure."
+      />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard icon={Users} label="Participants Served" value={impact?.youthServed || 0} color="bg-violet-500" />

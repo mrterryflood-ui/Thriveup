@@ -205,9 +205,14 @@ console.log("── navigator pre-client grounding static check ──");
   check(
     "navigator onDone calls applyNavigatorGrounding before emitting content",
     (() => {
-      const onDoneIdx = navContent.indexOf("onDone: async (result) => {");
-      if (onDoneIdx === -1) return false;
-      const snippet = navContent.slice(onDoneIdx, onDoneIdx + 1200);
+      const callback = /onDone:\s*async\s*\(result(?:\s*:\s*\w+)?\)\s*=>\s*\{/.exec(navContent);
+      if (!callback) return false;
+      // Typed parameters and additive receipt fields must not defeat the guard.
+      // Bound by the next error callback rather than a brittle byte window.
+      const onDoneIdx = callback.index;
+      const onErrorIdx = navContent.indexOf("onError:", onDoneIdx);
+      if (onErrorIdx === -1) return false;
+      const snippet = navContent.slice(onDoneIdx, onErrorIdx);
       const groundingIdx = snippet.indexOf("applyNavigatorGrounding");
       // Look for the content emit pattern — either JSON template or object literal
       const contentEmitIdx = Math.min(
