@@ -1,6 +1,6 @@
 # ThriveUp — Whole-Chain System Map
 
-Companion to `master-remediation-plan.md` (R1–R9). One page: what the system is, what is live today, what is planned and when. Visual version: `docs/system-map.svg` (generated Oct 5, 2026 from the verified route inventory and the remediation plan, commit f9030a7).
+Companion to `master-remediation-plan.md` (R1–R10). One page: what the system is, what is live today, what is planned and when. Visual version: `docs/system-map.svg` (generated Oct 5, 2026 from the verified route inventory and the remediation plan, commit f9030a7).
 
 Legend — **solid = live today**, *dashed = planned (P0–P3 per the phase schedule)*.
 
@@ -48,11 +48,12 @@ Find help & resources · Benefits screening · Food security · Housing & shelte
 
 **Data-currency system (R6, P2):** source registry with lastVerified · "Data as of" on every surface · staleness badges · CI gates · quarterly re-verification.
 
-## 06 · Integration surface — outside systems plug in, not replaced
+## 06 · Integration surface & ecosystem showcase — outside systems plug in, not replaced
 
 - **Agency connector (R3, P2)** — volunteer, donor, comms, finance integrate rather than rebuild
 - **Partner API** — documented, key-gated, consent-aware
 - **Open Referral HSDS export/import (R7, P3)** — the handshake 211s and United Ways already speak
+- **Ecosystem showcase `/ecosystem` (R10, P2)** — every external URL on display with honest relationship labels (sister product · verified partner · official referral · federal/state network · data source · benchmark), grouped by domain and chain step, state-aware links; per-demand routing surfaces LineReady, Shield Atlas, RepLoop, and FinLitSpark when a matching need occurs — discovery only, never merged
 
 ## 07 · Learning loop — implementation science applied to the platform itself (P2)
 
@@ -64,7 +65,7 @@ Measure (R5 real Hutto cohort) → receipt (auditable outcome receipts) → stay
 |---|---|---|
 | 0 | now → Oct 13 | R1-A place handoff (8 routes) · demo rehearsal · Oct 14 Hutto meeting |
 | 1 | → Nov 9 | R2 access truth · R4 polish · R1-B audience continuity · R8a example panels |
-| 2 | → Dec 21 | R1 C–D consent-gated handoffs · R3 integrate · R5 measure · R6 currency · R8b walkthroughs |
+| 2 | → Dec 21 | R1 C–D consent-gated handoffs · R3 integrate · R5 measure · R6 currency · R8b walkthroughs · R10 ecosystem showcase |
 | 3 | Q1 2027 | R7 HSDS · R8c first-run teaching · R9 data expansion · national county pilots |
 
 Gates G1–G9: journey continuity · access truth · integration paths · zero-defect surfaces · receipt-grade outcomes · data currency · HSDS round-trip · every door teaches · every adapter live-or-dark.
