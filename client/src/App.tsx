@@ -601,6 +601,7 @@ function AppRouter() {
       <Route path="/community-analysis" component={CommunityAnalysisPage} />
       <Route path="/impact" component={ImpactPage} />
       <Route path="/api-docs" component={APIDocsPage} />
+      <Route path="/ai-navigator"><AINavigator mode="page" /></Route>
       <Route path="/grants">
         <RequireAuth adminOnly reason="Your grant pipeline is restricted to TCAF admins.">
           <GrantHubPage />
@@ -1189,7 +1190,7 @@ function AppLayoutInner() {
       </div>
       <BottomTabBar />
       <CommandPalette />
-      {!focusedEntry && <AINavigator />}
+      {!focusedEntry && location !== "/ai-navigator" && <AINavigator />}
       {!focusedEntry && <ContextualHelpButton />}
     </SidebarProvider>
   );

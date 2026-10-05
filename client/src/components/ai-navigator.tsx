@@ -1251,6 +1251,7 @@ export function AINavigator({
       setActiveRequestAssistantIdx(assistantIdx);
       activeRequestAssistantIdxRef.current = assistantIdx;
       let fullText = ""; // hoisted so the catch block can inspect it
+      let synthesisCompleted = false;
       let requestTimedOut = false;
       const requestStartedAt = Date.now();
       const controller = new AbortController();
@@ -1458,6 +1459,7 @@ export function AINavigator({
                 }
 
                 if (parsed.synthesisComplete) {
+                  synthesisCompleted = true;
                   // Fast engines done — unlock input so the user can re-prompt
                   // while DeepSeek R1 continues its deep analysis in the background.
                   setIsStreaming(false);
@@ -1488,6 +1490,7 @@ export function AINavigator({
                 }
 
                 if (parsed.done) {
+                  synthesisCompleted = true;
                   setActiveRequestId(null);
                   setActiveRequestAssistantIdx(null);
                   activeRequestAssistantIdxRef.current = null;
@@ -1632,10 +1635,9 @@ export function AINavigator({
       } catch (err) {
         if (navigatorRequestIdRef.current !== requestId || !mountedRef.current)
           return;
-        // Only replace content with an error if nothing was streamed yet.
-        // If synthesis already completed (fullText has content), a connection
-        // drop during the Phase-2 R1 wait is benign — don't overwrite good output.
-        if (requestTimedOut || !fullText) {
+        // Tokens are not proof of completed synthesis. Preserve the retry
+        // payload on partial-stream failure as well as pre-answer failure.
+        if (requestTimedOut || !synthesisCompleted || !fullText) {
           // The composer is the retry path. Restore the exact submitted payload
           // even when a partial answer arrived before the absolute deadline.
           const draft = submittedDraftRef.current;
@@ -1671,6 +1673,8 @@ export function AINavigator({
                 ...updated[assistantIdx],
                 content: requestTimedOut
                   ? `${updated[assistantIdx].content}\n\nThis request reached the 45-second client limit. Your message and attachments have been restored below; you can edit or retry.`
+                  : !synthesisCompleted
+                  ? `${updated[assistantIdx].content}\n\nThis answer is incomplete because the connection ended. Your submitted message and attachments are preserved for retry.`
                   : updated[assistantIdx].content,
                 deepThinkingPending: false,
                 requestStatus: undefined,
@@ -1861,7 +1865,7 @@ export function AINavigator({
                   ThriveUp Navigator
                 </h1>
                 <p className="text-[11px] text-teal-100">
-                  4-engine parallel analysis · DeepSeek R1 deep thinking
+                  Quick answers · deeper analysis on request
                 </p>
               </div>
             </div>

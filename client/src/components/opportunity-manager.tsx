@@ -119,7 +119,7 @@ export function OpportunityManager({ defaultScope = "entity" }: { defaultScope?:
       const payload: { ids: string[]; action: ManagementAction; confirmation?: string } = { ids: selected, action };
       if (action === "purge") payload.confirmation = confirmation;
       const url = entityAction ? "/api/me/grants/bulk" : "/api/grants/management/bulk";
-      const response = await apiRequest("POST", url, payload);
+      const response = await apiRequest("POST", url, payload, entityAction && orgId ? { "x-org-id": orgId } : undefined);
       if (!response.ok) throw new Error(await responseError(response));
       await response.json();
       setAction(null);
@@ -172,7 +172,8 @@ export function OpportunityManager({ defaultScope = "entity" }: { defaultScope?:
         {data && <>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6" data-testid="management-summary">
             <Metric label="Shared corpus" value={data.summary.corpus} detail="Includes archived" />
-            <Metric label="Not archived" value={data.summary.activeCorpus} detail="Not a verified-open count" />
+            <Metric label="Active discovery" value={data.summary.activeCorpus} detail="Undated records still need verification" />
+            <Metric label="Expired · history retained" value={data.summary.expired} />
             <Metric label="Archived" value={data.summary.archived} />
             <Metric label="Added · 7 days" value={data.summary.added7Days} />
             <Metric label="Added · 30 days" value={data.summary.added30Days} />
@@ -198,6 +199,11 @@ export function OpportunityManager({ defaultScope = "entity" }: { defaultScope?:
             </div>
           </div>
           <p className="text-xs text-muted-foreground">Refresh job status is held in process memory and may reset if the server restarts.</p>
+          <div className="rounded-md border p-3 text-xs text-muted-foreground" data-testid="lifecycle-receipt">
+            <p className="font-medium text-foreground">Expiry reconciliation: {data.lifecycle.lastCompletedRun ? `${formatDate(data.lifecycle.lastCompletedRun.completedAt)} · ${data.lifecycle.lastCompletedRun.retired} retired in that run · history retained` : "No completed run receipt available"}</p>
+            <p>{data.lifecycle.schedule}. Expired deadlines and historical USAspending awards are excluded from active discovery.</p>
+            <p>{data.lifecycle.gppSync}</p>
+          </div>
           {!canManage && <div className="flex gap-2 rounded-md border border-amber-500/30 bg-amber-500/5 p-3 text-sm" data-testid="management-access-note"><ShieldAlert className="h-4 w-4 shrink-0" /><p>Sign in with an organization profile to dismiss or restore opportunities. You can still inspect records available to your account.</p></div>}
           {data.scope === "corpus" && admin && <p className="text-xs text-muted-foreground">Shared corpus totals include archived records. Purge is a permanent global deletion; server protections prevent deleting records linked to tracked or pipeline data.</p>}
         </>}
@@ -207,7 +213,7 @@ export function OpportunityManager({ defaultScope = "entity" }: { defaultScope?:
             <div className="flex flex-wrap gap-2">
               <Input aria-label="Search title or agency" placeholder="Search title or agency" value={search} onChange={event => setSearch(event.target.value.slice(0, 200))} className="w-full md:w-64" data-testid="input-management-search" />
               <select aria-label="Opportunity state" value={filter} onChange={event => { setFilter(event.target.value as StateFilter); setPage(1); }} className="h-10 rounded-md border bg-background px-3 text-sm" data-testid="select-management-state">
-                <option value="active">Not archived</option><option value="dismissed">{scope === "corpus" ? "Archived in corpus" : "Dismissed by entity"}</option><option value="all">All</option><option value="untracked">Untracked</option>
+                <option value="active">Active discovery</option><option value="dismissed">{scope === "corpus" ? "Archived in corpus" : "Dismissed by entity"}</option><option value="all">All · includes history</option><option value="untracked">Untracked active</option>
               </select>
             </div>
             {selected.length > 0 && <div className="flex flex-wrap items-center gap-2" data-testid="selection-actions">
@@ -232,7 +238,7 @@ export function OpportunityManager({ defaultScope = "entity" }: { defaultScope?:
                   <td className="p-3"><input type="checkbox" aria-label={`Select ${row.title}`} checked={selected.includes(row.id)} onChange={event => toggleRow(row.id, event.target.checked)} disabled={!canSelect || (!selected.includes(row.id) && selected.length >= 100)} /></td>
                   <td className="max-w-sm p-3"><div className="font-medium">{row.title || "Untitled opportunity"}</div>{row.source && <div className="mt-1 text-xs text-muted-foreground">{row.source}</div>}</td>
                   <td className="p-3">{row.agency || "Not listed"}</td>
-                  <td className="p-3"><Badge variant={row.status === "archived" ? "secondary" : "outline"}>{row.status || "Unknown"}</Badge></td>
+                  <td className="p-3"><Badge variant={row.status === "dismissed" ? "secondary" : "outline"}>{row.status === "dismissed" ? "Archived" : row.status || "Unknown"}</Badge></td>
                   <td className="p-3">{row.entityStatus || "Not in this entity pipeline"}</td>
                   <td className="whitespace-nowrap p-3 text-muted-foreground">{formatDate(row.createdAt)}</td>
                 </tr>)}

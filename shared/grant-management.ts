@@ -13,7 +13,7 @@ export interface GrantManagementResponse {
   isAdmin: boolean;
   organizationName: string | null;
   summary: {
-    corpus: number; activeCorpus: number; archived: number;
+    corpus: number; activeCorpus: number; archived: number; expired: number;
     added7Days: number; added30Days: number; lastCorpusWrite: string | null;
     legacyPipelineEntries: number; notInAnyEntityPipeline: number;
     entityTracked: number | null; entityDismissed: number | null;
@@ -24,4 +24,5 @@ export interface GrantManagementResponse {
     status: string | null; createdAt: string | null; entityStatus: string | null }>;
   refresh: { status: "idle" | "running" | "complete" | "failed";
     startedAt?: string; finishedAt?: string; imported?: number; skipped?: number; error?: string };
+  lifecycle: { lastCompletedRun: { id: string; completedAt: string | null; retired: number } | null; schedule: string; gppSync: string };
 }

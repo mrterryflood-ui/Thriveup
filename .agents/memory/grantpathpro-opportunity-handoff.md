@@ -3,6 +3,21 @@ name: GrantPathPro opportunity handoff
 description: Safety boundary for the consequential v1 Opportunity Mirror delivery and feedback loop.
 ---
 
+## Shared opportunity lifecycle requirement
+
+GPP and ThriveUp should coordinate stale/expired opportunity handling, rather
+than operate as independent grant harvesters.
+
+**Why:** The user reports that GPP purges daily but stale copies remain visible
+in ThriveUp; one platform's cleanup must not be mistaken for cross-platform
+reconciliation.
+
+**How to apply:** Preserve history, separate organization pursuit outcomes from
+issuer closure, and require evidence of both source execution and destination
+acknowledgement before calling the shared lifecycle live.
+
+## Consequential handoff boundary
+
 The v1 Community Opportunity Mirror handoff is distinct from legacy GrantPathPro
 exports. It may only deliver to the explicitly configured, allow-listed HTTPS
 `/thriveup/mirror` receiver using a dedicated outbound-only credential. A

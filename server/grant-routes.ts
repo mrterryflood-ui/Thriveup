@@ -15,6 +15,7 @@ import { communityNarrativeBlock } from "./community-intel";
 import PDFDocument from "pdfkit";
 import type { SQL } from "drizzle-orm";
 import { registerGrantManagementRoutes } from "./grant-management-routes";
+import { activeGrantCondition, reconcileGrantExpiry, startGrantLifecycleScheduler } from "./grant-lifecycle";
 
 interface AIAnalysisResult {
   summary: string;
@@ -735,11 +736,13 @@ function grantToCSVRow(g: GrantOpportunity): string {
 }
 
 export function registerGrantRoutes(app: Express) {
+  startGrantLifecycleScheduler();
   registerGrantManagementRoutes(app, () => runDailyGrantDiscovery());
   app.get("/api/grants", async (req, res) => {
     try {
       const { category, minFit, status, search, state, geography, scope } = req.query;
       const conditions: SQL[] = [];
+      if (!["expired", "dismissed", "cancelled", "closed", "submitted", "applied", "awarded", "won", "lost", "withdrawn", "declined", "not_pursuing", "not_pursued"].includes(String(status ?? ""))) conditions.push(activeGrantCondition());
       if (category && typeof category === "string") conditions.push(eq(grantOpportunities.category, category));
       if (status && typeof status === "string") conditions.push(eq(grantOpportunities.status, status));
 
@@ -3874,7 +3877,12 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
   let discoveryWork: ReturnType<typeof runDailyGrantDiscoveryWork> | null = null;
   function runDailyGrantDiscovery() {
     if (!discoveryWork) {
-      discoveryWork = runDailyGrantDiscoveryWork().finally(() => { discoveryWork = null; });
+      discoveryWork = (async () => {
+        await reconcileGrantExpiry(true);
+        const result = await runDailyGrantDiscoveryWork();
+        await reconcileGrantExpiry(true);
+        return result;
+      })().finally(() => { discoveryWork = null; });
     }
     return discoveryWork;
   }
@@ -4709,6 +4717,7 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
       const rows = await db.select().from(grantOpportunities)
         .where(and(
           or(...orConditions),
+          activeGrantCondition(),
           notInArray(grantOpportunities.status, ["expired", "dismissed", "superseded_duplicate", "discontinued_invitation_only"]),
           notInArray(grantOpportunities.source, ["usaspending"]), // award intelligence, not open opportunities
         ))
@@ -4782,6 +4791,7 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
       const rows = await db.select().from(grantOpportunities)
         .where(and(
           notInArray(grantOpportunities.status, ["expired", "dismissed", "superseded_duplicate", "discontinued_invitation_only", "declined", "not_pursuing"]),
+          activeGrantCondition(),
           notInArray(grantOpportunities.source, ["usaspending"]),
           or(
             and(isNotNull(grantOpportunities.deadline), gte(grantOpportunities.deadline, now), lte(grantOpportunities.deadline, in90Days)),
@@ -4884,6 +4894,7 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
           gte(grantOpportunities.deadline, new Date()),
           lte(grantOpportunities.deadline, sixtyDays),
           gte(grantOpportunities.fitScore, deadlineFloor),
+          activeGrantCondition(),
           notInArray(grantOpportunities.status, ["expired", "dismissed", "superseded_duplicate", "discontinued_invitation_only"]),
         ))
         .orderBy(grantOpportunities.deadline)
@@ -7741,14 +7752,18 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       console.error("[GrantDiscovery] Re-score on startup failed:", e);
     }
     console.log("[GrantDiscovery] Running initial grant scan on startup...");
-    lastDiscoveryResult = await runDailyGrantDiscovery();
-    lastDailyDiscoveryRun = new Date();
+    try {
+      lastDiscoveryResult = await runDailyGrantDiscovery();
+      lastDailyDiscoveryRun = new Date();
+    } catch (error) { console.error("[GrantDiscovery] startup lifecycle/harvest failed:", error); }
   }, 15000);
 
   setInterval(async () => {
     console.log("[GrantDiscovery] Running scheduled daily grant scan...");
-    lastDiscoveryResult = await runDailyGrantDiscovery();
-    lastDailyDiscoveryRun = new Date();
+    try {
+      lastDiscoveryResult = await runDailyGrantDiscovery();
+      lastDailyDiscoveryRun = new Date();
+    } catch (error) { console.error("[GrantDiscovery] scheduled lifecycle/harvest failed:", error); }
   }, 24 * 60 * 60 * 1000);
 
   // === Weekly Monday digest (added May 9, 2026) ===

@@ -4,6 +4,7 @@ import { grantOpportunities, grantOrgTracking, proposalPipeline, nationwideDisco
 import { and, desc, eq, ilike, inArray, notInArray, or, sql, type SQL } from "drizzle-orm";
 import { getCallerOrg, getCallerOrgRole, getUserId, loadCallerOrg, requireAuth, requireOrg } from "./tenant-middleware";
 import { grantBulkSchema, type GrantManagementResponse } from "@shared/grant-management";
+import { activeGrantCondition, getGrantLifecycleReceipt, retirableGrantCondition } from "./grant-lifecycle";
 
 type RefreshResult = { imported: number; skipped: number; [key: string]: unknown };
 
@@ -32,11 +33,11 @@ export function registerGrantManagementRoutes(app: Express, refreshCorpus: () =>
       const ownDismissed = org ? sql`exists (select 1 from grant_org_tracking t where t.grant_id = ${grantOpportunities.id} and t.org_id = ${org.id} and t.status = 'dismissed')` : sql`false`;
       if (scope === "corpus") {
         if (state === "dismissed") conditions.push(eq(grantOpportunities.status, "dismissed"));
-        else if (state !== "all") conditions.push(sql`coalesce(${grantOpportunities.status}, 'identified') <> 'dismissed'`);
+        else if (state !== "all") conditions.push(activeGrantCondition());
       } else if (state === "dismissed") {
         conditions.push(ownDismissed);
       } else if (state !== "all") {
-        conditions.push(sql`not (${ownDismissed})`, sql`coalesce(${grantOpportunities.status}, 'identified') <> 'dismissed'`);
+        conditions.push(sql`not (${ownDismissed})`, activeGrantCondition());
       }
       if (state === "untracked") {
         conditions.push(org
@@ -46,7 +47,8 @@ export function registerGrantManagementRoutes(app: Express, refreshCorpus: () =>
       const where = conditions.length ? and(...conditions) : undefined;
       const [counts] = await db.select({
         corpus: sql<number>`count(*)::int`,
-        activeCorpus: sql<number>`count(*) filter (where coalesce(status,'identified') <> 'dismissed')::int`,
+        activeCorpus: sql<number>`count(*) filter (where ${activeGrantCondition()})::int`,
+        expired: sql<number>`count(*) filter (where status = 'expired' or (${retirableGrantCondition()}))::int`,
         archived: sql<number>`count(*) filter (where status = 'dismissed')::int`,
         added7Days: sql<number>`count(*) filter (where created_at >= now() - interval '7 days')::int`,
         added30Days: sql<number>`count(*) filter (where created_at >= now() - interval '30 days')::int`,
@@ -71,7 +73,13 @@ export function registerGrantManagementRoutes(app: Express, refreshCorpus: () =>
         organizationName: org ? String(org.name ?? "Your organization") : null,
         summary: { ...counts, legacyPipelineEntries: pipeline.count, cachedResearchQueries: cache.count,
           entityTracked: tracking?.tracked ?? null, entityDismissed: tracking?.dismissed ?? null },
-        rows, total, page, pageSize: 50, refresh,
+        rows, total, page, pageSize: 50, refresh, lifecycle: {
+          lastCompletedRun: await getGrantLifecycleReceipt(),
+          schedule: "00:45 UTC nightly; boot catch-up; before/after source refresh",
+          gppSync: process.env.THRIVEUP_CALLBACK_API_KEY?.trim()
+            ? "GPP catalogue lifecycle receiver configured; sender delivery and nightly GPP execution still require verification."
+            : "GPP catalogue lifecycle receiver blocked: dedicated callback credential not configured. No upstream removals are assumed.",
+        },
       });
     } catch (error) {
       console.error("[grant-management] read failed:", error);
@@ -152,6 +160,7 @@ export function registerGrantManagementRoutes(app: Express, refreshCorpus: () =>
             inArray(grantOpportunities.id, ids),
             sql`exists(select 1 from grant_org_tracking t where t.grant_id = ${grantOpportunities.id})
               or exists(select 1 from won_proposals w where w.grant_id = ${grantOpportunities.id})
+              or exists(select 1 from grant_alerts a where a.grant_id = ${grantOpportunities.id} and a.alert_type = 'gpp_catalogue_lifecycle')
               or exists(select 1 from proposal_pipeline p where p.id = ${grantOpportunities.id}
                 or p.data->>'grantId' = ${grantOpportunities.id}
                 or lower(p.data->>'name') = lower(${grantOpportunities.title})

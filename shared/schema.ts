@@ -1871,7 +1871,9 @@ export const grantAlerts = pgTable("grant_alerts", {
   fitScore: integer("fit_score"),
   isRead: boolean("is_read").default(false),
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => [
+  index("grant_alerts_lifecycle_lookup_idx").on(table.grantId, table.alertType, table.createdAt),
+]);
 
 export const insertGrantAlertSchema = createInsertSchema(grantAlerts).omit({ id: true, createdAt: true });
 export type InsertGrantAlert = z.infer<typeof insertGrantAlertSchema>;
