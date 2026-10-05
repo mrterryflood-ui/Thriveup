@@ -1093,7 +1093,7 @@ function AppRouter() {
       <Route path="/reentry-dashboard"><Redirect to="/reentry" /></Route>
       <Route path="/corridor"><Redirect to="/corridor-intelligence" /></Route>
       <Route path="/network/members"><Redirect to="/network" /></Route>
-      <Route path="/wab2-enrollment-hub"><Redirect to="/wab2-enrollment" /></Route>
+      <Route path="/wab2-enrollment-hub"><Redirect to="/st-davids" /></Route>
       <Route path="/benefits-command-center"><Redirect to="/benefits" /></Route>
       <Route path="/about-leadership"><Redirect to="/about" /></Route>
       <Route path="/career-pathways"><Redirect to="/academy/careers" /></Route>
@@ -1158,22 +1158,22 @@ function AppLayoutInner() {
             {t("shell.skipToContent")}
           </a>
           <header className="flex items-center gap-2 px-3 py-2 border-b sticky top-0 z-50 bg-background/95 backdrop-blur-md">
-            <SidebarTrigger data-testid="button-sidebar-toggle" className="shrink-0" />
+            <SidebarTrigger data-testid="button-sidebar-toggle" className="shrink-0 h-11 w-11" />
             <div className="flex items-center gap-1.5 flex-1 min-w-0">
-              <Link href={workspace ? `/workspace/${workspace}` : "/"} aria-label={currentWorkspace ? `${currentWorkspace.label} workspace` : "TCAF and ThriveUp home"} className="font-semibold text-sm leading-none truncate" data-testid="header-workspace">{currentWorkspace?.label ?? "TCAF + ThriveUp"}</Link>
+              <Link href={workspace ? `/workspace/${workspace}` : "/"} aria-label={currentWorkspace ? `${currentWorkspace.label} workspace` : "TCAF and ThriveUp home"} className="inline-flex items-center min-h-11 min-w-11 font-semibold text-sm leading-none truncate" data-testid="header-workspace">{currentWorkspace?.label ?? "TCAF + ThriveUp"}</Link>
             </div>
             <div className="flex items-center gap-1 shrink-0">
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={openCommandPalette}
-                className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground px-2.5 h-8 rounded-lg border border-border/60 bg-muted/50 hover:bg-muted"
+                className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground px-2.5 min-h-11 min-w-11 rounded-lg border border-border/60 bg-muted/50 hover:bg-muted"
                 data-testid="button-search-palette"
                 aria-label={workspace ? "Search this workspace or all tools" : t("shell.searchAll")}
               >
                 <Search className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline text-xs">{t("shell.search")}</span>
-                <kbd className="hidden md:flex h-4 items-center rounded border bg-background px-1 text-[10px] font-mono text-muted-foreground/70 select-none">⌘K</kbd>
+                <kbd className="hidden md:flex h-4 items-center rounded border bg-background px-1 text-[10px] font-mono text-muted-foreground select-none">⌘K</kbd>
               </Button>
               <AccessibilityPanel />
               <HeaderControls />

@@ -3,6 +3,7 @@ import { Link, useLocation, useSearch } from "wouter";
 import { Search, ArrowRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { canOpenPath } from "@shared/route-access";
+import { gradeFor } from "@shared/route-grade";
 import { OUTCOME_ICONS } from "@/components/focused-navigation";
 import { useWorkspace, useWorkspaceAccess } from "@/lib/workspace-context";
 import { useAudience } from "@/lib/audience-preference";
@@ -76,7 +77,7 @@ export default function ToolDirectory() {
           {(query.trim() || expandedGroups.has(g.outcome) ? g.routes : g.routes.slice(0, 12)).map(item => {
             const next = connectionsFor(item, viewer).slice(0, 3);
             return <Link key={item.path} href={item.path} onClick={() => { const destination = workspaceForPath(item.path); if (destination) setWorkspace(destination); }} className="flex flex-col gap-1 border rounded-xl px-4 py-3 min-h-14 hover:bg-accent" aria-label={item.title} data-testid={`tool-link-${item.path.replace(/[^a-z0-9]+/gi, "-")}`}>
-              <span className="flex items-center gap-2 text-sm font-medium">{item.title}<ArrowRight size={14} aria-hidden="true" className="ml-auto shrink-0" /></span>
+              <span className="flex items-center gap-2 text-sm font-medium">{item.title}{gradeFor(item) && <span className="rounded-full border border-amber-300 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200" title={gradeFor(item)!.title} data-testid="tool-grade">{gradeFor(item)!.label}</span>}<ArrowRight size={14} aria-hidden="true" className="ml-auto shrink-0" /></span>
               {item.description && <span className="text-xs text-muted-foreground">{item.description}</span>}
               {next.length > 0 && <span className="text-[11px] text-muted-foreground" data-testid="tool-connections">Leads to: {next.map(n => n.title).join(" · ")}</span>}
             </Link>;

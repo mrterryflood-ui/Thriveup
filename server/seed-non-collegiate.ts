@@ -412,13 +412,19 @@ export async function seedNonCollegiatePathways(db: any): Promise<void> {
     },
   ];
 
+  // Idempotent: career_fields has no unique constraint on name, so an unconditional insert on every boot
+  // multiplied these rows (observed 1,564 copies each; /api/careers returned 53k rows and crashed the page).
+  const existing = new Set<string>((await db.select({ name: careerFields.name }).from(careerFields)).map((r: { name: string }) => r.name));
   for (const career of newCareers) {
+    if (existing.has(career.name)) continue;
     try {
       await db.insert(careerFields).values(career);
+      existing.add(career.name);
     } catch (e: any) {
       if (e?.message?.includes("duplicate") || e?.code === "23505") {
         continue;
       }
+      throw e;
     }
   }
 }

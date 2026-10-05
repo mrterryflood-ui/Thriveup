@@ -3748,8 +3748,10 @@ export async function registerRoutes(
 
   app.get("/api/careers", async (_req, res) => {
     try {
-      const fields = await db.select().from(careerFields);
-      res.json(fields);
+      // One row per career name: legacy boots duplicated seed rows (see seed-non-collegiate.ts); the earliest row
+      // by sort order/id is canonical. scripts/repair-career-field-duplicates.ts removes the copies on request.
+      const fields = await db.selectDistinctOn([careerFields.name]).from(careerFields).orderBy(careerFields.name, careerFields.sortOrder, careerFields.id);
+      res.json(fields.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || a.name.localeCompare(b.name)));
     } catch (error) {
       console.error("Error fetching careers:", error);
       res.status(500).json({ error: "Failed to fetch careers" });

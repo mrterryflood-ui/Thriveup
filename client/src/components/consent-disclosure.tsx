@@ -176,7 +176,7 @@ export function ConsentDisclosure({
                     {field.required ? (
                       <span className="text-blue-600 dark:text-blue-400"> (required)</span>
                     ) : (
-                      <span className="text-blue-500 dark:text-blue-500"> (optional)</span>
+                      <span className="text-blue-700 dark:text-blue-300"> (optional)</span>
                     )}
                     {" — "}
                     <span className="text-blue-700 dark:text-blue-400">{field.why}</span>
