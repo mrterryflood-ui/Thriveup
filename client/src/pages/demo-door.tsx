@@ -200,6 +200,9 @@ export default function DemoDoor() {
 
       <section className="mx-auto max-w-[1440px] px-5 py-12 md:px-10 md:py-16">
         <StepChain title="01 / The value chain — from need to measurable outcome" steps={view.chain} numbered />
+        <p className="mt-6 max-w-3xl border-l-2 border-[#b74b30] pl-4 text-sm leading-relaxed text-[#3f4a43]" data-testid="demo-measurement-note">
+          This is a value chain, not a result. Outcomes for any place are measurable once local data is connected; nothing on this page is a projected or modeled outcome for a city.
+        </p>
         <div className="mt-12 grid gap-10 md:grid-cols-[minmax(0,.8fr)_minmax(0,1.2fr)]">
           <div>
             <p className="font-mono text-[11px] uppercase tracking-[.18em] text-[#9c472f]">02 / The story</p>
