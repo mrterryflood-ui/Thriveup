@@ -86,6 +86,7 @@ test("guidance is local-only; original information remains routed", () => {
   assert.ok(source.includes('data-testid="guided-start-continue"'));
   const app = readFileSync("client/src/App.tsx", "utf8");
   assert.ok(app.includes('path="/platform-overview" component={LandingPage}'));
-  assert.ok(app.includes('path="/hub" component={FocusedHomePage}'));
+  assert.ok(app.includes('path="/" component={FocusedHomePage}'));
+  assert.ok(app.includes('path="/hub"><Redirect to="/" />'), "/hub is an alias of / (Phase 3d)");
   assert.ok(app.includes("WorkspaceProvider"));
 });

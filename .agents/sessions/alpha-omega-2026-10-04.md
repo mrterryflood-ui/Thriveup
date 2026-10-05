@@ -20,3 +20,17 @@
 - Independent angle: reviewer re-verified the push (SHA a17dc6f9, ahead 33/behind 0); Vercel Preview boot + `/health` 200 on both hosts; ledger rows cite live probe output, not repo reads (3 reviewer paths were wrong: health-federation, /api/ai/status, /api/community-story/generate).
 - Outcome: Magnet live for Austin TX (9,179 orgs); registry draft is a generated artifact, explicitly NOT a fourth nav source (readers collapse into it in Phase 3); ledger at docs/audits/2026-10-gap-ledger.md.
 - Residuals: welcome email has no caller (2.2); schedulers only provable from production logs; cited-fact research unexercised (needs a staff session + Perplexity spend); nearby-by-distance (1d) and Travis County cities (1c) pending; classification of 412 rows pending (all `classified:false`).
+
+## Alpha (Phases 2b–2f, 3)
+- End-state: every route classified from its page source, then navigation reads the registry only — six outcomes primary, audience as context, Operator door for staff, `/tools` grouped with connections, duplicate paths redirected. Additive; no page removed; no access lowered.
+- In-state evidence: three nav readers (focused sidebar, bottom tabs, `/tools` built from legacy sidebar + palette) each held their own list; 412 registry rows `classified:false`; `verify-sidebar-routes` and `workspace-catalog.test.ts` were red on `main`.
+- Authority/boundaries: App.tsx `RequireAuth` is the access floor (lane may raise, never lower; generator errors); `/tools` ANDs the legacy access predicate with the registry floor; audience preference is local-only and never authorizes; alias targets must be real routes.
+- Plan and acceptance proofs: 413/413 classified gate; deterministic manifests stale-checked; tsc 0; two-click gate; `outcome-nav.spec.ts` (sidebar six outcomes, Operator door hidden anon, tabs at 375px, `/tools?outcome=` filtering, audience persistence across reload, five alias redirects).
+- Unknowns: `/studio/:moduleKey` purpose unresolved; `/community-story/:shareId` and `/resident-journey/:id` ignore their params (ledger).
+
+## Omega (Phases 2b–2f, 3)
+- Diff scrimmage: no reader ORs the registry with a wider legacy list; param routes and aliases excluded from the nav manifest; `?outcome=`/`?audience=` validated against enums before use; `/wab2-enrollment-hub` → `/wab2-enrollment` → `/st-davids` is a two-hop redirect (works, noted); dead second `/workforce` Redirect in App.tsx left in place (unreachable, pre-existing).
+- Proofs and gates: tsc 0; registry gate 413/413; stale-check green; sidebar routes 280/280; nav permission sync 19/19; two-click reachability 222→260 routes (all 213 public canonical rows modeled through `/tools`); outcome-nav e2e 4/4; prior e2e 16/16; full `directory-links` gate (external-link steps skipped — pre-existing third-party 404s) — result recorded in chat.
+- Independent angle: real-browser Playwright run plus two screenshots (1280px sidebar + `/tools?outcome=see-the-data`) separate from the static gates; subagent lane output cross-checked by a second lane's inconsistency findings (ledger).
+- Outcome: Phase 2 and Phase 3 delivered and verified in development; pushed per user's per-phase verification cadence.
+- Residuals: outcome landings do not exist yet (bottom tabs Learn/Data land on `/tools?outcome=`; Phase 5 owns landings); legacy `app-sidebar.tsx` (1,014 lines) still exists as a catalog source for the command palette and access predicate — collapsing it is Phase 4 work; three third-party URL 404s await owner decision.

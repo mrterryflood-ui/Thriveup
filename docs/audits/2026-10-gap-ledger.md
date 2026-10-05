@@ -54,3 +54,8 @@ Observations surfaced by the walk (not fixed here unless marked):
 - Naming mismatches: `/parents` is Parent Resources (not the dashboard); `/funder-dashboard` is staff account management, not the public funder report; Sparky is an adult companion, not a student one.
 - Purpose unclear from code: `/studio/:moduleKey` (depends on runtime manifest).
 - Pre-existing red in `directory-links` gate, third-party URLs: `implementationineducatio.com` (404 — TCAF-adjacent domain, needs owner decision), `wellcome.org/.../discovery-research` (moved), `easyailearning.com/api/childcore/county-metrics/ingest` (POST-only endpoint probed with GET). Not changed.
+
+## Phase 3 nav re-map (registry is now the only nav source for sidebar, tabs, /tools)
+- Slim manifest `shared/route-nav.generated.json` (339 canonical linkable rows, 213 public) generated alongside the registry; both stale-checked in the directory-links gate.
+- Alias redirects added: `/hub→/`, `/intake-wizard→/intake`, `/research→/methodology`, `/transparency-dashboard→/transparency`, `/wab2-enrollment→/st-davids`. Not aliased: `/case-manager/:id` (param route), `/workforce` duplicate (second Redirect is unreachable; left as-is).
+- G2 evidence: two-click gate 260 routes (every public canonical row reachable via `/tools`); `tests/e2e/outcome-nav.spec.ts` 4/4.
