@@ -6,6 +6,10 @@ Rule: the workspace shell has no GitHub credentials (`git push` to origin fails 
 
 Gotchas: an empty-change commit must reuse the parent tree (POST /git/trees with an empty array returns 422 "Invalid tree info"); check blob existence with GET not HEAD; `setTimeout` is unavailable in the durable scope (use it inside the impure function).
 
+Throttle connector Git Data calls below 10 requests/second and honor HTTP 429 `Retry-After`; parallel blob existence/upload workers can exceed the connector's per-repl cap even when GitHub itself has capacity.
+
+**Why:** the connector rejected a parallel replay at 11/10 RPS. Unreferenced uploaded blobs are harmless; resume idempotently and move the branch only after all commit SHA checks succeed.
+
 **Why:** the user's standing rule is push only on explicit request, and when asked the 32-commit tree had no off-Replit copy; API replay was the only authenticated route.
 
 **How to apply:** pushing a non-main branch triggers a Vercel **Preview** deployment (GitHub commit status "Vercel", deployment env "Preview") — that preview URL is the off-Replit boot proof; on Vercel `/api/login` answers 503 "REPL_ID not configured" by design, never a crash. Do not push to `main` unless the user says so; main promotes production.
