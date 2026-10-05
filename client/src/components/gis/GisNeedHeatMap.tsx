@@ -28,11 +28,33 @@ export interface Correlation {
   pearsonR: number;
 }
 
+/** Additive overlay marker (Phase 4b magnet map): drawn above need circles with its own color. */
+export interface OverlayMarker {
+  id: string;
+  label: string;
+  lat: number;
+  lon: number;
+  radius: number;
+  color: string;
+  details: string[];
+}
+
+export interface LegendItem { color: string; label: string; shape?: "dot" | "ring" }
+
 export interface GisNeedHeatMapProps {
   points: GeoPoint[];
   correlations?: Correlation[];
   height?: string;
   className?: string;
+  /** Extra markers (e.g. organization clusters, resource pins). */
+  overlays?: OverlayMarker[];
+  /** Replaces the default legend body when provided. */
+  legend?: { title: string; items: LegendItem[] };
+  /** Fit the viewport to these overlays instead of the need points (e.g. zoom to the city, not the state). */
+  fitToOverlays?: boolean;
+  fitPoints?: Array<{ lat: number; lon: number }>;
+  /** Label shown in each need-circle popup (defaults to "Need Score"). */
+  needLabel?: string;
 }
 
 // ── Color helpers ─────────────────────────────────────────────────────────────
@@ -85,21 +107,28 @@ function bezierArc(
 
 // ── Auto-fit bounds ───────────────────────────────────────────────────────────
 
-function BoundsFitter({ points }: { points: GeoPoint[] }) {
+function BoundsFitter({ points }: { points: Array<{ lat: number; lon: number }> }) {
   const map = useMap();
-  const fitted = useRef(false);
+  const fitted = useRef("");
   useEffect(() => {
-    if (fitted.current || points.length === 0) return;
-    const bounds = L.latLngBounds(points.map(p => [p.lat, p.lon]));
+    const coordinates = points.map(p => `${p.lat},${p.lon}`).join(";");
+    if (fitted.current === coordinates || points.length === 0) return;
+    const bounds = L.latLngBounds(points.map(p => [p.lat, p.lon] as [number, number]));
     map.fitBounds(bounds, { padding: [48, 48], maxZoom: 10 });
-    fitted.current = true;
+    fitted.current = coordinates;
   }, [map, points]);
   return null;
 }
 
 // ── Legend ────────────────────────────────────────────────────────────────────
 
-function MapLegend() {
+function MapLegend({ legend }: { legend?: { title: string; items: LegendItem[] } }) {
+  if (legend) return (
+    <div className="absolute bottom-6 right-2 z-[1000] bg-white/95 dark:bg-slate-900/95 border border-border rounded-lg shadow-lg p-3 text-xs space-y-1.5 pointer-events-none" style={{ minWidth: 160 }} data-testid="map-legend">
+      <div className="font-semibold text-slate-700 dark:text-slate-200 mb-1">{legend.title}</div>
+      {legend.items.map(i => <div key={i.label} className="flex items-center gap-2"><span className={`inline-block w-3 h-3 rounded-full ${i.shape === "ring" ? "border-2" : ""}`} style={i.shape === "ring" ? { borderColor: i.color } : { background: i.color }} /><span className="text-slate-600 dark:text-slate-300">{i.label}</span></div>)}
+    </div>
+  );
   return (
     <div
       className="absolute bottom-6 right-2 z-[1000] bg-white/95 dark:bg-slate-900/95 border border-border rounded-lg shadow-lg p-3 text-xs space-y-1.5 pointer-events-none"
@@ -139,6 +168,11 @@ export default function GisNeedHeatMap({
   correlations = [],
   height = "480px",
   className = "",
+  overlays = [],
+  legend,
+  fitToOverlays = false,
+  fitPoints,
+  needLabel = "Need Score",
 }: GisNeedHeatMapProps) {
   const center: [number, number] = points.length > 0
     ? [
@@ -152,18 +186,18 @@ export default function GisNeedHeatMap({
   const significantCorrelations = correlations.filter(c => Math.abs(c.pearsonR) >= 0.55);
 
   return (
-    <div className={`relative rounded-xl overflow-hidden border border-border shadow ${className}`} style={{ height }}>
+    <div className={`relative isolate rounded-xl overflow-hidden border border-border shadow ${className}`} style={{ height }}>
       <MapContainer
         center={center}
         zoom={points.length === 0 ? 4 : 7}
         style={{ height: "100%", width: "100%" }}
-        scrollWheelZoom={true}
+        scrollWheelZoom={false}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <BoundsFitter points={points} />
+        <BoundsFitter points={fitPoints ?? (fitToOverlays && overlays.length > 0 ? overlays : points)} />
 
         {/* Correlation arcs — drawn first so circles render on top */}
         {significantCorrelations.map((corr, i) => {
@@ -216,7 +250,7 @@ export default function GisNeedHeatMap({
                     className="inline-block w-2.5 h-2.5 rounded-full"
                     style={{ background: needColor(pt.needScore) }}
                   />
-                  <span className="font-semibold">Need Score: {Math.round(pt.needScore)}/100</span>
+                  <span className="font-semibold">{needLabel}: {Math.round(pt.needScore)}/100</span>
                 </div>
                 <div className="border-t border-border pt-1 space-y-0.5">
                   {Object.entries(pt.metrics).slice(0, 4).map(([key, m]) => (
@@ -232,10 +266,22 @@ export default function GisNeedHeatMap({
             </Popup>
           </CircleMarker>
         ))}
+
+        {/* Overlay markers — drawn last so they sit above need circles */}
+        {overlays.map(o => (
+          <CircleMarker key={o.id} center={[o.lat, o.lon]} radius={o.radius} pathOptions={{ fillColor: o.color, fillOpacity: 0.85, color: "#ffffff", weight: 1.5 }}>
+            <Popup>
+              <div className="text-xs space-y-1 min-w-[160px]">
+                <div className="font-bold text-sm">{o.label}</div>
+                {o.details.map((d, i) => <div key={i}>{d}</div>)}
+              </div>
+            </Popup>
+          </CircleMarker>
+        ))}
       </MapContainer>
 
       {/* Legend overlay — sits above the Leaflet canvas */}
-      <MapLegend />
+      <MapLegend legend={legend} />
     </div>
   );
 }

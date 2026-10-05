@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, Printer, MapPin } from "lucide-react";
+import { MagnetMap } from "@/components/magnet-map";
+import { useMagnetJourneyPlace } from "@/hooks/use-magnet-journey-place";
 
 type Coverage = "observed" | "modeled" | "unavailable";
 interface Indicator { id: string; label: string; value: number | null; unit: "count" | "usd" | "percent" | "ratio"; source: string; vintage: string; coverage: Coverage; scope: string; note?: string; href: string }
@@ -43,31 +45,41 @@ export default function CommunityBanksPage() {
   useEffect(() => { document.title = "Community Bank Impact View | TCAF + ThriveUp"; }, []);
   const search = useSearch();
   const [, navigate] = useLocation();
-  const place = new URLSearchParams(search).get("place") ?? "";
+  const explicitPlace = new URLSearchParams(search).get("place");
+  const journey = useMagnetJourneyPlace(explicitPlace !== null);
+  const place = explicitPlace ?? journey.place ?? "";
   const [draft, setDraft] = useState(place);
+  const [mapOpen, setMapOpen] = useState(false);
   useEffect(() => { setDraft(place); }, [place]);
 
-  const { data, isLoading, error } = useQuery<Profile>({
+  const { data: cachedData, isLoading, error } = useQuery<Profile>({
     queryKey: ["/api/community-banks/profile", place],
-    queryFn: async () => {
-      const res = await fetch(`/api/community-banks/profile${place ? `?place=${encodeURIComponent(place)}` : ""}`);
+    enabled: !journey.pending && !journey.error && !journey.unsupported,
+    queryFn: async ({ signal }) => {
+      const res = await fetch(`/api/community-banks/profile${place ? `?place=${encodeURIComponent(place)}` : ""}`, { signal });
       const body = await res.json();
       if (!res.ok) throw new Error(body.error ?? "Profile unavailable");
       return body;
     },
     retry: false,
   });
+  const data = !journey.pending && !journey.error && !journey.unsupported ? cachedData : undefined;
 
   function submit(e: FormEvent) {
     e.preventDefault();
     const next = draft.trim();
-    navigate(next ? `/community-banks?place=${encodeURIComponent(next)}` : "/community-banks");
+    navigate(`/community-banks?place=${encodeURIComponent(next)}`);
   }
 
-  const placeParam = data ? `?zip=${data.geography.counties[0]?.fips ?? ""}` : "";
+  // A county FIPS is not a postal ZIP; preserve a real ZIP only.
+  const placeParam = /^\d{5}$/.test(place) && data?.geography.resolvedFrom === "zip" ? `?zip=${place}` : "";
+  const profileCounties = data?.geography.counties.map(county => county.fips) ?? [];
+  const profileState = data?.geography.state.trim() ?? "";
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-3 sm:px-6 sm:pt-6 print:px-0" data-testid="community-banks-page">
+      {journey.pending && <p role="status" className="mb-4">Loading your journey place…</p>}
+      {(journey.error || journey.unsupported) && <p role="alert" className="mb-4">{journey.unsupported ? "This evidence view currently supports U.S. communities only." : "Your saved journey place could not load."} Enter a place below to continue. No substitute place has been selected.</p>}
       <header className="mb-4">
         <p className="text-[10px] font-bold uppercase tracking-[.16em] text-[#53776b]">TCAF / ThriveUp · For community banks</p>
         <h1 className="mt-1 font-[var(--font-display)] text-2xl font-semibold leading-tight tracking-tight sm:text-4xl" data-testid="text-cb-title">One view of a community: conditions, working tools, connected ecosystem</h1>
@@ -78,7 +90,7 @@ export default function CommunityBanksPage() {
         <label htmlFor="cb-place" className="flex items-center gap-1.5 text-sm font-semibold"><MapPin aria-hidden="true" className="h-4 w-4" /> Assessment area</label>
         <Input id="cb-place" value={draft} onChange={e => setDraft(e.target.value)} placeholder="ZIP, city like Chicago, IL, or county:48453" className="min-h-11 sm:max-w-xs" data-testid="input-cb-place" />
         <Button type="submit" className="min-h-11" data-testid="button-cb-place">Update view</Button>
-        <Button type="button" variant="outline" className="min-h-11" onClick={() => navigate("/community-banks")} data-testid="button-cb-default">Central Texas default</Button>
+        <Button type="button" variant="outline" className="min-h-11" onClick={() => navigate("/community-banks?place=")} data-testid="button-cb-default">Central Texas default</Button>
         <Button type="button" variant="ghost" className="min-h-11 sm:ml-auto" onClick={() => window.print()} data-testid="button-cb-print"><Printer aria-hidden="true" className="mr-1.5 h-4 w-4" /> Print one-pager</Button>
       </form>
 
@@ -111,6 +123,23 @@ export default function CommunityBanksPage() {
                 </Link>
               ))}
             </div>
+          </section>
+
+          <section aria-labelledby="cb-map-heading" className="mb-8 rounded-xl border bg-card p-4" data-testid="cb-map-section">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 id="cb-map-heading" className="text-xl font-semibold">Explore community patterns on a map</h2>
+                <p className="mt-1 max-w-2xl text-sm text-muted-foreground">Explore the county scope resolved for this assessment area. The original place input and resolved county identifiers are passed through without inferring a city.</p>
+              </div>
+              {data && profileCounties.length > 0 && profileState && <Button type="button" variant="outline" className="min-h-11 shrink-0" aria-expanded={mapOpen} aria-controls="cb-map-panel" onClick={() => setMapOpen(value => !value)} data-testid="cb-map-toggle">{mapOpen ? "Hide community map" : "Open community map"}</Button>}
+            </div>
+            {data && profileCounties.length > 0 && profileState ? (
+              mapOpen && <div id="cb-map-panel" className="mt-4" data-testid="cb-map-panel"><MagnetMap counties={profileCounties} state={profileState} place={place} /></div>
+            ) : data ? (
+              <p className="mt-3 rounded-lg border border-dashed p-3 text-sm text-muted-foreground" role="status" data-testid="cb-map-unavailable">
+                The resolved profile did not include county identifiers and state needed to scope a map. Nothing is inferred from the display label.
+              </p>
+            ) : null}
           </section>
 
           <section aria-labelledby="cb-cra" className="mb-8">

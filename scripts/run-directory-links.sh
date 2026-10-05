@@ -56,6 +56,7 @@ npx tsx scripts/verify-chw-dashboard-no-555.ts || exit 1
 npx tsx scripts/verify-tool-reachability.ts || exit 1
 npx tsx scripts/verify-two-click-reachability.ts || exit 1
 npx tsx --test shared/workspace-catalog.test.ts shared/action-entry.test.ts || exit 1
+npx tsx scripts/verify-county-centroids.ts || exit 1
 npx tsx --test server/resident-case-access.test.ts || exit 1
 node --test scripts/verify-focused-service-worker.test.mjs || exit 1
 npx tsx scripts/verify-how-to-apply.ts || exit 1
@@ -77,3 +78,5 @@ E2E_BASE_URL="$BASE" npx playwright test tests/e2e/community-gravity.spec.ts \
   --workers=1 --output="/tmp/community-gravity-gate-$$" || exit 1
 E2E_BASE_URL="$BASE" npx playwright test tests/e2e/outcome-nav.spec.ts \
   --workers=1 --output="/tmp/outcome-nav-gate-$$" || exit 1
+E2E_BASE_URL="$BASE" npx playwright test tests/e2e/page-frame.spec.ts \
+  --workers=1 --output="/tmp/page-frame-gate-$$" || exit 1

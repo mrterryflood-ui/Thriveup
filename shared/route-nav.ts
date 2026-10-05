@@ -14,6 +14,9 @@ export interface NavRoute {
   audiences: Audience[];
   access: Access;
   description: string;
+  /** Registry guide line: upstream need → this page → next action. */
+  guide: string;
+  upstream: string[];
   downstream: string[];
 }
 
@@ -49,6 +52,11 @@ export function filterNavRoutes({ viewer, audience, outcome, query }: NavFilter)
 
 export function groupByOutcome(routes: NavRoute[]): Array<{ outcome: Outcome; label: string; routes: NavRoute[] }> {
   return OUTCOMES.map(outcome => ({ outcome, label: OUTCOME_LABELS[outcome], routes: routes.filter(r => r.outcome === outcome) })).filter(g => g.routes.length > 0);
+}
+
+/** Where people usually come from, resolved to visible registry rows (the "Came from" links on the page rail). */
+export function upstreamFor(route: NavRoute, viewer: NavViewer): NavRoute[] {
+  return route.upstream.map(p => BY_PATH.get(p)).filter((r): r is NavRoute => !!r && canSeeRoute(r, viewer));
 }
 
 /** Where a tool sends people next, resolved to visible registry rows (the "connection" shown on /tools). */

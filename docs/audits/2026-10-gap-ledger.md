@@ -59,3 +59,11 @@ Observations surfaced by the walk (not fixed here unless marked):
 - Slim manifest `shared/route-nav.generated.json` (339 canonical linkable rows, 213 public) generated alongside the registry; both stale-checked in the directory-links gate.
 - Alias redirects added: `/hub→/`, `/intake-wizard→/intake`, `/research→/methodology`, `/transparency-dashboard→/transparency`, `/wab2-enrollment→/st-davids`. Not aliased: `/case-manager/:id` (param route), `/workforce` duplicate (second Redirect is unreachable; left as-is).
 - G2 evidence: two-click gate 260 routes (every public canonical row reachable via `/tools`); `tests/e2e/outcome-nav.spec.ts` 4/4.
+
+## Phase 4 — rail, map, disclosure (development verified; awaiting user verification)
+- G3: seven passing browser cases covering the six public outcomes, home/embed absence, public next links, phone keyboard/persistence, county-map validation, live Leaflet ZIP clusters, accessible list, full bank assessment-area scope, directory expansion/search, and journey place precedence/failure.
+- Geographic correction: 3,144 development county coordinates repaired against Census 2023 interior points; guard reports zero off-centroid. New map reads the official table directly. Production rows were not repaired or checked.
+- Map proof: Austin 8,162 organizations placed at 49 filing-ZIP interior points, 1,017 counted but unplaced, 254 TX context counties, eight seeded curated pins. Filing-city gravity and statewide need are labeled separately; county/MSA queries retain scope.
+- Quality: TypeScript zero errors, touched-client lint zero warnings, production build passed; 27 distinct browser cases passed across the consolidated gate and its scoped continuation. External URL checks remain excluded from passing claims.
+- Audit residual: existing staff research can partially persist facts and misreport a subsequent read failure as “nothing stored.” Outside Phase 4; platform-engineering owner, medium severity, review before treating research retries as atomic.
+- Limits and exact proof trail: `.verification/2026-10-04-phase4.md`.

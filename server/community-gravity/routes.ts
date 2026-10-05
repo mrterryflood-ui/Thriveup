@@ -1,6 +1,12 @@
 import type { Express, Request, Response } from "express";
 import { requireStaff, getUserId } from "../yhsi-routes";
-import { buildGravityField, searchOrgs, getFacts, researchOrg, setVerified, ingestState, DOMAIN_LABELS } from "./engine";
+import { buildGravityField, buildMagnetMap, clearMagnetMapCache, searchOrgs, getFacts, researchOrg, setVerified, ingestState, DOMAIN_LABELS } from "./engine";
+import { countyCentroid, countyCentroidsForState } from "@shared/nationwide/county-centroids";
+import { resolvePlace } from "../community-banks/profile";
+import { isAuthenticated } from "../replit_integrations/auth";
+import { db } from "../storage";
+import { userJourneys } from "@shared/schema";
+import { eq } from "drizzle-orm";
 
 // Public reads are anonymous, rate-limited per req.ip, cached (public endpoint doctrine).
 // Writes (ingest / research / verify) are staff-only via the canonical DB role lookup.
@@ -28,6 +34,27 @@ function place(req: Request): { city: string; state: string } | null {
 const GEOGRAPHY_LIMIT = "Locations are the IRS filing address (city, ZIP), not a service area. Nearby is a same-state, same-domain count, not a distance.";
 
 export function registerCommunityGravityRoutes(app: Express) {
+  // Only this user's broad place selector; never needs, referrals, or other journey fields.
+  app.get("/api/community-gravity/context", isAuthenticated, async (req: Request, res: Response) => {
+    res.set("Cache-Control", "private, no-store");
+    try {
+      const uid = getUserId(req);
+      if (!uid) return res.status(401).json({ error: "Sign in required." });
+      const [journey] = await db.select({ context: userJourneys.communityContext, geography: userJourneys.lastKnownGeography })
+        .from(userJourneys).where(eq(userJourneys.userId, uid)).limit(1);
+      if (journey?.context?.countryCode && journey.context.countryCode !== "US") {
+        return res.json({ place: null, status: "unsupported", source: "journey" });
+      }
+      const fips = journey?.context?.usFips;
+      const label = journey?.context?.localLabel;
+      const candidates = [fips ? `county:${fips}` : null, journey?.geography, label];
+      const selector = candidates.find(p => typeof p === "string" && (/^\d{5}$/.test(p.trim()) || /^(?:county|fips):\d{5}$/i.test(p.trim()) || /^[A-Za-z .'-]{2,60},\s*[A-Z]{2}$/i.test(p.trim())));
+      return res.json({ place: selector?.trim() ?? null, status: selector ? "available" : "empty", source: "journey" });
+    } catch (error) {
+      console.error("[community-gravity] journey place failed:", error);
+      return res.status(503).json({ error: "Journey place is unavailable." });
+    }
+  });
   app.get("/api/community-gravity", async (req: Request, res: Response) => {
     try {
       if (limited(req.ip ?? "unknown")) return res.status(429).json({ error: "Too many requests. Try again in a minute." });
@@ -39,6 +66,40 @@ export function registerCommunityGravityRoutes(app: Express) {
     } catch (error) {
       console.error("[community-gravity] field failed:", error);
       res.status(500).json({ error: "Community gravity field could not be assembled." });
+    }
+  });
+
+  // Phase 4b: ZIP-aggregated gravity + county need + resource pins. Public, cached, no geocoding fan-out.
+  app.get("/api/community-gravity/map", async (req: Request, res: Response) => {
+    try {
+      if (limited(req.ip ?? "unknown")) return res.status(429).json({ error: "Too many requests. Try again in a minute." });
+      const countiesRaw = req.query.counties;
+      let counties: string[] = [];
+      let p = place(req);
+      if (countiesRaw !== undefined) {
+        if (typeof countiesRaw !== "string" || !/^\d{5}(?:,\d{5}){0,9}$/.test(countiesRaw)) return res.status(400).json({ error: "Provide up to 10 comma-separated county FIPS codes." });
+        counties = [...new Set(countiesRaw.split(","))];
+        const official = counties.map(countyCentroid);
+        if (official.some(c => !c) || new Set(official.map(c => c!.state)).size !== 1) return res.status(400).json({ error: "Counties must exist and belong to one state." });
+        const state = official[0]!.state;
+        if (req.query.state !== undefined && (typeof req.query.state !== "string" || req.query.state.trim().toUpperCase() !== state)) return res.status(400).json({ error: "State does not match selected counties." });
+        p = { city: "", state };
+      } else if (req.query.place !== undefined || req.query.zip !== undefined) {
+        const input = req.query.place ?? req.query.zip;
+        if (typeof input !== "string" || input.length > 80 || !input.trim()) return res.status(400).json({ error: "Provide a ZIP, county:FIPS, or City, ST." });
+        const resolved = await resolvePlace(input);
+        if (!resolved.ok) return res.status(404).json({ error: resolved.reason });
+        counties = resolved.geography.counties.map(c => c.fips);
+        if (counties.some(f => !countyCentroid(f))) return res.status(404).json({ error: "County geometry unavailable." });
+        p = { city: "", state: resolved.geography.state };
+      }
+      if (!p || !countyCentroidsForState(p.state).length) return res.status(400).json({ error: "Provide a valid city/state, ZIP, or county list." });
+      const map = await buildMagnetMap(p.city, p.state, counties);
+      res.set("Cache-Control", "public, max-age=600");
+      res.json(map);
+    } catch (error) {
+      console.error("[community-gravity] map failed:", error);
+      res.status(500).json({ error: "Magnet map could not be assembled." });
     }
   });
 
@@ -104,7 +165,9 @@ export function registerCommunityGravityRoutes(app: Express) {
       const state = typeof req.body?.state === "string" ? req.body.state.trim() : "";
       const city = typeof req.body?.city === "string" ? req.body.city.trim() : undefined;
       if (!STATE_RE.test(state) || (city !== undefined && !CITY_RE.test(city))) return res.status(400).json({ error: "Provide a two-letter state and an optional city." });
-      res.json(await ingestState(state, city));
+      const result = await ingestState(state, city);
+      clearMagnetMapCache();
+      res.json(result);
     } catch (error) {
       console.error("[community-gravity] ingest failed:", error);
       res.status(502).json({ error: "IRS source could not be ingested. Nothing partial was reported as complete." });

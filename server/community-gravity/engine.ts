@@ -11,6 +11,10 @@
  */
 import { sql } from "drizzle-orm";
 import { db } from "../storage";
+import { zctaCentroid, ZCTA_CENTROID_SOURCE } from "../geo/zcta-centroids";
+import { COUNTY_CENTROID_SOURCE, countyCentroid } from "@shared/nationwide/county-centroids";
+import { resolveZip } from "@shared/nationwide/zip-resolver";
+import type { MagnetMapPayload, MapZipCluster, MapCountyNeed, MapResourcePin } from "@shared/magnet-map";
 import { generateAIJSON, isPerplexityAvailable, perplexityResearch } from "../ai-provider";
 
 export const BMF_URL = (state: string) => `https://www.irs.gov/pub/irs-soi/eo_${state.toLowerCase()}.csv`;
@@ -179,4 +183,97 @@ export async function setVerified(ein: string, userId: string, verified: boolean
     ? sql`UPDATE community_gravity_orgs SET verified_by = ${userId}, verified_at = now(), verified_note = ${note ?? null} WHERE ein = ${ein}`
     : sql`UPDATE community_gravity_orgs SET verified_by = NULL, verified_at = NULL, verified_note = NULL WHERE ein = ${ein}`);
   return (r.rowCount ?? 0) > 0;
+}
+
+// ── Magnet map (Phase 4b) ─────────────────────────────────────────────────────
+
+const mapCache = new Map<string, { until: number; value: MagnetMapPayload }>();
+export function clearMagnetMapCache() { mapCache.clear(); }
+
+/** ZIP-aggregated gravity + county need + resource pins for one city. No geocoding calls; all coordinates are Census Gazetteer interior points. */
+export async function buildMagnetMap(city: string, state: string, countyFips: string[] = []): Promise<MagnetMapPayload> {
+  const c = city.trim().toUpperCase(), s = state.toUpperCase();
+  const key = JSON.stringify([c, s, countyFips.slice().sort()]);
+  const cached = mapCache.get(key);
+  if (cached && cached.until > Date.now()) return cached.value;
+  const countyList = countyFips.map(f => sql`${f}`);
+  const countyScope = countyList.length ? sql`AND LEFT(zip, 5) IN (SELECT zip FROM zcta_county_map WHERE county_fips IN (${sql.join(countyList, sql`, `)}))` : sql``;
+  const cityScope = c ? sql`AND city = ${c}` : sql``;
+  const orgRows = await db.execute(sql`
+    SELECT LEFT(zip, 5) AS zip, domain, count(*)::int AS n,
+      (array_agg(ein ORDER BY revenue_amt DESC NULLS LAST, ein))[1] AS ein,
+      (array_agg(name ORDER BY revenue_amt DESC NULLS LAST, ein))[1] AS name,
+      max(revenue_amt) AS revenue_amt, max(fetched_at) AS fetched_at
+    FROM community_gravity_orgs WHERE state = ${s} ${cityScope} ${countyScope}
+    GROUP BY LEFT(zip, 5), domain ORDER BY zip, revenue_amt DESC NULLS LAST`);
+  const byZip = new Map<string, MapZipCluster>();
+  let unplaced = 0;
+  let fetchedAt: string | null = null;
+  for (const r of orgRows.rows as Array<Record<string, unknown>>) {
+    if (r.fetched_at) {
+      const date = new Date(String(r.fetched_at)).toISOString();
+      if (!fetchedAt || date > fetchedAt) fetchedAt = date;
+    }
+    const zip = String(r.zip).slice(0, 5);
+    const ctr = zctaCentroid(zip);
+    if (!ctr) { unplaced += Number(r.n); continue; }
+    let cl = byZip.get(zip);
+    if (!cl) { cl = { zip, lat: ctr.lat, lon: ctr.lon, orgCount: 0, domains: {}, topOrg: { ein: String(r.ein), name: String(r.name) } }; byZip.set(zip, cl); }
+    cl.orgCount += Number(r.n);
+    const d = String(r.domain);
+    cl.domains[d] = (cl.domains[d] ?? 0) + Number(r.n);
+  }
+  const clusters = [...byZip.values()].sort((a, b) => b.orgCount - a.orgCount);
+
+  const focusZips = new Set(clusters.slice(0, 5).map(z => z.zip));
+  const countyRows = await db.execute(sql`
+    SELECT geography_key, location_name, svi_percentile, total_population, raw_svi_data
+    FROM gis_context_data WHERE geography_type = 'county' AND state_code = ${s}
+    ${countyList.length ? sql`AND geography_key IN (${sql.join(countyList, sql`, `)})` : sql``}`);
+  // Focus county = county of the densest org ZIPs (static ZIP→county map, no network).
+  const focusFips = new Set<string>(countyFips);
+  for (const z of focusZips) { const rz = resolveZip(z); if (rz?.countyFips) focusFips.add(rz.countyFips); }
+  const counties: MapCountyNeed[] = (countyRows.rows as Array<Record<string, unknown>>).flatMap(r => {
+    const official = countyCentroid(String(r.geography_key));
+    if (!official) return [];
+    const raw = r.raw_svi_data as Record<string, unknown> | null;
+    return [{
+      fips: String(r.geography_key), name: String(r.location_name ?? r.geography_key), lat: official.lat, lon: official.lon,
+      sviPercentile: r.svi_percentile == null ? null : Number(r.svi_percentile), povertyRate: null,
+      population: r.total_population == null ? null : Number(r.total_population), focus: focusFips.has(String(r.geography_key)),
+      vintage: raw?.year == null ? null : String(raw.year),
+    }];
+  });
+
+  const centers = countyFips.length ? counties : clusters.slice(0, 1);
+  const bounds = centers.map(center => sql`(latitude BETWEEN ${center.lat - 1.5} AND ${center.lat + 1.5} AND longitude BETWEEN ${center.lon - 1.5} AND ${center.lon + 1.5})`);
+  const pinRows = await db.execute(sql`
+    SELECT id, name, category, latitude, longitude, address FROM gis_resource_overlays
+    WHERE is_active = true AND latitude IS NOT NULL AND longitude IS NOT NULL
+    AND ${bounds.length ? sql`(${sql.join(bounds, sql` OR `)})` : sql`false`}
+    ORDER BY id LIMIT 200`);
+  const pins: MapResourcePin[] = (pinRows.rows as Array<Record<string, unknown>>)
+    .map(r => ({ id: String(r.id), name: String(r.name), category: String(r.category ?? ""), lat: Number(r.latitude), lon: Number(r.longitude), address: r.address == null ? null : String(r.address) }))
+    .filter(p => centers.some(center => Math.abs(p.lat - center.lat) < 1.5 && Math.abs(p.lon - center.lon) < 1.5));
+
+  const value: MagnetMapPayload = {
+    community: { city: c ? city : counties.map(n => n.name).join(", "), state: s },
+    gravity: { clusters, orgsPlaced: clusters.reduce((n, z) => n + z.orgCount, 0), orgsUnplaced: unplaced, fetchedAt, source: `IRS Exempt Organizations BMF filing ZIP, placed at ${ZCTA_CENTROID_SOURCE}` },
+    need: { counties, source: `CDC/ATSDR SVI + ACS via gis_context_data; coordinates ${COUNTY_CENTROID_SOURCE}`, measure: "Social Vulnerability Index percentile (0–100, higher = more vulnerable)" },
+    resources: { pins, source: "Curated, seeded platform resource overlays; location and availability are not independently verified" },
+    limits: [
+      "Organization points are IRS filing ZIP centroids, not service locations; one point may hold many organizations.",
+      "ZIPs without a Census ZCTA (PO-box-only ZIPs) are counted but not placed.",
+      "County need is an index percentile, not an outcome; counties with no SVI value are drawn without a score.",
+      "Resource pins are limited to the curated overlay set near the city; absence of a pin is not absence of a resource.",
+      "County-scoped organizations use the crosswalk's primary county for each ZIP; ZIPs can cross county boundaries. Organizations without a crosswalk match are excluded from county-scoped totals.",
+      "Resource proximity uses a 1.5-degree bounding window around focus centroids, not a travel-distance or service-area calculation.",
+      c ? `Need layer is statewide ${s} context; organization clusters are restricted to the ${city} filing city. Resource proximity cannot be scoped for a city without mapped filing ZIPs.` : "Need layer is scoped to the selected counties.",
+      "Poverty rates are omitted because the legacy field can mix ACS 100%-poverty and SVI 150%-poverty definitions.",
+      "At most 200 curated resource locations are returned; presence does not confirm current availability.",
+    ],
+  };
+  if (mapCache.size >= 100) mapCache.delete(mapCache.keys().next().value!);
+  mapCache.set(key, { until: Date.now() + 600_000, value });
+  return value;
 }

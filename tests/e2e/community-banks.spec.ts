@@ -19,7 +19,8 @@ async function expectProfile(page: import("@playwright/test").Page, labelPattern
 test("Central Texas default resolves to the Austin MSA without sign-in", async ({ page }) => {
   await page.goto(`${BASE}/community-banks`);
   await expectProfile(page, /Austin MSA/);
-  await expect(page.getByTestId("cb-tool-check-benefits")).toHaveAttribute("href", /\/benefits-screener\?zip=48453/);
+  // An assessment area's county FIPS is not a postal ZIP.
+  await expect(page.getByTestId("cb-tool-check-benefits")).toHaveAttribute("href", "/benefits-screener");
   await expect(page.getByTestId("cb-coverage-poverty-rate")).toHaveText("observed");
   await expect(page.getByTestId("cb-coverage-svi")).toHaveText("observed");
   await expect(page.getByTestId("cb-coverage-median-income")).toHaveText("modeled");

@@ -1,6 +1,7 @@
 import { eq, like } from "drizzle-orm";
 import { gisContextData } from "@shared/schema";
 import type { GisContextData } from "@shared/schema";
+import { countyCentroid } from "@shared/nationwide/county-centroids";
 
 const CDC_PLACES_URL = "https://data.cdc.gov/resource/swc5-untb.json";
 const CDC_SVI_URL = "https://data.cdc.gov/resource/4d8n-kk8a.json";
@@ -119,20 +120,17 @@ export function getStateName(stateAbbr: string): string {
   return STATE_NAMES[stateAbbr.toUpperCase()] || stateAbbr;
 }
 
-function estimateCountyCoords(stateAbbr: string, countyFips: string, index: number, total: number): { lat: number; lng: number } {
-  const stateCenter = STATE_COORDS[stateAbbr.toUpperCase()];
-  if (!stateCenter) return { lat: 39.8283, lng: -98.5795 };
-
-  const fipsNum = parseInt(countyFips) || index;
-  const angle = (fipsNum * 137.508) % 360;
-  const radius = 0.5 + (fipsNum % 20) * 0.1;
-  const latOffset = radius * Math.cos((angle * Math.PI) / 180);
-  const lngOffset = radius * Math.sin((angle * Math.PI) / 180) * 1.3;
-
-  return {
-    lat: stateCenter.lat + latOffset,
-    lng: stateCenter.lng + lngOffset,
-  };
+/**
+ * County coordinates come from the Census Gazetteer interior point — never an estimate.
+ * Before 2026-10-04 this function spread points across the state (Travis County rendered near
+ * Arlington); scripts/verify-county-centroids.ts guards against that regressing.
+ */
+function officialCountyCoords(stateAbbr: string, countyFips: string): { lat: number | null; lng: number | null } {
+  const stateFips = STATE_FIPS[stateAbbr.toUpperCase()];
+  const c = stateFips ? countyCentroid(countyFips.length === 5 ? countyFips : `${stateFips}${countyFips.padStart(3, "0")}`) : undefined;
+  if (c) return { lat: c.lat, lng: c.lon };
+  console.warn(`[GIS] No official county interior point for ${stateAbbr} ${countyFips}; coordinates unavailable`);
+  return { lat: null, lng: null };
 }
 
 export async function ingestCdcPlacesData(
@@ -457,7 +455,7 @@ export async function ingestCensusAcsData(
         .where(eq(gisContextData.geographyKey, geographyKey))
         .limit(1);
 
-      const countyCoords = estimateCountyCoords(stateAbbr, countyFips, i - 1, data.length - 1);
+      const countyCoords = officialCountyCoords(stateAbbr, countyFips);
 
       if (existing.length > 0) {
         await db

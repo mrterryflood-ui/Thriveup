@@ -5,6 +5,7 @@ import { FocusedBottomTabs as BottomTabBar, FocusedSidebar as AppSidebar } from 
 import { WorkspaceProvider, useWorkspace } from "@/lib/workspace-context";
 import { WORKSPACES, entryTaskForPath } from "@shared/workspace-catalog";
 import { TaskStartHint } from "@/components/task-start-hint";
+import { PageFrame } from "@/components/page-frame";
 import { queryClient, apiRequest } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -1171,6 +1172,7 @@ function AppLayoutInner() {
           <main id="main-content" className="flex-1 overflow-auto" tabIndex={-1}>
             <ErrorBoundary>
               <Suspense fallback={<PageFallback />}>
+                <PageFrame key={`frame-${location}`} path={location} />
                 <TaskStartHint key={location} path={location} />
                 <AppRouter />
               </Suspense>

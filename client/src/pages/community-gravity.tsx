@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState, useEffect, type FormEvent } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useSearch } from "wouter";
 import { Card } from "@/components/ui/card";
@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, ArrowLeft, Magnet, ShieldCheck, ExternalLink, Search } from "lucide-react";
+import { MagnetMap } from "@/components/magnet-map";
+import { useMagnetJourneyPlace } from "@/hooks/use-magnet-journey-place";
 import { apiRequest } from "@/lib/queryClient";
 import { useWorkspaceAccess } from "@/lib/workspace-context";
 
@@ -23,17 +25,23 @@ export default function CommunityGravityPage() {
   const search = useSearch();
   const [, navigate] = useLocation();
   const params = new URLSearchParams(search);
-  const city = params.get("city") ?? "Austin";
-  const state = params.get("state") ?? "TX";
+  const journey = useMagnetJourneyPlace(params.has("city") || params.has("state") || params.has("place") || params.has("zip"));
+  const placeReady = !journey.pending && !journey.error && !journey.unsupported;
+  const broadPlace = params.get("place") ?? params.get("zip") ?? journey.place;
+  const reportedCity = broadPlace?.match(/^([A-Za-z .'-]{2,60}),\s*([A-Z]{2})$/i);
+  const city = params.get("city") ?? reportedCity?.[1] ?? (broadPlace || !placeReady ? "" : "Austin");
+  const state = params.get("state") ?? reportedCity?.[2] ?? (broadPlace || !placeReady ? "" : "TX");
   const [draftCity, setDraftCity] = useState(city);
   const [draftState, setDraftState] = useState(state);
+  useEffect(() => { setDraftCity(city); setDraftState(state); }, [city, state]);
   const [q, setQ] = useState("");
   const [domain, setDomain] = useState<string | null>(null);
   const [open, setOpen] = useState<Org | null>(null);
+  const [mapOpen, setMapOpen] = useState(false);
   const viewer = useWorkspaceAccess();
   const qc = useQueryClient();
 
-  const field = useQuery<Field>({ queryKey: ["/api/community-gravity", city, state], queryFn: async () => { const r = await fetch(`/api/community-gravity?city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}`); if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error ?? `HTTP ${r.status}`); return r.json(); } });
+  const field = useQuery<Field>({ queryKey: ["/api/community-gravity", city, state], enabled: !!city && !!state && !journey.pending && !journey.error && !journey.unsupported, queryFn: async ({ signal }) => { const r = await fetch(`/api/community-gravity?city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}`, { signal }); if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error ?? `HTTP ${r.status}`); return r.json(); } });
   const searching = q.trim().length > 0 || domain !== null;
   const orgs = useQuery<{ orgs: Org[]; count: number }>({ queryKey: ["/api/community-gravity/orgs", city, state, q, domain], enabled: searching, queryFn: async () => { const u = new URLSearchParams({ city, state, q }); if (domain) u.set("domain", domain); const r = await fetch(`/api/community-gravity/orgs?${u}`); if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); } });
   const facts = useQuery<{ facts: Fact[]; evidence: string }>({ queryKey: ["/api/community-gravity/orgs", open?.ein, "facts"], enabled: Boolean(open), queryFn: async () => { const r = await fetch(`/api/community-gravity/orgs/${open!.ein}/facts`); if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); } });
@@ -48,7 +56,7 @@ export default function CommunityGravityPage() {
   return <div className="mx-auto max-w-6xl px-5 py-8" data-testid="community-gravity-page">
     <Link href="/" className="inline-flex items-center gap-2 min-h-11 text-sm text-muted-foreground" data-testid="gravity-home"><ArrowLeft size={15} />Starting points</Link>
     <div className="mt-4 flex items-start gap-3"><Magnet className="h-8 w-8 text-primary shrink-0" aria-hidden="true" /><div>
-      <h1 className="text-3xl font-semibold">Community Gravity: who is doing the work in {titleCase(city)}, {state.toUpperCase()}</h1>
+      <h1 className="text-3xl font-semibold">Community Gravity: {city ? `who is doing the work in ${titleCase(city)}, ${state.toUpperCase()}` : broadPlace ? `who is doing the work in ${broadPlace}` : "choose a community"}</h1>
       <p className="mt-2 max-w-3xl text-muted-foreground">The organizations that attract people, money, and partners in each domain of community life, drawn from public IRS records. Open data proposes; staff verification and cited research are shown where they exist. Not an endorsement, and never a ranking of quality.</p>
     </div></div>
 
@@ -57,16 +65,24 @@ export default function CommunityGravityPage() {
       <label className="text-sm">State<Input value={draftState} onChange={e => setDraftState(e.target.value)} maxLength={2} className="mt-1 min-h-11 w-20 uppercase" aria-label="Two-letter state" data-testid="gravity-state" /></label>
       <Button type="submit" className="min-h-11" data-testid="gravity-go">Show this community<ArrowRight size={14} className="ml-2" /></Button>
     </form>
+    {journey.pending && <p role="status" className="mt-4">Loading your journey place…</p>}
+    {(journey.error || journey.unsupported) && <p role="alert" className="mt-4">{journey.unsupported ? "This map currently supports U.S. communities only." : "Your saved journey place could not load."} Choose a city and state above to continue; no substitute place has been selected.</p>}
+    {!!broadPlace && !reportedCity && !journey.pending && <section className="mt-6 rounded-xl border p-4" data-testid="gravity-journey-map">
+      <h2 className="font-semibold">Map for {broadPlace}</h2>
+      <p className="mt-2 text-sm text-muted-foreground">Your ZIP or county is preserved. Choose a city above if you also want city-level organization profiles.</p>
+      <Button type="button" variant="outline" className="mt-3 min-h-11" onClick={() => setMapOpen(v => !v)} aria-expanded={mapOpen} data-testid="gravity-map-toggle">{mapOpen ? "Hide community map" : "Open community map"}</Button>
+      {mapOpen && <div className="mt-4"><MagnetMap place={broadPlace} /></div>}
+    </section>}
 
     {field.isLoading && <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{[0, 1, 2].map(i => <Skeleton key={i} className="h-40" />)}</div>}
     {field.isError && <Card className="mt-6 p-5 border-destructive" role="alert" data-testid="gravity-error">Could not load this community: {(field.error as Error).message}</Card>}
 
-    {field.data && !field.data.builtFrom && <Card className="mt-6 p-5" data-testid="gravity-empty">
+    {placeReady && field.data && !field.data.builtFrom && <Card className="mt-6 p-5" data-testid="gravity-empty">
       <h2 className="font-semibold">No ingested organizations for {titleCase(city)}, {state.toUpperCase()} yet</h2>
       <p className="mt-2 text-sm text-muted-foreground">This community has not been loaded from the IRS Exempt Organizations file. Staff can ingest it from the operations tools; nothing is shown here until real source rows exist.</p>
     </Card>}
 
-    {field.data?.builtFrom && <>
+    {placeReady && field.data?.builtFrom && <>
       <p className="mt-5 text-sm text-muted-foreground" data-testid="gravity-provenance">
         Built from <a className="underline" href={field.data.builtFrom.sourceUrl} target="_blank" rel="noopener noreferrer">{field.data.builtFrom.source}</a> · {field.data.builtFrom.orgCount.toLocaleString()} organizations with a {titleCase(city)} filing address · fetched {field.data.builtFrom.fetchedAt ? new Date(field.data.builtFrom.fetchedAt).toLocaleDateString() : "date unavailable"}.
       </p>
@@ -95,6 +111,21 @@ export default function CommunityGravityPage() {
         </div>
         {unclassified && <p className="mt-4 text-sm text-muted-foreground" data-testid="gravity-unclassified">{unclassified.count.toLocaleString()} organizations have no IRS activity (NTEE) code and are not placed in a domain. <button className="underline min-h-11" onClick={() => setDomain("unclassified")}>Browse them</button>.</p>}
       </section>}
+
+      <section className="mt-8 rounded-xl border bg-card p-4" aria-labelledby="gravity-map-heading" data-testid="gravity-map-section">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 id="gravity-map-heading" className="font-semibold">Explore community patterns on a map</h2>
+            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">Open the map when you are ready to compare organizational filing ZIPs with county-level need data. Filing locations do not establish where services are delivered.</p>
+          </div>
+          <Button type="button" variant="outline" className="min-h-11 shrink-0" aria-expanded={mapOpen} aria-controls="gravity-map-panel" onClick={() => setMapOpen(value => !value)} data-testid="gravity-map-toggle">
+            {mapOpen ? "Hide community map" : "Open community map"}
+          </Button>
+        </div>
+        {mapOpen && <div id="gravity-map-panel" className="mt-4" data-testid="gravity-map-panel">
+          <MagnetMap city={city} state={state.toUpperCase()} />
+        </div>}
+      </section>
 
       <Card className="mt-8 p-4 text-sm" data-testid="gravity-evidence">
         <h2 className="font-semibold flex items-center gap-2"><ShieldCheck className="h-4 w-4" aria-hidden="true" />How to read this</h2>

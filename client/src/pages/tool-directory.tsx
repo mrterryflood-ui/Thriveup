@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useSearch } from "wouter";
 import { Search, ArrowRight, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { getSidebarNavigationAccess } from "@/components/app-sidebar";
 import { OUTCOME_ICONS } from "@/components/focused-navigation";
 import { useWorkspace, useWorkspaceAccess } from "@/lib/workspace-context";
@@ -15,6 +16,7 @@ import { PUBLIC_OUTCOMES, OUTCOME_LABELS, AUDIENCES, AUDIENCE_LABELS, filterNavR
  */
 export default function ToolDirectory() {
   const [query, setQuery] = useState("");
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => new Set());
   const search = useSearch();
   const [, navigate] = useLocation();
   const params = new URLSearchParams(search);
@@ -26,6 +28,10 @@ export default function ToolDirectory() {
   const audienceParam = params.get("audience");
   const audience = isValidAudience(audienceParam) ? audienceParam : storedAudience;
   const outcomes: Outcome[] = viewer.staff ? [...PUBLIC_OUTCOMES, "operate"] : PUBLIC_OUTCOMES;
+
+  useEffect(() => {
+    setExpandedGroups(new Set());
+  }, [query, outcome, audience]);
 
   const setOutcome = (next: Outcome | null) => {
     const p = new URLSearchParams(search);
@@ -65,14 +71,14 @@ export default function ToolDirectory() {
       </select>
     </div>
 
-    <p role="status" className="mt-5 text-sm text-muted-foreground" data-testid="tools-result-count">{total} matching destinations{outcome ? ` under ${OUTCOME_LABELS[outcome]}` : ""}{audience ? ` for ${AUDIENCE_LABELS[audience]}` : ""}.</p>
+    <p role="status" className="mt-5 text-sm text-muted-foreground" data-testid="tools-result-count">{total} matching destinations{outcome ? ` under ${OUTCOME_LABELS[outcome]}` : ""}{audience ? ` for ${AUDIENCE_LABELS[audience]}` : ""}.{query.trim() ? " All matching search results are shown." : " Up to 12 destinations are shown per outcome; expand a group to see the rest."}</p>
 
     {total ? groups.map(g => {
       const Icon = OUTCOME_ICONS[g.outcome];
       return <section key={g.outcome} className="mt-8" aria-labelledby={`tools-group-${g.outcome}`} data-testid={`tools-group-${g.outcome}`}>
-        <h2 id={`tools-group-${g.outcome}`} className="flex items-center gap-2 text-lg font-semibold"><Icon size={18} aria-hidden="true" />{g.label}<span className="text-sm font-normal text-muted-foreground">({g.routes.length})</span></h2>
-        <div className="mt-3 grid sm:grid-cols-2 gap-2">
-          {g.routes.map(item => {
+        <h2 id={`tools-group-${g.outcome}`} className="flex items-center gap-2 text-lg font-semibold"><Icon size={18} aria-hidden="true" />{g.outcome === "operate" && !viewer.staff ? "Other public tools" : g.label}<span className="text-sm font-normal text-muted-foreground">({g.routes.length})</span></h2>
+        <div id={`tools-routes-${g.outcome}`} className="mt-3 grid sm:grid-cols-2 gap-2">
+          {(query.trim() || expandedGroups.has(g.outcome) ? g.routes : g.routes.slice(0, 12)).map(item => {
             const next = connectionsFor(item, viewer).slice(0, 3);
             return <Link key={item.path} href={item.path} onClick={() => { const destination = workspaceForPath(item.path); if (destination) setWorkspace(destination); }} className="flex flex-col gap-1 border rounded-xl px-4 py-3 min-h-14 hover:bg-accent" aria-label={item.title} data-testid={`tool-link-${item.path.replace(/[^a-z0-9]+/gi, "-")}`}>
               <span className="flex items-center gap-2 text-sm font-medium">{item.title}<ArrowRight size={14} aria-hidden="true" className="ml-auto shrink-0" /></span>
@@ -81,7 +87,17 @@ export default function ToolDirectory() {
             </Link>;
           })}
         </div>
+        {!query.trim() && g.routes.length > 12 && <div className="mt-3">
+          <Button type="button" variant="outline" className="min-h-11" aria-expanded={expandedGroups.has(g.outcome)} aria-controls={`tools-routes-${g.outcome}`} onClick={() => setExpandedGroups(current => {
+            const next = new Set(current);
+            if (next.has(g.outcome)) next.delete(g.outcome);
+            else next.add(g.outcome);
+            return next;
+          })} data-testid={`tools-disclosure-${g.outcome}`}>
+            {expandedGroups.has(g.outcome) ? "Show fewer" : `Show all ${g.routes.length}`}
+          </Button>
+        </div>}
       </section>;
-    }) : <div className="mt-5 rounded-xl border border-dashed p-6"><h2 className="font-semibold">No matching tools</h2><p className="mt-2 text-sm text-muted-foreground">Try a shorter term, another outcome, or "Everyone". Restricted destinations are hidden until you have the required access.</p><button onClick={() => { setQuery(""); setOutcome(null); setAudience(null); }} className="mt-4 min-h-11 px-4 rounded-lg border" aria-label="Clear filters and show all available tools" data-testid="tools-reset">Clear filters</button></div>}
+    }) : <div className="mt-5 rounded-xl border border-dashed p-6"><h2 className="font-semibold">No matching tools</h2><p className="mt-2 text-sm text-muted-foreground">Try a shorter term, another outcome, or "Everyone". Restricted destinations are hidden until you have the required access.</p><button onClick={() => { setQuery(""); setAudience(null); const p = new URLSearchParams(search); p.delete("outcome"); p.delete("audience"); const qs = p.toString(); navigate(`/tools${qs ? `?${qs}` : ""}`, { replace: true }); }} className="mt-4 min-h-11 px-4 rounded-lg border" aria-label="Clear filters and show all available tools" data-testid="tools-reset">Clear filters</button></div>}
   </div>;
 }
