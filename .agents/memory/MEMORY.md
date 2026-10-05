@@ -103,3 +103,4 @@
 - [GitHub push via connector replay](github-push-via-connector.md) — shell has no git creds; replay commits via the GitHub connector's Git Data API to identical SHAs; branch push = Vercel Preview boot proof.
 - [Community bank impact view](community-bank-view.md) — public composer over existing organs; coverage per tile; nationwide county ACS+SVI ingested via script (no scheduler); childcare engine wants 3-digit county suffix; curated city list, else ZIP/county:FIPS.
 - [Geographic provenance](geographic-provenance.md) — populated coordinates do not prove accuracy; preserve FIPS/ZIP scope and distinguish filing locations, seeded pins, and metric definitions.
+- [Verification resource budget](verification-resource-budget.md) — serialize compiler/build and browser checks in constrained containers; interrupted checks are not passing proof.

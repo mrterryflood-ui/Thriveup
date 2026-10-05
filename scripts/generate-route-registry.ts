@@ -121,6 +121,9 @@ writeFileSync("shared/route-registry.generated.json", JSON.stringify(out, null, 
 // Slim navigation manifest consumed by the client (Phase 3): canonical, linkable rows only — no aliases, no :param routes.
 const nav = out.entries.filter(e => !e.aliasOf && !e.path.includes(":")).map(e => ({ path: e.path, title: e.title, outcome: e.outcome, audiences: e.audiences, access: e.access, description: e.description ?? "", guide: e.guide ?? "", upstream: e.upstream.filter(d => !d.includes(":")), downstream: e.downstream.filter(d => !d.includes(":")) }));
 writeFileSync("shared/route-nav.generated.json", JSON.stringify(nav) + "\n");
+// Dynamic pages need frame metadata but must never become literal :id navigation links.
+const frames = out.entries.filter(e => !e.aliasOf && e.path.includes(":")).map(e => ({ path: e.path, title: e.title, outcome: e.outcome, audiences: e.audiences, access: e.access, description: e.description ?? "", guide: e.guide ?? "", upstream: e.upstream.filter(d => !d.includes(":")), downstream: e.downstream.filter(d => !d.includes(":")) }));
+writeFileSync("shared/route-frame.generated.json", JSON.stringify(frames) + "\n");
 const byOutcome = out.entries.reduce<Record<string, number>>((m, e) => { m[e.outcome] = (m[e.outcome] ?? 0) + 1; return m; }, {});
 const orphan = out.entries.filter(e => e.sources.length === 1 && e.sources[0] === "app-routes").length;
 console.log(`routes=${routePaths.size} entries=${out.entries.length} inventoried=${inv.length} external=${external.length} route-only(no nav mentions)=${orphan}`);

@@ -6,6 +6,7 @@ import { useAudience } from "@/lib/audience-preference";
 import { useWorkspace, useWorkspaceAccess } from "@/lib/workspace-context";
 import { Sidebar, SidebarHeader, SidebarContent, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/use-auth";
+import { outcomeLandingPath } from "@shared/outcome-landings";
 
 /** Always-visible public destinations not already covered by the three starting tasks; reachable from any page without choosing a workspace first. */
 const KEY_DESTINATIONS = [
@@ -42,7 +43,8 @@ function OutcomeGroups({ close }: { close: () => void }) {
         return (
           <details key={outcome} open={open || undefined} className="mt-1" data-testid={`focused-outcome-${outcome}`}>
             <summary className="min-h-11 flex items-center gap-3 px-3 text-sm font-semibold cursor-pointer rounded-lg hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><Icon size={16} aria-hidden="true" />{OUTCOME_LABELS[outcome]}<span className="ml-auto text-xs font-normal text-muted-foreground">{routes.length}</span></summary>
-            {routes.slice(0, SIDEBAR_GROUP_CAP).map(r => <Link key={r.path} href={r.path} onClick={close} aria-current={location === r.path ? "page" : undefined} className={`flex items-center gap-3 rounded-lg pl-9 pr-3 min-h-11 text-sm hover:bg-accent ${location === r.path ? "bg-accent font-semibold" : ""}`} data-testid={`focused-route-${r.path.replace(/[^a-z0-9]+/gi, "-")}`}>{r.title}</Link>)}
+            {outcome !== "operate" && <Link href={outcomeLandingPath(outcome)} onClick={close} className="flex items-center gap-3 rounded-lg pl-9 pr-3 min-h-11 text-sm font-semibold hover:bg-accent" data-testid={`focused-outcome-overview-${outcome}`}>Starting points</Link>}
+            {routes.filter(r => !r.path.startsWith("/start/")).slice(0, SIDEBAR_GROUP_CAP).map(r => <Link key={r.path} href={r.path} onClick={close} aria-current={location === r.path ? "page" : undefined} className={`flex items-center gap-3 rounded-lg pl-9 pr-3 min-h-11 text-sm hover:bg-accent ${location === r.path ? "bg-accent font-semibold" : ""}`} data-testid={`focused-route-${r.path.replace(/[^a-z0-9]+/gi, "-")}`}>{r.title}</Link>)}
             {routes.length > SIDEBAR_GROUP_CAP && <Link href={`/tools?outcome=${outcome}${audience ? `&audience=${audience}` : ""}`} onClick={close} className="flex items-center gap-2 rounded-lg pl-9 pr-3 min-h-11 text-sm text-primary hover:bg-accent" aria-label={`All ${routes.length} ${OUTCOME_LABELS[outcome]} tools`} data-testid={`focused-outcome-all-${outcome}`}>All {routes.length} <ArrowRight size={13} aria-hidden="true" /></Link>}
           </details>
         );
@@ -110,8 +112,8 @@ export function FocusedBottomTabs() {
   const links = [
     { href: "/", label: "Start", icon: Home },
     { href: "/get-help", label: "Help", icon: LifeBuoy },
-    { href: "/tools?outcome=learn", label: "Learn", icon: GraduationCap },
-    { href: "/tools?outcome=see-the-data", label: "Data", icon: BarChart3 },
+    { href: "/start/learn", label: "Learn", icon: GraduationCap },
+    { href: "/start/see-the-data", label: "Data", icon: BarChart3 },
     { href: "/tools", label: "Tools", icon: Search },
   ];
   return <nav aria-label="Mobile primary navigation" data-testid="nav-bottom-tab-bar" className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t bg-background/95 backdrop-blur-sm flex pb-[env(safe-area-inset-bottom)]">

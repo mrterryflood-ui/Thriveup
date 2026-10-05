@@ -57,6 +57,7 @@ npx tsx scripts/verify-tool-reachability.ts || exit 1
 npx tsx scripts/verify-two-click-reachability.ts || exit 1
 npx tsx --test shared/workspace-catalog.test.ts shared/action-entry.test.ts || exit 1
 npx tsx scripts/verify-county-centroids.ts || exit 1
+npx tsx --test server/geo/nearby-distance.test.ts shared/frame-route.test.ts || exit 1
 npx tsx --test server/resident-case-access.test.ts || exit 1
 node --test scripts/verify-focused-service-worker.test.mjs || exit 1
 npx tsx scripts/verify-how-to-apply.ts || exit 1
@@ -65,7 +66,7 @@ npx tsx scripts/verify-how-to-apply.ts || exit 1
 BASE_URL="$BASE" npx tsx scripts/verify-apply-chat-ratelimit.ts || exit 1
 BASE_URL="$BASE" npx tsx scripts/verify-health-federation.ts || exit 1
 npx tsx scripts/verify-navigation-permission-sync.ts || exit 1
-npx tsx scripts/generate-route-registry.ts >/dev/null && git diff --quiet -- shared/route-registry.generated.json shared/route-nav.generated.json || { echo "route registry draft is stale: run scripts/generate-route-registry.ts and commit"; exit 1; }
+npx tsx scripts/generate-route-registry.ts >/dev/null && git diff --quiet -- shared/route-registry.generated.json shared/route-nav.generated.json shared/route-frame.generated.json || { echo "route registry draft is stale: run scripts/generate-route-registry.ts and commit"; exit 1; }
 REQUIRE_FULL_CLASSIFICATION=1 npx tsx scripts/verify-route-registry.ts || exit 1
 
 # Prevent a technically linked but unusable first screen from passing this gate.
@@ -80,3 +81,5 @@ E2E_BASE_URL="$BASE" npx playwright test tests/e2e/outcome-nav.spec.ts \
   --workers=1 --output="/tmp/outcome-nav-gate-$$" || exit 1
 E2E_BASE_URL="$BASE" npx playwright test tests/e2e/page-frame.spec.ts \
   --workers=1 --output="/tmp/page-frame-gate-$$" || exit 1
+E2E_BASE_URL="$BASE" npx playwright test tests/e2e/outcome-landings.spec.ts \
+  --workers=1 --output="/tmp/outcome-landings-gate-$$" || exit 1

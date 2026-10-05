@@ -12,7 +12,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useWorkspaceAccess } from "@/lib/workspace-context";
 
 interface Org { ein: string; name: string; city: string; state: string; zip: string | null; nteeCode: string | null; domain: string; revenueAmt: number | null; taxPeriod: string | null; verified: boolean; verifiedNote: string | null; profileUrl: string }
-interface Cluster { domain: string; label: string; count: number; magnets: Org[]; nearbyCount: number; nearbyCities: { city: string; count: number }[] }
+interface Cluster { domain: string; label: string; count: number; magnets: Org[]; nearbyCount: number; nearbyCities: { city: string; count: number; distanceMiles: number }[] }
 interface Field { community: { city: string; state: string }; builtFrom: { source: string; sourceUrl: string; fetchedAt: string | null; orgCount: number } | null; method: { domain: string; magnet: string; nearby: string; evidence: string }; clusters: Cluster[]; limits: string[]; domains: Record<string, string> }
 interface Fact { predicate: string; object: string; context: string; method: string; createdAt: string }
 
@@ -65,6 +65,7 @@ export default function CommunityGravityPage() {
       <label className="text-sm">State<Input value={draftState} onChange={e => setDraftState(e.target.value)} maxLength={2} className="mt-1 min-h-11 w-20 uppercase" aria-label="Two-letter state" data-testid="gravity-state" /></label>
       <Button type="submit" className="min-h-11" data-testid="gravity-go">Show this community<ArrowRight size={14} className="ml-2" /></Button>
     </form>
+    {placeReady && !broadPlace && !params.has("city") && !params.has("state") && <p className="mt-3 text-sm text-muted-foreground" data-testid="gravity-example">Example community: Austin, TX. This is not your inferred location; enter your own community above.</p>}
     {journey.pending && <p role="status" className="mt-4">Loading your journey place…</p>}
     {(journey.error || journey.unsupported) && <p role="alert" className="mt-4">{journey.unsupported ? "This map currently supports U.S. communities only." : "Your saved journey place could not load."} Choose a city and state above to continue; no substitute place has been selected.</p>}
     {!!broadPlace && !reportedCity && !journey.pending && <section className="mt-6 rounded-xl border p-4" data-testid="gravity-journey-map">
@@ -104,9 +105,10 @@ export default function CommunityGravityPage() {
             <div className="flex items-baseline justify-between gap-2"><h3 className="font-semibold">{c.label}</h3><span className="text-sm text-muted-foreground">{c.count.toLocaleString()} orgs</span></div>
             <ol className="mt-3 space-y-1">{c.magnets.map(o => <li key={o.ein}><OrgButton org={o} onOpen={setOrgOpen(setOpen)} labelFor={field.data!.domains} compact /></li>)}</ol>
             <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-              <span title={field.data!.method.nearby}>{c.nearbyCount > 0 ? `${c.nearbyCount.toLocaleString()} more in ${c.nearbyCities.length}+ other ${state.toUpperCase()} cities` : "Other cities in this state not loaded yet"}</span>
+              <span title={field.data!.method.nearby}>{c.nearbyCount > 0 ? `${c.nearbyCount.toLocaleString()} nearby filings within 50 miles` : "No nearby evidence available in mapped filings"}</span>
               <button className="min-h-11 px-2 underline" onClick={() => setDomain(c.domain)} aria-label={`See all ${c.label} organizations`} data-testid={`gravity-see-all-${c.domain}`}>See all</button>
             </div>
+            {c.nearbyCities.length > 0 && <ul aria-label={`Nearby ${c.label} filing cities`} className="mt-2 text-xs">{c.nearbyCities.slice(0, 3).map(n => <li key={n.city}><Link href={`/community-gravity?city=${encodeURIComponent(n.city)}&state=${encodeURIComponent(state)}`} className="inline-flex min-h-11 items-center underline">{titleCase(n.city)} · nearest ZIP {n.distanceMiles} mi · {n.count} filings</Link></li>)}</ul>}
           </Card>)}
         </div>
         {unclassified && <p className="mt-4 text-sm text-muted-foreground" data-testid="gravity-unclassified">{unclassified.count.toLocaleString()} organizations have no IRS activity (NTEE) code and are not placed in a domain. <button className="underline min-h-11" onClick={() => setDomain("unclassified")}>Browse them</button>.</p>}

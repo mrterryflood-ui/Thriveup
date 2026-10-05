@@ -48,9 +48,9 @@ Working backward: G3 needs G1 (frame reads registry) → G1 needs the registry s
 
 ## 3. Phases, owners, parallelism
 
-Phase 0 — Lock the trunk (user-gated). Confirm Replit↔GitHub sync is live and which branch is canonical. **Not executed in this request** (no pull/push authorized). Everything below is committed locally and is push-ready.
+Phase 0 — Branch sync verified in the final authorized continuation. Canonical non-main branch: `chore/replit-exit-inventory`; remote head is an ancestor of local HEAD. Identical-SHA connector replay with `force:false` is the push path; no pull, rebase, force-push or main push.
 
-Phase 1 — Connect / the Magnet (in flight). Serial owner: main agent.
+Phase 1 — Connect / the Magnet (implementation complete). Austin and Travis-primary-ZIP cities are ingested; nearby uses measured Census ZIP-centroid distance. Paid AI research and real human verification are not claimed as live-tested; see final G5 limits. Serial owner: main agent.
 1a routes (`/api/community-gravity` public cached; orgs search; facts; staff research/verify/ingest) · 1b page `/community-gravity` · 1c ingest Austin TX via script, then the rest of Travis County cities (Pflugerville, Manor, Del Valle…) · 1d nearby by distance via ZIP centroid (already have zcta→county map) · 1e link each org to Partners/MOU + referral tools · 1f e2e + gates.
 Replication contract: `ingestState(state, city?)` is the whole nationwide path; one state file per run.
 
@@ -61,13 +61,16 @@ Phase 3 — Navigation re-map (reads registry only). 3a sidebar: 6 outcomes coll
 
 Phase 4 — Shared frame + magnet map app-wide. 4a `PageFrame` top rail from registry (one component, mounted in App shell, not per page) · 4b Magnet map component = Leaflet `GisNeedHeatMap` + gravity nodes + resource pins, place-aware via the journey spine · 4c progressive disclosure defaults · 4d Playwright sample → G3.
 
-Phase 4 status: implemented and development-verified, awaiting user verification before push. PageFrame uses the registry floor AND legacy access predicate; map is mounted progressively on Gravity and Community Bank views and preserves county/MSA scope; tools show twelve destinations per group without hiding search matches. G3 seven cases and 27 total relevant browser cases pass; TypeScript/lint/build pass. County coordinates corrected to Census 2023 with a recurring guard. Full external-link checks remain blocked separately. Proof: `.verification/2026-10-04-phase4.md`. No production repair, push, or publish performed.
+Phase 4 status: user accepted; implementation and development QA complete. PageFrame uses registry AND legacy access, including dynamic and optional routes. Progressive map and directory behavior is retained. Original 27 browser cases and final seven G3 cases pass. County coordinates corrected to Census 2023 with a recurring guard. Full external-link checks remain blocked separately. Proof: `.verification/2026-10-04-phase4.md` and final record. No production repair or publish.
 
 Phase 5 — Terminal depth on 6 outcome landings + key tools: reuse `CorrelationMatrix`, `SkylineMap`, `ParticleFlow`, `system-pulse`; photorealistic door images (AI-generated, disclosed). Design helper lanes, one landing each, after 4a lands. → G6.
 
 Phase 6 — Live-check ledger of the reviewer's gap inventory (parallel from day one, read-only probes): email/auth/storage provider coupling (1.1–1.4), digest/welcome/webhook/smoke/heartbeat schedulers (2.1–2.5), HazardAware/ChildCORE/CVR/RPLICE/Civic Signal (3.1–3.6), story 502 / directory links / AI lanes / mounted-vs-orphaned route modules (4.1–4.4), guide strip (5.1–5.2 — satisfied by Phase 4 rail + live status badges). Output: `docs/audits/2026-10-gap-ledger.md`, each row with command + observed output. Net-new builds (CVR ingest bridge, RPLICE exchange route, provider cutover) are **separate scoped builds after the ledger**, not folded into IA work.
 
 Phase 7 — Omega. Adversarial 6-domain audit, Alpha Omega record, session record, memory deposit, Before/Changed/Why/Proof/Limits report. Then user runs Perplexity validation; publish only after that.
+
+## Completion status
+All approved IA implementation phases are complete. Six `/start/*` landings are additive, disclosed and wired to real tools; native specialist visualization contracts are preserved, not supplied invented model inputs. Phase 6 ledger is reconciled; Phase 7 six-domain reviews and narrowed final verification are recorded. QA: TypeScript/lint/build pass, 19 final browser cases, 18 screenshots, registry 419/419, distance/dynamic-frame units and nav/touch gates pass. See `.verification/2026-10-04-magnet-ia-final.md` for exact commands, proofs and residual limits; this does not assert every project-wide or production gate is green. The user obtains independent architect/Perplexity review; publication remains unauthorized.
 
 ## 4. Non-negotiables carried into every lane
 - Additive only; no page deletions; all old URLs resolve.

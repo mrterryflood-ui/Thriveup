@@ -132,6 +132,7 @@ const StakeholderMapPage = lazy(() => import("@/pages/stakeholder-map"));
 const OpenInnovationLabPage = lazy(() => import("@/pages/open-innovation-lab"));
 const ResourceFinderPage = lazy(() => import("@/pages/resource-finder"));
 const GetHelpPage = lazy(() => import("@/pages/get-help"));
+const OutcomeLandingPage = lazy(() => import("@/pages/outcome-landing"));
 const ImpactPage = lazy(() => import("@/pages/impact"));
 const APIDocsPage = lazy(() => import("@/pages/api-docs"));
 const StakeholderPresentationPage = lazy(() => import("@/pages/stakeholder-presentation"));
@@ -590,6 +591,12 @@ function AppRouter() {
       <Route path="/open-innovation-lab" component={OpenInnovationLabPage} />
       <Route path="/resources" component={ResourceFinderPage} />
       <Route path="/get-help" component={GetHelpPage} />
+      <Route path="/start/get-help"><OutcomeLandingPage outcome="get-help" /></Route>
+      <Route path="/start/learn"><OutcomeLandingPage outcome="learn" /></Route>
+      <Route path="/start/work-earn"><OutcomeLandingPage outcome="work-earn" /></Route>
+      <Route path="/start/connect"><OutcomeLandingPage outcome="connect" /></Route>
+      <Route path="/start/fund"><OutcomeLandingPage outcome="fund" /></Route>
+      <Route path="/start/see-the-data"><OutcomeLandingPage outcome="see-the-data" /></Route>
       <Route path="/411" component={Community411Page} />
       <Route path="/community-analysis" component={CommunityAnalysisPage} />
       <Route path="/impact" component={ImpactPage} />
@@ -603,7 +610,7 @@ function AppRouter() {
       <Route path="/intake-wizard"><Redirect to="/intake" /></Route>
       <Route path="/transparency-dashboard"><Redirect to="/transparency" /></Route>
       <Route path="/partners" component={CommunityPartnersPage} />
-      <Route path="/outcomes" component={OutcomeReportingPage} />
+      <Route path="/outcomes"><RequireAuth adminOnly><OutcomeReportingPage /></RequireAuth></Route>
       <Route path="/justice-partners" component={JusticePartnersPage} />
       <Route path="/justice-command-center" component={JusticeCommandCenterPage} />
       <Route path="/resource-directory" component={CommunityResourceDirectoryPage} />

@@ -363,7 +363,7 @@ const whereWeOperateItems: NavItem[] = [
   { title: "Platform Metrics", url: "/platform-metrics", icon: BarChart3, authOnly: true },
   { title: "Pilot Dashboard", url: "/pilot", icon: Users, authOnly: true },
   { title: "Dosage Report", url: "/dosage", icon: Activity, authOnly: true },
-  { title: "Outcome Reporting", url: "/outcomes", icon: FileBarChart, authOnly: true },
+  { title: "Outcome Reporting", url: "/outcomes", icon: FileBarChart, adminOnly: true },
   { title: "SDOH Impact Chain", url: "/sdoh-chain", icon: Link2 },
   { title: "Equity Dashboard", url: "/equity-dashboard", icon: BarChart3 },
   { title: "Policy Signal Engine", url: "/policy-engine", icon: BarChart3 },

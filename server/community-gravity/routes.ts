@@ -31,7 +31,7 @@ function place(req: Request): { city: string; state: string } | null {
   return { city, state };
 }
 
-const GEOGRAPHY_LIMIT = "Locations are the IRS filing address (city, ZIP), not a service area. Nearby is a same-state, same-domain count, not a distance.";
+const GEOGRAPHY_LIMIT = "Locations are the IRS filing address (city, ZIP), not a service area. Nearby uses a 50-mile straight-line radius from mapped filing ZIPs, not travel distance; unmatched ZIPs are excluded.";
 
 export function registerCommunityGravityRoutes(app: Express) {
   // Only this user's broad place selector; never needs, referrals, or other journey fields.
@@ -138,10 +138,15 @@ export function registerCommunityGravityRoutes(app: Express) {
       const ein = String(req.params.ein);
       if (!EIN_RE.test(ein)) return res.status(400).json({ error: "EIN must be 9 digits." });
       const result = await researchOrg(ein);
-      res.json({ ...result, facts: await getFacts(ein) });
+      try {
+        res.json({ ...result, facts: await getFacts(ein) });
+      } catch (readError) {
+        console.error("[community-gravity] research receipt facts read failed:", readError);
+        res.json({ ...result, facts: null, reason: "Research receipt recorded, but cited facts could not be reloaded. Refresh facts before retrying." });
+      }
     } catch (error) {
       console.error("[community-gravity] research failed:", error);
-      res.status(502).json({ error: "Web research did not complete. Nothing was stored." });
+      res.status(502).json({ error: "Web research could not be confirmed. Refresh cited facts before retrying; a database connection failure can leave the commit outcome unknown." });
     }
   });
 

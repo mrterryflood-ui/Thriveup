@@ -12,6 +12,7 @@
 import { sql } from "drizzle-orm";
 import { db } from "../storage";
 import { zctaCentroid, ZCTA_CENTROID_SOURCE } from "../geo/zcta-centroids";
+import { nearestFilingMiles } from "../geo/nearby-distance";
 import { COUNTY_CENTROID_SOURCE, countyCentroid } from "@shared/nationwide/county-centroids";
 import { resolveZip } from "@shared/nationwide/zip-resolver";
 import type { MagnetMapPayload, MapZipCluster, MapCountyNeed, MapResourcePin } from "@shared/magnet-map";
@@ -57,8 +58,15 @@ function parseCsvLine(line: string): string[] {
 export interface IngestResult { state: string; city: string | null; fetchedRows: number; upserted: number; sourceUrl: string; }
 
 /** Ingest one state's BMF; optionally restrict to one city (IRS CITY is upper-case). Idempotent upsert. */
-export async function ingestState(state: string, city?: string): Promise<IngestResult> {
+export async function ingestState(state: string, city?: string, countyFips?: string): Promise<IngestResult> {
   const st = state.toUpperCase(); if (!/^[A-Z]{2}$/.test(st)) throw new Error("state must be a 2-letter code");
+  let countyZips: Set<string> | null = null;
+  if (countyFips) {
+    if (!/^\d{5}$/.test(countyFips) || countyCentroid(countyFips)?.state !== st) throw new Error("county must be a known five-digit FIPS within the selected state");
+    const zips = await db.execute(sql`SELECT zip FROM zcta_county_map WHERE county_fips = ${countyFips}`);
+    countyZips = new Set(zips.rows.map(row => String(row.zip)));
+    if (!countyZips.size) throw new Error("No primary-county ZIP relationships are available for this county");
+  }
   const url = BMF_URL(st);
   const r = await fetch(url, { signal: AbortSignal.timeout(60_000), headers: { "user-agent": "ThriveUp community-gravity ingest" } });
   if (!r.ok) throw new Error(`IRS BMF ${st} returned ${r.status}`);
@@ -72,11 +80,12 @@ export async function ingestState(state: string, city?: string): Promise<IngestR
   for (let i = 1; i < lines.length; i++) {
     const f = parseCsvLine(lines[i]); if (f.length < header.length) continue;
     if (want && f[iCity].toUpperCase() !== want) continue;
+    if (countyZips && !countyZips.has(f[iZip]?.slice(0, 5))) continue;
     rows.push(f);
   }
   let upserted = 0;
   const num = (v: string) => (v === "" || v == null ? null : Number(v));
-  for (let i = 0; i < rows.length; i += 500) {
+  try { for (let i = 0; i < rows.length; i += 500) {
     const chunk = rows.slice(i, i + 500);
     const values = chunk.map(f => sql`(${f[iEin]}, ${f[iName].trim()}, ${f[iCity].toUpperCase().trim()}, ${f[iState]}, ${f[iZip]?.slice(0, 10) || null}, ${f[iNtee] || null}, ${domainFor(f[iNtee])}, ${f[iSub] || null}, ${num(f[iRev])}, ${num(f[iAsset])}, ${f[iTax] || null}, ${url}, now())`);
     await db.execute(sql`
@@ -86,20 +95,20 @@ export async function ingestState(state: string, city?: string): Promise<IngestR
         ntee_code = EXCLUDED.ntee_code, domain = EXCLUDED.domain, subsection = EXCLUDED.subsection, revenue_amt = EXCLUDED.revenue_amt,
         asset_amt = EXCLUDED.asset_amt, tax_period = EXCLUDED.tax_period, source_url = EXCLUDED.source_url, fetched_at = now()`);
     upserted += chunk.length;
-  }
+  } } finally { clearMagnetMapCache(); }
   return { state: st, city: want ?? null, fetchedRows: lines.length - 1, upserted, sourceUrl: url };
 }
 
 // ── Gravity: clusters, magnets, connections ─────────────────────────────────
 export interface GravityOrg { ein: string; name: string; city: string; state: string; zip: string | null; nteeCode: string | null; domain: string; revenueAmt: number | null; taxPeriod: string | null; verified: boolean; verifiedNote: string | null; profileUrl: string; }
-export interface DomainCluster { domain: string; label: string; count: number; magnets: GravityOrg[]; nearbyCount: number; nearbyCities: { city: string; count: number }[]; }
+export interface DomainCluster { domain: string; label: string; count: number; magnets: GravityOrg[]; nearbyCount: number; nearbyCities: { city: string; count: number; distanceMiles: number }[]; }
 export interface GravityField {
   community: { city: string; state: string }; builtFrom: { source: string; sourceUrl: string; fetchedAt: string | null; orgCount: number } | null;
   method: { domain: string; magnet: string; nearby: string; evidence: string };
   clusters: DomainCluster[];
 }
 export const MAGNET_METHOD = "Magnets are the organizations in a domain with the largest most-recent IRS-reported revenue, plus any organization staff have verified. Revenue size is a proxy for capacity, not for quality or impact; organizations with no reported revenue are shown as 'not reported', never as $0.";
-export const NEARBY_METHOD = "Nearby means other cities in the same state with organizations in the same domain. It is a statewide neighbor count, not a distance calculation.";
+export const NEARBY_METHOD = "Nearby means same-domain filings in other cities of this state within 50 straight-line miles of any mapped filing ZIP in the selected city, using Census 2023 ZCTA interior points. City distances are nearest postal-centroid distances, not travel distances or service areas. Unmapped ZIPs are excluded; no mapped origins means nearby evidence is unavailable.";
 export const EVIDENCE_NOTE = "Inclusion is drawn from public IRS records and is not an endorsement. Organizations may be inactive, renamed, or misclassified; staff verification and cited research are shown where they exist.";
 
 function toOrg(r: Record<string, unknown>): GravityOrg {
@@ -120,12 +129,23 @@ export async function buildGravityField(city: string, state: string, magnetsPerD
       SELECT o.*, row_number() OVER (PARTITION BY domain ORDER BY (verified_at IS NOT NULL) DESC, revenue_amt DESC NULLS LAST, name) AS rn
       FROM community_gravity_orgs o WHERE city = ${c} AND state = ${s}
     ) t WHERE rn <= ${magnetsPerDomain}`);
-  const nearby = await db.execute(sql`SELECT domain, city, count(*)::int AS n FROM community_gravity_orgs WHERE state = ${s} AND city <> ${c} GROUP BY domain, city`);
+  const origins = await db.execute(sql`SELECT DISTINCT LEFT(zip, 5) AS zip FROM community_gravity_orgs WHERE state = ${s} AND city = ${c}`);
+  const originPoints = origins.rows.map(row => zctaCentroid(String(row.zip))).filter((p): p is { lat: number; lon: number } => !!p);
+  const nearby = await db.execute(sql`SELECT domain, city, LEFT(zip, 5) AS zip, count(*)::int AS n FROM community_gravity_orgs WHERE state = ${s} AND city <> ${c} GROUP BY domain, city, LEFT(zip, 5)`);
   const byDomain = new Map<string, DomainCluster>();
   for (const row of counts.rows as { domain: string; n: number }[]) byDomain.set(row.domain, { domain: row.domain, label: DOMAIN_LABELS[row.domain] ?? row.domain, count: row.n, magnets: [], nearbyCount: 0, nearbyCities: [] });
   for (const row of magnets.rows as Record<string, unknown>[]) byDomain.get(String(row.domain))?.magnets.push(toOrg(row));
-  for (const row of nearby.rows as { domain: string; city: string; n: number }[]) { const d = byDomain.get(row.domain); if (!d) continue; d.nearbyCount += row.n; d.nearbyCities.push({ city: row.city, count: row.n }); }
-  for (const d of byDomain.values()) d.nearbyCities = d.nearbyCities.sort((a, b) => b.count - a.count).slice(0, 8);
+  for (const row of nearby.rows as { domain: string; city: string; zip: string; n: number }[]) {
+    const d = byDomain.get(row.domain), point = zctaCentroid(row.zip);
+    if (!d || !point) continue;
+    const distance = nearestFilingMiles(originPoints, point);
+    if (distance === null || distance > 50) continue;
+    d.nearbyCount += row.n;
+    const existing = d.nearbyCities.find(n => n.city === row.city);
+    if (existing) { existing.count += row.n; existing.distanceMiles = Math.min(existing.distanceMiles, Math.round(distance * 10) / 10); }
+    else d.nearbyCities.push({ city: row.city, count: row.n, distanceMiles: Math.round(distance * 10) / 10 });
+  }
+  for (const d of byDomain.values()) d.nearbyCities = d.nearbyCities.sort((a, b) => a.distanceMiles - b.distanceMiles || b.count - a.count).slice(0, 8);
   return { community: { city: c, state: s }, builtFrom: { source: "IRS Exempt Organizations Business Master File", sourceUrl: m.source_url ?? BMF_URL(s), fetchedAt: m.fetched_at ? new Date(m.fetched_at).toISOString() : null, orgCount: m.n }, method, clusters: [...byDomain.values()] };
 }
 
@@ -173,7 +193,7 @@ RESEARCH TEXT:
 ${text}`,
     "Return strict JSON only. Do not invent facts or URLs.");
   const facts = (extracted?.facts ?? []).filter(f => ALLOWED_PREDICATES.includes(f.predicate as typeof ALLOWED_PREDICATES[number]) && citations.includes(f.citation) && f.object && f.object.length <= 500);
-  for (const f of facts) await db.execute(sql`INSERT INTO community_gravity_facts (subject_ein, predicate, object, context, method) VALUES (${ein}, ${f.predicate}, ${f.object.trim()}, ${f.citation}, 'web_research_llm')`);
+  if (facts.length) await db.execute(sql`INSERT INTO community_gravity_facts (subject_ein, predicate, object, context, method) VALUES ${sql.join(facts.map(f => sql`(${ein}, ${f.predicate}, ${f.object.trim()}, ${f.citation}, 'web_research_llm')`), sql`, `)}`);
   return { added: facts.length, skipped: (extracted?.facts?.length ?? 0) - facts.length };
 }
 

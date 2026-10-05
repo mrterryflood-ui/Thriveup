@@ -1,5 +1,5 @@
 {
- "routeCount": 413,
+ "routeCount": 419,
  "entries": [
   {
    "path": "/",
@@ -6415,13 +6415,13 @@
   {
    "path": "/outcomes",
    "title": "Outcome Measurement & Reporting",
-   "outcome": "see-the-data",
+   "outcome": "operate",
    "audiences": [
     "agency-government",
     "funder-evaluator",
     "nonprofit-cbo"
    ],
-   "access": "authenticated",
+   "access": "admin",
    "upstream": [
     "/impact",
     "/hub/connect"
@@ -6432,8 +6432,8 @@
    ],
    "classified": true,
    "legacyGroup": "whereWeOperateItems",
-   "description": "Review program and cohort outcomes, record outcome events, and export reporting data.",
-   "guide": "Need program outcome evidence → Outcome Measurement & Reporting → inspect cohort results and export a report"
+   "description": "Administrators review program and cohort outcomes, record outcome events, and export reporting data.",
+   "guide": "Need program outcome evidence → administrator Outcome Reporting → inspect cohort results and export a report"
   },
   {
    "path": "/parent-dashboard",
@@ -8527,6 +8527,198 @@
    "legacyGroup": "aboutTrustItems",
    "description": "Review the public reentry standards scorecard, inspect its crosswalk, and open reference resources.",
    "guide": "Need to inspect reentry standards alignment → National Reentry Standards Alignment → review the crosswalk and source guidance"
+  },
+  {
+   "path": "/start/connect",
+   "title": "Connect: starting points",
+   "outcome": "connect",
+   "audiences": [
+    "resident-family",
+    "students-youth",
+    "foster-youth",
+    "veterans",
+    "returning-citizens",
+    "caregivers-chws",
+    "nonprofit-cbo",
+    "agency-government",
+    "funder-evaluator",
+    "rural-farm"
+   ],
+   "access": "public",
+   "upstream": [
+    "/"
+   ],
+   "downstream": [
+    "/community-gravity",
+    "/partners",
+    "/for-nonprofits"
+   ],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": true,
+   "description": "See who is doing the work, find community partners, and coordinate around shared needs.",
+   "guide": "Need connect → choose a starting point → open a tool or inspect the community evidence"
+  },
+  {
+   "path": "/start/fund",
+   "title": "Fund: starting points",
+   "outcome": "fund",
+   "audiences": [
+    "resident-family",
+    "students-youth",
+    "foster-youth",
+    "veterans",
+    "returning-citizens",
+    "caregivers-chws",
+    "nonprofit-cbo",
+    "agency-government",
+    "funder-evaluator",
+    "rural-farm"
+   ],
+   "access": "public",
+   "upstream": [
+    "/"
+   ],
+   "downstream": [
+    "/community-banks",
+    "/community-story-pack",
+    "/hub/fund"
+   ],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": true,
+   "description": "Understand community priorities and available funding guidance before preparing a proposal.",
+   "guide": "Need fund → choose a starting point → open a tool or inspect the community evidence"
+  },
+  {
+   "path": "/start/get-help",
+   "title": "Get Help: starting points",
+   "outcome": "get-help",
+   "audiences": [
+    "resident-family",
+    "students-youth",
+    "foster-youth",
+    "veterans",
+    "returning-citizens",
+    "caregivers-chws",
+    "nonprofit-cbo",
+    "agency-government",
+    "funder-evaluator",
+    "rural-farm"
+   ],
+   "access": "public",
+   "upstream": [
+    "/"
+   ],
+   "downstream": [
+    "/get-help",
+    "/benefits-screener",
+    "/resource-directory"
+   ],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": true,
+   "description": "Find support, check eligibility, and choose your next step without repeating your story.",
+   "guide": "Need get help → choose a starting point → open a tool or inspect the community evidence"
+  },
+  {
+   "path": "/start/learn",
+   "title": "Learn: starting points",
+   "outcome": "learn",
+   "audiences": [
+    "resident-family",
+    "students-youth",
+    "foster-youth",
+    "veterans",
+    "returning-citizens",
+    "caregivers-chws",
+    "nonprofit-cbo",
+    "agency-government",
+    "funder-evaluator",
+    "rural-farm"
+   ],
+   "access": "public",
+   "upstream": [
+    "/"
+   ],
+   "downstream": [
+    "/academy",
+    "/curriculum",
+    "/module-1-2-tools"
+   ],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": true,
+   "description": "Explore lessons and practical activities, then continue into a learning pathway.",
+   "guide": "Need learn → choose a starting point → open a tool or inspect the community evidence"
+  },
+  {
+   "path": "/start/see-the-data",
+   "title": "See the Data: starting points",
+   "outcome": "see-the-data",
+   "audiences": [
+    "resident-family",
+    "students-youth",
+    "foster-youth",
+    "veterans",
+    "returning-citizens",
+    "caregivers-chws",
+    "nonprofit-cbo",
+    "agency-government",
+    "funder-evaluator",
+    "rural-farm"
+   ],
+   "access": "public",
+   "upstream": [
+    "/"
+   ],
+   "downstream": [
+    "/community-analysis",
+    "/equity-loss",
+    "/methodology"
+   ],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": true,
+   "description": "Inspect geographic evidence, sources, methods, and the limits of what the data can tell you.",
+   "guide": "Need see the data → choose a starting point → open a tool or inspect the community evidence"
+  },
+  {
+   "path": "/start/work-earn",
+   "title": "Work & Earn: starting points",
+   "outcome": "work-earn",
+   "audiences": [
+    "resident-family",
+    "students-youth",
+    "foster-youth",
+    "veterans",
+    "returning-citizens",
+    "caregivers-chws",
+    "nonprofit-cbo",
+    "agency-government",
+    "funder-evaluator",
+    "rural-farm"
+   ],
+   "access": "public",
+   "upstream": [
+    "/"
+   ],
+   "downstream": [
+    "/workforce",
+    "/academy/trade-sims",
+    "/mos-translator"
+   ],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": true,
+   "description": "Explore work, practice a trade, and translate your experience into a training pathway.",
+   "guide": "Need work & earn → choose a starting point → open a tool or inspect the community evidence"
   },
   {
    "path": "/status/:token",

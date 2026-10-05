@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
-import { navRoute, canSeeRoute, connectionsFor, upstreamFor, OUTCOME_LABELS, type NavRoute, type NavViewer } from "@shared/route-nav";
+import { canSeeRoute, connectionsFor, upstreamFor, OUTCOME_LABELS, type NavRoute, type NavViewer } from "@shared/route-nav";
 import { getSidebarNavigationAccess } from "@/components/app-sidebar";
 import { OUTCOME_ICONS } from "@/components/focused-navigation";
 import { useWorkspaceAccess } from "@/lib/workspace-context";
+import { NetworkStatus } from "@/components/network-status";
+import { frameRoute } from "@shared/frame-route";
 
 /**
  * Phase 4a: one rail under the shell header for every registered page. Reads the route
  * registry only (outcome, guide line, upstream need, downstream next steps). Hidden on the
- * home page and on any path without a canonical registry row (aliases, :param routes).
+   * home page and on any path without registry metadata. Dynamic routes retain their access floor.
  * Access = registry floor AND the legacy sidebar predicate — never widened.
  */
 const COLLAPSE_KEY = "thriveup.pageframe.collapsed";
@@ -37,7 +39,7 @@ export function PageFrame({ path }: { path: string }) {
     catch { console.warn("[PageFrame] Session storage unavailable; path preference will not persist."); }
   }
 
-  const route: NavRoute | undefined = navRoute(path.split(/[?#]/)[0]);
+  const route: NavRoute | undefined = frameRoute(path);
   if (!route || route.path === "/" || !canSeeRoute(route, viewer) || !legacyAllows(route.path, viewer)) return null;
 
   const visible = (rows: NavRoute[]) => rows.filter(r => legacyAllows(r.path, viewer));
@@ -55,6 +57,7 @@ export function PageFrame({ path }: { path: string }) {
       </div>
       {!collapsed && (
         <div id="page-frame-detail" className="mx-auto max-w-6xl mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+          <NetworkStatus enabled={!collapsed} />
           {route.guide && <p className="basis-full sm:basis-auto sm:max-w-md" data-testid="page-frame-guide">{route.guide}</p>}
           {from.length > 0 && <span className="inline-flex flex-wrap items-center gap-1.5" data-testid="page-frame-upstream">Came from:{from.map(r => <Link key={r.path} href={r.path} className="underline underline-offset-2 min-h-11 inline-flex items-center hover:text-foreground" data-testid={`page-frame-from-${slug(r.path)}`}>{r.title}</Link>)}</span>}
           {next.length > 0 && <span className="inline-flex flex-wrap items-center gap-1.5" data-testid="page-frame-downstream">Next:{next.map(r => <Link key={r.path} href={r.path} className="inline-flex items-center gap-0.5 underline underline-offset-2 min-h-11 hover:text-foreground" data-testid={`page-frame-next-${slug(r.path)}`}>{r.title}<ArrowRight size={11} aria-hidden="true" /></Link>)}</span>}
