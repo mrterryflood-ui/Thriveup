@@ -30,6 +30,7 @@ downloads: https://us-fcc.box.com/v/bdc-public-data-downloads-specs.
    `hash_value: <token>`.
 
 In ThriveUp these live in the secrets `FCC_BDC_USERNAME` and `FCC_BDC_HASH_VALUE`
+(aliases accepted: `BROADBAND_USERNAME`, `BROADBAND_MAP_API`)
 and are consumed only by `server/fcc-bdc-client.ts`. When either is missing the
 client reports itself offline; it never substitutes data.
 

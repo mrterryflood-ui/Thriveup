@@ -77,8 +77,8 @@ export class FccBdcUnavailable extends Error {
 }
 
 function credentials(): { username: string; hash_value: string } | null {
-  const username = process.env.FCC_BDC_USERNAME?.trim();
-  // BROADBAND_MAP_API is the operator-chosen alias for the BDC token (hash_value).
+  // BROADBAND_USERNAME / BROADBAND_MAP_API are the operator-chosen aliases for the FCC username and BDC token (hash_value).
+  const username = (process.env.FCC_BDC_USERNAME ?? process.env.BROADBAND_USERNAME)?.trim();
   const hash_value = (process.env.FCC_BDC_HASH_VALUE ?? process.env.BROADBAND_MAP_API)?.trim();
   return username && hash_value ? { username, hash_value } : null;
 }
@@ -86,7 +86,7 @@ function credentials(): { username: string; hash_value: string } | null {
 /** Which half of the credential pair is missing, for truthful status reporting. */
 export function fccBdcMissingCredentials(): string[] {
   const missing: string[] = [];
-  if (!process.env.FCC_BDC_USERNAME?.trim()) missing.push("FCC_BDC_USERNAME");
+  if (!(process.env.FCC_BDC_USERNAME ?? process.env.BROADBAND_USERNAME)?.trim()) missing.push("FCC_BDC_USERNAME (or BROADBAND_USERNAME)");
   if (!(process.env.FCC_BDC_HASH_VALUE ?? process.env.BROADBAND_MAP_API)?.trim()) missing.push("FCC_BDC_HASH_VALUE (or BROADBAND_MAP_API)");
   return missing;
 }
