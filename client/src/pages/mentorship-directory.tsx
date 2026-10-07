@@ -453,7 +453,7 @@ const mentorshipPrograms: MentorshipProgram[] = [
     description: "Founded in 1989, ATI is the longest active technology incubator in the United States. Empowers university and community entrepreneurs through customized approaches to commercialize breakthrough innovations. Diversity and inclusion programs mentor minority founders.",
     programs: ["Startup Acceleration", "Technology Commercialization", "Minority Founder Mentoring", "Student Pitch Events"],
     badges: ["UT Austin", "Longest Active US Incubator", "Since 1989", "Tech Startups"],
-    ecosystemConnection: "ThriveUp Academy tech pathways. Better Science Lab/RPLICE research commercialization.",
+    ecosystemConnection: "ThriveUp tech pathways. Better Science Lab/RPLICE research commercialization.",
   },
   {
     id: "creative-action",
@@ -969,7 +969,7 @@ export default function MentorshipDirectoryPage() {
           <CardContent className="pt-6">
             <h3 className="font-semibold text-lg mb-2" data-testid="text-ecosystem-note-title">How ThriveUp Connects You</h3>
             <p className="text-sm text-muted-foreground mb-3">
-              ThriveUp Academy does not run these mentorship programs. We are the connective tissue — our 15-service-platform ecosystem routes you to the right program based on your zip code, needs, and goals. When you engage with any of our platforms (LifeBridge, Whole-Person Health, ISSS, TheHealthyBlkMan, etc.), we identify mentorship needs and connect you directly to these community partners.
+              ThriveUp does not run these mentorship programs. We are the connective tissue — our 15-service-platform ecosystem routes you to the right program based on your zip code, needs, and goals. When you engage with any of our platforms (LifeBridge, Whole-Person Health, ISSS, TheHealthyBlkMan, etc.), we identify mentorship needs and connect you directly to these community partners.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
               <div className="flex items-start gap-2">

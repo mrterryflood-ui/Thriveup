@@ -56,7 +56,7 @@ export default function ClinicalScreening() {
   }, []);
 
   useEffect(() => {
-    document.title = "Comprehensive Needs Assessment | ThriveUp Academy";
+    document.title = "Comprehensive Needs Assessment | ThriveUp";
     void loadInstruments();
   }, [loadInstruments]);
 
@@ -105,7 +105,7 @@ export default function ClinicalScreening() {
     <div style={base}>
       <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: "20px 40px" }}>
         <div style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "#6366f1", marginBottom: 4 }}>
-          ThriveUp Academy · Clinical Screening
+          ThriveUp · Clinical Screening
         </div>
         <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "#0f172a" }}>
           Comprehensive Needs Assessment

@@ -388,7 +388,7 @@ function buildNarrativeBlock(community: CommunityStream, impact: ImpactStream, b
 LIVE COMMUNITY INTELLIGENCE CONTEXT (pull from thrivingcommunitiesforall.com — verified ${new Date().toLocaleDateString()}):
 
 PLATFORM INFRASTRUCTURE:
-ThriveUp Academy operates a ${community.totalPlatforms}-platform community intelligence ecosystem serving families, nonprofits, and funders across a 50-state architecture with Texas-first deployment. The network spans ${Object.keys(community.domainBreakdown).length} service domains including ${domainLines}, providing coordinated community response across ${community.languagesSupported} languages.
+ThriveUp operates a ${community.totalPlatforms}-platform community intelligence ecosystem serving families, nonprofits, and funders across a 50-state architecture with Texas-first deployment. The network spans ${Object.keys(community.domainBreakdown).length} service domains including ${domainLines}, providing coordinated community response across ${community.languagesSupported} languages.
 
 MEASURED IMPACT (${impact.outcomeCount} outcome submissions across partner programs):
 • Participants served: ${impact.totalParticipantsServed.toLocaleString()}

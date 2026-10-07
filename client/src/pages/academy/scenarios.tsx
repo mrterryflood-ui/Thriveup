@@ -149,7 +149,7 @@ function LoadingSkeleton() {
 }
 
 export default function AcademyScenariosPage() {
-  useEffect(() => { document.title = 'Adventure Scenarios | ThriveUp Academy'; }, []);
+  useEffect(() => { document.title = 'Adventure Scenarios | ThriveUp'; }, []);
 
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
   const [activeRun, setActiveRun] = useState<ScenarioRun | null>(null);

@@ -60,7 +60,7 @@ Funding Mechanism:
 - Matching federal Chafee Independent Living Program funds
 
 V. TECHNOLOGICAL INFRASTRUCTURE
-Proposed Platform: ThriveUp Academy's Foster Youth Ecosystem
+Proposed Platform: ThriveUp's Foster Youth Ecosystem
 - Cross-domain life orchestration
 - Automated resource triggering
 - Human-in-the-loop governance

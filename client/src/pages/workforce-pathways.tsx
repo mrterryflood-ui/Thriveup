@@ -72,11 +72,11 @@ const WORKFORCE_PATHWAYS_SCHEMA = {
     position: i + 1,
     item: {
       "@type": "EducationalOccupationalProgram",
-      name: `${t.name} — Trade Sims (ThriveUp Academy)`,
+      name: `${t.name} — Trade Sims (ThriveUp)`,
       description: t.tagline,
       provider: {
         "@type": "Organization",
-        name: "ThriveUp Academy",
+        name: "ThriveUp",
         url: "https://ai-mastery-academy.replit.app/",
       },
       programPrerequisites: "None — free, open access, login optional",

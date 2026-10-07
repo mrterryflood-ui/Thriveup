@@ -190,7 +190,7 @@ function mdToDocxChildren(md) {
 function buildDoc(md, title) {
   const children = mdToDocxChildren(md);
   return new Document({
-    creator: "ThriveUp Academy",
+    creator: "ThriveUp",
     title,
     description: "Plain-language stakeholder brief",
     styles: {

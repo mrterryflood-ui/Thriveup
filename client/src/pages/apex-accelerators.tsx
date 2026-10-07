@@ -79,7 +79,7 @@ const apexServices = [
 
 const ecosystemBridges = [
   {
-    from: "ThriveUp Academy",
+    from: "ThriveUp",
     through: "APEX Accelerators",
     to: "Government Contracts",
     detail: "A ThriveUp graduate completes workforce training → gets certified through MCE → APEX counselor helps them bid on their first government contract",
@@ -123,7 +123,7 @@ const faqItems = [
   },
   {
     q: "How does APEX connect to ThriveUp and MCE?",
-    a: "ThriveUp Academy trains individuals and develops their workforce skills. MCE helps them form and certify their businesses. APEX Accelerators then bridge them into government contracting — helping navigate registrations, find opportunities, develop proposals, and win contracts. It's the final stage of our Cradle-to-Contract Pipeline.",
+    a: "ThriveUp trains individuals and develops their workforce skills. MCE helps them form and certify their businesses. APEX Accelerators then bridge them into government contracting — helping navigate registrations, find opportunities, develop proposals, and win contracts. It's the final stage of our Cradle-to-Contract Pipeline.",
   },
   {
     q: "What's the difference between APEX and SAM.gov?",
@@ -297,7 +297,7 @@ export default function ApexAcceleratorsPage() {
 
           <div className="flex flex-wrap items-center justify-center gap-2 text-sm mb-10">
             {[
-              { label: "ThriveUp Academy", color: "default" as const },
+              { label: "ThriveUp", color: "default" as const },
               { label: "Train & Certify", color: "secondary" as const },
               { label: "MCE", color: "default" as const },
               { label: "Form Business", color: "secondary" as const },

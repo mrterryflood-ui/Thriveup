@@ -447,7 +447,7 @@ const DOMAIN_RESOURCES: Record<string, ReferralRecommendation[]> = {
     {
       domain: "education_employment",
       urgency: "within_week",
-      resourceName: "ThriveUp Academy Trade Sims",
+      resourceName: "ThriveUp Trade Sims",
       resourceType: "Workforce training — credentialing",
       contactInfo: "Available on this platform at /academy/trade-sims",
       url: "/academy/trade-sims",

@@ -191,7 +191,7 @@ AI isn't just chatbots. It's reshaping entire industries — sometimes for bette
 ### Education AI — Personalizing Learning
 
 **What's working:**
-- Adaptive platforms like what ThriveUp Academy uses can adjust to each student's pace and learning style
+- Adaptive platforms like what ThriveUp uses can adjust to each student's pace and learning style
 - AI tutoring can provide 24/7 homework help and explanations
 - Automated grading frees teachers to spend more time teaching and mentoring
 
@@ -1163,7 +1163,7 @@ But concerns include:
 - Surveillance culture: Students who know they're being constantly monitored may take fewer intellectual risks
 
 **AI in Workforce Development**
-Programs like ThriveUp Academy use AI to personalize career preparation — matching training to individual strengths, adapting content to learning styles, and connecting participants to opportunities. When done well, this addresses real gaps in workforce development. When done poorly, it can reduce complex human career development to algorithmic recommendations.
+Programs like ThriveUp use AI to personalize career preparation — matching training to individual strengths, adapting content to learning styles, and connecting participants to opportunities. When done well, this addresses real gaps in workforce development. When done poorly, it can reduce complex human career development to algorithmic recommendations.
 
 ### Analysis Framework
 
@@ -1262,7 +1262,7 @@ AI's economic impact is not equally distributed:
 - Rural areas may have less access to AI training and new AI-created jobs
 - Workers nearing retirement have less time to retrain
 
-**This is why equitable AI education matters.** Programs that reach underserved communities — like ThriveUp Academy's focus on Central Texas communities — aren't just nice-to-have. They're essential for preventing AI from widening existing inequality.`,
+**This is why equitable AI education matters.** Programs that reach underserved communities — like ThriveUp's focus on Central Texas communities — aren't just nice-to-have. They're essential for preventing AI from widening existing inequality.`,
     },
     {
       id: "ai_912_explore_l3", moduleId: "ai_912_explore", lessonNumber: 3,

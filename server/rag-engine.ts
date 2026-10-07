@@ -32,13 +32,13 @@ interface KnowledgeChunk {
 
 const ECOSYSTEM_KNOWLEDGE: KnowledgeChunk[] = [
   {
-    source: "ecosystem-overview", category: "overview", title: "ThriveUp Academy Ecosystem Overview",
-    content: `ThriveUp Academy is a 24-platform AI-powered workforce development and community enablement ecosystem operated by Dr. Terry Flood, DHA. It serves under-resourced communities in Central Texas (Austin, Manor, Pflugerville) with three regional hubs. The ecosystem addresses the full human lifecycle: education (Pre-K through adult), workforce development, health equity, veteran services, housing stability, crisis prevention, and contractor/business enablement. Every platform is free for individuals. The hub at thrivingcommunitiesforall.com coordinates all 24 platforms through a heartbeat-based compliance system with directive tracking, fidelity grading (A through F), and automated work chaining. The crisis continuum: Prevention → Early Warning → Crisis Support → Stabilization → Recovery & Growth. Platform #21 (Pinnacle Business Conglomerate) extends the ecosystem into minority contractor enablement and organizational consulting.`,
+    source: "ecosystem-overview", category: "overview", title: "ThriveUp Ecosystem Overview",
+    content: `ThriveUp is a 24-platform AI-powered workforce development and community enablement ecosystem operated by Dr. Terry Flood, DHA. It serves under-resourced communities in Central Texas (Austin, Manor, Pflugerville) with three regional hubs. The ecosystem addresses the full human lifecycle: education (Pre-K through adult), workforce development, health equity, veteran services, housing stability, crisis prevention, and contractor/business enablement. Every platform is free for individuals. The hub at thrivingcommunitiesforall.com coordinates all 24 platforms through a heartbeat-based compliance system with directive tracking, fidelity grading (A through F), and automated work chaining. The crisis continuum: Prevention → Early Warning → Crisis Support → Stabilization → Recovery & Growth. Platform #21 (Pinnacle Business Conglomerate) extends the ecosystem into minority contractor enablement and organizational consulting.`,
     keywords: ["thriveup", "ecosystem", "overview", "platforms", "terry flood", "austin", "manor", "pflugerville", "how many", "what is"],
   },
   {
     source: "ecosystem-overview", category: "grants", title: "Active Grant Portfolio — 5 Grants",
-    content: `ThriveUp Academy has 5 active grant opportunities:
+    content: `ThriveUp has 5 active grant opportunities:
 1. WIOA (Workforce Innovation & Opportunity Act) — $200K–$500K. Focus: workforce training, career pathways, job readiness, employer engagement. Aligned platforms: 8.
 2. Foundation Grant — $100K–$500K. Focus: community impact, education equity, wraparound services. Aligned platforms: 3.
 3. St. David's Foundation — up to $1M, opens March 30, 2026. Focus: health equity, maternal health, mental health, community health workers. Aligned platforms: 12.
@@ -48,7 +48,7 @@ const ECOSYSTEM_KNOWLEDGE: KnowledgeChunk[] = [
   },
   {
     source: "ecosystem-overview", category: "regional", title: "Regional Hub Strategy — Austin, Manor, Pflugerville",
-    content: `ThriveUp Academy operates three regional community hubs in Central Texas:
+    content: `ThriveUp operates three regional community hubs in Central Texas:
 1. Austin Hub — Primary hub. Austin's housing affordability crisis (median home $429K–$435K, only 2 of 75 zip codes affordable). Focus: workforce development, housing stability, substance abuse prevention, coalition building.
 2. Manor Hub — Rural/suburban community. Focus: youth development, family support, community resource navigation, agricultural workforce pathways.
 3. Pflugerville Hub — Rapidly growing suburban community. Focus: newcomer integration, multicultural services, youth education, workforce training for growing tech corridor.
@@ -57,7 +57,7 @@ Each hub adapts the same 24-platform ecosystem to local context using implementa
   },
   {
     source: "ecosystem-overview", category: "methodology", title: "MAP-GAP Framework — Continuous Quality Improvement",
-    content: `MAP-GAP is ThriveUp Academy's continuous quality improvement framework:
+    content: `MAP-GAP is ThriveUp's continuous quality improvement framework:
 M — Measure: Observe current state using data, heartbeats, fidelity scores, compliance reports
 A — Analyze: Identify patterns, gaps, underperforming platforms, missed deadlines
 P — Plan: Prioritize fixes, create action items, assign directives
@@ -86,7 +86,7 @@ MAP-GAP is used for: platform audits, grant readiness assessments, compliance sw
   },
   {
     source: "ecosystem-overview", category: "technology", title: "AI & Technology Stack — 4-Provider Collaborative Intelligence",
-    content: `ThriveUp Academy technology:
+    content: `ThriveUp technology:
 - AI Companions: Spark (youth-facing, age-adaptive K-12) and Sparky (adult-facing for parents, veterans, returning citizens)
 - 4-Provider Collaborative AI (ordered fallback chain): 1) Google Gemini 2.0 Flash (primary, free tier), 2) Anthropic Claude Haiku 4.5 (secondary, collaborative perspective), 3) OpenAI GPT-4o-mini (tertiary), 4) Replit AI Integrations GPT-5-nano (quaternary)
 - Collaborative Multi-AI Review: Multiple AI models independently analyze the same problem, then a synthesis AI merges their perspectives into consensus. This is NOT adversarial — it's collaborative intelligence bringing different viewpoints so nothing is missed. Used by RPLICE and MCE for quality assurance.
@@ -139,7 +139,7 @@ Three-layer architecture: Learn It (Academy) → Apply It (RPLICE/MCE/Ecosystem)
   },
   {
     source: "ecosystem-overview", category: "leadership", title: "Dr. Terry Flood — President",
-    content: `Dr. Terry Flood, DHA (Doctor of Healthcare Administration) is the President of ThriveUp Academy and The Collaborative Advocate (VOSB). A veteran and healthcare executive, Dr. Flood built the 24-platform ecosystem to address systemic gaps in community services. Based in Central Texas, serving Austin, Manor, and Pflugerville communities. Vision: "No single platform can solve everything. Together, 24 platforms create a crisis continuum from Prevention → Early Warning → Crisis Support → Stabilization → Recovery & Growth." Email: president@thecollaborativeadvocate.org.`,
+    content: `Dr. Terry Flood, DHA (Doctor of Healthcare Administration) is the President of ThriveUp and The Collaborative Advocate (VOSB). A veteran and healthcare executive, Dr. Flood built the 24-platform ecosystem to address systemic gaps in community services. Based in Central Texas, serving Austin, Manor, and Pflugerville communities. Vision: "No single platform can solve everything. Together, 24 platforms create a crisis continuum from Prevention → Early Warning → Crisis Support → Stabilization → Recovery & Growth." Email: president@thecollaborativeadvocate.org.`,
     keywords: ["terry flood", "founder", "ceo", "leadership", "veteran", "dha", "healthcare", "who"],
   },
   {
@@ -283,8 +283,8 @@ This pipeline is grant-defensible under WIOA (workforce development), Foundation
     keywords: ["mce", "pinnacle", "blue wave", "ushcc", "namc", "minority contractor", "pipeline", "integration", "proposal", "sam.gov", "certification", "teaming", "contract", "bid", "supplier development", "cross-platform"],
   },
   {
-    source: "strategic-framework", category: "strategy", title: "What ThriveUp Academy Actually Is — System of Systems",
-    content: `ThriveUp Academy is NOT a collection of platforms. It is a governed system of systems — a self-governing, closed-loop human services operating system. Most organizations operate at the level of tools (apps, dashboards) or programs (coordinated services). ThriveUp has crossed into the third level: a feedback-driven environment that learns, adapts, and enforces behavior. The system doesn't just deliver services — it governs how services behave, improve, and prove impact. This is rare and unprecedented. The platforms work in parallel, not in series — each is self-sufficient, standing on its own while the hub coordinates. If the hub goes down, all 26 platforms keep doing their jobs. It's not a chain where one broken link stops everything — it's a network where each node is empowered and the connections make the whole greater than the parts.`,
+    source: "strategic-framework", category: "strategy", title: "What ThriveUp Actually Is — System of Systems",
+    content: `ThriveUp is NOT a collection of platforms. It is a governed system of systems — a self-governing, closed-loop human services operating system. Most organizations operate at the level of tools (apps, dashboards) or programs (coordinated services). ThriveUp has crossed into the third level: a feedback-driven environment that learns, adapts, and enforces behavior. The system doesn't just deliver services — it governs how services behave, improve, and prove impact. This is rare and unprecedented. The platforms work in parallel, not in series — each is self-sufficient, standing on its own while the hub coordinates. If the hub goes down, all 26 platforms keep doing their jobs. It's not a chain where one broken link stops everything — it's a network where each node is empowered and the connections make the whole greater than the parts.`,
     keywords: ["what is", "different", "unique", "system of systems", "operating system", "why", "special", "describe", "explain", "parallel", "network"],
   },
   {
@@ -313,7 +313,7 @@ WHAT IT DOES NOT MEASURE: Whether platforms are online. All 26 platform URLs are
 
 COMMON MISREAD TO AVOID: Do NOT interpret a fidelity percentage below 100% as "X platforms are disconnected." That is factually wrong. A platform can be 100% online (serving users every day) and have a fidelity grade below A because it hasn't yet acknowledged a directive.
 
-EXTERNAL PARTNER PLATFORMS: Organizations with their own domains and technology stacks (e.g., www.bettersciencelab.com, lifetransitionsaid.org, vetmissiontransition.com) cannot send automated heartbeats to ThriveUp Academy's hub — they are separate organizations. They integrate via API and data-sharing agreements. Their participation is counted separately from internal governance fidelity.
+EXTERNAL PARTNER PLATFORMS: Organizations with their own domains and technology stacks (e.g., www.bettersciencelab.com, lifetransitionsaid.org, vetmissiontransition.com) cannot send automated heartbeats to ThriveUp's hub — they are separate organizations. They integrate via API and data-sharing agreements. Their participation is counted separately from internal governance fidelity.
 
 CORRECT FRAMING FOR FUNDERS: "ThriveUp operates a self-governing compliance infrastructure where every internally-operated platform acknowledges directives and proves compliance with evidence URLs. The 44% current directive acknowledgment rate reflects the early-stage governance ramp-up as platforms complete onboarding to the directive system — not any platform being offline."
 
@@ -352,7 +352,7 @@ NEVER say: "17/26 platforms disconnected" or "only 9 platforms connected" — th
   },
   {
     source: "governance", category: "governance", title: "Governance Framework — Who Governs the System",
-    content: `ThriveUp Academy governance operates at three levels:
+    content: `ThriveUp governance operates at three levels:
 STRATEGIC GOVERNANCE (Board Level): Dr. Terry Flood, DHA serves as president with executive authority over ecosystem direction, grant strategy, and platform standards. The Collaborative Advocate (VOSB) provides organizational anchoring. An Advisory Board of community leaders, subject matter experts, and institutional partners provides oversight.
 OPERATIONAL GOVERNANCE (System Level): The ecosystem hub at thrivingcommunitiesforall.com serves as the central governing authority. It issues directives, grades compliance, verifies deliverables, and enforces quality standards across all 24 platforms. RPLICE (Better Science Lab) serves as the mandatory quality gate — all grants, documents, and submissions require RPLICE review before release.
 PLATFORM GOVERNANCE (Platform Level): Each platform maintains operational autonomy within ecosystem standards. Platforms must: send heartbeats every 15 minutes, respond to directives with substantive evidence, maintain minimum fidelity grade of C to remain in good standing, and participate in MAP-GAP continuous improvement cycles.
@@ -761,7 +761,7 @@ All accessible at /resource-directory. Education is the #1 protective factor.`,
   },
   {
     source: "platform-pitch", category: "platform", title: "ThriveUp for Foundations & Nonprofits — Verified Facts and Value Proposition",
-    content: `ThriveUp Academy is a national community-infrastructure platform connecting people to grant funding, aligning service delivery with workforce development, and producing measurable community impact. Here is the accurate value proposition for foundations and nonprofits:
+    content: `ThriveUp is a national community-infrastructure platform connecting people to grant funding, aligning service delivery with workforce development, and producing measurable community impact. Here is the accurate value proposition for foundations and nonprofits:
 
 GRANT INTELLIGENCE (verified):
 - 651 grants tracked (primary-source SQL count 2026-05-17): Grants.gov 369, USASpending 198, SAM.gov 36, State/local 18, Manual/foundation 12, Other federal 8, Foundation/corporate 4, Miscellaneous 6.
@@ -980,7 +980,7 @@ export async function retrieveRelevantChunks(query: string, topK: number = 10): 
   return scored.filter(s => s.score > 0).slice(0, topK).map(s => s.chunk);
 }
 
-const SYSTEM_PROMPT = `You are the ThriveUp Academy Ecosystem AI — the decision intelligence layer powering a self-governing, 26-platform Autonomous Community Operating System (ACOS). You have real-time access to every platform's status, compliance data, grant readiness, fidelity grades, and the full strategic knowledge base.
+const SYSTEM_PROMPT = `You are the ThriveUp Ecosystem AI — the decision intelligence layer powering a self-governing, 26-platform Autonomous Community Operating System (ACOS). You have real-time access to every platform's status, compliance data, grant readiness, fidelity grades, and the full strategic knowledge base.
 
 You serve Dr. Terry Flood (President of TCAF — never "CEO"), staff, partners, grant reviewers, funders, community members, and the platforms themselves. You are not a chatbot — you are operational intelligence.
 

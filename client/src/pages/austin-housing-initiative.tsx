@@ -44,7 +44,7 @@ const ECOSYSTEM_PLATFORMS = [
       { name: "Mission Transition", role: "Career planning, identity transition", impact: "Military-to-civilian workforce" },
       { name: "MCE", role: "Minority business development, certifications", impact: "Job seekers → business owners" },
       { name: "Collaborative Advocate", role: "VOSB service delivery, consulting", impact: "Federal contracting pipeline" },
-      { name: "ThriveUp Academy", role: "Cross-platform coordination & workforce hub", impact: "Workforce tracking & outcomes" },
+      { name: "ThriveUp", role: "Cross-platform coordination & workforce hub", impact: "Workforce tracking & outcomes" },
     ],
   },
   {
@@ -88,13 +88,13 @@ const ST_DAVIDS_ALIGNMENT = [
 ];
 
 const GRANT_PIPELINE = [
-  { name: "DFC Grant", amount: "$625,000", deadline: "April 14, 2026", status: "preparing", entity: "ThriveUp Academy" },
-  { name: "St. David's Foundation", amount: "Up to $1M", deadline: "Opens March 30, 2026", status: "priority", entity: "ThriveUp Academy" },
-  { name: "WIOA Workforce", amount: "$200K–$500K", deadline: "Rolling", status: "active", entity: "ThriveUp Academy" },
-  { name: "Foundation Grants", amount: "$100K–$500K", deadline: "Rolling LOI", status: "active", entity: "ThriveUp Academy" },
-  { name: "SSG Fox VA Suicide Prevention", amount: "Up to $750K", deadline: "June 12–18, 2026", status: "upcoming", entity: "ThriveUp Academy" },
-  { name: "Pflugerville PCDC Community Grant", amount: "$150K+", deadline: "Rolling", status: "discovery", entity: "ThriveUp Academy" },
-  { name: "Travis County CDBG", amount: "TBD", deadline: "March 31, 2026 Survey", status: "discovery", entity: "ThriveUp Academy" },
+  { name: "DFC Grant", amount: "$625,000", deadline: "April 14, 2026", status: "preparing", entity: "ThriveUp" },
+  { name: "St. David's Foundation", amount: "Up to $1M", deadline: "Opens March 30, 2026", status: "priority", entity: "ThriveUp" },
+  { name: "WIOA Workforce", amount: "$200K–$500K", deadline: "Rolling", status: "active", entity: "ThriveUp" },
+  { name: "Foundation Grants", amount: "$100K–$500K", deadline: "Rolling LOI", status: "active", entity: "ThriveUp" },
+  { name: "SSG Fox VA Suicide Prevention", amount: "Up to $750K", deadline: "June 12–18, 2026", status: "upcoming", entity: "ThriveUp" },
+  { name: "Pflugerville PCDC Community Grant", amount: "$150K+", deadline: "Rolling", status: "discovery", entity: "ThriveUp" },
+  { name: "Travis County CDBG", amount: "TBD", deadline: "March 31, 2026 Survey", status: "discovery", entity: "ThriveUp" },
 ];
 
 const OUTCOMES = [
@@ -127,7 +127,7 @@ export default function AustinHousingInitiativePage() {
   const [activeTab, setActiveTab] = useState("crisis");
 
   useEffect(() => {
-    document.title = "Austin Housing Initiative | ThriveUp Academy";
+    document.title = "Austin Housing Initiative | ThriveUp";
   }, []);
 
   return (
@@ -646,7 +646,7 @@ export default function AustinHousingInitiativePage() {
             <h3 className="text-2xl font-bold mb-2">This isn't a proposal to build something.</h3>
             <p className="text-xl text-blue-200 mb-4">It's built. It's running. 15 service platforms heartbeating right now.</p>
             <div className="flex justify-center gap-3 flex-wrap">
-              <Badge className="bg-white/20 border-white/30 text-white">ThriveUp Academy | 501(c)(3)</Badge>
+              <Badge className="bg-white/20 border-white/30 text-white">ThriveUp | 501(c)(3)</Badge>
               <Badge className="bg-white/20 border-white/30 text-white">Dr. Terry Flood, President</Badge>
               <Badge className="bg-white/20 border-white/30 text-white">thrivingcommunitiesforall.com</Badge>
             </div>

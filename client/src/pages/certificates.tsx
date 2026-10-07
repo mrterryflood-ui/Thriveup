@@ -18,7 +18,7 @@ export default function CertificatesPage() {
     enabled: isAuthenticated,
   });
 
-  useEffect(() => { document.title = "Certificates | ThriveUp Academy"; }, []);
+  useEffect(() => { document.title = "Certificates | ThriveUp"; }, []);
 
   if (authLoading) {
     return (
@@ -145,7 +145,7 @@ export function CertificateViewPage() {
   });
 
   useEffect(() => {
-    document.title = cert ? `${cert.levelTitle} Certificate | ThriveUp Academy` : "Certificate | ThriveUp Academy";
+    document.title = cert ? `${cert.levelTitle} Certificate | ThriveUp` : "Certificate | ThriveUp";
   }, [cert]);
 
   if (isLoading) {
@@ -257,7 +257,7 @@ export function CertificateViewPage() {
               style={{ color: "#b8942e" }}
               data-testid="text-certificate-subtitle"
             >
-              ThriveUp Academy
+              ThriveUp
             </p>
 
             <hr
@@ -285,7 +285,7 @@ export function CertificateViewPage() {
               <span className="font-semibold" data-testid="text-certificate-level">
                 {cert.levelTitle}
               </span>{" "}
-              in the ThriveUp Academy Curriculum.
+              in the ThriveUp Curriculum.
             </p>
 
             <hr
@@ -314,7 +314,7 @@ export function CertificateViewPage() {
                 style={{ borderColor: "#c9a84c" }}
               />
               <p className="text-sm font-medium" style={{ color: "#8b6914" }}>
-                ThriveUp Academy Faculty
+                ThriveUp Faculty
               </p>
             </div>
 

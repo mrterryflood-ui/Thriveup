@@ -547,7 +547,7 @@ export const ELECTRICAL_LESSONS: ElectricalLessonContent[] = [
     engineMode: "linear-dc",
     concept: {
       blurb:
-        "You've worked through 14 days of fundamentals. Now design a real circuit from scratch: pick a goal, lay it out, simulate it, explain your component choices, and pass an AI-tutor oral exam. Pass the capstone and your ThriveUp Academy profile shows the Electrical Fundamentals badge — usable as evidence of prior learning at ACC and several NCCER-affiliated pre-apprenticeship programs.",
+        "You've worked through 14 days of fundamentals. Now design a real circuit from scratch: pick a goal, lay it out, simulate it, explain your component choices, and pass an AI-tutor oral exam. Pass the capstone and your ThriveUp profile shows the Electrical Fundamentals badge — usable as evidence of prior learning at ACC and several NCCER-affiliated pre-apprenticeship programs.",
       keyTerms: [
         { term: "Design intent", definition: "What the circuit is supposed to do, in plain language." },
         { term: "Component selection", definition: "Choosing parts with the right values AND ratings for the job." },
@@ -569,7 +569,7 @@ export const ELECTRICAL_LESSONS: ElectricalLessonContent[] = [
       prompt: "Free design — anything you want to try.",
     },
     credentialPathway:
-      "On capstone PASS: ThriveUp Academy issues Electrical Fundamentals badge. Submit with your application to ACC's pre-apprenticeship cohort or a sponsoring electrical contractor. Three TCAF coalition contractors hire badge-holders directly.",
+      "On capstone PASS: ThriveUp issues Electrical Fundamentals badge. Submit with your application to ACC's pre-apprenticeship cohort or a sponsoring electrical contractor. Three TCAF coalition contractors hire badge-holders directly.",
   },
 ];
 

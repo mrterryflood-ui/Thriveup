@@ -535,7 +535,7 @@ function LoadingSkeleton() {
 
 export default function AcademyCareersPage() {
   useEffect(() => {
-    document.title = "Career Pipeline | ThriveUp Academy";
+    document.title = "Career Pipeline | ThriveUp";
   }, []);
 
   const [activeCategory, setActiveCategory] = useState("All");

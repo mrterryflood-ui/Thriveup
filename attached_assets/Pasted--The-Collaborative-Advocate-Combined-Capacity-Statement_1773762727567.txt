@@ -48,7 +48,7 @@ These platforms are not independent products. They form an **interdependent tech
 
 ---
 
-## PLATFORM 01: THRIVEUP ACADEMY
+## PLATFORM 01: THRIVEUP
 
 ### Overview
 AI-powered workforce development and community enablement platform. The operational backbone for discovering, winning, executing, and sustaining federal grants. Serves as the grant infrastructure engine across the entire ecosystem.
@@ -152,7 +152,7 @@ Covers all 14 WIOA Title I Youth Program Elements:
 - Floor price: Component of bundled ecosystem — not sold standalone
 
 ### Reference URLs
-- Platform: [ThriveUp Academy URL — to be assigned]
+- Platform: [ThriveUp URL — to be assigned]
 - Perfectly Different: https://perfectlydifferent.app
 - Donations: https://donorbox.org/perfectly-different
 
@@ -1441,7 +1441,7 @@ The following matrix shows how every platform connects to every other platform. 
 | SHIELD/ATLAS | $3,500,000+ | Contract vehicle |
 | The Incubator | $1,500,000+ | SaaS or enterprise |
 | RPLICE | Contact for quote | Enterprise or academic |
-| ThriveUp Academy | Bundled | Grant infrastructure |
+| ThriveUp | Bundled | Grant infrastructure |
 | M2C Transition | Bundled | Free for vets, employer SaaS |
 | LifeBridge | Bundled | CHW SaaS, 211 replacement |
 | Perfectly Different | Bundled | School district SaaS |

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-ThriveUp Academy is a production Node/Express + React/Vite platform backed by PostgreSQL and Replit Auth. It mixes public informational and intake surfaces with authenticated internal workflows for grant operations, ecosystem coordination, benefits navigation, participant support, and AI-assisted tools. The highest-risk production concerns are broken public/authenticated boundaries, leaked service-to-service credentials, and public routes that can trigger paid model calls or mutate internal records.
+ThriveUp is a production Node/Express + React/Vite platform backed by PostgreSQL and Replit Auth. It mixes public informational and intake surfaces with authenticated internal workflows for grant operations, ecosystem coordination, benefits navigation, participant support, and AI-assisted tools. The highest-risk production concerns are broken public/authenticated boundaries, leaked service-to-service credentials, and public routes that can trigger paid model calls or mutate internal records.
 
 ## Assets
 

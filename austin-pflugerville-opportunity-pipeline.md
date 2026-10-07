@@ -1,4 +1,4 @@
-# ThriveUp Academy — Austin and Pflugerville Daily Opportunity Pipeline
+# ThriveUp — Austin and Pflugerville Daily Opportunity Pipeline
 ## Comprehensive Brief on Grants, State and Federal Opportunities, and Interstate 35 Corridor Contracts
 ### Prepared March 19, 2026 — Internal RPLICE quality review required before any submission
 
@@ -6,7 +6,7 @@
 
 ## HOW TO READ THIS BRIEF
 
-This brief is the daily working list of grants, state and federal opportunities, and Interstate 35 construction contracts that ThriveUp Academy is tracking for Austin and Pflugerville. It is written so any reader can use it — a board member, an executive director, a city staffer, a partner organization, or a funder. The first time an acronym appears, it is spelled out in full. A glossary at the end lists every acronym used.
+This brief is the daily working list of grants, state and federal opportunities, and Interstate 35 construction contracts that ThriveUp is tracking for Austin and Pflugerville. It is written so any reader can use it — a board member, an executive director, a city staffer, a partner organization, or a funder. The first time an acronym appears, it is spelled out in full. A glossary at the end lists every acronym used.
 
 **The bottom line in one paragraph:** Within 90 days, ThriveUp can pursue between $2 million and $5 million in active grants, plus subcontracting work along the Interstate 35 corridor. The most time-sensitive deadlines are the Travis County Community Development Block Grant survey (March 31), the St. David's Foundation opening (March 30), and the Draper Family Charitable Foundation grant (April 14). Everything below is filterable by source, timeline, and dollar size.
 
@@ -48,7 +48,7 @@ Pflugerville is a federal Community Development Block Grant entitlement city. Th
 | 13 | **Pflugerville Community Development Block Grant program** | Varies | No open application listed yet — contact the city | Call the Community Development office for the Fiscal Year 2026–27 timeline |
 | 14 | **Pflugerville Community Development Corporation Community Engagement Grant** | Varies (recent example: $42,000) | Check pfdevelopment.com | Apply for workforce-training program funding |
 | 15 | **Pflugerville Community Development Corporation Workforce Development Partnerships** | Up to $150,000 in matching grants | Active with Texas Workforce Commission | Partner with Workforce Solutions Capital Area |
-| 16 | **Pflugerville Independent School District Career and Technical Education partnership** | Partnership-based | Active | Propose ThriveUp Academy integration with the school district's Career and Technical Education programs |
+| 16 | **Pflugerville Independent School District Career and Technical Education partnership** | Partnership-based | Active | Propose ThriveUp integration with the school district's Career and Technical Education programs |
 | 17 | **Pflugerville Community Development Corporation Business PFirst Program** | Business support services | Active | Connect Minority Center of Excellence clients to Pflugerville business resources |
 
 ### Pflugerville key contacts
@@ -272,4 +272,4 @@ RPLICE stands for Research, Planning, Logistics, Implementation, Compliance, Eva
 ---
 
 *All submissions must pass the RPLICE quality gate before delivery to Dr. Flood or to a funder.*
-*Prepared by ThriveUp Academy — thrivingcommunitiesforall.com*
+*Prepared by ThriveUp — thrivingcommunitiesforall.com*

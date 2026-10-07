@@ -1989,7 +1989,7 @@ export function registerGrantPathProRoutes(app: Express) {
         .limit(500);
       return res.json({
         connected: true,
-        platform: "ThriveUp Academy",
+        platform: "ThriveUp",
         inboundEndpoint: "/api/inbound/grantpathpro",
         eventsReceived: countRows.length,
         lastEventAt: latest?.receivedAt?.toISOString() ?? null,
@@ -2321,7 +2321,7 @@ Write 500-700 words in formal HUD grant language. Plain paragraphs, no markdown 
     const baseUrl = `https://${host}`;
 
     return res.json({
-      platform: "ThriveUp Academy",
+      platform: "ThriveUp",
       inboundEndpoint: `${baseUrl}/api/inbound/grantpathpro`,
       intelligenceEndpoint: `${baseUrl}/api/inbound/grantpathpro/intelligence`,
       statusEndpoint: `${baseUrl}/api/inbound/grantpathpro/status`,

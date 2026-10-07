@@ -135,7 +135,7 @@ export default function QuizPage() {
     },
   });
 
-  useEffect(() => { document.title = "Quiz | ThriveUp Academy"; }, []);
+  useEffect(() => { document.title = "Quiz | ThriveUp"; }, []);
 
   if (isLoading) {
     return (

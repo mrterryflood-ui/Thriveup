@@ -30,7 +30,7 @@ const storySteps: StoryStep[] = [
     title: "Discovery",
     description: "The Incubator detects a DFC opportunity on SAM.gov. AI scores it 94% fit. Alert sent to the team.",
     icon: Search,
-    activePlatforms: ["The Incubator", "ThriveUp Academy"],
+    activePlatforms: ["The Incubator", "ThriveUp"],
     supportingPlatforms: ["MCE", "LifeBridge"],
     details: [
       "Automated SAM.gov scanning identifies new Drug-Free Communities (DFC) grant posting",
@@ -46,7 +46,7 @@ const storySteps: StoryStep[] = [
     title: "Assessment",
     description: "ThriveUp's Community Map pulls CDC, Census, SAMHSA data. Community readiness assessment launched.",
     icon: MapPin,
-    activePlatforms: ["ThriveUp Academy", "LifeBridge"],
+    activePlatforms: ["ThriveUp", "LifeBridge"],
     supportingPlatforms: ["RPLICE", "Sankofa Health"],
     details: [
       "Community Map aggregates real-time data from CDC WONDER, Census ACS, and SAMHSA NSDUH",
@@ -62,7 +62,7 @@ const storySteps: StoryStep[] = [
     title: "Coalition Building",
     description: "Coalition Dashboard activates 12-sector mapping. Partners identified across all required sectors.",
     icon: Users,
-    activePlatforms: ["ThriveUp Academy", "MCE", "M2C Transition"],
+    activePlatforms: ["ThriveUp", "MCE", "M2C Transition"],
     supportingPlatforms: ["LifeBridge", "The Incubator"],
     details: [
       "Coalition Dashboard maps all 12 required DFC sectors with current coverage",
@@ -78,7 +78,7 @@ const storySteps: StoryStep[] = [
     title: "Evidence Base",
     description: "RPLICE's evidence registry identifies matching evidence-based programs for the community's needs.",
     icon: BookOpen,
-    activePlatforms: ["RPLICE", "ThriveUp Academy", "Sankofa Health"],
+    activePlatforms: ["RPLICE", "ThriveUp", "Sankofa Health"],
     supportingPlatforms: ["LifeBridge", "Perfectly Different"],
     details: [
       "RPLICE evidence registry queries for EBPs matching identified risk factors",
@@ -94,7 +94,7 @@ const storySteps: StoryStep[] = [
     title: "Application",
     description: "Grant Narrative Builder pulls live data from all activated platforms. Logic Model auto-populates.",
     icon: FileText,
-    activePlatforms: ["ThriveUp Academy", "The Incubator", "RPLICE"],
+    activePlatforms: ["ThriveUp", "The Incubator", "RPLICE"],
     supportingPlatforms: ["MCE", "LifeBridge", "Sankofa Health"],
     details: [
       "Grant Narrative Builder pulls real-time data from all activated platforms",
@@ -110,7 +110,7 @@ const storySteps: StoryStep[] = [
     title: "AWARDED!",
     description: "Post-Award Management activates. Staffing plan built. Facilities identified. Compliance calendar set.",
     icon: Award,
-    activePlatforms: ["ThriveUp Academy", "The Incubator"],
+    activePlatforms: ["ThriveUp", "The Incubator"],
     supportingPlatforms: ["MCE", "LifeBridge", "M2C Transition", "RPLICE"],
     details: [
       "Post-Award Management module activates with project setup wizard",
@@ -127,7 +127,7 @@ const storySteps: StoryStep[] = [
     title: "Execution",
     description: "Prevention curriculum delivered. Parent education launched. Coalition meets monthly.",
     icon: Rocket,
-    activePlatforms: ["ThriveUp Academy", "RPLICE", "Sankofa Health", "LifeBridge"],
+    activePlatforms: ["ThriveUp", "RPLICE", "Sankofa Health", "LifeBridge"],
     supportingPlatforms: ["MCE", "M2C Transition", "Perfectly Different", "SafeReport"],
     details: [
       "Prevention curriculum sessions delivered to youth with fidelity monitoring",
@@ -144,7 +144,7 @@ const storySteps: StoryStep[] = [
     title: "Measurement",
     description: "RPLICE tracks RE-AIM framework. DFC Command Center shows real-time metrics across all programs.",
     icon: BarChart3,
-    activePlatforms: ["RPLICE", "ThriveUp Academy"],
+    activePlatforms: ["RPLICE", "ThriveUp"],
     supportingPlatforms: ["Sankofa Health", "SafeReport", "LifeBridge"],
     details: [
       "RPLICE tracks RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance)",
@@ -160,7 +160,7 @@ const storySteps: StoryStep[] = [
     title: "Sustain & Grow",
     description: "MAP-GAP CQI runs continuous improvement. Sustainability plan builds alternative funding streams.",
     icon: TrendingUp,
-    activePlatforms: ["ThriveUp Academy", "The Incubator", "MCE"],
+    activePlatforms: ["ThriveUp", "The Incubator", "MCE"],
     supportingPlatforms: ["RPLICE", "LifeBridge", "M2C Transition"],
     details: [
       "MAP-GAP CQI engine runs continuous quality improvement cycles",
@@ -177,7 +177,7 @@ const storySteps: StoryStep[] = [
     description: `Data flows between ALL ${SERVICE_PLATFORM_COUNT} service platforms throughout this journey, creating a living intelligence network.`,
     icon: Globe,
     activePlatforms: [
-      "ThriveUp Academy", "The Incubator", "MCE", "LifeBridge", "RPLICE",
+      "ThriveUp", "The Incubator", "MCE", "LifeBridge", "RPLICE",
       "Sankofa Health", "M2C Transition", "SafeReport", "Perfectly Different",
     ],
     supportingPlatforms: [],
@@ -206,7 +206,7 @@ export default function EcosystemStoryPage() {
       <div className="space-y-2">
         <h1 className="text-3xl font-bold" data-testid="text-story-title">The Ecosystem in Action</h1>
         <p className="text-muted-foreground">
-          An illustrative walkthrough of how ThriveUp Academy could pursue and execute a Drug-Free Communities grant — showing all {SERVICE_PLATFORM_COUNT} platforms working together.
+          An illustrative walkthrough of how ThriveUp could pursue and execute a Drug-Free Communities grant — showing all {SERVICE_PLATFORM_COUNT} platforms working together.
         </p>
         <Badge variant="outline" className="text-xs" data-testid="badge-illustrative-scenario">
           Illustrative scenario — figures are examples, not actual awards or outcomes
@@ -365,7 +365,7 @@ export default function EcosystemStoryPage() {
         <h3 className="font-semibold mb-4" data-testid="text-platform-flow-title">Platform Data Flow</h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
           {[
-            "ThriveUp Academy", "The Incubator", "MCE", "LifeBridge", "RPLICE",
+            "ThriveUp", "The Incubator", "MCE", "LifeBridge", "RPLICE",
             "Sankofa Health", "M2C Transition", "SafeReport", "Perfectly Different",
             "ParentConnect", "FiscalBridge", "Compliance Pro", "Data Insights", "Grant Navigator",
           ].map((platform) => {

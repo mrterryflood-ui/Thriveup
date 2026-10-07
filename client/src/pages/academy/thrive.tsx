@@ -234,7 +234,7 @@ function LoadingSkeleton() {
 }
 
 export default function AcademyThrivePage() {
-  useEffect(() => { document.title = 'Thrive Score | ThriveUp Academy'; }, []);
+  useEffect(() => { document.title = 'Thrive Score | ThriveUp'; }, []);
 
   const { toast } = useToast();
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();

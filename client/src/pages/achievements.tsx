@@ -64,7 +64,7 @@ export default function AchievementsPage() {
     queryKey: ["/api/achievements"],
   });
 
-  useEffect(() => { document.title = "Achievements | ThriveUp Academy"; }, []);
+  useEffect(() => { document.title = "Achievements | ThriveUp"; }, []);
 
   if (isLoading) {
     return (

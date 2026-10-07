@@ -1,4 +1,4 @@
-# ThriveUp Academy — Grant Readiness & Strategic Integration Assessment
+# ThriveUp — Grant Readiness & Strategic Integration Assessment
 
 **Prepared for:** Dr. Terry Flood, DHA & Meredith Sisnett
 **Date:** March 16, 2026
@@ -9,7 +9,7 @@
 
 ## 1. HONEST ASSESSMENT: WHERE YOU ACTUALLY STAND
 
-ThriveUp Academy is, on paper, one of the most comprehensive community support platforms I've ever seen inventoried. 150+ features across 14 modules, serving 6 populations, touching every major federal funding stream. That's the good news.
+ThriveUp is, on paper, one of the most comprehensive community support platforms I've ever seen inventoried. 150+ features across 14 modules, serving 6 populations, touching every major federal funding stream. That's the good news.
 
 Here's what matters for grants:
 
@@ -170,7 +170,7 @@ Based on your current readiness and what the platform already does well:
 Here's how the connected ecosystem should look for grant purposes:
 
 ```
-                    THRIVEUP ACADEMY (Primary Platform)
+                    THRIVEUP (Primary Platform)
                     Participant-facing, community-serving
                               |
         +---------+-----------+-----------+---------+
@@ -185,7 +185,7 @@ Here's how the connected ecosystem should look for grant purposes:
    Resources  Monitoring Coordination Programs     Data
 ```
 
-**For grant applications, describe it as:** "ThriveUp Academy is a comprehensive community support platform that integrates behavioral health resources (via our Sankofa Health Network), implementation science-based quality improvement (via our MAP-GAP methodology), and multi-agency coordination to deliver whole-person support from crisis through stability to community contribution."
+**For grant applications, describe it as:** "ThriveUp is a comprehensive community support platform that integrates behavioral health resources (via our Sankofa Health Network), implementation science-based quality improvement (via our MAP-GAP methodology), and multi-agency coordination to deliver whole-person support from crisis through stability to community contribution."
 
 ---
 
@@ -229,13 +229,13 @@ Your MAP-GAP report has a good priority sequence, but I'd reorder it slightly ba
 ## 7. POSITIONING LANGUAGE — HOW TO DESCRIBE THIS
 
 ### For WIOA / Workforce Grants:
-> "ThriveUp Academy is an AI-powered workforce development and community support infrastructure that provides end-to-end career pathway services — from initial skills assessment through employer-matched placement to 365-day retention monitoring — integrated with wraparound supports including housing navigation, behavioral health, financial capability, and family strengthening. The platform operationalizes implementation science principles through the MAP-GAP continuous improvement methodology, ensuring program fidelity and data-driven adaptation."
+> "ThriveUp is an AI-powered workforce development and community support infrastructure that provides end-to-end career pathway services — from initial skills assessment through employer-matched placement to 365-day retention monitoring — integrated with wraparound supports including housing navigation, behavioral health, financial capability, and family strengthening. The platform operationalizes implementation science principles through the MAP-GAP continuous improvement methodology, ensuring program fidelity and data-driven adaptation."
 
 ### For OJJDP / Reentry Grants:
-> "ThriveUp Academy delivers a phase-based reentry support system (Pre-Release > Stabilization > Growth > Independence) with court-ready reporting, justice partner API integration, community-based supervision compliance tracking, and holistic support coordination across 11 service domains. The platform integrates community intelligence through real-time GIS mapping of social determinants of health, enabling targeted resource deployment based on participant geography and need."
+> "ThriveUp delivers a phase-based reentry support system (Pre-Release > Stabilization > Growth > Independence) with court-ready reporting, justice partner API integration, community-based supervision compliance tracking, and holistic support coordination across 11 service domains. The platform integrates community intelligence through real-time GIS mapping of social determinants of health, enabling targeted resource deployment based on participant geography and need."
 
 ### For SAMHSA / Behavioral Health Grants:
-> "ThriveUp Academy combines behavioral health screening, Six-Domain Thrive wellbeing monitoring, and crisis intervention protocols with an integrated health resource network. The platform's Early Warning System detects declining wellbeing indicators and triggers automated support connections. Through API integration with the Sankofa Health Network, participants access culturally responsive behavioral health content, coping strategies, and warm referrals to community-based treatment providers."
+> "ThriveUp combines behavioral health screening, Six-Domain Thrive wellbeing monitoring, and crisis intervention protocols with an integrated health resource network. The platform's Early Warning System detects declining wellbeing indicators and triggers automated support connections. Through API integration with the Sankofa Health Network, participants access culturally responsive behavioral health content, coping strategies, and warm referrals to community-based treatment providers."
 
 ---
 
@@ -257,7 +257,7 @@ Federal grants increasingly require "continuous quality improvement" plans. Most
 Your Veteran-Owned Small Business certification gives you advantages in DOL and VA contracting, set-asides in some state-level procurements, and credibility in veteran-serving grant applications. Make sure it's on page 1 of every application.
 
 ### 6. Get a Fiscal Sponsor or 501(c)(3) Status
-Most federal grants require the applicant to be a nonprofit or government entity. If ThriveUp Academy doesn't have 501(c)(3) status, you need either:
+Most federal grants require the applicant to be a nonprofit or government entity. If ThriveUp doesn't have 501(c)(3) status, you need either:
 - A fiscal sponsor (a nonprofit that receives the funds on your behalf), or
 - To establish a nonprofit entity for the grant-funded work
 - This is a structural requirement, not optional
@@ -284,7 +284,7 @@ Most federal grants require the applicant to be a nonprofit or government entity
 
 ## 10. BOTTOM LINE
 
-ThriveUp Academy has more built technology than most organizations that win $5M+ federal grants. That's real. But technology without evidence is a demo, not a program. Your immediate priorities are:
+ThriveUp has more built technology than most organizations that win $5M+ federal grants. That's real. But technology without evidence is a demo, not a program. Your immediate priorities are:
 
 1. **Run a pilot** (10-20 people, 90 days, document everything)
 2. **Sign partner MOUs** (3-5 real organizations)
@@ -298,4 +298,4 @@ You don't need more features. You need proof that the features you have change l
 
 ---
 
-*This assessment is based on the ThriveUp Academy MAP-GAP Strategic Report, the Flood portfolio context, and federal grant scoring criteria across WIOA, OJJDP, SAMHSA, HHS, DOE, HUD, and DOJ funding streams.*
+*This assessment is based on the ThriveUp MAP-GAP Strategic Report, the Flood portfolio context, and federal grant scoring criteria across WIOA, OJJDP, SAMHSA, HHS, DOE, HUD, and DOJ funding streams.*

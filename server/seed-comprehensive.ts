@@ -155,7 +155,7 @@ async function seedMerchItems() {
   if (existing.length > 0) return;
 
   await db.insert(academyMerchItems).values([
-    { id: "merch-001", name: "ThriveUp Academy Hoodie", description: "Premium heavyweight hoodie with embroidered ThriveUp logo. Soft fleece interior. Available in youth and adult sizes.", price: "45.00", category: "apparel", inStock: true },
+    { id: "merch-001", name: "ThriveUp Hoodie", description: "Premium heavyweight hoodie with embroidered ThriveUp logo. Soft fleece interior. Available in youth and adult sizes.", price: "45.00", category: "apparel", inStock: true },
     { id: "merch-002", name: "Panther Pride T-Shirt", description: "100% cotton crew-neck tee featuring the ThriveUp Panther mascot. Preshrunk and comfortable for everyday wear.", price: "22.00", category: "apparel", inStock: true },
     { id: "merch-003", name: "Entrepreneur Starter Journal", description: "200-page ruled journal with business planning templates, goal-setting pages, and motivational prompts.", price: "15.00", category: "supplies", inStock: true },
     { id: "merch-004", name: "ThriveUp Water Bottle", description: "24oz insulated stainless steel water bottle. Keeps drinks cold 24 hours, hot 12 hours. Laser-engraved logo.", price: "28.00", category: "accessories", inStock: true },
@@ -189,7 +189,7 @@ async function seedParticipantData() {
   const services = [
     { id: "svc-001", participantId: "part-001", serviceCategory: "employment", serviceType: "Resume Workshop", providerName: "ThriveUp Workforce", serviceDate: "2025-01-15", durationMinutes: 90, location: "Main Campus", outcome: "completed", status: "completed" as const },
     { id: "svc-002", participantId: "part-001", serviceCategory: "housing", serviceType: "Housing Navigation", providerName: "Austin Housing Authority", serviceDate: "2025-01-18", durationMinutes: 60, location: "Partner Office", outcome: "referral-made", status: "completed" as const },
-    { id: "svc-003", participantId: "part-002", serviceCategory: "education", serviceType: "College Prep Advising", providerName: "ThriveUp Academy", serviceDate: "2025-01-20", durationMinutes: 45, location: "Virtual", outcome: "completed", status: "completed" as const },
+    { id: "svc-003", participantId: "part-002", serviceCategory: "education", serviceType: "College Prep Advising", providerName: "ThriveUp", serviceDate: "2025-01-20", durationMinutes: 45, location: "Virtual", outcome: "completed", status: "completed" as const },
     { id: "svc-004", participantId: "part-003", serviceCategory: "employment", serviceType: "Job Interview Coaching", providerName: "ThriveUp Workforce", serviceDate: "2025-01-22", durationMinutes: 60, location: "Main Campus", outcome: "completed", status: "completed" as const },
     { id: "svc-005", participantId: "part-003", serviceCategory: "legal", serviceType: "Record Expunction Guidance", providerName: "Legal Aid of Central TX", serviceDate: "2025-01-25", durationMinutes: 30, location: "Partner Office", outcome: "in-progress", status: "completed" as const },
     { id: "svc-006", participantId: "part-004", serviceCategory: "financial", serviceType: "Benefits Enrollment Assistance", providerName: "ThriveUp Benefits Nav", serviceDate: "2025-02-01", durationMinutes: 45, location: "Community Center", outcome: "completed", status: "completed" as const },
@@ -394,7 +394,7 @@ async function seedCoalitionData() {
   ]);
 
   await db.insert(coalitionMembers).values([
-    { id: "cm-001", coalitionId: "coal-001", sectorId: "cs-001", memberName: "Jordan Blake", role: "Co-Chair", organization: "ThriveUp Academy", email: "jordan@thriveup.org" },
+    { id: "cm-001", coalitionId: "coal-001", sectorId: "cs-001", memberName: "Jordan Blake", role: "Co-Chair", organization: "ThriveUp", email: "jordan@thriveup.org" },
     { id: "cm-002", coalitionId: "coal-001", sectorId: "cs-010", memberName: "Dr. Angela Morales", role: "Chair", organization: "Travis County Health Dept", email: "amorales@traviscounty.gov" },
     { id: "cm-003", coalitionId: "coal-001", sectorId: "cs-003", memberName: "David Torres", role: "Sector Representative", organization: "H-E-B", email: "dtorres@heb.com" },
     { id: "cm-004", coalitionId: "coal-001", sectorId: "cs-005", memberName: "Dr. Lisa Park", role: "Sector Representative", organization: "Austin ISD", email: "lpark@austinisd.org" },
@@ -447,7 +447,7 @@ async function seedBenefitsData() {
   await db.insert(benefitsChwNetwork).values([
     { id: "chw-001", name: "Rosa Martinez", role: "Community Health Worker", county: "Travis County", assignedZips: ["78702", "78741", "78744"], languages: ["English", "Spanish"], certifications: ["DSHS CHW Certification", "Benefits Navigation"], affiliatedOrg: "Foundation Communities", contactEmail: "rmartinez@foundcom.org", capacity: 25, activeCases: 18, specializations: ["SNAP enrollment", "Medicaid renewals"], trustLevel: "high", isActive: true },
     { id: "chw-002", name: "Thanh Le", role: "Community Health Worker", county: "Travis County", assignedZips: ["78758", "78753"], languages: ["English", "Vietnamese"], certifications: ["DSHS CHW Certification", "Cultural Mediator"], affiliatedOrg: "Catholic Charities of Central TX", contactEmail: "tle@ccctx.org", capacity: 20, activeCases: 14, specializations: ["Refugee benefits", "Language access"], trustLevel: "established", isActive: true },
-    { id: "chw-003", name: "Deanna Brooks", role: "Peer Navigator", county: "Travis County", assignedZips: ["78723", "78721", "78702"], languages: ["English"], certifications: ["DSHS CHW Certification", "Peer Support"], affiliatedOrg: "ThriveUp Academy", contactEmail: "dbrooks@thriveup.org", capacity: 20, activeCases: 12, specializations: ["Reentry benefits", "Youth transitions"], trustLevel: "established", isActive: true },
+    { id: "chw-003", name: "Deanna Brooks", role: "Peer Navigator", county: "Travis County", assignedZips: ["78723", "78721", "78702"], languages: ["English"], certifications: ["DSHS CHW Certification", "Peer Support"], affiliatedOrg: "ThriveUp", contactEmail: "dbrooks@thriveup.org", capacity: 20, activeCases: 12, specializations: ["Reentry benefits", "Youth transitions"], trustLevel: "established", isActive: true },
   ]);
 
   console.log("[Seed] Benefits intelligence data seeded");

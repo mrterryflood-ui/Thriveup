@@ -1,4 +1,4 @@
-# ThriveUp Academy / TCAF — Complete Ecosystem Platform Reference
+# ThriveUp / TCAF — Complete Ecosystem Platform Reference
 ## 24-Platform Autonomous Community Operating System (ACOS)
 ### Compiled: April 10, 2026
 
@@ -28,7 +28,7 @@
 
 | # | Platform | URL | Role | Domain |
 |---|---|---|---|---|
-| 1 | ThriveUp Academy (Hub) | thrivingcommunitiesforall.com | Central coordination & delivery engine | Education/Workforce |
+| 1 | ThriveUp (Hub) | thrivingcommunitiesforall.com | Central coordination & delivery engine | Education/Workforce |
 | 2 | RPLICE / Better Science Lab | www.bettersciencelab.com | Implementation science & evidence registry | Research/Evaluation |
 | 3 | Minority Center of Excellence (MCE) | minoritycenterofexcellence.com | Minority business ecosystem | Economic Empowerment |
 | 4 | LifeBridge | lifetransitionsaid.org | Virtual 211 / CHW hub / SDOH navigation | Social Services |

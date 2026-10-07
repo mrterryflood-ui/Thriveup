@@ -817,7 +817,7 @@ function PartnerInquiryTab() {
           <CheckCircle2 className="h-12 w-12 text-green-600 dark:text-green-400 mx-auto mb-4" />
           <h3 className="text-lg font-bold" data-testid="text-inquiry-success">Partnership Inquiry Submitted</h3>
           <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
-            Thank you for your interest in partnering with ThriveUp Academy and The Collaborative Advocate Foundation.
+            Thank you for your interest in partnering with ThriveUp and The Collaborative Advocate Foundation.
             Our team will review your inquiry and respond within 5 business days.
           </p>
           <p className="text-sm text-muted-foreground mt-4">
@@ -833,7 +833,7 @@ function PartnerInquiryTab() {
       <div className="text-center mb-6">
         <h3 className="text-lg font-bold" data-testid="text-inquiry-title">Partner With ThriveUp</h3>
         <p className="text-sm text-muted-foreground max-w-lg mx-auto">
-          ThriveUp Academy and The Collaborative Advocate Foundation partner with nonprofits, government agencies, healthcare providers, businesses, and community organizations across Central Texas to create collaborative solutions for workforce development, youth education, reentry services, and community health.
+          ThriveUp and The Collaborative Advocate Foundation partner with nonprofits, government agencies, healthcare providers, businesses, and community organizations across Central Texas to create collaborative solutions for workforce development, youth education, reentry services, and community health.
         </p>
       </div>
 

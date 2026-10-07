@@ -125,7 +125,7 @@ function EventSection({ title, events, isAdmin, onDelete }: { title: string; eve
 }
 
 export default function AcademyCalendarPage() {
-  useEffect(() => { document.title = 'Calendar | ThriveUp Academy'; }, []);
+  useEffect(() => { document.title = 'Calendar | ThriveUp'; }, []);
   const { user } = useAuth();
   const { toast } = useToast();
   const isAdmin = !!(user as any)?.isAdmin;

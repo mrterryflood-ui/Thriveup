@@ -97,7 +97,7 @@ const domains = [
   { name: "HEALTH\nEQUITY", c: PINK, items: ["Black Maternal Health Network", "Sankofa Health (Breast Cancer)", "Autoimmune CoE", "Black Men's Health Hub"] },
   { name: "BEHAVIORAL\nHEALTH", c: PURP, items: ["Whole-Person Health Ecosystem", "SafeCogniCare (Cognitive)", "PillScheduler (Medication)", "WholeMind Learning (Literacy)"] },
   { name: "WORKFORCE &\nBUSINESS", c: BLUE, items: ["Mission Transition (Veterans)", "Pinnacle Business Conglomerate", "Ecosystem Nexus (Careers)", "Minority Center of Excellence"] },
-  { name: "EDUCATION &\nLEARNING", c: GOLD, items: ["ThriveUp Academy (K-12+Adult)", "Better Science Lab / RPLICE", "Perfectly Different (SpEd)", "LexiBridge (Multilingual)"] },
+  { name: "EDUCATION &\nLEARNING", c: GOLD, items: ["ThriveUp (K-12+Adult)", "Better Science Lab / RPLICE", "Perfectly Different (SpEd)", "LexiBridge (Multilingual)"] },
   { name: "COMMUNITY &\nADVOCACY", c: TEAL, items: ["The Collaborative Advocate", "Holistic Black Feminine Health", "Advertising / Outreach", "Video Creator AI"] },
 ];
 
@@ -170,7 +170,7 @@ const collision = [
   { domain: "Sankofa + Maternal Health", title: "Cancer ↔ Pregnancy", what: "The moment the pregnancy is confirmed, Sankofa Health alerts the Black Maternal Health Network. Both platforms see the full picture: treatment protocol, gestational age, risk factors. The oncologist and OB are working from the SAME record — not separate charts that never cross.", color: PINK },
   { domain: "Behavioral Health", title: "Mental Health Crisis", what: "A breast cancer diagnosis is devastating. A high-risk pregnancy on top of it is a mental health emergency. Whole-Person Health auto-escalates her care level. Her counselor is notified. PillScheduler flags every medication for pregnancy safety — her antidepressants, her chemo drugs, everything.", color: PURP },
   { domain: "Workforce + Business", title: "Income at Risk", what: "She can't work full-time through cancer treatment AND a high-risk pregnancy. Her workforce platform shifts her job profile. Her nonprofit gets emergency continuity support through Minority Center of Excellence. Benefits enrollment through Collaborative Advocate activates FMLA, disability, WIC.", color: BLUE },
-  { domain: "Education + Family", title: "Her Other Children", what: "Her existing kids' school is notified (with consent) that the family is in medical crisis. ThriveUp Academy monitors their grades for drops. Perfectly Different checks for emotional/behavioral changes. ISSS provides youth support. The ecosystem protects the WHOLE family.", color: GOLD },
+  { domain: "Education + Family", title: "Her Other Children", what: "Her existing kids' school is notified (with consent) that the family is in medical crisis. ThriveUp monitors their grades for drops. Perfectly Different checks for emotional/behavioral changes. ISSS provides youth support. The ecosystem protects the WHOLE family.", color: GOLD },
   { domain: "Community Navigation", title: "Everything Else", what: "Transportation to appointments — she now has TWICE as many. Childcare during treatment. Nutritional support for pregnancy during chemo. Housing stability. Legal protections. Collaborative Advocate coordinates all of it in one record.", color: TEAL },
   { domain: "AI Intelligence Layer", title: "No Human Can Do This", what: "Cancer treatment protocol + pregnancy risk + depression severity + job loss + children's grades + housing stability + medication interactions. The AI sees ALL of it across ALL domains in real time. It alerts the right people before crisis — because no human case manager can track this many variables across this many systems.", color: ORG },
 ];
@@ -200,7 +200,7 @@ s6.addText("Same family. Same ecosystem. Marcus is released after 4 years. He al
 
 const steps = [
   { t: "Day 1", p: "LifeBridge", d: "Reentry profile. One record connected to every platform. Keisha's family file already exists — Marcus joins it. Housing, health, employment assessed in one intake.", c: RED },
-  { t: "Week 1", p: "Mission Transition", d: "Marcus served too. His military + prison work skills are mapped. AI matches him to 3 employers. If he needs training, ThriveUp Academy activates.", c: BLUE },
+  { t: "Week 1", p: "Mission Transition", d: "Marcus served too. His military + prison work skills are mapped. AI matches him to 3 employers. If he needs training, ThriveUp activates.", c: BLUE },
   { t: "Week 2", p: "Whole-Person Health", d: "Behavioral health screening. Substance abuse history flagged. Matched to a provider who understands BOTH reentry AND veteran experience.", c: PURP },
   { t: "Week 3", p: "SafeReport + ISSS", d: "If he has children — family reunification protocol. Mandated reporting compliance. Youth supports for his kids. Connected to Keisha's kids' records.", c: GOLD },
   { t: "Month 2", p: "Collaborative Advocate", d: "Legal aid. Record expungement. Benefits. All in the same system his sister uses — the family is connected, not siloed.", c: TEAL },

@@ -101,7 +101,7 @@ const CASE_STUDIES: CaseStudy[] = [
       improvement: "MAP-GAP CQI identified facilitator fidelity as key variable — highest-fidelity facilitators produced 3x better outcomes. MG-PATR documented community-specific adaptations for future replication. The Incubator identified 2 additional grant opportunities based on demonstrated outcomes.",
     },
     platformContributions: [
-      { platformName: "ThriveUp Academy", platformId: "thriveup", role: "Central Hub", specificAction: "Delivered 24-module prevention curriculum, managed coalition dashboard, ran dosage tracking, hosted Transparency Dashboard with 7 stakeholder views" },
+      { platformName: "ThriveUp", platformId: "thriveup", role: "Central Hub", specificAction: "Delivered 24-module prevention curriculum, managed coalition dashboard, ran dosage tracking, hosted Transparency Dashboard with 7 stakeholder views" },
       { platformName: "The Incubator", platformId: "incubator", role: "Grant Discovery", specificAction: "Identified DFC opportunity with 94% fit score, flagged 2 additional opportunities post-implementation" },
       { platformName: "RPLICE", platformId: "rplice", role: "Fidelity & Evidence", specificAction: "RE-AIM evaluation of candidate EBPs, weekly SALP fidelity monitoring, MG-PATR documentation for replication" },
       { platformName: "Better Science Lab", platformId: "betterscience", role: "Independent Evaluation", specificAction: "Meta-analysis validation, independent outcome evaluation, publication-ready findings" },
@@ -186,7 +186,7 @@ const CASE_STUDIES: CaseStudy[] = [
       improvement: "MAP-GAP CQI identified pre-release engagement as critical: participants with 3+ pre-release contacts had 45% lower recidivism. MG-PATR documented housing partner selection criteria for future deployments. The Incubator identified WIOA Title I as complementary funding for workforce components.",
     },
     platformContributions: [
-      { platformName: "ThriveUp Academy", platformId: "thriveup", role: "Central Hub", specificAction: "Case management from pre-release through 36-month follow-up, career pathways, credential tracking, Transparency Dashboard" },
+      { platformName: "ThriveUp", platformId: "thriveup", role: "Central Hub", specificAction: "Case management from pre-release through 36-month follow-up, career pathways, credential tracking, Transparency Dashboard" },
       { platformName: "The Incubator", platformId: "incubator", role: "Grant Discovery", specificAction: "Identified Second Chance Act NOFO at 87% fit, later identified WIOA complementary funding" },
       { platformName: "LifeBridge", platformId: "lifebridge", role: "Resource Navigation", specificAction: "Post-release housing, ID/documents, transportation navigation — 83% of participants needed housing support first" },
       { platformName: "MCE", platformId: "mce", role: "Economic Mobility", specificAction: "Entrepreneurship track for qualified participants, small business development, APEX Accelerators connection, contracting opportunities" },
@@ -271,7 +271,7 @@ const CASE_STUDIES: CaseStudy[] = [
       improvement: "MAP-GAP CQI revealed implementation quality varied dramatically by school — difference was principal buy-in and dedicated implementation coordinator. MG-PATR documented per-school adaptations. Washington DC deployment (next) used these lessons for different Three Realities.",
     },
     platformContributions: [
-      { platformName: "ThriveUp Academy", platformId: "thriveup", role: "Central Hub", specificAction: "SEL curriculum delivery with gamified engagement, case management, Coalition Dashboard, Transparency Dashboard" },
+      { platformName: "ThriveUp", platformId: "thriveup", role: "Central Hub", specificAction: "SEL curriculum delivery with gamified engagement, case management, Coalition Dashboard, Transparency Dashboard" },
       { platformName: "ISSS", platformId: "isss", role: "School Integration", specificAction: "MTSS tier tracking per student, school readiness assessment, teacher fidelity observations, SEL integration" },
       { platformName: "Talk Your Talk", platformId: "talkyourtalk", role: "Communication Access", specificAction: "89 spoken + 18 sign languages — strengthening school engagement and family communication as a critical protective factor" },
       { platformName: "Perfectly Different", platformId: "perfectly-different", role: "Inclusion", specificAction: "Neurodiversity-affirming curriculum adaptations, alternative engagement pathways for 18% neurodivergent students" },
@@ -356,7 +356,7 @@ const CASE_STUDIES: CaseStudy[] = [
       improvement: "MAP-GAP CQI revealed telehealth adoption was 3x higher than expected — rural populations preferred it once available. MG-PATR documented rural adaptation principles: intensity over frequency, technology over transportation, community ownership over external management. The Incubator identified expansion opportunities.",
     },
     platformContributions: [
-      { platformName: "ThriveUp Academy", platformId: "thriveup", role: "Central Hub", specificAction: "Career pathways with remote options, case management, Transparency Dashboard showing multi-grant outcomes" },
+      { platformName: "ThriveUp", platformId: "thriveup", role: "Central Hub", specificAction: "Career pathways with remote options, case management, Transparency Dashboard showing multi-grant outcomes" },
       { platformName: "Sankofa Health", platformId: "sankofa", role: "Telehealth", specificAction: "Behavioral health telehealth services eliminating 45-minute drive barrier, opioid use disorder assessment and treatment coordination" },
       { platformName: "HerHealth Network", platformId: "herhealth", role: "MAT Adherence", specificAction: "Medication-Assisted Treatment adherence support, pharmacy coordination, preventing treatment discontinuation" },
       { platformName: "LifeBridge", platformId: "lifebridge", role: "Rural Navigation", specificAction: "Transportation, childcare, food access navigation in resource-limited rural setting" },

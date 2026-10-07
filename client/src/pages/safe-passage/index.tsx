@@ -122,7 +122,7 @@ const SAFE_PASSAGE_SERVICE_SCHEMA = {
   "description": "Confidential resources and support for survivors of domestic violence and unsafe situations — safety planning, housing resources, legal aid, employment support, and connections to local shelters and advocates.",
   "provider": {
     "@type": "Organization",
-    "name": "ThriveUp Academy",
+    "name": "ThriveUp",
     "url": "https://ai-mastery-academy.replit.app/"
   },
   "serviceType": "Domestic Violence Support & Safety Resources",
@@ -147,7 +147,7 @@ export default function SafePassageLandingPage() {
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 rounded-full px-4 py-1.5 text-sm text-teal-700 dark:text-teal-300 mb-4">
             <Shield className="h-3.5 w-3.5" />
-            <span>Part of LifeBridge — ThriveUp Academy</span>
+            <span>Part of LifeBridge — ThriveUp</span>
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-slate-50 mb-3">
             Safe Passage
@@ -253,7 +253,7 @@ export default function SafePassageLandingPage() {
         {/* Mission statement */}
         <div className="border border-teal-200 dark:border-teal-800 rounded-xl p-6 bg-teal-50/50 dark:bg-teal-950/20 mb-6">
           <p className="text-base font-semibold text-slate-900 dark:text-slate-50 mb-2 leading-snug">
-            ThriveUp Academy connects people to the tools they need — to support themselves, their families, and their communities.
+            ThriveUp connects people to the tools they need — to support themselves, their families, and their communities.
           </p>
           <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
             We work across our own platform and alongside partner organizations, because no one thrives alone. When individuals are informed, advocates are equipped, and organizations are linked — the whole community grows stronger. Safe Passage is built on that foundation.
@@ -292,7 +292,7 @@ export default function SafePassageLandingPage() {
 
         {/* LifeBridge connection */}
         <div className="text-center text-xs text-slate-400 dark:text-slate-500 pb-8">
-          <p>Safe Passage is a program of <Link href="/"><span className="underline cursor-pointer">ThriveUp Academy</span></Link> · Part of the <Link href="/austin"><span className="underline cursor-pointer">Austin Housing Initiative</span></Link></p>
+          <p>Safe Passage is a program of <Link href="/"><span className="underline cursor-pointer">ThriveUp</span></Link> · Part of the <Link href="/austin"><span className="underline cursor-pointer">Austin Housing Initiative</span></Link></p>
           <p className="mt-1 flex items-center justify-center gap-1">
             <ExternalLink className="h-3 w-3" />
             <a href="https://www.thehotline.org" target="_blank" rel="noopener noreferrer" className="underline">National DV Hotline</a> · 

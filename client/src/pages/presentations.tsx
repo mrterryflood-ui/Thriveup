@@ -27,7 +27,7 @@ const ENTITIES = [
 ];
 
 const PLATFORMS = [
-  { name: "ThriveUp Academy", domain: "Youth & Education", color: "bg-violet-500" },
+  { name: "ThriveUp", domain: "Youth & Education", color: "bg-violet-500" },
   { name: "ISSS", domain: "School Wraparound", color: "bg-blue-500" },
   { name: "Perfectly Different", domain: "Neurodivergent Support", color: "bg-pink-500" },
   { name: "LifeBridge", domain: "Housing Transitions", color: "bg-emerald-500" },
@@ -71,7 +71,7 @@ const REGIONAL_HUBS = [
     ],
     partners: ["Manor ISD", "Manor Economic Development", "Travis County Health", "Local Employers"],
     funding: ["WIOA Title I ($200-500K)", "DFC Grant ($625K)", "Foundation Grants"],
-    platforms: ["ThriveUp Academy", "ISSS", "Perfectly Different", "Sankofa Health", "SafeReport"],
+    platforms: ["ThriveUp", "ISSS", "Perfectly Different", "Sankofa Health", "SafeReport"],
   },
   {
     name: "Pflugerville Hub",
@@ -85,7 +85,7 @@ const REGIONAL_HUBS = [
     ],
     partners: ["PfISD", "Pflugerville CDC", "Health Alliance for Austin Musicians", "Local Businesses"],
     funding: ["PCDC Community Grant ($150K+)", "Foundation Grants", "Corporate Partnerships"],
-    platforms: ["ThriveUp Academy", "Perfectly Different", "ISSS", "SafeCogniCare"],
+    platforms: ["ThriveUp", "Perfectly Different", "ISSS", "SafeCogniCare"],
   },
 ];
 
@@ -125,7 +125,7 @@ const GRANTS = [
     amount: "Up to $750K",
     timeline: "3 years",
     deadline: "June 12-18, 2026",
-    entity: "ThriveUp Academy",
+    entity: "ThriveUp",
     evidence: "VA suicide prevention protocols, Risk-Needs-Responsivity model, veteran-specific care pathways",
     alignment: "Veteran suicide prevention, whole-person health, transition support, community integration",
     status: "upcoming",
@@ -145,7 +145,7 @@ const GRANTS = [
     amount: "$625,000",
     timeline: "5 years",
     deadline: "April 14, 2026",
-    entity: "ThriveUp Academy",
+    entity: "ThriveUp",
     evidence: "CDC Strategic Prevention Framework, SAMHSA evidence-based curricula, 12-sector coalition model",
     alignment: "Substance use prevention, youth engagement, coalition building, community readiness assessment",
     status: "preparing",
@@ -155,7 +155,7 @@ const GRANTS = [
     amount: "$200K-$500K",
     timeline: "2-3 years",
     deadline: "Rolling",
-    entity: "ThriveUp Academy",
+    entity: "ThriveUp",
     evidence: "WIOA performance accountability, competency-based education, sectoral employment strategies",
     alignment: "Workforce development, career pathways, credential attainment, employer partnerships",
     status: "active",
@@ -332,7 +332,7 @@ function generatePDF(section: string) {
 
   doc.setFontSize(8);
   doc.setTextColor(128, 128, 128);
-  doc.text("ThriveUp Academy | The Collaborative Advocate Foundation", margin, y);
+  doc.text("ThriveUp | The Collaborative Advocate Foundation", margin, y);
   y += 12;
 
   doc.setTextColor(0, 0, 0);
@@ -344,7 +344,7 @@ function generatePDF(section: string) {
       y += 12;
       doc.setFontSize(11);
       doc.setTextColor(100, 100, 100);
-      const intro = "ThriveUp Academy is the direct-service brand of The Collaborative Advocate Foundation, a veteran-founded, minority-led 501(c)(3) nonprofit. The ecosystem comprises 3 legal entities, 24 integrated technology platforms, 3 regional hubs (Austin, Manor, Pflugerville), and 7 active grant pipelines — all validated through Dr. Terry Flood's proprietary implementation science methodologies: MAP-GAP, SALP, Three Realities, and MG-PATR. Our tools don't just serve our mission — they're built to make every partner organization more effective.";
+      const intro = "ThriveUp is the direct-service brand of The Collaborative Advocate Foundation, a veteran-founded, minority-led 501(c)(3) nonprofit. The ecosystem comprises 3 legal entities, 24 integrated technology platforms, 3 regional hubs (Austin, Manor, Pflugerville), and 7 active grant pipelines — all validated through Dr. Terry Flood's proprietary implementation science methodologies: MAP-GAP, SALP, Three Realities, and MG-PATR. Our tools don't just serve our mission — they're built to make every partner organization more effective.";
       const lines = doc.splitTextToSize(intro, maxWidth);
       doc.text(lines, margin, y);
       y += lines.length * 6 + 10;
@@ -674,7 +674,7 @@ function generatePDF(section: string) {
 
   doc.setFontSize(8);
   doc.setTextColor(160, 160, 160);
-  doc.text(`Generated ${new Date().toLocaleDateString()} | ThriveUp Academy`, margin, doc.internal.pageSize.getHeight() - 10);
+  doc.text(`Generated ${new Date().toLocaleDateString()} | ThriveUp`, margin, doc.internal.pageSize.getHeight() - 10);
 
   doc.save(`ThriveUp_${section}_${new Date().toISOString().split("T")[0]}.pdf`);
 }
@@ -712,7 +712,7 @@ export default function PresentationsPage() {
   const [activeTab, setActiveTab] = useState("executive");
 
   useEffect(() => {
-    document.title = "Presentations Hub | ThriveUp Academy";
+    document.title = "Presentations Hub | ThriveUp";
   }, []);
 
   return (
@@ -831,7 +831,7 @@ export default function PresentationsPage() {
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
               <h2 className="text-2xl font-bold mb-1">Executive Summary</h2>
-              <p className="text-muted-foreground">ThriveUp Academy ecosystem at a glance</p>
+              <p className="text-muted-foreground">ThriveUp ecosystem at a glance</p>
             </div>
             <Button variant="outline" size="sm" onClick={() => generatePDF("executive")} data-testid="button-download-executive-inline">
               <Download className="h-4 w-4 mr-1" /> Download PDF
@@ -844,7 +844,7 @@ export default function PresentationsPage() {
               <div className="absolute bottom-10 right-10 w-96 h-96 rounded-full bg-blue-400 blur-3xl" />
             </div>
             <div className="relative z-10 max-w-4xl">
-              <h1 className="text-3xl md:text-4xl font-bold mb-4">ThriveUp Academy</h1>
+              <h1 className="text-3xl md:text-4xl font-bold mb-4">ThriveUp</h1>
               <p className="text-lg text-blue-100 mb-4">
                 A veteran-founded, minority-led 15-service-platform ecosystem built to make communities stronger — not just our programs, 
                 but every partner we work with. Our tools, methodologies, and frameworks are designed to be shared, adapted, and 

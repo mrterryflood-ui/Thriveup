@@ -1,7 +1,7 @@
 # Strategy Memo — Partnership with Dr. J. Michelle Vann
 
 **Status:** Pre-meeting. Source-of-truth for the upcoming conversation. Living document.
-**Author:** TCAF / ThriveUp Academy
+**Author:** TCAF / ThriveUp
 **Date:** May 14, 2026
 **Trigger:** May 13, 2026 email from Dr. Vann asking for "something similar to what you showed for our youth program — track attendance, family structure, and services the families are engaged in."
 
@@ -95,7 +95,7 @@ Dr. Vann has spent 10+ years building irreplaceable trust in a Wichita community
 
 She was specifically impressed by the RFP-match tracker you previously demoed (data → RFP-requirement verbatim crosswalk). The full ecosystem she can plug into:
 
-- **ThriveUp Academy** — workforce, financial literacy, FAFSA, attendance, dosage-engagement
+- **ThriveUp** — workforce, financial literacy, FAFSA, attendance, dosage-engagement
 - **Whole-Person Health** (mentalwellnesssupport.net) — behavioral-health screenings (PHQ-9, GAD-7), Medicaid-billable service designs — direct fit for her Sedgwick MH Board lane
 - **Bible Study Buddies** — faith-formation curriculum (env: `NETWORK_SECRET_BIBLESTUDY`); direct fit for Iasis Joshua Generation / Academy of Excellence
 - **Talk Your Talk** — 89 spoken + 18 sign languages = 107 total, RTL for Arabic; her congregation likely includes Spanish + Vietnamese households in Wichita

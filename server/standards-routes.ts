@@ -202,7 +202,7 @@ const SEED_CROSSWALK = [
     standardTitle: "Employment services and workforce readiness",
     standardDescription: "Career pathways, job-readiness training, employer engagement with justice-involved flags.",
     coverageStatus: "exceeds", coveragePercent: 110,
-    tcafCapabilities: ["Career Explorer (89 pathways, 56 non-collegiate)", "Workforce Assessment", "ThriveUp Academy", "Stipend Pilot"],
+    tcafCapabilities: ["Career Explorer (89 pathways, 56 non-collegiate)", "Workforce Assessment", "ThriveUp", "Stipend Pilot"],
     evidenceUrl: "/career-explorer", notes: "Exceeds standard — 89 pathways including 56 non-collegiate options." },
   { standardCode: "NRRC-SVC-03", standardBody: "NRRC", category: "services",
     standardTitle: "Behavioral health screening and referral",

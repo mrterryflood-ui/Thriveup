@@ -149,7 +149,7 @@ export function ConceptCardShell({
         </div>
 
         <div className="mt-8 text-center text-xs text-muted-foreground">
-          ThriveUp Academy · Concepts · v1
+          ThriveUp · Concepts · v1
         </div>
       </div>
     </div>

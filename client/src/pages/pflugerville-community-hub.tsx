@@ -62,7 +62,7 @@ const PFLUGERVILLE_NEEDS_ASSESSMENT = [
       "PCDC (Pflugerville Community Development Corp) has $150K+ matching grants available — underutilized",
       "Stacey Pfefferkorn (city workforce contact) and Jerry W. Jones Jr. (PCDC director) identified — outreach planned",
     ],
-    platforms: ["Mission Transition", "MCE", "Collaborative Advocate", "ThriveUp Academy"],
+    platforms: ["Mission Transition", "MCE", "Collaborative Advocate", "ThriveUp"],
     solutions: [
       "Pflugerville Workforce Hub — career assessments, resume building, certification pathways",
       "Construction Career Pipeline — CDL, OSHA, heavy equipment for SH-130/I-35 corridor",
@@ -102,7 +102,7 @@ const PFLUGERVILLE_NEEDS_ASSESSMENT = [
       "Limited career & technical education alignment with regional employer needs",
       "Neurodivergent support services gap — families travel to Austin for evaluations",
     ],
-    platforms: ["ISSS", "ThriveUp Academy", "Perfectly Different", "Talk Your Talk"],
+    platforms: ["ISSS", "ThriveUp", "Perfectly Different", "Talk Your Talk"],
     solutions: [
       "ISSS wraparound model in PfISD — school-based social services coordination",
       "Expanded after-school STEM + trades — aligned with Samsung/Tesla/construction pipeline",
@@ -193,7 +193,7 @@ export default function PflugervilleCommunityHubPage() {
   const [activeTab, setActiveTab] = useState("assessment");
 
   useEffect(() => {
-    document.title = "Pflugerville Community Hub | ThriveUp Academy";
+    document.title = "Pflugerville Community Hub | ThriveUp";
   }, []);
 
   return (

@@ -172,7 +172,7 @@ We are preparing an application for St. David's Foundation's "We All Benefit 2.0
 WHAT WE BRING TO THE TABLE:
 • LifeBridge — A virtual 211 platform for housing navigation, benefits enrollment, food access, utilities assistance, and crisis support
 • Speech Bridge — Multilingual translation and culturally responsive communication for immigrant and refugee communities
-• ThriveUp Academy — Workforce development with 55 career pathways aligned to Central Texas growth sectors
+• ThriveUp — Workforce development with 55 career pathways aligned to Central Texas growth sectors
 • Financial Literacy module — Budgeting, credit repair, savings strategies, and our Stock Market Simulator for asset building
 • Community Intelligence Maps — Tract-level data from 8 federal sources (CDC, Census, FBI, HUD, USDA, SAMHSA, BLS, SVI) that reveal the neighborhoods county averages hide
 • MAP-GAP — Continuous quality improvement ensuring programs are implemented as designed, with real-time fidelity tracking
@@ -243,7 +243,7 @@ LEAD APPLICANT: The Collaborative Advocate Foundation (TCAF)
 COLLABORATIVE PARTNER: [Organization Name]
 
 TCAF RESPONSIBILITIES:
-• Provide technology infrastructure (LifeBridge, Speech Bridge, ThriveUp Academy, MAP-GAP)
+• Provide technology infrastructure (LifeBridge, Speech Bridge, ThriveUp, MAP-GAP)
 • Manage data collection, reporting, and outcome tracking
 • Coordinate grant administration and financial reporting
 • Provide community intelligence mapping and tract-level data analysis
@@ -330,7 +330,7 @@ ORGANIZATIONAL CAPACITY STATEMENT
 
 "The Collaborative Advocate Foundation demonstrates organizational capacity through:
 
-TECHNOLOGY INFRASTRUCTURE: A fully operational 15-service-platform ecosystem that has been designed, built, and deployed — not proposed. LifeBridge is live. Speech Bridge is live. ThriveUp Academy has 55 career pathways and 60+ deep lessons. RPLICE provides real-time implementation fidelity tracking. This is not a startup requesting funding to build something — this is an operating system requesting funding to deploy existing infrastructure to serve Central Texas communities.
+TECHNOLOGY INFRASTRUCTURE: A fully operational 15-service-platform ecosystem that has been designed, built, and deployed — not proposed. LifeBridge is live. Speech Bridge is live. ThriveUp has 55 career pathways and 60+ deep lessons. RPLICE provides real-time implementation fidelity tracking. This is not a startup requesting funding to build something — this is an operating system requesting funding to deploy existing infrastructure to serve Central Texas communities.
 
 LEADERSHIP: Dr. Terry Flood brings a rare combination of military discipline, academic rigor (DHA, MS Implementation Science), and lived understanding of the communities we serve. As a veteran and Black leader, Dr. Flood doesn't study these communities from the outside — he lives in them, builds for them, and is accountable to them.
 
@@ -381,7 +381,7 @@ WHAT TO SAY IN THE APPLICATION
 "The Collaborative Advocate Foundation delivers services across Central Texas through a hybrid model of digital access and community-based presence:
 
 DIGITAL ACCESS — ALL 5 COUNTIES:
-Our technology platforms serve every resident in the 5-county service area today. LifeBridge, Speech Bridge, ThriveUp Academy, and our Financial Literacy tools are accessible from any device, anywhere. A mother in Lockhart can access the same benefits navigation as a veteran in Pflugerville. Our community intelligence maps already have tract-level data for all five counties — Census tract 48021950200 in Bastrop and tract 48055950300 in Caldwell are as visible to us as tract 48453001703 in Travis.
+Our technology platforms serve every resident in the 5-county service area today. LifeBridge, Speech Bridge, ThriveUp, and our Financial Literacy tools are accessible from any device, anywhere. A mother in Lockhart can access the same benefits navigation as a veteran in Pflugerville. Our community intelligence maps already have tract-level data for all five counties — Census tract 48021950200 in Bastrop and tract 48055950300 in Caldwell are as visible to us as tract 48453001703 in Travis.
 
 COMMUNITY-BASED PRESENCE — TRAVIS & WILLIAMSON:
 Our physical service delivery operates through community hubs in Pflugerville and Manor (Travis County), with partnerships extending into Williamson County. Community Benefits Navigators will conduct in-person outreach, enrollment assistance, and financial coaching sessions at community centers, libraries, churches, and partner agency locations.
@@ -559,7 +559,7 @@ TCAF maintains an active pipeline of $3.6M+ in federal and foundation grants acr
 Through M&T Consulting (EIN 41-4952178) and CIP LLC, Dr. Flood provides organizational change management, workforce development, and implementation science consulting. This revenue stream is independent of all grant activity.
 
 5. TECHNOLOGY PERSISTS BEYOND FUNDING
-The most important sustainability factor: our technology doesn't disappear when a grant ends. LifeBridge, Speech Bridge, ThriveUp Academy — these platforms are built, operational, and will continue serving communities regardless of any single funding source. St. David's investment creates a multiplier effect: every dollar builds capacity that serves the community permanently.
+The most important sustainability factor: our technology doesn't disappear when a grant ends. LifeBridge, Speech Bridge, ThriveUp — these platforms are built, operational, and will continue serving communities regardless of any single funding source. St. David's investment creates a multiplier effect: every dollar builds capacity that serves the community permanently.
 
 POST-GRANT TRANSITION PLAN:
 • Months 1-12 (Grant Period): Deploy full service model, hire staff, establish community partnerships, build enrollment pipeline, measure outcomes
@@ -676,7 +676,7 @@ My name is the President of The Collaborative Advocate Foundation, a veteran-fou
 
 I'm writing to inquire about the timeline for the 2026 cycle of the "We All Benefit 2.0: Building Economic Stability" grant program. We are actively preparing our Letter of Intent and want to ensure we're aligned with your schedule.
 
-We serve Central Texas communities through a 15-service-platform technology ecosystem focused on economic stability — including benefits navigation (LifeBridge), multilingual access (Speech Bridge), workforce development (ThriveUp Academy), and financial coaching. Our work is equity-focused and data-led, and we specifically measure impact for populations that most organizations don't count — individuals experiencing homelessness, immigrants regardless of documentation status, veterans transitioning to civilian life, and formerly incarcerated individuals rebuilding stability.
+We serve Central Texas communities through a 15-service-platform technology ecosystem focused on economic stability — including benefits navigation (LifeBridge), multilingual access (Speech Bridge), workforce development (ThriveUp), and financial coaching. Our work is equity-focused and data-led, and we specifically measure impact for populations that most organizations don't count — individuals experiencing homelessness, immigrants regardless of documentation status, veterans transitioning to civilian life, and formerly incarcerated individuals rebuilding stability.
 
 Two questions:
 1. When does the 2026 LOI submission window open?

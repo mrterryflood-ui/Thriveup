@@ -14,7 +14,7 @@ const doc = new PDFDocument({
   size: "LETTER",
   margins: { top: 36, bottom: 36, left: 48, right: 48 },
   info: {
-    Title:   "ThriveUp Academy — One Pager",
+    Title:   "ThriveUp — One Pager",
     Author:  "The Collaborative Advocate Foundation",
     Subject: "National Community Infrastructure Platform",
   },
@@ -32,7 +32,7 @@ const BODY_W = PW - ML - MR;
 doc.rect(0, 0, PW, 68).fill(CRIMSON);
 
 doc.fillColor(WHITE).font("Helvetica-Bold").fontSize(20)
-   .text("ThriveUp Academy", ML, 14, { width: BODY_W });
+   .text("ThriveUp", ML, 14, { width: BODY_W });
 doc.fillColor(WHITE).font("Helvetica").fontSize(9.5)
    .text("The Collaborative Advocate Foundation  ·  501(c)(3)  ·  EIN 41-3618003  ·  thrivingcommunitiesforall.com", ML, 37, { width: BODY_W });
 doc.fillColor(WHITE).font("Helvetica-Oblique").fontSize(8.5)
@@ -190,14 +190,14 @@ doc.moveDown(0.4);
 // ── Integration Through Invitation ───────────────────────────────────────
 sectionHead("Integration Through Invitation — The Initiative Behind the Platform");
 body(
-  "HBCUs have long known that the most trusted community infrastructure is not in office buildings. It lives in faith halls, barbershops, neighborhood kitchens, and the phones of community health workers who have never been paid for what they do. ThriveUp Academy's Integration Through Invitation framework names those workers, stipends them, credentials them, and integrates their knowledge into the systems serving their own communities — with layered consent, no extraction, and real career pathways. Every surface of the platform carries this commitment."
+  "HBCUs have long known that the most trusted community infrastructure is not in office buildings. It lives in faith halls, barbershops, neighborhood kitchens, and the phones of community health workers who have never been paid for what they do. ThriveUp's Integration Through Invitation framework names those workers, stipends them, credentials them, and integrates their knowledge into the systems serving their own communities — with layered consent, no extraction, and real career pathways. Every surface of the platform carries this commitment."
 );
 doc.moveDown(0.2);
 
 // ── Partnership ───────────────────────────────────────────────────────────
 sectionHead("Partnership Opportunity");
 body(
-  "ThriveUp Academy is architected for interoperability. HBCU workforce programs, community health institutes, reentry partnerships, and academic research centers can connect directly through a secure Partner API — pulling platform data for their own programs or contributing community insights back into the network. We are actively seeking institutional partners who share this vision of community infrastructure as a civil rights issue."
+  "ThriveUp is architected for interoperability. HBCU workforce programs, community health institutes, reentry partnerships, and academic research centers can connect directly through a secure Partner API — pulling platform data for their own programs or contributing community insights back into the network. We are actively seeking institutional partners who share this vision of community infrastructure as a civil rights issue."
 );
 
 doc.moveDown(0.3);

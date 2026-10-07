@@ -40,7 +40,7 @@ const MANOR_NEEDS_ASSESSMENT = [
       "Small business ecosystem underdeveloped — only 340 registered businesses for 16,000+ residents",
       "Youth unemployment (16-24) estimated at 18% — no local internship or apprenticeship pipeline",
     ],
-    platforms: ["Mission Transition", "MCE", "Collaborative Advocate", "ThriveUp Academy"],
+    platforms: ["Mission Transition", "MCE", "Collaborative Advocate", "ThriveUp"],
     solutions: [
       "Mobile workforce hub — career assessments, resume building, interview prep",
       "I-35 Construction Career Pathway — CDL, heavy equipment, safety certifications",
@@ -94,7 +94,7 @@ const MANOR_NEEDS_ASSESSMENT = [
       "No dedicated youth mental health resources in schools",
       "College-going rate declining — 52% to 47% over 3 years",
     ],
-    platforms: ["ISSS", "Talk Your Talk", "Perfectly Different", "ThriveUp Academy"],
+    platforms: ["ISSS", "Talk Your Talk", "Perfectly Different", "ThriveUp"],
     solutions: [
       "School-based wraparound services — ISSS model deployment in Manor ISD",
       "After-school STEM + career exploration — aligned with I-35 workforce needs",
@@ -170,7 +170,7 @@ export default function ManorCommunityHubPage() {
   const [activeTab, setActiveTab] = useState("assessment");
 
   useEffect(() => {
-    document.title = "Manor Community Hub | ThriveUp Academy";
+    document.title = "Manor Community Hub | ThriveUp";
   }, []);
 
   return (

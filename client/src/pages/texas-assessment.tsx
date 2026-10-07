@@ -228,10 +228,10 @@ const FIVE_DOMAINS = [
     thriveupResponse: [
       "Mission Transition — military-to-civilian career pathways with credential recovery",
       "MCE — minority business development, SBA 8(a)/HUBZone certification support",
-      "ThriveUp Academy — workforce readiness, career exploration, dual credit alignment",
+      "ThriveUp — workforce readiness, career exploration, dual credit alignment",
       "Collaborative Advocate — VOSB federal contracting pipeline, employer partnerships",
     ],
-    platforms: ["Mission Transition", "MCE", "ThriveUp Academy", "Collaborative Advocate"],
+    platforms: ["Mission Transition", "MCE", "ThriveUp", "Collaborative Advocate"],
   },
   {
     domain: "Housing Stability",
@@ -289,9 +289,9 @@ const FIVE_DOMAINS = [
       "ISSS — school-based wraparound services, MTSS compliance, academic support",
       "Talk Your Talk — communication access (89 spoken + 18 sign), SEL development, career exploration",
       "Perfectly Different — neurodivergent support, evaluations, family resources",
-      "ThriveUp Academy — youth engagement, gamified learning, STAAR prep",
+      "ThriveUp — youth engagement, gamified learning, STAAR prep",
     ],
-    platforms: ["ISSS", "Talk Your Talk", "Perfectly Different", "ThriveUp Academy"],
+    platforms: ["ISSS", "Talk Your Talk", "Perfectly Different", "ThriveUp"],
   },
   {
     domain: "Digital Infrastructure",
@@ -327,7 +327,7 @@ const GRANT_ALIGNMENT = [
       "I-35 corridor construction career pathways — CDL, OSHA, heavy equipment",
       "14 required youth elements covered through ecosystem platform integration",
     ],
-    platforms: ["ThriveUp Academy", "Mission Transition", "MCE", "Talk Your Talk"],
+    platforms: ["ThriveUp", "Mission Transition", "MCE", "Talk Your Talk"],
     cfirAlignment: "Strong — competency-based education models, career pathway mapping, employer partnerships",
     reamScore: 88,
   },
@@ -523,7 +523,7 @@ function PlatformTourVideo() {
           poster={featureVideoPoster}
           preload="none"
           className="w-full aspect-video bg-black"
-          aria-label="ThriveUp Academy platform tour with Arthur Wakanda"
+          aria-label="ThriveUp platform tour with Arthur Wakanda"
           onEnded={() => { setIsPlaying(false); setShowOverlay(true); }}
           onClick={togglePlay}
           playsInline
@@ -584,7 +584,7 @@ export default function TexasAssessmentPage() {
   const [selectedHub, setSelectedHub] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "Texas State Needs Assessment | ThriveUp Academy";
+    document.title = "Texas State Needs Assessment | ThriveUp";
   }, []);
 
   const totalGrantValue = "$2.675M–$4.375M";
@@ -646,7 +646,7 @@ export default function TexasAssessmentPage() {
           <Play className="mr-1 h-3 w-3" /> Platform Tour
         </Badge>
         <h2 className="text-2xl sm:text-3xl font-bold mb-2" data-testid="text-video-heading">
-          See ThriveUp Academy in Action
+          See ThriveUp in Action
         </h2>
         <p className="text-sm text-muted-foreground max-w-lg mx-auto">
           A 7-minute tour of the platform — from community intelligence and grant discovery to workforce pipelines, AI tools, and partner coordination.

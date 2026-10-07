@@ -63,7 +63,7 @@ const GRANT_OPPORTUNITIES: GrantOpportunity[] = [
     description: "Training and deploying community health workers in underserved communities. Focuses on health promotion, care navigation, chronic disease prevention, and social determinants of health.",
     url: "https://www.hrsa.gov/grants",
     focus: ["CHW workforce development", "Health navigation", "Chronic disease prevention", "SDOH interventions"],
-    platformAlignment: ["CHW Dashboard", "Sankofa Health", "ThriveUp Academy", "Whole-Person Health"],
+    platformAlignment: ["CHW Dashboard", "Sankofa Health", "ThriveUp", "Whole-Person Health"],
     alignmentScore: 95,
     implementationScience: true,
     equityFocus: true,
@@ -159,7 +159,7 @@ const GRANT_OPPORTUNITIES: GrantOpportunity[] = [
     description: "Expanding the behavioral health workforce in underserved areas. Training mental health counselors, peer support specialists, and clinical supervisors in high-need communities.",
     url: "https://bhw.hrsa.gov/funding",
     focus: ["Behavioral health workforce", "Peer support training", "Clinical supervision", "Underserved area access"],
-    platformAlignment: ["ThriveUp Academy", "SafeCogniCare", "CHW Dashboard", "Mission Transition"],
+    platformAlignment: ["ThriveUp", "SafeCogniCare", "CHW Dashboard", "Mission Transition"],
     alignmentScore: 90,
     implementationScience: false,
     equityFocus: true,
@@ -191,7 +191,7 @@ const GRANT_OPPORTUNITIES: GrantOpportunity[] = [
     description: "Central Texas health equity grants focused on community-driven change, healthcare workforce development, culturally responsive mental health, and maternal health. Strong emphasis on community voice and equity.",
     url: "https://stdavidsfoundation.org/how-we-work/grantmaking/funding-opportunities/",
     focus: ["Central Texas health equity", "Community-driven change", "Healthcare workforce", "Maternal health"],
-    platformAlignment: ["Sankofa Health", "Black Maternal Health Network", "ThriveUp Academy", "LifeBridge"],
+    platformAlignment: ["Sankofa Health", "Black Maternal Health Network", "ThriveUp", "LifeBridge"],
     alignmentScore: 96,
     implementationScience: true,
     equityFocus: true,
@@ -207,7 +207,7 @@ const GRANT_OPPORTUNITIES: GrantOpportunity[] = [
     description: "Texas-based foundation focused on mental health transformation. Funds community-based mental health programs, peer support services, integrated care, and policy advocacy.",
     url: "https://hogg.utexas.edu/grants-funding",
     focus: ["Community mental health", "Peer support", "Integrated care", "Mental health equity"],
-    platformAlignment: ["SafeCogniCare", "ISSS", "Whole-Person Health", "ThriveUp Academy"],
+    platformAlignment: ["SafeCogniCare", "ISSS", "Whole-Person Health", "ThriveUp"],
     alignmentScore: 93,
     implementationScience: false,
     equityFocus: true,
@@ -271,7 +271,7 @@ const GRANT_OPPORTUNITIES: GrantOpportunity[] = [
     description: "Building a culture of health where everyone has a fair and just opportunity to be as healthy as possible. Funds systems change, community power building, and health equity research.",
     url: "https://www.rwjf.org/en/grants.html",
     focus: ["Culture of health", "Systems change", "Community power building", "Health equity research"],
-    platformAlignment: ["Sankofa Health", "Whole-Person Health", "Better Science Lab / RPLICE", "ThriveUp Academy"],
+    platformAlignment: ["Sankofa Health", "Whole-Person Health", "Better Science Lab / RPLICE", "ThriveUp"],
     alignmentScore: 84,
     implementationScience: true,
     equityFocus: true,
@@ -324,7 +324,7 @@ export default function HealthcareGrantsPageGated() {
 }
 
 function HealthcareGrantsPage() {
-  useEffect(() => { document.title = "Healthcare Grant Research Hub | ThriveUp Academy"; }, []);
+  useEffect(() => { document.title = "Healthcare Grant Research Hub | ThriveUp"; }, []);
 
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");

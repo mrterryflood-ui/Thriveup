@@ -307,12 +307,12 @@ const newOpportunities: Proposal[] = [
     frameworkDoc: "/docs/grants/GRANT-OPPORTUNITY-CRITERIA-MATRIX.md",
     implementationScience: { frameworks: ["RE-AIM"], instrument: "RPLICE", researchDesign: "Apprenticeship outcomes evaluation", evaluationLevel: "Workforce" },
     readinessChecklist: [
-      { item: "ThriveUp Academy 50+ pathways", status: "complete", note: "WIOA-aligned curriculum already built" },
+      { item: "ThriveUp 50+ pathways", status: "complete", note: "WIOA-aligned curriculum already built" },
       { item: "Healthcare employer partner", status: "action_required", note: "Letter of support from healthcare facility/employer required" },
       { item: "DSH community alignment", status: "action_required", note: "Document Disproportionate Share Hospital community service" }
     ],
     blockers: ["Healthcare employer partner letter needed"],
-    winStrategy: "Separate from TWC RFA 32026-00162. ThriveUp Academy expansion into healthcare apprenticeship; Austin healthcare workforce shortage is acute.",
+    winStrategy: "Separate from TWC RFA 32026-00162. ThriveUp expansion into healthcare apprenticeship; Austin healthcare workforce shortage is acute.",
     nextActions: ["Identify healthcare employer partner", "Secure letter of support", "Submit via Texas ESBD"]
   },
   {

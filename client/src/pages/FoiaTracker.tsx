@@ -26,7 +26,7 @@ export default function FoiaTracker() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    document.title = "FOIA Request Tracker | ThriveUp Academy";
+    document.title = "FOIA Request Tracker | ThriveUp";
     fetch("/api/foia/requests")
       .then(r => r.json())
       .then(data => Array.isArray(data) ? setRequests(data) : setRequests([]))
@@ -62,7 +62,7 @@ export default function FoiaTracker() {
     <div style={{ minHeight: "100vh", background: "#f8fafc", fontFamily: "'Inter', system-ui, sans-serif" }}>
       <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: "20px 40px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <div style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "#3b82f6", marginBottom: 4 }}>ThriveUp Academy</div>
+          <div style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "#3b82f6", marginBottom: 4 }}>ThriveUp</div>
           <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "#0f172a" }}>FOIA Request Tracker</h1>
           <p style={{ margin: "4px 0 0", fontSize: 13, color: "#64748b" }}>Texas Public Information Act — housing court & recidivism data</p>
         </div>

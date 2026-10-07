@@ -1,7 +1,7 @@
 # Capability Statement
 
 ## The Collaborative Advocate Foundation
-**d/b/a ThriveUp Academy**
+**d/b/a ThriveUp**
 
 National community-infrastructure platform — piloted in Travis County, Texas
 
@@ -10,7 +10,7 @@ National community-infrastructure platform — piloted in Travis County, Texas
 | | |
 |---|---|
 | **Legal name** | The Collaborative Advocate Foundation |
-| **Doing business as** | ThriveUp Academy |
+| **Doing business as** | ThriveUp |
 | **EIN** | 41-3618003 |
 | **UEI** | KDDVD1FGLW35 |
 | **CAGE Code** | 209N1 |
@@ -27,7 +27,7 @@ National community-infrastructure platform — piloted in Travis County, Texas
 
 ## What we do
 
-The Collaborative Advocate Foundation operates **ThriveUp Academy**, a production-grade community-infrastructure platform that connects residents to grant-funded services, aligns service delivery with workforce development, and produces auditable, primary-source-traceable community impact. We do not sell software — we run service. Our 15-platform ecosystem is built and operated in-house on a single codebase of **271 production data tables, 211 frontend pages, and 84 backend modules**, instrumented against the 39 constructs of the Consolidated Framework for Implementation Research. Travis County, Texas is our implementation template; the platform is national.
+The Collaborative Advocate Foundation operates **ThriveUp**, a production-grade community-infrastructure platform that connects residents to grant-funded services, aligns service delivery with workforce development, and produces auditable, primary-source-traceable community impact. We do not sell software — we run service. Our 15-platform ecosystem is built and operated in-house on a single codebase of **271 production data tables, 211 frontend pages, and 84 backend modules**, instrumented against the 39 constructs of the Consolidated Framework for Implementation Research. Travis County, Texas is our implementation template; the platform is national.
 
 ## Core competencies — six service domains
 
@@ -51,7 +51,7 @@ We operate fifteen public-facing service platforms on one ecosystem hub. Five ca
 | [**Talk Your Talk**](https://talkyourtalk.net) | Communication + learning substrate | Dialect-aware multilingual access across **89 spoken + 18 sign languages (107 total)**, register-to-register translation, six learning surfaces, crisis detection routing into Whole-Person Health |
 | [**Civic Signal**](https://power2thepeople.net) | Civic intelligence | Live Civic Feed (court items, ordinances, meetings), 10-step Prepare wizard from "I heard about a hearing" to "I am ready to speak" |
 | [**LifeBridge**](https://lifetransitionsaid.org) † | Safety-net navigation | Virtual community health worker with 2,900+ resources across 5 service lines, including Chafee Act foster-youth navigator and 24/7 crisis bar |
-| [**ThriveUp Academy**](https://thrivingcommunitiesforall.com) | Workforce + learning | AI Literacy · FAFSA · Financial · STEM · Apprenticeship · Trade Sims · K-12 AI Mastery · reentry persona learning |
+| [**ThriveUp**](https://thrivingcommunitiesforall.com) | Workforce + learning | AI Literacy · FAFSA · Financial · STEM · Apprenticeship · Trade Sims · K-12 AI Mastery · reentry persona learning |
 | [**Whole-Person Health Ecosystem**](https://mentalwellnesssupport.net) | Behavioral-health safety floor under all four | Validated screenings (PHQ-9, GAD-7, C-SSRS, PCL-5), safety-plan builder, 988 integration, 20,000+ curated resources, no-login access |
 
 *† LifeBridge is undergoing a server-side issue as of 2026-05-19 — back-end logic intact; surface restoration in progress.*
@@ -69,7 +69,7 @@ Six trades × fifteen lessons = ninety scenario-based learning modules across **
 Compliance-grade clinical decision support running on **FHIR with CDS Hooks interoperability**. Longitudinal validated screening battery: PHQ-9, GAD-7, C-SSRS, PCL-5, ACEs. Architecture: human-in-the-loop default-on, **zero PHI egress**, 100% cited recommendations, 50-state mandatory-reporter coverage. Live at [safereports.net](https://safereports.net).
 
 ### Justice / Reentry stack
-Risk-Needs-Responsivity (RNR) assessment, Cognitive-Behavioral Intervention (CBI) protocol library, and National Reentry Resource Center (NRRC) alignment for evidence-based reentry programming. Braided with ThriveUp Academy workforce + LifeBridge benefits + Whole-Person Health behavioral floor = wraparound by design.
+Risk-Needs-Responsivity (RNR) assessment, Cognitive-Behavioral Intervention (CBI) protocol library, and National Reentry Resource Center (NRRC) alignment for evidence-based reentry programming. Braided with ThriveUp workforce + LifeBridge benefits + Whole-Person Health behavioral floor = wraparound by design.
 
 ### Foster-Youth Tools
 Capability-token-secured intake wizard, state child-welfare portal integration, multi-state policy comparison engine, and risk-stratification engine. Built around Chafee Act eligibility and Title IV-E independent-living services. Includes congruence audit script and funder-leave-behind deck generation.
@@ -83,7 +83,7 @@ Eight-step citation-chained data pipeline pulling **Census ACS (B01003, B01001B,
 ### Community Voice
 Map-pin → AI-cluster → ecosystem-route → public-story platform. Residents drop a pin, an AI clusters the concern, the platform deterministically routes the cluster to the right service surface, and the resolution becomes a public #DATA story (PII-sanitized through `publicizePin`). Phases 1–4 live as of 2026-05-18.
 
-### ThriveUp Academy learning domains
+### ThriveUp learning domains
 **AI Literacy** (K-12 mastery curriculum + adult onboarding) · **FAFSA** (full navigator) · **Financial Literacy** · **STEM** · **Apprenticeship** pathways. Designed for residents with stacked barriers (limited English proficiency, neurodivergence, justice involvement, foster-aging-out, caregiver burden).
 
 ### Donor outcome receipts
@@ -112,7 +112,7 @@ Two separately registered entities, clean lanes, no commingling.
 ## Contact
 
 **Terry D. Flood Sr., President**
-The Collaborative Advocate Foundation d/b/a ThriveUp Academy
+The Collaborative Advocate Foundation d/b/a ThriveUp
 17912 Stefano Drive, Pflugerville, TX 78660-7020
 **E** [terryflood@thrivingcommunitiesforall.com](mailto:terryflood@thrivingcommunitiesforall.com) · **P** (254) 319-8460
 **Web** [thrivingcommunitiesforall.com](https://thrivingcommunitiesforall.com)

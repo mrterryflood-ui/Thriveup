@@ -4450,7 +4450,7 @@ export type CommunityEvidence = typeof communityEvidence.$inferSelect;
 
 // ==================== NETWORK FEDERATION (cross-platform members & events) ====================
 // Federates HerHealth Network, Bible Study Buddies, and other ecosystem platforms.
-// Each platform keeps its own auth/data; this gives ThriveUp Academy admins a unified
+// Each platform keeps its own auth/data; this gives ThriveUp admins a unified
 // roster + activity feed via signed webhook events.
 
 export const networkPlatforms = pgTable("network_platforms", {

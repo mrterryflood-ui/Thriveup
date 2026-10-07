@@ -1,12 +1,12 @@
-Great opportunity. ThriveUp Academy combining with RPLICE for NSF STEM education funding makes strong strategic sense — you've got an AI-powered implementation science platform (RPLICE) and an education platform (Academy) in the same ecosystem. Let me break down the fit for each program.
+Great opportunity. ThriveUp combining with RPLICE for NSF STEM education funding makes strong strategic sense — you've got an AI-powered implementation science platform (RPLICE) and an education platform (Academy) in the same ecosystem. Let me break down the fit for each program.
 
 Here's the quick assessment:
 
 1. ATE (Advanced Technological Education) — OPEN NOW, Oct 1, 2026 deadline
-This is your best immediate shot. ATE supports partnerships between colleges and industry to train technicians in AI, biotech, and machine learning. ThriveUp Academy provides the education infrastructure, RPLICE provides the AI-powered implementation science training tool. A proposal could focus on training community college students to use AI-assisted tools for health program implementation — bridging STEM education with real-world public health workforce needs.
+This is your best immediate shot. ATE supports partnerships between colleges and industry to train technicians in AI, biotech, and machine learning. ThriveUp provides the education infrastructure, RPLICE provides the AI-powered implementation science training tool. A proposal could focus on training community college students to use AI-assisted tools for health program implementation — bridging STEM education with real-world public health workforce needs.
 
 2. ITEST — Likely reopening soon, deadline probably August
-Focuses on developing diverse future STEM workforce with new technologies (AI, biotech). A ThriveUp Academy + RPLICE proposal could train students in AI-assisted research translation — teaching the next generation how to move evidence into practice using the platform. The implementation science angle is unique and differentiating.
+Focuses on developing diverse future STEM workforce with new technologies (AI, biotech). A ThriveUp + RPLICE proposal could train students in AI-assisted research translation — teaching the next generation how to move evidence into practice using the platform. The implementation science angle is unique and differentiating.
 
 3. ExLent — Awaiting new notice
 Experiential learning for workforce readiness, including adult learners upskilling. RPLICE as a hands-on experiential learning environment where learners actually run implementation assessments, use AI tools, and build real implementation plans — that's exactly what ExLent wants.
@@ -14,4 +14,4 @@ Experiential learning for workforce readiness, including adult learners upskilli
 4. SBIR/STTR — Pending reauthorization
 ThriveUp already qualifies as a VOSB small business. This would fund RPLICE technology development directly. Separate from the Academy collaboration but worth tracking.
 
-My recommendation: Start with ATE since it's open now and the October deadline gives you time. Want me to create a detailed proposal framework document for the ThriveUp Academy + RPLICE ATE application — mapping your combined capabilities to NSF's evaluation criteria?
+My recommendation: Start with ATE since it's open now and the October deadline gives you time. Want me to create a detailed proposal framework document for the ThriveUp + RPLICE ATE application — mapping your combined capabilities to NSF's evaluation criteria?

@@ -201,7 +201,7 @@ export default function JusticePartnersPage() {
           Community-Based Reentry Ecosystem
         </h1>
         <p className="text-muted-foreground max-w-2xl mx-auto text-base sm:text-lg">
-          ThriveUp Academy provides a comprehensive, evidence-based platform for youth reentry, workforce development, and whole-child support — designed to integrate with juvenile justice agency workflows.
+          ThriveUp provides a comprehensive, evidence-based platform for youth reentry, workforce development, and whole-child support — designed to integrate with juvenile justice agency workflows.
         </p>
       </section>
 
@@ -572,7 +572,7 @@ export default function JusticePartnersPage() {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {[
-                { platform: "ThriveUp Academy", service: "AI mastery curriculum, career pathways, certifications" },
+                { platform: "ThriveUp", service: "AI mastery curriculum, career pathways, certifications" },
                 { platform: "LifeBridge", service: "Housing navigation, transitional support, stability tracking" },
                 { platform: "Mission Transition", service: "Workforce training, job placement, employer connections" },
                 { platform: "Whole-Person Health", service: "PHQ-9/GAD-7 screening, behavioral health referrals" },

@@ -175,7 +175,7 @@ export default function FarmCooperativePage() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-5">
         <nav className="text-xs text-slate-500 mb-2 flex items-center gap-1">
-          <Database className="w-3 h-3" /><span>Producer Data Cooperative — ThriveUp Academy</span>
+          <Database className="w-3 h-3" /><span>Producer Data Cooperative — ThriveUp</span>
         </nav>
         <div className="flex items-start justify-between">
           <div>

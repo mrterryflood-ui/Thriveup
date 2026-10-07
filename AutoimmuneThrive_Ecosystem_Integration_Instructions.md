@@ -1,6 +1,6 @@
 # Autoimmune Center of Excellence — ThriveUp Ecosystem Integration Instructions
 
-## Platform #23 in the ThriveUp Academy ACOS Ecosystem
+## Platform #23 in the ThriveUp ACOS Ecosystem
 
 **Platform ID:** `autoimmune-thrive`
 **Hub URL:** `https://thrivingcommunitiesforall.com`

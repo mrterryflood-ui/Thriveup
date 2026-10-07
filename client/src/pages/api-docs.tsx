@@ -355,7 +355,7 @@ export default function APIDocsPage() {
   const [childcoreDocsLoading, setChildcoreDocsLoading] = useState(true);
 
   useEffect(() => {
-    document.title = "API Documentation | ThriveUp Academy";
+    document.title = "API Documentation | ThriveUp";
     fetch("/api/childcore/public-config")
       .then((response) => response.ok ? response.json() : Promise.reject(new Error(`HTTP ${response.status}`)))
       .then((data: { docsUrl?: string | null }) => setChildcoreDocsUrl(data.docsUrl ?? null))
@@ -396,7 +396,7 @@ export default function APIDocsPage() {
         </Badge>
         <p className="text-lg font-semibold" data-testid="heading-api-docs">Scoped API quick start</p>
         <p className="text-muted-foreground max-w-2xl">
-          Integrate with ThriveUp Academy through the scoped REST API. Use the
+          Integrate with ThriveUp through the scoped REST API. Use the
           <code className="bg-muted px-1 rounded mx-1">{PARTNER_API_BASE_PATH}</code>
           base path and request only the scopes your integration needs.
         </p>

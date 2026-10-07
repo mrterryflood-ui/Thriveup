@@ -129,7 +129,7 @@ TCAF (The Collaborative Advocate Foundation): The 501(c)(3) umbrella. The "nonpr
 
 LifeBridge (lifetransitionsaid.org): The digital front door. A 24/7 virtual community health worker navigating all 5 SDOH domains in 107 languages. No judgment, no prerequisites, completely anonymous by default.
 
-ThriveUp Academy (thrivingcommunitiesforall.com): The live, production-grade engine powering trade simulations, grant discovery, and CFIR 2.0 implementation workflows across the nation.
+ThriveUp (thrivingcommunitiesforall.com): The live, production-grade engine powering trade simulations, grant discovery, and CFIR 2.0 implementation workflows across the nation.
 
 Block C: The Pivot to the Audience (8 Mins)
 The hosts emphasize the live, open-mic nature of the show.
@@ -199,7 +199,7 @@ Vanessa: Establishes the trust lane—how community activation turns raw numbers
 
 Felecia: Introduces the clinical framework—why health fails when you treat a chart instead of a person's Spirit, Soul, and Body.
 
-Ecosystem Spotlight: Unpack lifetransitionsaid.org (LifeBridge) and thrivingcommunitiesforall.com (ThriveUp Academy) as live, running solutions, not roadmaps.
+Ecosystem Spotlight: Unpack lifetransitionsaid.org (LifeBridge) and thrivingcommunitiesforall.com (ThriveUp) as live, running solutions, not roadmaps.
 
 The "Let's Talk" Open Mic (20–25 min):
 
@@ -309,7 +309,7 @@ The "Let's Talk" Open Mic (20–25 min):
 
 Prompt: "What trade, skill, or talent are you carrying right now that you've never received formal credit or fair pay for?"
 
-Facilitation Note: Highlight the ThriveUp Academy Trade Simulation Engines, demonstrating how anyone can access real skill-building tools for free on the platform.
+Facilitation Note: Highlight the ThriveUp Trade Simulation Engines, demonstrating how anyone can access real skill-building tools for free on the platform.
 
 Week 8: After the Gate Opens: Justice, Reentry, and the Community's Role
 Host Dynamic: Lead: Dr. Flood | Supporting: Felecia

@@ -70,7 +70,7 @@ const ORG_STRUCTURE = [
     ],
   },
   {
-    entity: "ThriveUp Academy",
+    entity: "ThriveUp",
     color: "bg-emerald-50 dark:bg-emerald-950/30",
     borderColor: "border-emerald-200 dark:border-emerald-800",
     textColor: "text-emerald-700 dark:text-emerald-400",

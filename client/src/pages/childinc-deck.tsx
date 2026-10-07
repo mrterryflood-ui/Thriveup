@@ -53,7 +53,7 @@ function TitleSlide() {
         style={{ backgroundImage: "radial-gradient(circle at 30% 40%, #f59e0b 0%, transparent 50%), radial-gradient(circle at 70% 60%, #3b82f6 0%, transparent 50%)" }} />
       <div className="relative z-10 max-w-4xl">
         <div className="flex items-center justify-center gap-3 mb-8">
-          <SlideTag text="Prepared by TCAF / ThriveUp Academy" color="amber" />
+          <SlideTag text="Prepared by TCAF / ThriveUp" color="amber" />
         </div>
         <h1 className="text-6xl font-bold text-white mb-4 leading-tight">
           Child Inc.<br />
@@ -1042,7 +1042,7 @@ function NextStepsSlide() {
           ))}
         </div>
         <div className="mt-6 bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 text-center">
-          <p className="text-emerald-300 font-bold">TCAF / ThriveUp Academy is ready to support every step of this process.</p>
+          <p className="text-emerald-300 font-bold">TCAF / ThriveUp is ready to support every step of this process.</p>
         </div>
       </div>
     </SlideWrapper>
@@ -1202,7 +1202,7 @@ export default function ChildIncDeck() {
       {/* Bottom bar */}
       <div className="h-12 bg-slate-950 border-t border-white/10 flex items-center justify-between px-6 flex-shrink-0">
         <div className="flex items-center gap-2">
-          <span className="text-slate-500 text-xs">TCAF / ThriveUp Academy</span>
+          <span className="text-slate-500 text-xs">TCAF / ThriveUp</span>
           <span className="text-slate-700">·</span>
           <span className="text-slate-500 text-xs">Child Inc. Funding Strategy</span>
         </div>

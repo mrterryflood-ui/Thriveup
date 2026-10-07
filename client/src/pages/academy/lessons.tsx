@@ -77,7 +77,7 @@ function LoadingSkeleton() {
 }
 
 export default function AcademyLessonsPage() {
-  useEffect(() => { document.title = 'Lessons | ThriveUp Academy'; }, []);
+  useEffect(() => { document.title = 'Lessons | ThriveUp'; }, []);
 
   const [activeFilter, setActiveFilter] = useState("all");
 

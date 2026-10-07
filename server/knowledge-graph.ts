@@ -245,7 +245,7 @@ export async function seedKnowledgeGraph(): Promise<void> {
   nodeOps.push(upsertNode({
     id: "concept:tcaf-hub",
     type: "concept",
-    label: "TCAF / ThriveUp Academy (Hub)",
+    label: "TCAF / ThriveUp (Hub)",
     description: "National community-infrastructure platform. Orchestrating hub for 25+ ecosystem platforms.",
     url: "https://thrivingcommunitiesforall.com",
     source: "ecosystem_seeder",

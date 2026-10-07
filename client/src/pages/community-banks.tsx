@@ -17,7 +17,7 @@ interface Profile { geography: { label: string; state: string; stateName: string
 const CRA_LENS = [
   { category: "Affordable housing", tools: [{ label: "Find housing & shelter resources", href: "/get-help" }, { label: "Homelessness data (HUD PIT)", href: "/community-data" }, { label: "Referral loop for partner organizations", href: "/chw-dashboard" }] },
   { category: "Community services for low- and moderate-income people", tools: [{ label: "Benefits screener & guided apply", href: "/benefits-screener" }, { label: "SDOH explorer", href: "/sdoh-explorer" }, { label: "Child care access", href: "/child-care" }] },
-  { category: "Economic development & workforce", tools: [{ label: "ThriveUp Academy (financial literacy, trade sims)", href: "/academy" }, { label: "Workforce & CEDS alignment", href: "/workforce" }, { label: "Grant & funding navigation", href: "/hub/fund" }] },
+  { category: "Economic development & workforce", tools: [{ label: "ThriveUp (financial literacy, trade sims)", href: "/academy" }, { label: "Workforce & CEDS alignment", href: "/workforce" }, { label: "Grant & funding navigation", href: "/hub/fund" }] },
   { category: "Revitalization & stabilization", tools: [{ label: "Community analysis (GIS evidence)", href: "/community-analysis" }, { label: "Equity-Loss Engine", href: "/equity-loss" }, { label: "Community scenarios", href: "/community-impact" }] },
 ];
 

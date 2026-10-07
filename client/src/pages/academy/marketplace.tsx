@@ -153,7 +153,7 @@ function getActivityGradient(type: string) {
 }
 
 export default function AcademyMarketplacePage() {
-  useEffect(() => { document.title = 'Marketplace | ThriveUp Academy'; }, []);
+  useEffect(() => { document.title = 'Marketplace | ThriveUp'; }, []);
 
   const { toast } = useToast();
   const { user } = useAuth();

@@ -399,7 +399,7 @@ export default function LogicModelPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <h3 className="text-sm font-medium flex items-center gap-2"><Zap className="h-4 w-4 text-blue-600" /> Workforce Platforms</h3>
-            {["ThriveUp Academy (youth services)", "MCE (employer partnerships)", "M2C (veteran transitions)", "APEX Accelerator (gov contracting)"].map((p) => (
+            {["ThriveUp (youth services)", "MCE (employer partnerships)", "M2C (veteran transitions)", "APEX Accelerator (gov contracting)"].map((p) => (
               <div key={p} className="text-xs p-2 bg-muted rounded">{p}</div>
             ))}
           </div>

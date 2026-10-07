@@ -380,7 +380,7 @@ export default function AIToolsWorkspacePage() {
       const res = await fetch("/api/export/pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: generatedContent, title: toolName, subtitle: "ThriveUp Academy · TCAF", filename: toolName }),
+        body: JSON.stringify({ content: generatedContent, title: toolName, subtitle: "ThriveUp · TCAF", filename: toolName }),
       });
       if (!res.ok) throw new Error("PDF generation failed");
       const blob = await res.blob();
@@ -411,7 +411,7 @@ export default function AIToolsWorkspacePage() {
     }
   }, [generatedContent]);
 
-  useEffect(() => { document.title = "AI Tool Workspace | ThriveUp Academy"; }, []);
+  useEffect(() => { document.title = "AI Tool Workspace | ThriveUp"; }, []);
 
   if (isLoading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
 

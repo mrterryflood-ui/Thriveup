@@ -253,7 +253,7 @@ const workforceTradesItems: NavItem[] = [
   { title: "Workforce Training", url: "/workforce-training", icon: GraduationCap },
 ];
 
-// HUB 4 — Academy & Learning: student portal, campus life, AI tools,
+// HUB 4 — Learn: student portal, campus life, AI tools,
 // curriculum, build & create — all under one roof.
 const academyLearningItems: NavItem[] = [
   { title: "Panther Village", url: "/academy", icon: Rocket },
@@ -737,7 +737,7 @@ export function AppSidebar() {
     <TooltipProvider delayDuration={250} skipDelayDuration={100}>
     <Sidebar role="navigation" aria-label="Main navigation">
       <SidebarHeader className="p-4">
-        <Link href="/" aria-label="ThriveUp Academy home">
+        <Link href="/" aria-label="ThriveUp home">
           <div className="flex items-center gap-2.5 cursor-pointer" data-testid="link-home">
             <img src={thriveupLogo} alt="ThriveUp logo" className="h-9 w-9 flex-shrink-0" />
             <div>
@@ -907,7 +907,7 @@ export function AppSidebar() {
         <NavSection label="Child Care & Workforce" items={hubChildCare} location={location} currentUrl={activeNavUrl} icon={Baby} />
         <NavSection label="Rural & Agriculture" items={hubRural} location={location} currentUrl={activeNavUrl} icon={Sprout} />
         <NavSection label="Workforce & Trades" items={hub3} location={location} currentUrl={activeNavUrl} icon={Briefcase} />
-        <NavSection label="Academy & Learning" items={hub4} location={location} currentUrl={activeNavUrl} icon={GraduationCap} />
+        <NavSection label="Learn" items={hub4} location={location} currentUrl={activeNavUrl} icon={GraduationCap} />
         <NavSection label="Partners & Coalitions" items={hub5} location={location} currentUrl={activeNavUrl} icon={Handshake} />
         <NavSection label="Where We Operate" items={hub6} location={location} currentUrl={activeNavUrl} icon={Compass} />
         <NavSection label="About & Trust" items={hub7} location={location} currentUrl={activeNavUrl} icon={Info} />
@@ -983,7 +983,7 @@ export function AppSidebar() {
         <div className="mt-3 pt-2 border-t space-y-1">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Heart className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-            <span>ThriveUp Academy · TCAF · ALC</span>
+            <span>ThriveUp · TCAF · ALC</span>
           </div>
           <p className="text-[10px] text-muted-foreground leading-snug" data-testid="text-pilot-transparency">
             National community-infrastructure platform. Live pilot in Travis County, Texas — the template for the all-50-states + 5-territory rollout via the open Hub Adoption Kit. TCAF is an IRS-determined 501(c)(3) (Letter 947, effective January 14, 2026); SAM.gov Active (UEI KDDVD1FGLW35); CAGE 209N1.

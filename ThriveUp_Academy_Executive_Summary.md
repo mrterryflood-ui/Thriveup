@@ -58,14 +58,14 @@ The ecosystem serves **12 distinct populations** with tailored platform combinat
 
 | Population | Primary Platforms | Supporting Platforms |
 |-----------|-------------------|---------------------|
-| **Returning Citizens** | ThriveUp Academy, LifeBridge | SafeReport, CogniCare, RPLICE |
-| **Opportunity Youth (16-24)** | ThriveUp Academy, Perfectly Different | LifeBridge, MedLog, RPLICE |
+| **Returning Citizens** | ThriveUp, LifeBridge | SafeReport, CogniCare, RPLICE |
+| **Opportunity Youth (16-24)** | ThriveUp, Perfectly Different | LifeBridge, MedLog, RPLICE |
 | **K-12 Students** | ISSS, Perfectly Different | ThriveUp, SafeReport, Sankofa Health |
 | **Veterans** | M2C Transition, CogniCare | MedLog, ThriveUp, SHIELD/ATLAS, The Incubator |
 | **Neurodivergent Individuals** | Perfectly Different, CogniCare | ISSS, ThriveUp, LifeBridge |
 | **People in Crisis** | LifeBridge, Sankofa Health | SafeReport, MedLog, CogniCare |
 | **Seniors & Caregivers** | CogniCare, MedLog | LifeBridge, SafeReport, Sankofa Health |
-| **Single Parents** | ThriveUp Academy, LifeBridge | Sankofa Health, Perfectly Different |
+| **Single Parents** | ThriveUp, LifeBridge | Sankofa Health, Perfectly Different |
 | **Healthcare Workers** | Sankofa Health, MedLog | SafeReport, CogniCare, LifeBridge |
 | **Educators** | ISSS, Perfectly Different | ThriveUp, SafeReport, RPLICE |
 | **Frontline Workers** | Unplanned, ThriveUp | M2C Transition, SafeReport |
@@ -150,7 +150,7 @@ The Collaborative Advocate ecosystem eliminates silos. Each platform is designed
 
 ### Community & Workforce
 
-**1. ThriveUp Academy** — AI-powered workforce development and community enablement platform. 90+ pages, 11 operational domains. The grant infrastructure engine: SAM.gov discovery, narrative generation, logic model builder, coalition management, 24-module prevention curriculum, reentry case management, 50+ career pathways, DFC Command Center. Covers all 14 WIOA youth program elements.
+**1. ThriveUp** — AI-powered workforce development and community enablement platform. 90+ pages, 11 operational domains. The grant infrastructure engine: SAM.gov discovery, narrative generation, logic model builder, coalition management, 24-module prevention curriculum, reentry case management, 50+ career pathways, DFC Command Center. Covers all 14 WIOA youth program elements.
 
 **2. LifeBridge** — Virtual 411 and Community Health Worker hub. 300+ curated resources across 21 SDOH categories, crisis-first design, bilingual (English/Spanish), GIS mapping. The community resource navigation layer for every other platform.
 
@@ -198,7 +198,7 @@ The Collaborative Advocate ecosystem eliminates silos. Each platform is designed
 
 **The Incubator** monitors 10 live federal data sources (SAM.gov, USASpending, Federal Register, FPDS, SBIR.gov, Grants.gov, GovWin, Bloomberg Gov, Federal Procurement Data, agency feeds) with a 3-AI ensemble that scores every opportunity against our full ecosystem capabilities. When a matching opportunity crosses threshold, the autonomous trigger engine activates.
 
-**ThriveUp Academy's Grant Discovery Engine** provides community-level intelligence: SAM.gov API integration with semantic analysis, AI fit scoring against platform capabilities, community needs assessment using 8+ federal data sources, and a grant alignment matrix mapping all 13 platforms against 12 funding streams.
+**ThriveUp's Grant Discovery Engine** provides community-level intelligence: SAM.gov API integration with semantic analysis, AI fit scoring against platform capabilities, community needs assessment using 8+ federal data sources, and a grant alignment matrix mapping all 13 platforms against 12 funding streams.
 
 **Combined:** We don't wait for opportunities to appear. We monitor, score, and pre-qualify continuously across every relevant funding stream.
 

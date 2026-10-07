@@ -70,7 +70,7 @@ All four agree on `003`.
 - **St. David's WAB2 LOI** — submitted via GivingData 4/27/2026 (before May 12 sweep, so likely correct `003`)
 - NSF / DOL / CDMRP / RARE / Borealis / RWJF drafts — drafts only, no correction needed.
 
-**Live public-facing sites:** ThriveUp Academy pages (`landing.tsx`, `grant-command-center.tsx`, etc.) carried wrong `503` for 3 days between sweeps; now correct. M2C / vetmissiontransition.com (separate Replit project) was never touched by either sweep — its `003` has been correct continuously.
+**Live public-facing sites:** ThriveUp pages (`landing.tsx`, `grant-command-center.tsx`, etc.) carried wrong `503` for 3 days between sweeps; now correct. M2C / vetmissiontransition.com (separate Replit project) was never touched by either sweep — its `003` has been correct continuously.
 
 **Why this matters:** The May 12 "correction" cited a primary source (Letter 947) that nobody had actually read. The IRS PDFs were on disk the whole time. Permanent lesson: always open the actual file before claiming a typo. Never trust prior memory's claim of verification — verify the verification. (See Iron Rule extensions in `replit.md`.)
 
@@ -126,7 +126,7 @@ These remain referenced in `.agents/skills/map-gap/lessons-learned.md` and are k
 - Build log (this session): `docs/active-commitments.md` "2026-05-17 PM — Trade Sims Phase D wrap" section.
 
 ## A8. SSG Fox FY27 submission — full context (May 15, 2026)
-**Top-line for `replit.md`:** TCAF is applying for SSG Fox FY27 (deadline 2026-06-12 4:59 PM ET). Submission assets live on **vetmissiontransition.com** (M2C platform), NOT this ThriveUp Academy codebase. Do not rebuild Fox pages here. Year 1 = Central TX only (Pflugerville–Manor–East Austin, Travis/Williamson). Ask: $400K–$600K. EIN on live site is correct (41-3618003). Brief: `docs/grants/ssg-fox-fy27/00-funder-brief.md`.
+**Top-line for `replit.md`:** TCAF is applying for SSG Fox FY27 (deadline 2026-06-12 4:59 PM ET). Submission assets live on **vetmissiontransition.com** (M2C platform), NOT this ThriveUp codebase. Do not rebuild Fox pages here. Year 1 = Central TX only (Pflugerville–Manor–East Austin, Travis/Williamson). Ask: $400K–$600K. EIN on live site is correct (41-3618003). Brief: `docs/grants/ssg-fox-fy27/00-funder-brief.md`.
 
 **Pages on M2C:** Full Application Narrative `/ssg-fox-program` · Reviewer One-Pager `/ssg-fox-onepager` · Platform Overview One-Pager `/platform-onepager` · Live Evidence Dashboard `/evidence/tcaf`.
 

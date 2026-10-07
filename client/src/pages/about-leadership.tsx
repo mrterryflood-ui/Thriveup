@@ -374,7 +374,7 @@ export default function AboutLeadershipPage() {
               <GraduationCap className="h-5 w-5 text-white" />
             </div>
             <div>
-              <p className="font-bold text-sm" data-testid="text-entity-thriveup">ThriveUp Academy</p>
+              <p className="font-bold text-sm" data-testid="text-entity-thriveup">ThriveUp</p>
               <Badge variant="secondary" className="text-xs">501(c)(3)</Badge>
             </div>
           </div>

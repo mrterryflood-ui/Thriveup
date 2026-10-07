@@ -1519,7 +1519,7 @@ Body: { "problem": "...", "requiredOutcome": "...", "domains": ["..."] }
 | Emergency Management | Safety + Continuity + Emergency | Crisis scenarios, emergency planning, risk detection |
 | Better Science Lab / RPLICE | Governance + Architecture + Decision Integrity | Architecture, governance, validation, implementation science |
 | ISSS | People + Community + Execution Layer | Human-centered implementation, stakeholder engagement |
-| ThriveUp Academy | Workforce + Learning + Grants Support | Workforce training, grant readiness, skill alignment |
+| ThriveUp | Workforce + Learning + Grants Support | Workforce training, grant readiness, skill alignment |
 | Whole-Person Health | Health Screening + Crisis Tools | Behavioral health, safety plans, resource navigation |
 | M2C | Veteran Transition | Military-to-civilian pipeline, benefits navigation |
 | MCE | Minority Business | Contractor enablement, SAM.gov, certifications |

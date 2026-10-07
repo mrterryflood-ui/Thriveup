@@ -48,7 +48,7 @@ const PLATFORM_LABELS: Record<string, string> = {
   "lifebridge": "LifeBridge",
   "safe-cogni-care": "SafeCogniCare",
   "sankofa-health-network": "Sankofa Health Network",
-  "trade-sims": "Trade Sims (ThriveUp Academy)",
+  "trade-sims": "Trade Sims (ThriveUp)",
   "mission-transition": "Mission Transition (M2C)",
   "isss": "ISSS",
   "foster-youth": "Foster Youth Wizard",

@@ -1033,7 +1033,7 @@ const CENSUS_METRICS: MetricDef[] = [
     source: "Census ACS 5-Year, Table B23025 — Employment Status for the Population 16+",
     derivation: "Percentage of the civilian labor force that is unemployed. Calculated as: (unemployed civilians ÷ civilian labor force) × 100. NOTE: This only counts people ACTIVELY LOOKING for work. People who have given up looking (discouraged workers) are NOT counted — real joblessness in high-risk tracts is often 2-3x the official rate.",
     whatItMeans: "If unemployment is 5%, about 1 in 20 working-age adults who want jobs can't find them. But in the highest-risk tracts, this reaches 30-45%, meaning nearly half of working-age adults are jobless. When you add discouraged workers who stopped looking, real unemployment in these neighborhoods can exceed 50%.",
-    whyItMatters: "Unemployment drives poverty, which drives ACEs, which drives the neighborhood→school→outcomes pipeline. Long-term unemployment (6+ months) causes skill atrophy, mental health decline, and family instability. Workforce development programs (like ThriveUp Academy) directly target this metric.",
+    whyItMatters: "Unemployment drives poverty, which drives ACEs, which drives the neighborhood→school→outcomes pipeline. Long-term unemployment (6+ months) causes skill atrophy, mental health decline, and family instability. Workforce development programs (like ThriveUp) directly target this metric.",
     benchmark: "National average: ~3.5-4.5%. Above 7% = elevated. Above 15% = crisis. Above 25% = structural economic failure.",
   },
   {
@@ -1630,7 +1630,7 @@ function AICommunityAnalysis() {
                 <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                   <CheckCircle2 className="h-3 w-3 mr-1" /> Ecosystem Connected
                   <InfoBubble title="Ecosystem Connection">
-                    <p>RPLICE / Better Science Lab is connected to the ThriveUp Academy ecosystem as the <strong>Research Quality Gate</strong>. This means RPLICE validates the scientific rigor of all analyses and interventions across the 15-service-platform ecosystem.</p>
+                    <p>RPLICE / Better Science Lab is connected to the ThriveUp ecosystem as the <strong>Research Quality Gate</strong>. This means RPLICE validates the scientific rigor of all analyses and interventions across the 15-service-platform ecosystem.</p>
                     <p>Status: <strong className="text-green-600">Connected and Active</strong></p>
                   </InfoBubble>
                 </Badge>

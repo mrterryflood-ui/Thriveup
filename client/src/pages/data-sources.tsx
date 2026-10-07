@@ -255,7 +255,7 @@ const STATE_SOURCES: DataSource[] = [
     status: "available",
     updateFrequency: "Annual",
     geographyLevel: "Campus, District, Region",
-    usedBy: ["ISSS", "ThriveUp Academy", "Grant Packages", "RPLICE Toolkit"],
+    usedBy: ["ISSS", "ThriveUp", "Grant Packages", "RPLICE Toolkit"],
     icon: GraduationCap,
     category: "state"
   },
@@ -318,7 +318,7 @@ const LOCAL_SOURCES: DataSource[] = [
     status: "live",
     updateFrequency: "Real-time (via ISSS)",
     geographyLevel: "Campus, Student",
-    usedBy: ["ISSS", "ThriveUp Academy", "Spencer Foundation Grant", "RPLICE Toolkit"],
+    usedBy: ["ISSS", "ThriveUp", "Spencer Foundation Grant", "RPLICE Toolkit"],
     icon: GraduationCap,
     category: "local",
     localCallout: "Active pilot -- Year 1 data collection in progress. 5 campuses, 120 students. Thrive Score improvement: 23%. Primary data source for Spencer Foundation Small Research Grant."
@@ -513,7 +513,7 @@ const INTERNAL_SOURCES: DataSource[] = [
     status: "live",
     updateFrequency: "Real-time",
     geographyLevel: "Student, Campus, District",
-    usedBy: ["ISSS Platform", "Spencer Foundation Grant", "RPLICE Toolkit", "ThriveUp Academy"],
+    usedBy: ["ISSS Platform", "Spencer Foundation Grant", "RPLICE Toolkit", "ThriveUp"],
     icon: GraduationCap,
     category: "internal"
   },

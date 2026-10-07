@@ -19,7 +19,7 @@ I'm also drawn by the honesty in TNTP's mission — the acknowledgment that even
 
 I've spent the last seven years building exactly what this role describes — cross-sector career pathway systems that connect education, workforce, employers, and communities. Here's what that looks like in practice:
 
-**Career Pathway Design at Scale:** I designed and launched 50+ stackable career pathways through ThriveUp Academy, each aligned to labor market demand data for the Austin MSA. These aren't theoretical — they include CNA, CompTIA, CDL, Community Health Worker certification, welding, and advanced manufacturing credentials, each mapped to specific employer partners and wage outcomes.
+**Career Pathway Design at Scale:** I designed and launched 50+ stackable career pathways through ThriveUp, each aligned to labor market demand data for the Austin MSA. These aren't theoretical — they include CNA, CompTIA, CDL, Community Health Worker certification, welding, and advanced manufacturing credentials, each mapped to specific employer partners and wage outcomes.
 
 **Cross-Sector Coalition Building:** I lead partnerships spanning Workforce Solutions Capital Area (our local workforce development board), employer partners including Ascension Seton, H-E-B, Dell Technologies, Samsung Austin Semiconductor, and Tesla Gigafactory, community health centers (CommUnityCare), and PK-12 systems. These aren't MOU-only relationships — they're active referral pipelines with signed commitment letters.
 

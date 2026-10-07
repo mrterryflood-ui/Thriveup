@@ -32,14 +32,14 @@ const sections = [
 
 export default function PrivacyPolicyPage() {
   useEffect(() => {
-    document.title = "Privacy & Data Protection Policy | ThriveUp Academy";
+    document.title = "Privacy & Data Protection Policy | ThriveUp";
   }, []);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6" data-testid="page-privacy-policy">
       <PageHeader
         title="Privacy Policy"
-        description="Privacy & Data Protection Policy for ThriveUp Academy"
+        description="Privacy & Data Protection Policy for ThriveUp"
         breadcrumbs={[{label:"Privacy Policy"}]}
       />
 
@@ -51,7 +51,7 @@ export default function PrivacyPolicyPage() {
           Privacy & Data Protection Policy
         </h1>
         <p className="text-muted-foreground" data-testid="text-privacy-subtitle">
-          ThriveUp Academy
+          ThriveUp
         </p>
         <p className="text-sm text-muted-foreground" data-testid="text-privacy-updated">
           Last Updated: February 2026
@@ -88,7 +88,7 @@ export default function PrivacyPolicyPage() {
       <section id="commitment">
         <SectionCard num={1} icon={Lock} title="Our Commitment to Student Privacy">
           <div>
-            ThriveUp Academy is built with user privacy as a foundational principle. We comply with <Badge variant="outline">FERPA</Badge> (Family Educational Rights and Privacy Act), <Badge variant="outline">COPPA</Badge> (Children's Online Privacy Protection Act), <Badge variant="outline">CIPA</Badge> (Children's Internet Protection Act), and applicable state privacy regulations.
+            ThriveUp is built with user privacy as a foundational principle. We comply with <Badge variant="outline">FERPA</Badge> (Family Educational Rights and Privacy Act), <Badge variant="outline">COPPA</Badge> (Children's Online Privacy Protection Act), <Badge variant="outline">CIPA</Badge> (Children's Internet Protection Act), and applicable state privacy regulations.
           </div>
           <p className="mt-3">
             This platform serves learners of all ages and we take our responsibility to protect every user seriously. All users under the age of 18 are considered minors and receive enhanced privacy protections as outlined in this policy.
@@ -273,7 +273,7 @@ export default function PrivacyPolicyPage() {
             <li><strong>What triggers it:</strong> automated detection of first-person endorsement of suicide, self-harm with intent, or threat to harm a specific other person.</li>
             <li><strong>What does NOT trigger it:</strong> asking research questions about suicide, sharing that a friend or family member is struggling, normal venting of frustration, asking for crisis resources, idiomatic language ("I could kill for a coffee").</li>
             <li><strong>What gets captured:</strong> the full text of that conversation only — not your other platform activity, not data from other days, not data from other tools.</li>
-            <li><strong>Who gets the alert:</strong> the ThriveUp Academy care team lead (Dr. Terry Flood). Not law enforcement automatically. The team will contact you (if you are identified) within one hour.</li>
+            <li><strong>Who gets the alert:</strong> the ThriveUp care team lead (Dr. Terry Flood). Not law enforcement automatically. The team will contact you (if you are identified) within one hour.</li>
             <li><strong>What we tell the AI to do in that moment:</strong> de-escalate, validate the feeling, surface 988 / 911 / Crisis Text Line, tell you plainly that a human is being notified, and stay with you in the conversation.</li>
             <li><strong>What we audit:</strong> every escalation is recorded with a timestamp, the matched phrase, the surface (Spark or Sparky), and whether the email was successfully delivered. The audit log is reviewable by Dr. Flood and the leadership team.</li>
           </ul>
@@ -492,7 +492,7 @@ export default function PrivacyPolicyPage() {
         <SectionCard num={16} icon={Mail} title="Contact Information">
           <p className="text-sm">For privacy questions, data requests, or concerns, please contact:</p>
           <div className="mt-3 space-y-1 text-sm">
-            <p className="font-semibold" data-testid="text-contact-office">ThriveUp Academy - Data Privacy Office</p>
+            <p className="font-semibold" data-testid="text-contact-office">ThriveUp - Data Privacy Office</p>
             <p className="text-muted-foreground" data-testid="text-contact-email">Email: privacy@txea.edu</p>
           </div>
           <div className="mt-4 space-y-1 text-sm">

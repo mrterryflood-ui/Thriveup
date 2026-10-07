@@ -157,7 +157,7 @@ async function requireAdmin(req: Request, res: Response, next: Function) {
 }
 
 const PLATFORM_CAPABILITIES = [
-  { area: "Workforce Development", features: ["ThriveUp Academy training pipelines", "Skill alignment and career pathways", "WIOA-aligned program design", "Employer partnership coordination", "Manager in Training leadership pipeline"], grantKeywords: ["workforce", "employment", "job training", "career", "wioa", "apprenticeship", "labor", "vocational", "upskilling", "reskilling", "earn and learn", "registered apprenticeship"] },
+  { area: "Workforce Development", features: ["ThriveUp training pipelines", "Skill alignment and career pathways", "WIOA-aligned program design", "Employer partnership coordination", "Manager in Training leadership pipeline"], grantKeywords: ["workforce", "employment", "job training", "career", "wioa", "apprenticeship", "labor", "vocational", "upskilling", "reskilling", "earn and learn", "registered apprenticeship"] },
   { area: "Veteran Transition Services", features: ["M2C military-to-civilian pipeline", "MOS translation engine", "Benefits navigation", "Housing planning", "Identity transition support", "Military family support"], grantKeywords: ["veteran", "military", "transition", "va ", "service member", "armed forces", "post-9/11", "mos translation", "military family"] },
   { area: "Behavioral Health & Mental Health", features: ["Whole-Person Health platform — behavioral-health safety floor with PHQ-9, GAD-7, C-SSRS, PCL-5, safety plan builder, crisis tools, 988 integration", "SafeReport Clinical Decision Support — 50-state mandatory-reporter coverage with FHIR + CDS Hooks interop, 0 PHI bytes egressed, 100% cited recommendations, human-in-the-loop default-on, validated longitudinal screening (Compliance-Grade AI for Clinical Settings)", "Talk Your Talk — 89 spoken + 18 sign + 6 learning surfaces routing crisis events into Whole-Person Health (LEP behavioral-health access)", "LifeBridge — Community Health Worker dispatch and trauma-informed resource navigation", "Sankofa Network — culturally-responsive BH screening for Black and Brown populations"], grantKeywords: ["behavioral health", "mental health", "substance use", "substance abuse", "crisis", "suicide prevention", "trauma", "trauma-informed", "trauma informed", "ptsd", "depression", "opioid", "samhsa", "988", "co-occurring", "community health worker", "promotora", "clinical decision support", "fhir", "cds hooks", "interoperability", "phi-safe", "hipaa", "human-in-the-loop", "longitudinal screening", "validated screening", "evidence-based screening", "peer support", "peer specialist"] },
   { area: "Child & Family Safety", features: ["SafeReport mandatory reporting — 50-state regulation database with clinical decision support, FHIR + CDS Hooks healthcare interop, PHI-safe by design, HITL default-on", "ISSS integrated family support for children AND parents using two-generation model", "Trauma-informed early warning systems", "Coordinated family case management", "Cross-agency referral workflows", "Kinship-care navigation"], grantKeywords: ["child abuse", "child welfare", "neglect", "family", "prevention", "protective factors", "aces", "adverse childhood", "mandatory reporting", "two-generation", "two generation", "kinship care", "foster", "trauma-informed", "trauma informed", "family strengthening", "family preservation", "child protection"] },
@@ -173,7 +173,7 @@ const PLATFORM_CAPABILITIES = [
   { area: "AI for Good & Responsible Technology", features: ["AI Workforce Academy curricula", "Responsible AI literacy modules", "AI for nonprofit operations", "Agent-to-agent referral automation", "Bias auditing & evaluation harness"], grantKeywords: ["artificial intelligence", "ai for good", "ai for charitable", "responsible ai", "responsible artificial intelligence", "ai literacy", "machine learning", "trustworthy ai", "ai-ready", "ai readiness", "human-centered ai", "ai workforce", "ai adoption"] },
   { area: "Faith-Based & Community Partnerships", features: ["Abundant Life Church community-delivery partner", "Faith-community navigation hubs", "Congregational health programs", "Interfaith coalition coordination"], grantKeywords: ["faith-based", "faith based", "faith community", "congregation", "congregational", "interfaith", "religious organization", "houses of worship"] },
   { area: "Nonprofit Capacity & Backbone Services", features: ["IRS-determined 501(c)(3) under 170(b)(1)(A)(vi)", "SAM.gov Active (CAGE 209N1) — direct federal-award eligibility", "Backbone organization services", "Sub-recipient compliance and pass-through capability"], grantKeywords: ["intermediary organization", "capacity building", "nonprofit infrastructure", "501(c)(3)", "backbone organization", "subaward", "sub-award", "pass-through entity"] },
-  { area: "Platform Replication & Multi-Agency Technology", features: ["24-engine ACOS platform already running in production", "Proven multi-agency deployment pattern (ThriveUp Academy, LifeBridge 211, SafeReport, Whole-Person Health)", "White-label / shared-services technology transfer to partner agencies", "Civic Signal and Chainweb ecosystem interoperability for cross-org data exchange"], grantKeywords: ["technology transfer", "platform replication", "replicable model", "scale to other communities", "multi-site deployment", "multi-organization deployment", "shared technology infrastructure", "software as a service", "saas for nonprofits", "nonprofit technology", "technology adoption", "digital infrastructure for nonprofits", "capacity-building technology", "civic technology", "govtech", "shared services model", "cross-agency", "white-label"] },
+  { area: "Platform Replication & Multi-Agency Technology", features: ["24-engine ACOS platform already running in production", "Proven multi-agency deployment pattern (ThriveUp, LifeBridge 211, SafeReport, Whole-Person Health)", "White-label / shared-services technology transfer to partner agencies", "Civic Signal and Chainweb ecosystem interoperability for cross-org data exchange"], grantKeywords: ["technology transfer", "platform replication", "replicable model", "scale to other communities", "multi-site deployment", "multi-organization deployment", "shared technology infrastructure", "software as a service", "saas for nonprofits", "nonprofit technology", "technology adoption", "digital infrastructure for nonprofits", "capacity-building technology", "civic technology", "govtech", "shared services model", "cross-agency", "white-label"] },
 ];
 
 const COLLABORATOR_VALUE_PROPOSITIONS: Record<string, { theyGet: string[]; weGet: string[] }> = {
@@ -331,7 +331,7 @@ interface PlatformAssignment {
 }
 
 const PLATFORM_DIRECTORY: Record<string, { url: string; capabilities: string[] }> = {
-  "ThriveUp Academy": { url: "https://thrivingcommunitiesforall.com", capabilities: ["workforce", "training", "career", "WIOA", "apprenticeship", "job training", "employment", "curriculum"] },
+  "ThriveUp": { url: "https://thrivingcommunitiesforall.com", capabilities: ["workforce", "training", "career", "WIOA", "apprenticeship", "job training", "employment", "curriculum"] },
   "M2C Transition": { url: "https://vetmissiontransition.com", capabilities: ["veteran", "military", "transition", "VA", "service member", "MOS"] },
   "Whole-Person Health": { url: "https://mentalwellnesssupport.net", capabilities: ["mental health", "behavioral health", "suicide prevention", "crisis", "PTSD", "depression", "screening", "trauma", "substance"] },
   "ISSS": { url: "https://childcore.app", capabilities: ["child welfare", "child abuse", "family", "prevention", "ACEs", "youth", "school"] },
@@ -1910,7 +1910,7 @@ ST. DAVID'S REQUIREMENTS:
 
 THRIVEUP ECOSYSTEM ALIGNMENT:
 - LifeBridge: Virtual 211 — housing navigation, benefits enrollment, food access, utilities assistance, crisis support. DIRECTLY addresses public benefits enrollment priority.
-- ThriveUp Academy: Workforce development with 55 career pathways, AI Workforce Academy, WIOA-aligned curriculum. Economic stability through employment.
+- ThriveUp: Workforce development with 55 career pathways, AI Workforce Academy, WIOA-aligned curriculum. Economic stability through employment.
 - Financial Literacy module: Academy Wallet, Stock Market Simulator — asset building and financial coaching.
 - Speech Bridge: Language translation and culturally responsive communication — removes barriers for immigrant and LEP communities.
 - Whole-Person Health + 6 health platforms: Holistic health screening that identifies SDOH factors blocking economic stability.
@@ -1927,8 +1927,8 @@ AUSTIN CRISIS DATA TO WEAVE IN:
 
 Write the LOI in 500-750 words. Professional but passionate. This should sound like a problem solver who builds infrastructure, not someone asking for charity. Use plain paragraphs, no markdown formatting. The tone is: "We see what's broken. We built the tools. Here's what we'll do."`,
         ST_DAVIDS_FULL: `Generate a full grant narrative for St. David's Foundation "We All Benefit 2.0" application. Use the same voice, values, and ecosystem alignment as the LOI but expanded to 2,000-2,500 words with detailed sections: (1) Organizational Background, (2) Community Need with Census tract-level data, (3) Program Design showing how 24 platforms create comprehensive economic stability pathways, (4) Community Voice through Three Realities methodology, (5) Populations Served including homeless, immigrants, veterans, justice-involved, foster youth — no one left behind, (6) Data & Measurement Infrastructure showing 8 federal sources and locked baselines, (7) Collaborative Approach showing ecosystem coordination and partner integration, (8) Sustainability beyond the grant period. Emphasize equity, access, collaborative accountability, transparency, data-led decision making, and holistic comprehensive service delivery.`,
-        COLLABORATION: `Generate a collaboration proposal narrative for ThriveUp Academy ACOS (Autonomous Collaborative Operating System), a 24-platform AI-powered ecosystem under The Collaborative Advocate Foundation (501(c)(3), EIN 41-3618003). This is NOT a grant request — it is a partnership proposal showing mutual value. ThriveUp offers collaborators: tract-level community data (not county averages), 8 integrated federal data sources (CDC PLACES, SVI, FBI Crime, Census ACS, USDA Food Atlas, HUD, SAMHSA, BLS), GIS mapping infrastructure, autonomous agent coordination across 24 platforms, and implementation science validation (CFIR, RE-AIM). In return, collaborators bring credibility, network access, co-validation, and shared impact measurement. Frame this as infrastructure the collaborator doesn't have to build themselves — they plug into what already exists. Emphasize mutual accountability, shared data, and joint community impact.`,
-        DATA_PARTNERSHIP: `Generate a data partnership proposal for ThriveUp Academy's community measurement infrastructure. ThriveUp has built tract-level data analysis across 8 federal sources — CDC PLACES API, CDC/ATSDR SVI, FBI Crime Data Explorer, Census ACS, USDA Food Atlas, HUD, SAMHSA, and BLS. The platform exposes the neighborhoods where poverty exceeds 40% and unemployment tops 20% that county averages hide. For data-focused organizations like Measure Austin, United Way, and community foundations, this is shared infrastructure: API access, community data packages, GIS visualization, and automated reporting. Frame this as a two-way data relationship — not a one-sided ask.`,
+        COLLABORATION: `Generate a collaboration proposal narrative for ThriveUp ACOS (Autonomous Collaborative Operating System), a 24-platform AI-powered ecosystem under The Collaborative Advocate Foundation (501(c)(3), EIN 41-3618003). This is NOT a grant request — it is a partnership proposal showing mutual value. ThriveUp offers collaborators: tract-level community data (not county averages), 8 integrated federal data sources (CDC PLACES, SVI, FBI Crime, Census ACS, USDA Food Atlas, HUD, SAMHSA, BLS), GIS mapping infrastructure, autonomous agent coordination across 24 platforms, and implementation science validation (CFIR, RE-AIM). In return, collaborators bring credibility, network access, co-validation, and shared impact measurement. Frame this as infrastructure the collaborator doesn't have to build themselves — they plug into what already exists. Emphasize mutual accountability, shared data, and joint community impact.`,
+        DATA_PARTNERSHIP: `Generate a data partnership proposal for ThriveUp's community measurement infrastructure. ThriveUp has built tract-level data analysis across 8 federal sources — CDC PLACES API, CDC/ATSDR SVI, FBI Crime Data Explorer, Census ACS, USDA Food Atlas, HUD, SAMHSA, and BLS. The platform exposes the neighborhoods where poverty exceeds 40% and unemployment tops 20% that county averages hide. For data-focused organizations like Measure Austin, United Way, and community foundations, this is shared infrastructure: API access, community data packages, GIS visualization, and automated reporting. Frame this as a two-way data relationship — not a one-sided ask.`,
         HUD_YHSI: `Generate a grant narrative section for HUD's Youth Homelessness System Improvement (YHSI) program, NOFO CPD-2600-DC-0035. The applicant is Prime Fit Youth Foundation (prime recipient and fiscal agent), partnering with Turning Point/Vernetta Dixon (programmatic lead), Fountain of Life Ministries/HIS (network convening and grant support), USD 259 McKinney-Vento (school-system referral and education coordination), The Center (trauma-informed behavioral health), local CoC/Coordinated Entry/HMIS lead, and youth with lived experience.
 
 PROJECT: Turning Point Youth Homelessness Response Collaborative, serving Wichita and Sedgwick County, Kansas. Goal: establish a coordinated, youth-informed system that identifies children and young adults experiencing or at risk of homelessness and connects them with existing housing, education, employment, behavioral-health, and family-stability resources.
@@ -2017,7 +2017,7 @@ Write in formal grant language, approximately 400-500 words. Use specific data p
       const [participants] = await db.select({ count: sql<number>`count(*)` }).from(participantProfiles);
       const [outcomes] = await db.select({ count: sql<number>`count(*)` }).from(outcomeTracking);
 
-      const prompt = `Generate a collaboration proposal for ThriveUp Academy ACOS to present to ${organizationName}.
+      const prompt = `Generate a collaboration proposal for ThriveUp ACOS to present to ${organizationName}.
 
 RELATIONSHIP TYPE: ${relType}
 This is NOT a grant request. This is a mutual-value partnership proposal.
@@ -2244,7 +2244,7 @@ Write in professional but warm language. This should read as peers building toge
       });
 
       doc.moveDown(12);
-      doc.fontSize(8).font("Helvetica").fillColor("#6B7280").text(`Generated: ${new Date().toLocaleDateString()} | ThriveUp Academy Grant Engine`, { align: "center" });
+      doc.fontSize(8).font("Helvetica").fillColor("#6B7280").text(`Generated: ${new Date().toLocaleDateString()} | ThriveUp Grant Engine`, { align: "center" });
 
       doc.end();
     } catch (error) {
@@ -2262,7 +2262,7 @@ Write in professional but warm language. This should read as peers building toge
       }
 
       const platformCapabilities = [
-        "ThriveUp Academy: AI-powered workforce development, career pathways, financial literacy, prevention curriculum, case management",
+        "ThriveUp: AI-powered workforce development, career pathways, financial literacy, prevention curriculum, case management",
         "MCE (Minority Capital Exchange): Minority business SaaS, SAM.gov integration, APEX Accelerators, certification wizard",
         "LifeBridge: Benefits navigation, resource finder, 24/7 support, public benefits enrollment",
         "RPLICE: Implementation fidelity tracking, program evaluation, quality assurance",
@@ -2278,14 +2278,14 @@ Write in professional but warm language. This should read as peers building toge
         "ISSS: Student support services, academic case management",
       ];
 
-      const prompt = `You are a grant opportunity analyst for ThriveUp Academy, a 24-platform workforce development ecosystem. Analyze the following grant opportunity and provide a structured assessment.
+      const prompt = `You are a grant opportunity analyst for ThriveUp, a 24-platform workforce development ecosystem. Analyze the following grant opportunity and provide a structured assessment.
 
 Our platform capabilities:
 ${platformCapabilities.join("\n")}
 
 Our methodologies: MAP-GAP (continuous improvement), SALP (fidelity tracking), Three Realities (community-informed design), MG-PATR (multi-generational patterns).
 
-Our entity structure: ThriveUp Academy (501(c)(3)), The Collaborative Advocate (VOSB), MCE (minority business SaaS).
+Our entity structure: ThriveUp (501(c)(3)), The Collaborative Advocate (VOSB), MCE (minority business SaaS).
 
 ${text ? `Grant opportunity text:\n${text}` : "The user uploaded a screenshot of a grant opportunity. Based on any visible text in the image, analyze the opportunity."}
 
@@ -2541,12 +2541,12 @@ Respond in this exact JSON format (no markdown, just JSON):
       // Fetch live community intelligence — impact, platform, and benefits data injected as evidence
       const communityContext = await communityNarrativeBlock();
 
-      const systemPrompt = `You are an expert grant writer for ThriveUp Academy, a 501(c)(3) nonprofit workforce development platform founded by Dr. Terry Flood. You specialize in writing compelling, evidence-based grant proposals that meet exact page and word count requirements.
+      const systemPrompt = `You are an expert grant writer for ThriveUp, a 501(c)(3) nonprofit workforce development platform founded by Dr. Terry Flood. You specialize in writing compelling, evidence-based grant proposals that meet exact page and word count requirements.
 
 Key context about the organization:
-- ThriveUp Academy is part of a 3-entity ecosystem: ThriveUp Academy (501(c)(3)), The Collaborative Advocate (VOSB), and MCE (Minority Center of Excellence - minority business SaaS)
+- ThriveUp is part of a 3-entity ecosystem: ThriveUp (501(c)(3)), The Collaborative Advocate (VOSB), and MCE (Minority Center of Excellence - minority business SaaS)
 - Dr. Flood's methodologies: MAP-GAP (Monitoring, Assessing, Predicting — Gap analysis, a continuous improvement framework), SALP (structured adherence/fidelity protocol), Three Realities (Research Reality, Political Reality, Ground-Level Reality), MG-PATR
-- 24-platform technology ecosystem: ThriveUp Academy (education), MCE (minority business), LifeBridge (community voice/benefits navigation), RPLICE/Better Science Lab (fidelity monitoring/research), Sankofa Health Network (health and wellness), HerHealth Matters, Maternal Health Network, MaleHealth Matters, M2C Transition (military-to-civilian), Mission Transition (separation support), SafeReport (safety/mandatory reporting), Perfectly Different (neurodiversity), WholeMind Learning (K-12 education), PillScheduler (medication adherence), SafeCogniCare (cognitive health), Emergency Management (risk intelligence), The Collaborative Advocate (VOSB services), Video Creator AI (content production), Ecosystem Nexus (coordination), ISSS (student support), Pinnacle Business Conglomerate (contractor enablement)
+- 24-platform technology ecosystem: ThriveUp (education), MCE (minority business), LifeBridge (community voice/benefits navigation), RPLICE/Better Science Lab (fidelity monitoring/research), Sankofa Health Network (health and wellness), HerHealth Matters, Maternal Health Network, MaleHealth Matters, M2C Transition (military-to-civilian), Mission Transition (separation support), SafeReport (safety/mandatory reporting), Perfectly Different (neurodiversity), WholeMind Learning (K-12 education), PillScheduler (medication adherence), SafeCogniCare (cognitive health), Emergency Management (risk intelligence), The Collaborative Advocate (VOSB services), Video Creator AI (content production), Ecosystem Nexus (coordination), ISSS (student support), Pinnacle Business Conglomerate (contractor enablement)
 - Focus areas: youth workforce development, substance use prevention, community coalition building, economic empowerment, reentry services
 
 ${communityContext ? `\n${communityContext}\n` : ""}
@@ -2660,7 +2660,7 @@ Do NOT repeat content already written. Do NOT add headers or section labels. Con
         return res.status(400).json({ error: "Missing required fields" });
       }
 
-      const systemContent = `You are an expert grant writer for ThriveUp Academy. Refine the given draft based on the user's instructions. Maintain professional grant language. Return the COMPLETE refined text — every paragraph from beginning to end. Do NOT truncate, summarize, or shorten the draft. The refined output must be at least as long as the original draft. Always complete every sentence.${grantKnowledge ? `\n\nGrant Knowledge:\n${grantKnowledge}` : ""}${wordCount ? `\n\nTarget word count: ${wordCount}. The refined version MUST meet or exceed this word count.` : ""}${pageLimit ? `\n\nTarget page limit: ${pageLimit}.` : ""}`;
+      const systemContent = `You are an expert grant writer for ThriveUp. Refine the given draft based on the user's instructions. Maintain professional grant language. Return the COMPLETE refined text — every paragraph from beginning to end. Do NOT truncate, summarize, or shorten the draft. The refined output must be at least as long as the original draft. Always complete every sentence.${grantKnowledge ? `\n\nGrant Knowledge:\n${grantKnowledge}` : ""}${wordCount ? `\n\nTarget word count: ${wordCount}. The refined version MUST meet or exceed this word count.` : ""}${pageLimit ? `\n\nTarget page limit: ${pageLimit}.` : ""}`;
 
       const inputWords = currentDraft.trim().split(/\s+/).length;
       let refineTargetWords = 0;
@@ -2759,7 +2759,7 @@ Do NOT repeat content already written. Do NOT add headers or section labels. Con
         new Paragraph({
           alignment: AlignmentType.CENTER,
           spacing: { after: 40 },
-          children: [new TextRun({ text: "ThriveUp Academy", bold: true, size: 26, font: "Georgia", color: "1e293b" })],
+          children: [new TextRun({ text: "ThriveUp", bold: true, size: 26, font: "Georgia", color: "1e293b" })],
         }),
         new Paragraph({
           alignment: AlignmentType.CENTER,
@@ -2872,7 +2872,7 @@ Do NOT repeat content already written. Do NOT add headers or section labels. Con
         border: { top: { style: BorderStyle.SINGLE, size: 1, color: "e2e8f0" } },
         spacing: { before: 200 },
         children: [
-          new TextRun({ text: `${grantName} — ThriveUp Academy — Generated ${dateStr}`, size: 18, font: "Georgia", color: "94a3b8" }),
+          new TextRun({ text: `${grantName} — ThriveUp — Generated ${dateStr}`, size: 18, font: "Georgia", color: "94a3b8" }),
           ...(referenceUrl ? [new TextRun({ text: `\nReference: ${referenceUrl}`, size: 18, font: "Georgia", color: "94a3b8", break: 1 })] : []),
         ],
       }));
@@ -2942,9 +2942,9 @@ PARTNERSHIP TIMELINE:
         systemPrompt = `You are an expert grant consultant specializing in workforce development partnerships. You help organizations identify strategic collaboration partners for grant applications.
 
 ORGANIZATION CONTEXT:
-- ThriveUp Academy is a 501(c)(3) workforce development organization in Austin, TX
+- ThriveUp is a 501(c)(3) workforce development organization in Austin, TX
 - Led by Dr. Terry Flood, focused on AI-powered career exploration and workforce readiness
-- Three-entity ecosystem: ThriveUp Academy (nonprofit), The Collaborative Advocate (VOSB), MCE (Minority Capital Exchange — minority business SaaS)
+- Three-entity ecosystem: ThriveUp (nonprofit), The Collaborative Advocate (VOSB), MCE (Minority Capital Exchange — minority business SaaS)
 - 24-platform integrated technology ecosystem for workforce development
 - Target population: youth and young adults facing employment barriers, with focus on Black youth 16-24
 
@@ -2958,7 +2958,7 @@ ${partnershipContext}
 GRANT: ${grantName}
 ${grantKnowledge ? `GRANT DETAILS:\n${grantKnowledge}` : ""}`;
 
-        userPrompt = `For the checklist item "${checklistItem}", generate 8-10 SPECIFIC, REAL organizations in the Austin, TX area that ThriveUp Academy should partner with for the ${grantName} application.
+        userPrompt = `For the checklist item "${checklistItem}", generate 8-10 SPECIFIC, REAL organizations in the Austin, TX area that ThriveUp should partner with for the ${grantName} application.
 
 For each partner, provide:
 1. **Organization Name** — the actual organization name
@@ -2979,7 +2979,7 @@ Format as a clear numbered list with each field labeled. Be specific — use rea
         systemPrompt = `You are an expert grant consultant who writes compelling partnership outreach communications. You write professional, warm, and specific emails that get responses.
 
 ORGANIZATION CONTEXT:
-- ThriveUp Academy is a 501(c)(3) workforce development organization in Austin, TX
+- ThriveUp is a 501(c)(3) workforce development organization in Austin, TX
 - Led by Dr. Terry Flood, focused on AI-powered career exploration and workforce readiness
 - 24-platform integrated technology ecosystem
 - Target population: youth and young adults facing employment barriers
@@ -3009,9 +3009,9 @@ Format each template clearly with Subject, Body, and any notes on customization.
         systemPrompt = `You are an expert grant consultant providing step-by-step actionable guidance for grant pre-execution checklist items. You give specific, practical advice that a busy executive can follow immediately.
 
 ORGANIZATION CONTEXT:
-- ThriveUp Academy is a 501(c)(3) workforce development organization in Austin, TX
+- ThriveUp is a 501(c)(3) workforce development organization in Austin, TX
 - Led by Dr. Terry Flood
-- Three-entity ecosystem: ThriveUp Academy (nonprofit), The Collaborative Advocate (VOSB), MCE (minority business SaaS)
+- Three-entity ecosystem: ThriveUp (nonprofit), The Collaborative Advocate (VOSB), MCE (minority business SaaS)
 ${serviceAreaContext}
 ${partnershipContext}
 
@@ -3061,7 +3061,7 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
       const allChildren: any[] = [];
 
       const isSingleGrant = grants.length === 1;
-      const coverTitle = isSingleGrant ? grants[0].name : "ThriveUp Academy";
+      const coverTitle = isSingleGrant ? grants[0].name : "ThriveUp";
       const coverSubtitle = isSingleGrant ? "Grant Action Report" : "Grant Readiness Action Report";
       const coverDetail = isSingleGrant
         ? `${grants[0].funder} · ${grants[0].amount} · Deadline: ${grants[0].deadline}`
@@ -3572,7 +3572,7 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
           alignment: AlignmentType.CENTER,
           spacing: { before: 400 },
           border: { top: { style: BorderStyle.SINGLE, size: 1, color: "e2e8f0" } },
-          children: [new TextRun({ text: `ThriveUp Academy · Grant Readiness Action Report · ${dateStr}`, size: 16, color: "94a3b8", font: "Georgia" })],
+          children: [new TextRun({ text: `ThriveUp · Grant Readiness Action Report · ${dateStr}`, size: 16, color: "94a3b8", font: "Georgia" })],
         }),
       );
 
@@ -3847,11 +3847,11 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
       }
 
       const prompts: Record<string, string> = {
-        mou: `Generate a professional Memorandum of Understanding (MOU) between ThriveUp Academy and ${partnerOrg || "[Partner Organization]"} for the ${grantName || "grant program"}. Contact: ${partnerContact || "[Partner Contact]"}. Include: purpose, roles and responsibilities, duration, resources committed, confidentiality, termination clause, and signature blocks for both parties. Keep it 2-3 pages.`,
-        "letter-of-support": `Generate a professional Letter of Support from ${partnerOrg || "[Partner Organization]"} supporting ThriveUp Academy's application for the ${grantName || "grant program"}. Contact: ${partnerContact || "[Partner Contact]"}. Include: organization description, relationship to ThriveUp, specific support commitments, and a signature block. Keep it 1 page.`,
-        "partnership-agreement": `Generate a Partnership Agreement between ThriveUp Academy and ${partnerOrg || "[Partner Organization]"} for the ${grantName || "grant program"}. Contact: ${partnerContact || "[Partner Contact]"}. Include: scope of partnership, responsibilities of each party, timeline, resources, reporting requirements, intellectual property, and signature blocks. Keep it 2-3 pages.`,
-        "data-sharing": `Generate a Data Sharing Agreement between ThriveUp Academy and ${partnerOrg || "[Partner Organization]"} for the ${grantName || "grant program"}. Include: purpose, types of data shared, confidentiality requirements, FERPA/HIPAA compliance (as applicable), security measures, authorized personnel, duration, termination, and signature blocks. Keep it 2 pages.`,
-        "subcontract": `Generate a Subcontractor Agreement between ThriveUp Academy (prime) and ${partnerOrg || "[Partner Organization]"} (subcontractor) for the ${grantName || "grant program"}. Include: scope of work, deliverables, payment terms, timeline, reporting requirements, compliance with federal/state regulations, and signature blocks. Keep it 3 pages.`,
+        mou: `Generate a professional Memorandum of Understanding (MOU) between ThriveUp and ${partnerOrg || "[Partner Organization]"} for the ${grantName || "grant program"}. Contact: ${partnerContact || "[Partner Contact]"}. Include: purpose, roles and responsibilities, duration, resources committed, confidentiality, termination clause, and signature blocks for both parties. Keep it 2-3 pages.`,
+        "letter-of-support": `Generate a professional Letter of Support from ${partnerOrg || "[Partner Organization]"} supporting ThriveUp's application for the ${grantName || "grant program"}. Contact: ${partnerContact || "[Partner Contact]"}. Include: organization description, relationship to ThriveUp, specific support commitments, and a signature block. Keep it 1 page.`,
+        "partnership-agreement": `Generate a Partnership Agreement between ThriveUp and ${partnerOrg || "[Partner Organization]"} for the ${grantName || "grant program"}. Contact: ${partnerContact || "[Partner Contact]"}. Include: scope of partnership, responsibilities of each party, timeline, resources, reporting requirements, intellectual property, and signature blocks. Keep it 2-3 pages.`,
+        "data-sharing": `Generate a Data Sharing Agreement between ThriveUp and ${partnerOrg || "[Partner Organization]"} for the ${grantName || "grant program"}. Include: purpose, types of data shared, confidentiality requirements, FERPA/HIPAA compliance (as applicable), security measures, authorized personnel, duration, termination, and signature blocks. Keep it 2 pages.`,
+        "subcontract": `Generate a Subcontractor Agreement between ThriveUp (prime) and ${partnerOrg || "[Partner Organization]"} (subcontractor) for the ${grantName || "grant program"}. Include: scope of work, deliverables, payment terms, timeline, reporting requirements, compliance with federal/state regulations, and signature blocks. Keep it 3 pages.`,
       };
 
       const prompt = prompts[templateType] || prompts.mou;
@@ -4991,7 +4991,7 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
         standard: "19 TAC §127.15 — CTE Employability Skills",
         adopted: "2025",
         applicant: "The Collaborative Advocate (501(c)(3))",
-        platform: "ThriveUp Academy",
+        platform: "ThriveUp",
         lastUpdated: new Date().toISOString(),
         credential: {
           name: "ThriveUp Workforce Readiness Certificate",
@@ -7186,7 +7186,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
 
       subHeading("Contractual Detail ($765,000)");
       bullet("Registered Apprenticeship sponsor training delivery: $375,000");
-      bullet("AI/digital literacy curriculum licensing (ThriveUp Academy platform): $210,000");
+      bullet("AI/digital literacy curriculum licensing (ThriveUp platform): $210,000");
       bullet("External evaluation (independent program evaluator): $120,000");
       bullet("Legal and fiscal compliance consulting: $60,000");
 
@@ -7230,7 +7230,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       bullet("Culturally responsive programming designed for the demographics of the returning citizen population");
       bullet("Technology-enabled case management with real-time outcome tracking");
       bullet("Employer engagement that goes beyond job fairs to structured commitment and retention support");
-      para("TCAF\u2019s RESTART application directly addresses every one of these gaps through ThriveUp Academy\u2019s integrated platform and established community relationships.");
+      para("TCAF\u2019s RESTART application directly addresses every one of these gaps through ThriveUp\u2019s integrated platform and established community relationships.");
 
       // ==================== PART C.2: PROGRAM DESIGN ====================
       doc.addPage();
@@ -7240,7 +7240,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
 
       subHeading("Program Overview: The RESTART Reentry Workforce Pipeline");
       para("TCAF proposes a 42-month program (July 1, 2026 \u2014 December 31, 2029) serving 680 justice-involved youth (ages 15\u201317) and young adults (ages 18\u201324) across the Austin-Central Texas region and two additional non-contiguous service sites, providing a comprehensive pipeline from pre-release preparation through credential attainment, apprenticeship placement, and 12-month employment retention. Per FOA Figure 1, the minimum participant enrollment at the $5,100,000 award level is 680 over the period of performance. Cost per participant: $7,500.");
-      para("The program is built on TCAF\u2019s ThriveUp Academy platform \u2014 a 24-platform AI-powered ecosystem that delivers workforce readiness training, digital literacy, case management, and wraparound services through a single integrated technology architecture.");
+      para("The program is built on TCAF\u2019s ThriveUp platform \u2014 a 24-platform AI-powered ecosystem that delivers workforce readiness training, digital literacy, case management, and wraparound services through a single integrated technology architecture.");
 
       subHeading("Phase 1: Pre-Release Services (Months 1\u201342, Rolling Enrollment)");
       para("In partnership with correctional facilities, TCAF will deliver pre-release programming to individuals within 6 months of their expected release date:");
@@ -7254,7 +7254,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       subHeading("Phase 2: Post-Release Training (12\u201316 Weeks Per Cohort)");
       para("Upon release, participants enter structured training cohorts delivering:");
 
-      bullet("AI and Digital Literacy Training (40 hours): ThriveUp Academy\u2019s 5-level AI mastery curriculum, covering digital fundamentals, productivity tools, AI applications in skilled trades, and workplace technology competency. This directly addresses the FOA\u2019s explicit inclusion of \u201cartificial intelligence and digital literacy training\u201d as an eligible service.");
+      bullet("AI and Digital Literacy Training (40 hours): ThriveUp\u2019s 5-level AI mastery curriculum, covering digital fundamentals, productivity tools, AI applications in skilled trades, and workplace technology competency. This directly addresses the FOA\u2019s explicit inclusion of \u201cartificial intelligence and digital literacy training\u201d as an eligible service.");
       bullet("Pre-Apprenticeship Training (120 hours): Industry-specific technical skills training aligned with Registered Apprenticeship standards in construction, advanced manufacturing, and IT. Delivered in partnership with Registered Apprenticeship sponsors.");
       bullet("OSHA Safety Certifications: OSHA-10 and OSHA-30 for all construction/manufacturing-track participants");
       bullet("Industry-Recognized Credentials: NCCER Core, CompTIA A+/Network+, AWS Certified Cloud Practitioner, or Microsoft Certified: Azure Fundamentals (based on career track)");
@@ -7271,15 +7271,15 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       para("TCAF provides 12 months of post-placement support:");
       bullet("Monthly check-ins with assigned case manager via ThriveUp platform");
       bullet("Employer liaison services to address workplace issues before they cause separation");
-      bullet("Continued access to ThriveUp Academy for upskilling and career advancement");
+      bullet("Continued access to ThriveUp for upskilling and career advancement");
       bullet("Crisis intervention and wraparound services through LifeBridge Virtual 211");
       bullet("Peer mentoring through program alumni network");
 
-      subHeading("Technology Infrastructure: ThriveUp Academy");
-      para("TCAF\u2019s ThriveUp Academy is a 24-platform AI-powered ecosystem purpose-built for workforce development and community empowerment. For RESTART, the following platform components are directly deployed:");
+      subHeading("Technology Infrastructure: ThriveUp");
+      para("TCAF\u2019s ThriveUp is a 24-platform AI-powered ecosystem purpose-built for workforce development and community empowerment. For RESTART, the following platform components are directly deployed:");
 
       const platformTable: [string, string][] = [
-        ["ThriveUp Academy", "AI-powered workforce readiness curriculum, digital literacy training, credential preparation"],
+        ["ThriveUp", "AI-powered workforce readiness curriculum, digital literacy training, credential preparation"],
         ["Better Science Lab", "Implementation science engine (CFIR 2.0 + RE-AIM) for program fidelity and continuous improvement"],
         ["LifeBridge Virtual 211", "Wraparound services navigation \u2014 housing, food, transportation, childcare, crisis support"],
         ["M2C Transition Pipeline", "Military-to-civilian career pathway tools (for veteran participants)"],
@@ -7315,7 +7315,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       sectionHeading("C.3 \u2014 Organizational Capacity");
 
       subHeading("Organizational Overview");
-      para("The Collaborative Advocate Foundation (TCAF) is a 501(c)(3) tax-exempt nonprofit (EIN 41-3618003) founded by Dr. Terry Flood. TCAF operates the ThriveUp Academy, a 24-platform AI-powered ecosystem serving workforce development, community health, behavioral health, education, emergency management, and economic development. TCAF is veteran-founded, Black-led, and headquartered in Pflugerville, Texas.");
+      para("The Collaborative Advocate Foundation (TCAF) is a 501(c)(3) tax-exempt nonprofit (EIN 41-3618003) founded by Dr. Terry Flood. TCAF operates the ThriveUp, a 24-platform AI-powered ecosystem serving workforce development, community health, behavioral health, education, emergency management, and economic development. TCAF is veteran-founded, Black-led, and headquartered in Pflugerville, Texas.");
 
       subHeading("Principal Investigator: Dr. Terry Flood, DHA/DBA");
       para("Dr. Flood brings a uniquely integrated credential set directly relevant to the RESTART initiative:");
@@ -7347,7 +7347,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       para("Dr. Flood has served as a Public Health Social Scientist with the VA and DoD (2017\u2013present), a Community Readiness & Resilience Implementer (CR2I) Advisor for the Department of Defense (2021\u20132023), and holds a 168-Hour Community Health Worker Instructor certification from the Texas Department of State Health Services. He is a current member of the Pflugerville ISD School Health Advisory Council (SHAC).");
 
       subHeading("Technology & Platform Capacity");
-      para("TCAF\u2019s ThriveUp Academy ecosystem represents a $2M+ technology investment, comprising 24 interdependent platforms with demonstrated functionality. The platform architecture supports:");
+      para("TCAF\u2019s ThriveUp ecosystem represents a $2M+ technology investment, comprising 24 interdependent platforms with demonstrated functionality. The platform architecture supports:");
       bullet("Simultaneous user management across multiple service sites");
       bullet("Real-time outcome tracking and automated reporting");
       bullet("AI-powered adaptive learning with culturally responsive companions");
@@ -7361,7 +7361,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       actionRequired("Dr. Flood \u2014 If TCAF has completed a Single Audit (2 CFR 200 Subpart F), reference it here. If not, note that TCAF will comply with all audit requirements upon award. Also add any additional staff who will serve as key personnel on this grant \u2014 their names, titles, qualifications, and roles.");
 
       subHeading("Past Performance");
-      actionRequired("Dr. Flood \u2014 This is a critical scored section. List 2\u20133 specific programs, contracts, or grants TCAF has delivered. Include: (1) Name of funding agency or client, (2) Dollar value, (3) Dates of performance, (4) Description of services, (5) Measurable outcomes achieved. If TCAF is early-stage, emphasize: (a) ThriveUp Academy platform readiness and deployment, (b) TWC RFA 32026-00162 application (workforce development), (c) Community relationships and SHAC membership, (d) Dr. Flood\u2019s professional experience delivering similar services in VA/DoD roles. Do not fabricate. Use real, verifiable work only.");
+      actionRequired("Dr. Flood \u2014 This is a critical scored section. List 2\u20133 specific programs, contracts, or grants TCAF has delivered. Include: (1) Name of funding agency or client, (2) Dollar value, (3) Dates of performance, (4) Description of services, (5) Measurable outcomes achieved. If TCAF is early-stage, emphasize: (a) ThriveUp platform readiness and deployment, (b) TWC RFA 32026-00162 application (workforce development), (c) Community relationships and SHAC membership, (d) Dr. Flood\u2019s professional experience delivering similar services in VA/DoD roles. Do not fabricate. Use real, verifiable work only.");
 
       // ==================== PART C.4: PARTNERSHIPS ====================
       doc.addPage();
@@ -7466,7 +7466,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       y += 8;
 
       subHeading("Data Collection & Reporting");
-      para("TCAF will track all performance measures through ThriveUp Academy\u2019s integrated data management system, which provides:");
+      para("TCAF will track all performance measures through ThriveUp\u2019s integrated data management system, which provides:");
       bullet("Real-time participant tracking from enrollment through 12-month post-exit follow-up");
       bullet("Automated quarterly performance report (QPR) generation aligned with DOL reporting requirements");
       bullet("Credential attainment verification through direct integration with credentialing bodies");

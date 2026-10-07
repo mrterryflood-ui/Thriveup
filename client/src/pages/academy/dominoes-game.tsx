@@ -72,7 +72,7 @@ function PipHalf({
   const positions = PIP_POSITIONS[value] || [];
   const dotR = size * 0.09;
 
-  useEffect(() => { document.title = "Dominoes | ThriveUp Academy"; }, []);
+  useEffect(() => { document.title = "Dominoes | ThriveUp"; }, []);
   return (
     <g>
       {positions.map(([cx, cy], i) => (

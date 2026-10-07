@@ -89,7 +89,7 @@ export default function RuralIntelPage() {
       <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-5">
         <nav className="text-xs text-slate-500 mb-2 flex items-center gap-1">
           <Sprout className="w-3 h-3" />
-          <span>Rural Agriculture Intelligence — ThriveUp Academy</span>
+          <span>Rural Agriculture Intelligence — ThriveUp</span>
         </nav>
         <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-50 tracking-tight">
           Rural County Intel

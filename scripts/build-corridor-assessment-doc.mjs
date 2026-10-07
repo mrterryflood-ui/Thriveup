@@ -94,7 +94,7 @@ function buildCoverAndNarrative(story) {
   out.push(P("Waco / McLennan County  ↔  Austin / Travis County", { align: AlignmentType.CENTER, color: GREY, italics: true, size: 24 }));
   out.push(P(`Generated ${new Date(story.generatedAt || Date.now()).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })} from live verified data`, { align: AlignmentType.CENTER, color: GREY, italics: true, size: 20 }));
   out.push(P(""));
-  out.push(P("Prepared by ThriveUp Academy & The Collaborative Advocate Foundation (TCAF)", { align: AlignmentType.CENTER, color: GREY, size: 20 }));
+  out.push(P("Prepared by ThriveUp & The Collaborative Advocate Foundation (TCAF)", { align: AlignmentType.CENTER, color: GREY, size: 20 }));
   out.push(P(""));
 
   out.push(H2("How to read this assessment"));
@@ -341,11 +341,11 @@ const children = [
   ...buildGlossary(),
   P(""),
   P("This assessment is generated from live, audit-traceable data. Numbers may update as federal and state sources refresh.", { align: AlignmentType.CENTER, italics: true, color: GREY, size: 18 }),
-  P("Prepared by ThriveUp Academy & The Collaborative Advocate Foundation — thrivingcommunitiesforall.com", { align: AlignmentType.CENTER, italics: true, color: GREY, size: 18 }),
+  P("Prepared by ThriveUp & The Collaborative Advocate Foundation — thrivingcommunitiesforall.com", { align: AlignmentType.CENTER, italics: true, color: GREY, size: 18 }),
 ];
 
 const doc = new Document({
-  creator: "ThriveUp Academy / TCAF",
+  creator: "ThriveUp / TCAF",
   title: "I-35 Corridor Black-Youth Fatherhood & Mentorship Gap Assessment",
   description: "Plain-language Waco↔Austin corridor assessment with verified data lineage",
   styles: { default: { document: { run: { font: "Calibri", size: 22 } } } },

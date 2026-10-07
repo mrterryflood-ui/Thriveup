@@ -47,7 +47,7 @@ export default function EmployerRegistration() {
           <div style={{ fontSize: 48, marginBottom: 16 }}>✓</div>
           <h2 style={{ fontSize: 22, fontWeight: 800, color: "#065f46", marginBottom: 8 }}>Application received</h2>
           <p style={{ fontSize: 15, color: "#047857", lineHeight: 1.6 }}>
-            Our team will review your application within 3 business days. Once approved, your company and open positions will appear in ThriveUp Academy's fair-chance job board.
+            Our team will review your application within 3 business days. Once approved, your company and open positions will appear in ThriveUp's fair-chance job board.
           </p>
         </div>
       </div>
@@ -57,7 +57,7 @@ export default function EmployerRegistration() {
   return (
     <div style={{ minHeight: "100vh", background: "#f8fafc", fontFamily: "'Inter', system-ui, sans-serif" }}>
       <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: "24px 40px" }}>
-        <div style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "#10b981", marginBottom: 4 }}>ThriveUp Academy · Employer Partnership</div>
+        <div style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "#10b981", marginBottom: 4 }}>ThriveUp · Employer Partnership</div>
         <h1 style={{ margin: "0 0 4px", fontSize: 22, fontWeight: 700, color: "#0f172a" }}>Become a Fair-Chance Employer Partner</h1>
         <p style={{ margin: 0, fontSize: 14, color: "#64748b" }}>Connect with credentialed, job-ready candidates from our workforce training programs.</p>
       </div>

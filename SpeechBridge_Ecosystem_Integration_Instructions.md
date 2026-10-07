@@ -1,6 +1,6 @@
 # LexiBridge (Speech Bridge) — ThriveUp Ecosystem Integration Instructions
 
-## Platform #22 in the ThriveUp Academy ACOS Ecosystem
+## Platform #22 in the ThriveUp ACOS Ecosystem
 
 **Platform ID:** `speech-bridge`
 **API Key:** `tveco_63cfa8fdc29957bc39818aafcc9f80b8e773820c6a7c0c6742c0a26946feebde`

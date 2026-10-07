@@ -108,7 +108,7 @@ export default function HouseholdProfilePage() {
     <div style={{ minHeight: "100vh", background: "#0a0f1a", color: "#e2e8f0", fontFamily: "'Inter', system-ui, sans-serif" }}>
       <div style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "24px 40px" }}>
         <div style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "#10b981", marginBottom: 4 }}>
-          ThriveUp Academy · Household Profile
+          ThriveUp · Household Profile
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700 }}>{household.householdCode}</h1>

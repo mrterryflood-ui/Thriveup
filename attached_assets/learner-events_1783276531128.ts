@@ -1,5 +1,5 @@
 // server/learner-events.ts
-// ThriveUp Academy — Learner Event Bus
+// ThriveUp — Learner Event Bus
 // One learner action fires in multiple directions. Zero side-effect failures crash the primary request.
 
 import { eq, and, count } from "drizzle-orm";

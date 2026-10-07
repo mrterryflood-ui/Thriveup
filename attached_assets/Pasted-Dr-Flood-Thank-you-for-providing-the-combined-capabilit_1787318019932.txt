@@ -55,7 +55,7 @@ perform today.
 TECHNOLOGY AND DATA
 
 11. Identify which entity owns or controls RPLICE, ADIS/BIA/SALP,
-GrantPathPro, SHIELD/ATLAS, ThriveUp Academy, LifeBridge, and Sankofa
+GrantPathPro, SHIELD/ATLAS, ThriveUp, LifeBridge, and Sankofa
 Health Network.
 12. State whether each platform is conceptual, prototype,
 pilot-tested, production-ready, or currently deployed.

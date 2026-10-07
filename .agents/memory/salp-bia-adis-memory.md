@@ -26,7 +26,7 @@ description: Pointer and key operating facts for the SALP+BIA+ADIS+Scholar-Athle
 Blood layer — context flow. On this platform: `AsyncLocalStorage` + `ETHICAL_EI_PREAMBLE` + `withEthicalPreamble()` in `server/ai-provider.ts`. Everything else propagates from here.
 
 ### The platform's 12-layer anatomy
-- Skin = ThriveUp Academy / TCAF / ISS LLC mission + Fable Behavioral Standard
+- Skin = ThriveUp / TCAF / ISS LLC mission + Fable Behavioral Standard
 - Brain = `server/ai-provider.ts` + compiled memory (`docs/agent-memory/`)
 - Nervous System = Express routing + `docs/api-contract.md`
 - Heart = deadline tracking + session rhythm

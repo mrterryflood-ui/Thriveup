@@ -323,7 +323,7 @@ export default function AcademyMentorFinderPage() {
   const activeMentors = (mentors ?? []).filter((m) => m.isActive);
 
 
-  useEffect(() => { document.title = "Find a Mentor | ThriveUp Academy"; }, []);
+  useEffect(() => { document.title = "Find a Mentor | ThriveUp"; }, []);
   return (
     <div className="p-4 sm:p-6 max-w-6xl mx-auto" data-testid="academy-mentor-finder-page">
       <PageHeader

@@ -201,7 +201,7 @@ function LoadingSkeleton() {
 }
 
 export default function AcademyVillagePage() {
-  useEffect(() => { document.title = 'Panther Village | ThriveUp Academy'; }, []);
+  useEffect(() => { document.title = 'Panther Village | ThriveUp'; }, []);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   const completeOnboarding = () => {

@@ -262,7 +262,7 @@ function PhaseCard({
   const PhaseIcon = phase.icon;
 
 
-  useEffect(() => { document.title = "Phased Rollout Plan | ThriveUp Academy"; }, []);
+  useEffect(() => { document.title = "Phased Rollout Plan | ThriveUp"; }, []);
   return (
     <Card data-testid={`card-phase-${phase.id}-${perspective}`} className="mb-6">
       <CardHeader>

@@ -244,7 +244,7 @@ type Platform =
   | "HerHealth Network"
   | "TheHealthyBlkMan"
   | "YourHealthBirthright"
-  | "ThriveUp Academy"
+  | "ThriveUp"
   | "LifeBridge"
   | "Sankofa Health Network"
   | "Sankofa Maternal Health"
@@ -345,7 +345,7 @@ const INITIAL_GRANTS: GrantEntry[] = [
     deadline: "April 10, 2026",
     deadlineDate: new Date("2026-04-10"),
     status: "loi_submitted",
-    platforms: ["TCAF", "ThriveUp Academy", "LifeBridge", "Sankofa Health Network"],
+    platforms: ["TCAF", "ThriveUp", "LifeBridge", "Sankofa Health Network"],
     category: "foundation",
     documents: [
       { name: "LOI Narrative (Submitted)", path: "/docs/grants/TCAF-Rare-Impact-Fund-LOI-Narrative-SUBMITTED.md" },
@@ -403,7 +403,7 @@ const INITIAL_GRANTS: GrantEntry[] = [
     deadline: "May 2026 (exact date TBD on portal)",
     deadlineDate: new Date("2026-05-31"),
     status: "tracking",
-    platforms: ["TCAF", "ThriveUp Academy", "Sankofa Health Network", "LifeBridge", "HerHealth Network"],
+    platforms: ["TCAF", "ThriveUp", "Sankofa Health Network", "LifeBridge", "HerHealth Network"],
     category: "foundation",
     documents: [],
     notes: "STRONG FIT — same funder as WAB2 (just submitted today), different lane. Goal: Community-Driven Change. Priorities: Community Voice + Decision Making, Civic Health. Funds communities with greatest health needs to define their own priorities and influence practices/policies/systems. TCAF angle: the entire stack is built BY community FOR community — Neighborhood Champions program, multilingual benefits screener, community-defined Thrive Scores, parent/youth voice in ISSS. Watch the funding-opportunities page (https://stdavidsfoundation.org/funding-opportunities) and Sparky alerts for the open date in May. Pre-stage: shorter community-voice narrative spine (vs. the workforce/systems framing used for WAB2). Two parallel pipelines with the same funder = compounding relationship, not competition.",
@@ -424,7 +424,7 @@ const INITIAL_GRANTS: GrantEntry[] = [
     deadline: "April 27, 2026",
     deadlineDate: new Date("2026-04-27"),
     status: "loi_submitted",
-    platforms: ["TCAF", "ThriveUp Academy", "LifeBridge", "Sankofa Health Network"],
+    platforms: ["TCAF", "ThriveUp", "LifeBridge", "Sankofa Health Network"],
     category: "foundation",
     documents: [
       { name: "WAB2 LOI v7 (Submitted)", path: "/attached_assets/WAB2-LOI-RequestSummary-v7-FINAL.md" },
@@ -450,7 +450,7 @@ const INITIAL_GRANTS: GrantEntry[] = [
     deadline: "June 16, 2026",
     deadlineDate: new Date("2026-06-16"),
     status: "researching",
-    platforms: ["TCAF", "ThriveUp Academy", "Perfectly Different", "Multiple"],
+    platforms: ["TCAF", "ThriveUp", "Perfectly Different", "Multiple"],
     category: "federal",
     documents: [
       { name: "Alignment & Gap Assessment", path: "/docs/grants/NSF-TechAccess-AI-Ready-America-Alignment.md" },
@@ -474,7 +474,7 @@ const INITIAL_GRANTS: GrantEntry[] = [
     deadline: "July 16, 2026",
     deadlineDate: new Date("2026-07-16"),
     status: "proposal_drafting",
-    platforms: ["TCAF", "ThriveUp Academy", "Perfectly Different", "Multiple"],
+    platforms: ["TCAF", "ThriveUp", "Perfectly Different", "Multiple"],
     category: "federal",
     documents: [
       { name: "Proposal Framework (15-page)", path: "/docs/grants/NSF-TechAccess-Proposal-Framework.md" },
@@ -773,11 +773,11 @@ const INITIAL_GRANTS: GrantEntry[] = [
     amount: "Varies",
     amountNum: 50000,
     status: "researching",
-    platforms: ["TCAF", "ThriveUp Academy", "ISSS"],
+    platforms: ["TCAF", "ThriveUp", "ISSS"],
     category: "foundation",
     recurringCycle: "Rolling monthly review",
     documents: [],
-    notes: "STEM education focus. STEM Stars (6-12th grade) or Teen Tech (competition) could work. Requires STEM-specific framing of ThriveUp Academy. Will not cover >10% admin/salary costs.",
+    notes: "STEM education focus. STEM Stars (6-12th grade) or Teen Tech (competition) could work. Requires STEM-specific framing of ThriveUp. Will not cover >10% admin/salary costs.",
     url: "https://www.gwbaileyfoundation.org/programgrants",
     priority: 3,
   },
@@ -849,7 +849,7 @@ const INITIAL_GRANTS: GrantEntry[] = [
     amountNum: 500000,
     deadline: "Open / rolling — check TWC portal",
     status: "identified",
-    platforms: ["ThriveUp Academy"],
+    platforms: ["ThriveUp"],
     category: "state",
     documents: [
       { name: "Criteria Matrix", path: "/docs/grants/GRANT-OPPORTUNITY-CRITERIA-MATRIX.md" },
@@ -888,7 +888,7 @@ const INITIAL_GRANTS: GrantEntry[] = [
     amountNum: 1000000,
     deadline: "NOFO forecasted April–May 2026",
     status: "identified",
-    platforms: ["Perfectly Different", "ISSS", "ThriveUp Academy"],
+    platforms: ["Perfectly Different", "ISSS", "ThriveUp"],
     category: "federal",
     documents: [
       { name: "Criteria Matrix", path: "/docs/grants/GRANT-OPPORTUNITY-CRITERIA-MATRIX.md" },
@@ -925,7 +925,7 @@ const INITIAL_GRANTS: GrantEntry[] = [
     amount: "Multi-year (3-year performance period)",
     amountNum: 500000,
     status: "recurring_watch",
-    platforms: ["Mission Transition", "MCE", "ThriveUp Academy"],
+    platforms: ["Mission Transition", "MCE", "ThriveUp"],
     category: "federal",
     recurringCycle: "Annual — FY2026 FOA closed Feb 25; watch for FY2027",
     documents: [
@@ -964,7 +964,7 @@ const INITIAL_GRANTS: GrantEntry[] = [
     deadline: "Funds must be obligated by September 30, 2026",
     deadlineDate: new Date("2026-09-30"),
     status: "identified",
-    platforms: ["ISSS", "ThriveUp Academy", "Perfectly Different", "SafeReport"],
+    platforms: ["ISSS", "ThriveUp", "Perfectly Different", "SafeReport"],
     category: "federal",
     documents: [
       { name: "Criteria Matrix", path: "/docs/grants/GRANT-OPPORTUNITY-CRITERIA-MATRIX.md" },
@@ -1055,13 +1055,13 @@ const INITIAL_GRANTS: GrantEntry[] = [
     amount: "$948M nationally; varies locally",
     amountNum: 200000,
     status: "recurring_watch",
-    platforms: ["ThriveUp Academy"],
+    platforms: ["ThriveUp"],
     category: "federal",
     recurringCycle: "Ongoing — procurement cycles vary by local board",
     documents: [
       { name: "Criteria Matrix", path: "/docs/grants/GRANT-OPPORTUNITY-CRITERIA-MATRIX.md" },
     ],
-    notes: "CANNOT apply directly to DOL — must respond to local Workforce Board procurement. Must be selected as Youth Service Provider by Workforce Solutions Capital Area (Austin). Must serve out-of-school youth (16–24) or in-school youth (14–21) with barriers. Must provide 14 WIOA youth program elements. 75% of funds = out-of-school youth. 20% = work experience. Must track credential attainment, employment, measurable skills gains. ThriveUp Academy 50+ career pathways + Panther Village gamification + PfISD hybrid model = purpose-built WIOA youth provider. Contact Workforce Solutions Capital Area about upcoming procurement.",
+    notes: "CANNOT apply directly to DOL — must respond to local Workforce Board procurement. Must be selected as Youth Service Provider by Workforce Solutions Capital Area (Austin). Must serve out-of-school youth (16–24) or in-school youth (14–21) with barriers. Must provide 14 WIOA youth program elements. 75% of funds = out-of-school youth. 20% = work experience. Must track credential attainment, employment, measurable skills gains. ThriveUp 50+ career pathways + Panther Village gamification + PfISD hybrid model = purpose-built WIOA youth provider. Contact Workforce Solutions Capital Area about upcoming procurement.",
     submitUrl: "https://www.wfscapitalarea.com/",
     submitPortal: "Workforce Solutions Capital Area",
     priority: 2,
@@ -1095,7 +1095,7 @@ const INITIAL_GRANTS: GrantEntry[] = [
     documents: [
       { name: "Criteria Matrix", path: "/docs/grants/GRANT-OPPORTUNITY-CRITERIA-MATRIX.md" },
     ],
-    notes: "Must serve minority-owned businesses or aspiring minority entrepreneurs. Can be nonprofit, for-profit, educational institution, or govt entity. Must provide business consulting, TA, or capacity building. Must track client outcomes (revenue growth, certifications, contracts won). SAM.gov required. MCE provides SAM.gov integration + certification tools. ThriveUp Academy provides consulting + contractor enablement pathways. Letters of support from local minority business orgs or chambers.",
+    notes: "Must serve minority-owned businesses or aspiring minority entrepreneurs. Can be nonprofit, for-profit, educational institution, or govt entity. Must provide business consulting, TA, or capacity building. Must track client outcomes (revenue growth, certifications, contracts won). SAM.gov required. MCE provides SAM.gov integration + certification tools. ThriveUp provides consulting + contractor enablement pathways. Letters of support from local minority business orgs or chambers.",
     url: "https://www.mbda.gov/",
     submitUrl: "https://www.grants.gov",
     submitPortal: "Grants.gov",
@@ -2174,7 +2174,7 @@ const INITIAL_GRANTS: GrantEntry[] = [
     deadline: "April 15, 2026 — 12:00 PM Noon CT",
     deadlineDate: new Date("2026-04-15"),
     status: "identified",
-    platforms: ["TCAF", "ThriveUp Academy", "ISSS"],
+    platforms: ["TCAF", "ThriveUp", "ISSS"],
     category: "foundation",
     documents: [],
     notes: "DEADLINE IN 3 DAYS. GrantWatch #172494. QUALIFICATIONS: Applicants must be researchers affiliated with a nonprofit org (IHE, school district, or research facility). Two tiers: up to $50K and up to $60K (likely by project scope/career stage). USA, Canada, and International eligible. SUBMISSION: Apply via GrantWatch listing link — full details behind MemberPlus+ paywall. FIT: RPLICE/Better Science Lab ecosystem impact study, Bidirectional Planning Engine methodology, SDOH-integrated education outcomes, 15-service-platform longitudinal data. Could fund a formal published study. NOTE: May need academic PI partner (UT Austin, Huston-Tillotson) since TCAF is not an IHE — verify eligibility as 'research facility.'",
@@ -2234,7 +2234,7 @@ const INITIAL_GRANTS: GrantEntry[] = [
     deadline: "Rolling — No Deadline (Apply Anytime)",
     deadlineDate: new Date("2026-12-31"),
     status: "identified",
-    platforms: ["TCAF", "ThriveUp Academy", "LifeBridge", "Sankofa Health Network", "Perfectly Different"],
+    platforms: ["TCAF", "ThriveUp", "LifeBridge", "Sankofa Health Network", "Perfectly Different"],
     category: "foundation",
     documents: [],
     notes: "ALWAYS OPEN. ~$350M annual grantmaking budget. QUALIFICATIONS: Must be working in one of 4 focus areas — racial equity, early childhood education, health, or family economic security. Priority geographies include Michigan, Mississippi, New Mexico, and New Orleans, but funds nationwide. TCAF qualifies broadly. SUBMISSION: Register at wkkf.fluxx.io, submit Letter of Inquiry (LOI). No deadlines — reviewed continuously. 80% of final funding decisions within 60 business days. STRENGTHS: WKKF centers racial equity and healing, community-driven solutions. TCAF's 15-service-platform ecosystem, RPLICE model, Sankofa diaspora health, and LifeBridge CHW navigation all align perfectly. FIT SCORE: VERY HIGH — especially for workforce, health, and racial equity intersections.",
@@ -2559,7 +2559,7 @@ const INITIAL_GRANTS: GrantEntry[] = [
     deadline: "May 29, 2026, 2:00 PM CT (rolling monthly evaluations)",
     deadlineDate: new Date("2026-05-29"),
     status: "identified",
-    platforms: ["M&T Consulting", "CIP LLC", "TCAF", "ThriveUp Academy", "ISSS", "Perfectly Different"],
+    platforms: ["M&T Consulting", "CIP LLC", "TCAF", "ThriveUp", "ISSS", "Perfectly Different"],
     category: "state",
     documents: [
       { name: "RFP Document", path: "/attached_assets/PROFESSIONAL_DEVELOPMENT,_TRAINING,_CONSULTANT,_AND_BROKERAGE_1776128483319.docx" },
@@ -2579,7 +2579,7 @@ const INITIAL_GRANTS: GrantEntry[] = [
     deadline: "May 20, 2026, 11:59 PM ET",
     deadlineDate: new Date("2026-05-20"),
     status: "identified",
-    platforms: ["TCAF", "Perfectly Different", "Talk Your Talk", "SafeCogniCare", "ThriveUp Academy"],
+    platforms: ["TCAF", "Perfectly Different", "Talk Your Talk", "SafeCogniCare", "ThriveUp"],
     category: "foundation",
     documents: [
       { name: "Application Draft", path: "/docs/grants/Borealis-DIF-x-Tech-2026-Application-Draft.md" },
@@ -2602,7 +2602,7 @@ const INITIAL_GRANTS: GrantEntry[] = [
     deadline: "Late April-May 2026 (post-reauthorization)",
     deadlineDate: new Date("2026-05-31"),
     status: "researching",
-    platforms: ["CIP LLC", "ThriveUp Academy", "TCAF"],
+    platforms: ["CIP LLC", "ThriveUp", "TCAF"],
     category: "federal",
     documents: [],
     notes: "SBIR via CIP LLC (EIN 41-4996540, veteran-owned for-profit SBC). TCAF can be subcontractor/partner. Reauthorization (S.3971) becomes law April 14. Army expected first to reopen. CIP LLC tech maps to required sub-fields: RAG engine (Retrieval Augmented Generation), NLP/LLM across 15-service-platform ecosystem, Explainable AI. Phase I: $250K/6 months. Direct to Phase II: $2M/24 months if existing feasibility demonstrated. Submit via DSIP portal (dodsbirsttr.mil). Veteran-owned scoring advantage.",
@@ -2621,7 +2621,7 @@ const INITIAL_GRANTS: GrantEntry[] = [
     deadline: "Rolling (reopening post-reauthorization, late April 2026)",
     deadlineDate: new Date("2026-06-30"),
     status: "researching",
-    platforms: ["CIP LLC", "ThriveUp Academy", "ISSS", "TCAF"],
+    platforms: ["CIP LLC", "ThriveUp", "ISSS", "TCAF"],
     category: "federal",
     documents: [],
     notes: "SBIR via CIP LLC. NSF is topic-agnostic -- AI-powered workforce development for underrepresented communities is exactly what they fund. Non-dilutive $275K Phase I. Process: submit Project Pitch (brief online form) -> NSF reviews in ~3 weeks -> if invited, submit full proposal. Rolling windows. Currently paused during reauthorization lapse -- expected to reopen imminently. Veteran-owned + broadening participation = strong competitive position. Submit via Research.gov. Contact: sbir@nsf.gov.",
@@ -2659,10 +2659,10 @@ const INITIAL_GRANTS: GrantEntry[] = [
     deadline: "November 2026 (annual window)",
     deadlineDate: new Date("2026-11-30"),
     status: "researching",
-    platforms: ["ISS LLC", "ThriveUp Academy", "ISSS", "Perfectly Different", "ThriveUp Academy"],
+    platforms: ["ISS LLC", "ThriveUp", "ISSS", "Perfectly Different", "ThriveUp"],
     category: "federal",
     documents: [],
-    notes: "SBIR via CIP LLC. ED/IES SBIR funds R&D of education technology products. Three tracks: Phase IA ($250K/9mo, novel prototypes), Phase IB ($250K/9mo, strengthen existing), Direct to Phase II ($1M/2yr, scale researcher-developed innovations). ThriveUp Academy with AI curriculum, resume builder, workforce readiness modules = production-ready ed-tech. ISSS MTSS engine with Thrive Score algorithm. Perfectly Different for special education technology (Priority Area 2). Highly competitive: 175-275 proposals, only 10-15 funded. Annual window typically November-January. Submit via SAM.gov.",
+    notes: "SBIR via CIP LLC. ED/IES SBIR funds R&D of education technology products. Three tracks: Phase IA ($250K/9mo, novel prototypes), Phase IB ($250K/9mo, strengthen existing), Direct to Phase II ($1M/2yr, scale researcher-developed innovations). ThriveUp with AI curriculum, resume builder, workforce readiness modules = production-ready ed-tech. ISSS MTSS engine with Thrive Score algorithm. Perfectly Different for special education technology (Priority Area 2). Highly competitive: 175-275 proposals, only 10-15 funded. Annual window typically November-January. Submit via SAM.gov.",
     url: "https://ies.ed.gov/funding/research/programs/small-business-innovation-research-sbir",
     submitUrl: "https://sam.gov",
     submitPortal: "SAM.gov",
@@ -2678,7 +2678,7 @@ const INITIAL_GRANTS: GrantEntry[] = [
     deadline: "TBD — RFP opened April 13, 2026 (deadline pending full solicitation release)",
     deadlineDate: new Date("2026-05-15"),
     status: "researching",
-    platforms: ["TCAF", "LifeBridge", "ThriveUp Academy", "Sankofa Health Network"],
+    platforms: ["TCAF", "LifeBridge", "ThriveUp", "Sankofa Health Network"],
     category: "other",
     documents: [],
     notes: "STRONG FIT — Operate the City-owned South Austin Housing Navigation Center near I-35 & Oltorf. First City-owned navigation center, expected to open late summer/early fall 2026. Up to $250K for operations and service delivery. Collaborative proposals allowed but a LEAD AGENCY MUST BE IDENTIFIED. Center serves dual function: (1) prevention/diversion for housing-instability households (root factors: healthcare access, income/employment, lease adherence, housing quality, family safety), and (2) basic needs + next steps for those already homeless (food, hygiene, healthcare, vital documents, mailing address, housing assessment, mainstream benefits). PERFECT LIFEBRIDGE ALIGNMENT: warm handoffs, GIS resource matching (20,670+ resources), Benefits Screener (9+ programs), Workforce Assessment, Sankofa Health Network for healthcare access, Career Explorer for employment. Performance metrics expected: housing placements, service accessibility, cost efficiency. Aligns with AHSO 2025-27 Strategic Plan goals (650 shelter beds + 2 navigation centers). ACTION: (1) Monitor austintexas.gov/homeless-strategies/homeless-strategies-and-operations-contracting-unit for full solicitation, (2) Decide lead agency posture (TCAF lead OR partner under another lead like ECHO/Caritas/Front Steps), (3) Engage ECHO as community partner. Director: David Gray, AHSO.",
@@ -2698,7 +2698,7 @@ const INITIAL_GRANTS: GrantEntry[] = [
     deadline: "May 4, 2026 (Grants.gov) / May 11, 2026 (JustGrants)",
     deadlineDate: new Date("2026-05-04"),
     status: "researching",
-    platforms: ["TCAF", "LifeBridge", "ThriveUp Academy", "Mission Transition"],
+    platforms: ["TCAF", "LifeBridge", "ThriveUp", "Mission Transition"],
     category: "federal",
     documents: [],
     notes: "PERFECT FIT — Category 2: Improving Employment Services & Connections. $900K over 36 months. Create a career pathway system or workforce development network for incarcerated individuals within 2 years of release. TCAF has: TX Reentry Stipend Pilot (running), Reentry Dashboard (4-phase case mgmt), Career Explorer (89 pathways, 56 non-collegiate), Workforce Assessment (justice-involved employer flags), Benefits Screener (9+ programs), LifeBridge (warm handoffs), intake wizard with Justice History step, Mentorship Directory. NEED: (1) Releasing institution partner (Travis County Jail, TDCJ facility), (2) Local recidivism/employment data, (3) Letters of collaboration from correctional partners. Must budget travel for 3 staff to 2 DOJ-sponsored meetings. No cost match required. Evidence-based practices required — RPLICE/CFIR 2.0 framework qualifies. Must include sustainability & replicability plan.",

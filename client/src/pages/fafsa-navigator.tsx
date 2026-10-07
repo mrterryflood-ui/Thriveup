@@ -293,7 +293,7 @@ export default function FafsaNavigatorPage() {
             Your step-by-step guide to understanding, applying for, and maximizing financial aid for college.
           </p>
           <div className="flex items-center justify-center gap-2 mt-2 flex-wrap">
-            <Badge variant="outline">ThriveUp Academy</Badge>
+            <Badge variant="outline">ThriveUp</Badge>
             <Badge variant="outline">The Collaborative Advocate Foundation</Badge>
             <Badge variant="secondary">5-County Service Area</Badge>
           </div>

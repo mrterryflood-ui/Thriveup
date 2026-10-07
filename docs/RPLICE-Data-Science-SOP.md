@@ -58,7 +58,7 @@ Limited English proficiency averages 57-63% across counties — families can't n
 - CHW workforce training (DSHS certification) — creates jobs AND deploys culturally competent navigators
 - Digital literacy programs co-located with benefits enrollment
 - GED/ESL pathways integrated into community hub enrollment events
-- ThriveUp Academy AI curriculum — building next-generation workforce while serving current needs
+- ThriveUp AI curriculum — building next-generation workforce while serving current needs
 
 **↓ feeds into ↓**
 
@@ -165,7 +165,7 @@ The census tracts with barrier indexes above 30 — concentrated in East Austin 
 
 - Benefits enrollment reduces economic desperation — the #1 driver of property crime
 - Reentry support for justice-involved individuals returning to these neighborhoods
-- Youth programs (ThriveUp Academy) provide protective factor against recruitment into crime
+- Youth programs (ThriveUp) provide protective factor against recruitment into crime
 - Community hub investment creates safe spaces and social cohesion
 
 ---
@@ -181,7 +181,7 @@ The census tracts with barrier indexes above 30 — concentrated in East Austin 
 
 **Breaking Points by Chain Link:**
 
-- **Education:** CHW training + digital literacy + ThriveUp Academy [protective]
+- **Education:** CHW training + digital literacy + ThriveUp [protective]
 - **Benefits Gap:** 9-program screener + bilingual CHWs + offline PWA [direct]
 - **Health Insecurity:** FQHC co-location + food pantry integration [direct]
 - **Isolation:** Trust-based outreach + mobile units + lived-experience hiring [bridge]

@@ -23,7 +23,7 @@ interface SlideData {
 
 const slides: SlideData[] = [
   {
-    title: "Welcome to ThriveUp Academy Admin Center",
+    title: "Welcome to ThriveUp Admin Center",
     icon: Home,
     overview: "You manage 60 sixth graders' entire learning journey from this platform. Every tool you need is right here.",
     keyPoints: [
@@ -324,7 +324,7 @@ export default function AcademyAdminTutorialPage() {
   };
 
 
-  useEffect(() => { document.title = "Admin Tutorial | ThriveUp Academy"; }, []);
+  useEffect(() => { document.title = "Admin Tutorial | ThriveUp"; }, []);
   return (
     <div className="p-4 sm:p-6 max-w-3xl mx-auto" data-testid="admin-tutorial-page">
       <PageHeader
@@ -338,7 +338,7 @@ export default function AcademyAdminTutorialPage() {
       <div className="mb-6">
         <div className="rounded-md p-4 bg-gradient-to-r from-rose-900 to-red-950 text-white mb-6">
           <h1 className="text-2xl font-bold" data-testid="text-admin-tutorial-title">
-            ThriveUp Academy Admin Guide
+            ThriveUp Admin Guide
           </h1>
           <p className="text-sm text-white/80 mt-1">
             A complete walkthrough of every platform management feature

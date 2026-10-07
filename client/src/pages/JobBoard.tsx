@@ -49,7 +49,7 @@ export default function JobBoard() {
   const [selectedJob, setSelectedJob] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "Fair-Chance Job Board | ThriveUp Academy";
+    document.title = "Fair-Chance Job Board | ThriveUp";
     Promise.allSettled([
       fetch("/api/workforce/jobs").then((r) => r.json()),
       fetch("/api/workforce/match/me").then((r) => r.ok ? r.json() : null),
@@ -79,7 +79,7 @@ export default function JobBoard() {
     <div className="min-h-screen bg-slate-50 font-sans">
       <div className="bg-white border-b border-slate-200 px-10 py-6">
         <div className="text-xs tracking-widest uppercase text-emerald-600 mb-1">
-          ThriveUp Academy · Career Center
+          ThriveUp · Career Center
         </div>
         <h1 className="text-2xl font-bold text-slate-900 mb-1" data-testid="heading-job-board">
           Fair-Chance Job Board

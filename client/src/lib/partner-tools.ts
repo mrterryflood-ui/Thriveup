@@ -121,7 +121,7 @@ export const TOOL_CATALOG: PartnerTool[] = [
   },
   {
     id: "academy",
-    label: "ThriveUp Academy",
+    label: "ThriveUp",
     description:
       "AI-powered learning platform for participants: workforce readiness, digital literacy, financial education, and credential pathways.",
     path: "/academy",

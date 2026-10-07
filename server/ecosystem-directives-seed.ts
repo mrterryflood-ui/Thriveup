@@ -469,14 +469,14 @@ ACKNOWLEDGE with "video_exists" or "script_in_progress".`,
     targetFilter: "all",
     content: `ECOSYSTEM STATUS REPORT — March 19, 2026
 
-FROM: Dr. Terry Flood, ThriveUp Academy Hub
+FROM: Dr. Terry Flood, ThriveUp Hub
 TO: All 20 Platforms
 
 === CURRENT ECOSYSTEM STATUS ===
 24 platforms registered and connected. All platforms must maintain 15-minute heartbeat intervals. If your heartbeat is failing, include platformId in your heartbeat body and the hub will auto-register your key.
 
 === NEW INITIATIVE: AUSTIN HOUSING PROJECT ===
-ThriveUp Academy is launching a comprehensive Austin & Pflugerville housing stability initiative. Key data:
+ThriveUp is launching a comprehensive Austin & Pflugerville housing stability initiative. Key data:
 - Austin median home: $429K-$435K — only 2 of 75 zip codes affordable to median income families
 - 48,000+ unit gap for households below 30% Area Median Income
 - Pflugerville: 330 affordable units coming (Branchview, completion 2027) but ZERO social infrastructure
@@ -524,7 +524,7 @@ Role: Ecosystem Coordination
 Domain: Operations
 
 WHAT THIS MEANS FOR YOU:
-- Ecosystem Nexus is the central coordination and operational hub for the entire ThriveUp Academy ecosystem
+- Ecosystem Nexus is the central coordination and operational hub for the entire ThriveUp ecosystem
 - It provides cross-platform visibility, coordination tools, and operational intelligence for all 24 platforms
 - Continue heartbeating as normal — Ecosystem Nexus enhances coordination, it does not replace the hub
 
@@ -705,7 +705,7 @@ ACKNOWLEDGE with your implementation status and ETA for each deliverable.`,
     targetFilter: "all",
     content: `THREE REGIONAL COMMUNITY HUBS ARE NOW LIVE
 
-ThriveUp Academy has deployed dedicated regional hubs for three Central Texas communities. Same 24-platform ecosystem, adapted for each community's unique context using implementation science principles (CFIR, RE-AIM).
+ThriveUp has deployed dedicated regional hubs for three Central Texas communities. Same 24-platform ecosystem, adapted for each community's unique context using implementation science principles (CFIR, RE-AIM).
 
 === THE THREE HUBS ===
 
@@ -752,7 +752,7 @@ ACKNOWLEDGE with your regional deployment strategy for all three hubs.`,
     targetFilter: "all",
     content: `MAP-GAP IS THE OPERATING SYSTEM OF THIS ECOSYSTEM
 
-Every platform in the ThriveUp Academy ecosystem operates using MAP-GAP — Dr. Terry Flood's continuous improvement methodology. This is not optional. This is how we think, how we build, how we recover, and how we deliver.
+Every platform in the ThriveUp ecosystem operates using MAP-GAP — Dr. Terry Flood's continuous improvement methodology. This is not optional. This is how we think, how we build, how we recover, and how we deliver.
 
 === WHAT MAP-GAP MEANS ===
 
@@ -1020,7 +1020,7 @@ ACKNOWLEDGE with: A list of every product currently visible in your sidebar, and
     targetFilter: "all",
     content: `DIRECTIVE: MANDATORY RAG AI INTEGRATION
 
-THIS IS NOT OPTIONAL. Every ecosystem platform MUST integrate ThriveUp Academy's RAG AI into their system.
+THIS IS NOT OPTIONAL. Every ecosystem platform MUST integrate ThriveUp's RAG AI into their system.
 
 === WHAT IS THE RAG AI? ===
 The ThriveUp RAG AI is an intelligent assistant that knows EVERYTHING about our 24-platform ecosystem:
@@ -1142,7 +1142,7 @@ ACKNOWLEDGE with: Your current understanding of your fidelity grade, what direct
     targetFilter: ["pinnacle-business-conglomerate"],
     content: `DIRECTIVE: COMPLETE ECOSYSTEM INTEGRATION — PINNACLE BUSINESS CONGLOMERATE (PLATFORM #21)
 
-You are Platform #21 in the ThriveUp Academy ecosystem. This directive contains EVERYTHING you need to operate as a full ecosystem participant. Follow every section.
+You are Platform #21 in the ThriveUp ecosystem. This directive contains EVERYTHING you need to operate as a full ecosystem participant. Follow every section.
 
 ========================================
 SECTION 1: YOUR IDENTITY IN THE ECOSYSTEM
@@ -1393,7 +1393,7 @@ SECTION 8: CONGRUENT MESSAGING — WHAT TO SAY
 These messages must be consistent across PBC and all 24 ecosystem platforms:
 
 ECOSYSTEM IDENTITY:
-"Pinnacle Business Conglomerate is Platform #21 in the ThriveUp Academy ecosystem — a 24-platform AI-powered workforce development and community enablement system serving under-resourced communities nationwide."
+"Pinnacle Business Conglomerate is Platform #21 in the ThriveUp ecosystem — a 24-platform AI-powered workforce development and community enablement system serving under-resourced communities nationwide."
 
 MISSION STATEMENT:
 "We take contractors and organizations from where they are to where they need to be — registration to revenue, cradle to grave."
@@ -1467,7 +1467,7 @@ ACKNOWLEDGE with: Confirmation that you have implemented the heartbeat, integrat
     targetFilter: ["collaborative-advocate"],
     content: `DIRECTIVE: COMPLETE ECOSYSTEM INTEGRATION — THE COLLABORATIVE ADVOCATE
 
-You are a platform in the ThriveUp Academy 24-platform ecosystem. This directive contains EVERYTHING you need to operate as a full ecosystem participant. Follow every section.
+You are a platform in the ThriveUp 24-platform ecosystem. This directive contains EVERYTHING you need to operate as a full ecosystem participant. Follow every section.
 
 ========================================
 SECTION 1: YOUR IDENTITY IN THE ECOSYSTEM
@@ -1615,7 +1615,7 @@ SECTION 7: CONGRUENT MESSAGING
 ========================================
 
 ECOSYSTEM IDENTITY:
-"The Collaborative Advocate is part of the ThriveUp Academy ecosystem — a 24-platform AI-powered workforce development and community enablement system serving under-resourced communities nationwide."
+"The Collaborative Advocate is part of the ThriveUp ecosystem — a 24-platform AI-powered workforce development and community enablement system serving under-resourced communities nationwide."
 
 GRANT ALIGNMENT (use these names exactly):
 - WIOA ($200K–$500K)
@@ -1647,7 +1647,7 @@ ACKNOWLEDGE with: Confirmation that you have implemented the heartbeat, integrat
     targetFilter: "all",
     content: `DIRECTIVE: PROGRAM EXECUTION ENGINE — MANDATORY FOR ALL PLATFORMS
 
-Every platform in the ThriveUp Academy ecosystem MUST have its own Program Execution Engine capable of running programs and projects with full fidelity tracking. You can reach back to the hub for teaching points, RAG intelligence, and knowledge — but you must be able to EXECUTE programs independently.
+Every platform in the ThriveUp ecosystem MUST have its own Program Execution Engine capable of running programs and projects with full fidelity tracking. You can reach back to the hub for teaching points, RAG intelligence, and knowledge — but you must be able to EXECUTE programs independently.
 
 ========================================
 WHY: FIDELITY IS YOUR REPORT CARD
@@ -2064,7 +2064,7 @@ ACKNOWLEDGE THIS DIRECTIVE with: Confirmation that you have REMOVED all auto-ack
     targetFilter: "all",
     content: `MANDATORY: CONNECT YOUR PLATFORM TO THE HUB PINGER
 
-The ThriveUp Academy hub sends automated wake-up pings to all 24 platforms every 10 minutes. This is NOT optional. If your platform is not connected, you WILL fall out of compliance.
+The ThriveUp hub sends automated wake-up pings to all 24 platforms every 10 minutes. This is NOT optional. If your platform is not connected, you WILL fall out of compliance.
 
 THE PROBLEM:
 Multiple platforms are listed as DEGRADED — they respond to pings (the URL is alive) but they are NOT sending heartbeats to the hub. This means:

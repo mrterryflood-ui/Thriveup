@@ -3176,7 +3176,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
               "CHW workforce training (DSHS certification) — creates jobs AND deploys culturally competent navigators",
               "Digital literacy programs co-located with benefits enrollment",
               "GED/ESL pathways integrated into community hub enrollment events",
-              "ThriveUp Academy AI curriculum — building next-generation workforce while serving current needs",
+              "ThriveUp AI curriculum — building next-generation workforce while serving current needs",
             ],
           },
           {
@@ -3239,7 +3239,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
             interventions: [
               "Benefits enrollment reduces economic desperation — the #1 driver of property crime",
               "Reentry support for justice-involved individuals returning to these neighborhoods",
-              "Youth programs (ThriveUp Academy) provide protective factor against recruitment into crime",
+              "Youth programs (ThriveUp) provide protective factor against recruitment into crime",
               "Community hub investment creates safe spaces and social cohesion",
             ],
           },
@@ -3267,7 +3267,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
           lowEdTracts: lowEdTracts.length,
           highSingleParentTracts: highSPTracts.length,
           breakingPoints: [
-            { link: "Education", intervention: "CHW training + digital literacy + ThriveUp Academy", type: "protective" },
+            { link: "Education", intervention: "CHW training + digital literacy + ThriveUp", type: "protective" },
             { link: "Benefits Gap", intervention: "9-program screener + bilingual CHWs + offline PWA", type: "direct" },
             { link: "Health Insecurity", intervention: "FQHC co-location + food pantry integration", type: "direct" },
             { link: "Isolation", intervention: "Trust-based outreach + mobile units + lived-experience hiring", type: "bridge" },
@@ -3348,7 +3348,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
               "CHW workforce training (DSHS certification) — creates jobs AND deploys culturally competent navigators",
               "Digital literacy programs co-located with benefits enrollment",
               "GED/ESL pathways integrated into community hub enrollment events",
-              "ThriveUp Academy AI curriculum — building next-generation workforce while serving current needs",
+              "ThriveUp AI curriculum — building next-generation workforce while serving current needs",
             ],
           },
           {
@@ -3417,7 +3417,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
             interventions: [
               "Benefits enrollment reduces economic desperation — the #1 driver of property crime",
               "Reentry support for justice-involved individuals returning to these neighborhoods",
-              "Youth programs (ThriveUp Academy) provide protective factor against recruitment into crime",
+              "Youth programs (ThriveUp) provide protective factor against recruitment into crime",
               "Community hub investment creates safe spaces and social cohesion",
             ],
           },
@@ -3429,7 +3429,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
           tractsCovered: enrollmentData.length,
           highBarrierTracts: enrollmentData.filter(t => (t.barrierIndex || 0) > 20).length,
           breakingPoints: [
-            { link: "Education", intervention: "CHW training + digital literacy + ThriveUp Academy", type: "protective" },
+            { link: "Education", intervention: "CHW training + digital literacy + ThriveUp", type: "protective" },
             { link: "Benefits Gap", intervention: "9-program screener + bilingual CHWs + offline PWA", type: "direct" },
             { link: "Health Insecurity", intervention: "FQHC co-location + food pantry integration", type: "direct" },
             { link: "Isolation", intervention: "Trust-based outreach + mobile units + lived-experience hiring", type: "bridge" },

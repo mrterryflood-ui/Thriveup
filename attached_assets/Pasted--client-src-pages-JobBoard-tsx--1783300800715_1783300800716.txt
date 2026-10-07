@@ -77,7 +77,7 @@ export default function JobBoard() {
       {/* Header */}
       <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: "24px 40px" }}>
         <div style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "#10b981", marginBottom: 4 }}>
-          ThriveUp Academy · Career Center
+          ThriveUp · Career Center
         </div>
         <h1 style={{ margin: "0 0 4px", fontSize: 22, fontWeight: 700, color: "#0f172a" }}>
           Fair-Chance Job Board
@@ -311,7 +311,7 @@ export function ReentryIntakeEnhanced() {
     <div style={{ minHeight: "100vh", background: "#f8fafc", fontFamily: "'Inter', system-ui, sans-serif" }}>
       <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: "20px 40px" }}>
         <div style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "#6366f1", marginBottom: 4 }}>
-          ThriveUp Academy · Reentry Program
+          ThriveUp · Reentry Program
         </div>
         <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "#0f172a" }}>Participant Intake</h1>
       </div>

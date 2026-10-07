@@ -1,4 +1,4 @@
-ThriveUp Academy Platform Documentation & Improvement Strategy
+ThriveUp Platform Documentation & Improvement Strategy
 
 OVERALL PERFORMANCE ASSESSMENT: B- (Potential for Significant Impact)
 
@@ -57,7 +57,7 @@ Critical Reconnection Priority:
 - Mission Transition
 
 Performance Recovery Platforms (Grade F):
-- ThriveUp Academy Hub
+- ThriveUp Hub
 - Emergency Management Platform
 - Advertising Targeting Platform
 

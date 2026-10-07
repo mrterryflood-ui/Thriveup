@@ -80,7 +80,7 @@ function LoadingSkeleton() {
 }
 
 export default function AcademyPowerPage() {
-  useEffect(() => { document.title = 'Panther Power | ThriveUp Academy'; }, []);
+  useEffect(() => { document.title = 'Panther Power | ThriveUp'; }, []);
 
   const { data, isLoading, error, refetch } = useQuery<PantherPowerData>({
     queryKey: ["/api/academy/panther-power"],

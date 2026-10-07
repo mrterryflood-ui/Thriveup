@@ -1,7 +1,7 @@
 # Contracting Fork — Drop-In Code Bundle
 
 **Generated:** 2026-05-27 · for Dr. Flood per Option B directive
-**Source:** ThriveUp Academy — extracted contracting-only stack
+**Source:** ThriveUp — extracted contracting-only stack
 **Goal:** spin up a separate Replit app that ONLY does contracting (RFP ingestion → compliance matrix → gap closure → evidence binding → AI authoring → exports). No academy, no community, no health, no foster, no justice.
 
 ---

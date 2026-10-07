@@ -1,4 +1,4 @@
-# Accessibility Audit — ThriveUp Academy Platform
+# Accessibility Audit — ThriveUp Platform
 
 **Date:** 2026-08-08
 **Scope:** WP-4D (Phase 4 platform remediation)

@@ -6,7 +6,7 @@
 
 ## EXECUTIVE SUMMARY
 
-The ThriveUp Academy ACOS ecosystem spans **23 interdependent platforms** across healthcare technology, cybersecurity, workforce development, research/implementation science, education, veteran services, and social services. This document maps every relevant NAICS and PSC code to specific platforms, enabling precise SAM.gov registration and federal contract pursuit.
+The ThriveUp ACOS ecosystem spans **23 interdependent platforms** across healthcare technology, cybersecurity, workforce development, research/implementation science, education, veteran services, and social services. This document maps every relevant NAICS and PSC code to specific platforms, enabling precise SAM.gov registration and federal contract pursuit.
 
 **Total NAICS Codes Identified: 42**
 **Total PSC Codes Identified: 38**

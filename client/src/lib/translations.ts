@@ -38,8 +38,8 @@ export const translations: Record<Language, Record<string, string>> = {
     "state.error.default": "Something went wrong loading this data. Please try again.",
     "state.error.tryAgain": "Try Again",
 
-    "landing.badge": "ThriveUp Academy — AI-Powered Workforce Development for All Ages",
-    "landing.title": "ThriveUp Academy",
+    "landing.badge": "ThriveUp — AI-Powered Workforce Development for All Ages",
+    "landing.title": "ThriveUp",
     "landing.subtitle": "Empowering under-resourced communities with AI mastery, workforce readiness, and career pipelines",
     "landing.exploreSubjects": "Explore Subjects",
     "landing.startLearning": "Start Learning",
@@ -206,7 +206,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "state.error.default": "Algo salió mal al cargar estos datos. Inténtalo de nuevo.",
     "state.error.tryAgain": "Intentar de nuevo",
 
-    "landing.badge": "ThriveUp Academy — Desarrollo Laboral Impulsado por IA para Todas las Edades",
+    "landing.badge": "ThriveUp — Desarrollo Laboral Impulsado por IA para Todas las Edades",
     "landing.title": "Academia de Dominio de IA",
     "landing.subtitle": "Empoderando a jóvenes de comunidades desatendidas con dominio de IA, preparación laboral y trayectorias de escuela a carrera",
     "landing.exploreSubjects": "Explorar Materias",

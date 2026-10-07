@@ -17,14 +17,14 @@
 | **Primary Contact** | Dr. Terry Flood, President |
 | **Address** | 17912 Stefano Drive, Pflugerville, TX 78660 |
 | **Service Area** | Greater Austin Metropolitan Area (Travis, Williamson, Hays, Bastrop, and Caldwell Counties) |
-| **Website** | thriveupacademy.com |
+| **Website** | thrivingcommunitiesforall.com |
 | **Affiliated Entities** | M&T Consulting (for-profit consulting arm); Minority Center of Excellence (MCE — minority business SaaS platform) |
 
 ---
 
 ## 2. Project Title
 
-**ThriveUp Academy: An AI-Powered Community Agency Platform — Turning Census Data into Compassionate Action**
+**ThriveUp: An AI-Powered Community Agency Platform — Turning Census Data into Compassionate Action**
 
 ---
 
@@ -46,9 +46,9 @@ This is not a technology gap. It is an *agency gap*. The information exists. The
 
 ---
 
-## 5. Our Solution: ThriveUp Academy
+## 5. Our Solution: ThriveUp
 
-ThriveUp Academy is a 24-platform AI-powered operating system that puts community data — and the power to act on it — directly into the hands of the people it describes.
+ThriveUp is a 24-platform AI-powered operating system that puts community data — and the power to act on it — directly into the hands of the people it describes.
 
 ### The Core Innovation: Neighborhood Intelligence
 
@@ -81,7 +81,7 @@ This is agency. Not telling people what to do, but giving them the information, 
 
 ## 6. Technology Architecture
 
-ThriveUp Academy is built on a 4-engine collaborative AI system:
+ThriveUp is built on a 4-engine collaborative AI system:
 
 | Engine | Model | Role |
 |---|---|---|
@@ -98,7 +98,7 @@ The 24-platform ecosystem spans six domains:
 - **Health Equity** — Sankofa Health Network, Black Maternal Health, Black Men's Health Hub, Holistic Black Feminine Health Hub, Autoimmune Center of Excellence
 - **Behavioral Health** — SafeCogniCare, WholeMind Learning, PillScheduler
 - **Workforce & Business** — Mission Transition (military-to-civilian), MCE, Pinnacle Business Conglomerate
-- **Education & Learning** — ThriveUp Academy (60-lesson curriculum), AI Creation Studio, LexiBridge (speech therapy)
+- **Education & Learning** — ThriveUp (60-lesson curriculum), AI Creation Studio, LexiBridge (speech therapy)
 - **Community & Advocacy** — LifeBridge (benefits navigation), The Collaborative Advocate, Emergency Management, Perfectly Different (neurodiversity)
 
 All platforms share a common data layer, authentication system, and AI intelligence engine. A finding in one platform informs all others.
@@ -115,7 +115,7 @@ Our approach is grounded in original research by **Craig Stillwell (2026)**, cur
 
 ### Federal Data Integration
 
-ThriveUp Academy integrates 8 federal data sources in real time:
+ThriveUp integrates 8 federal data sources in real time:
 
 1. **Census Bureau ACS** — 5-year estimates across 15 social vulnerability variables
 2. **CDC PLACES** — Local health outcome estimates
@@ -173,7 +173,7 @@ All platform interventions are structured using established implementation scien
 | Cost per "what if" scenario | ~$0.00 (computed server-side) |
 | Traditional community needs assessment cost | $15,000–$50,000 per neighborhood |
 
-ThriveUp Academy delivers in 5 seconds what traditionally takes a consulting firm 3–6 months and $15,000–$50,000 to produce — a comprehensive neighborhood assessment with matched resources and an action plan.
+ThriveUp delivers in 5 seconds what traditionally takes a consulting firm 3–6 months and $15,000–$50,000 to produce — a comprehensive neighborhood assessment with matched resources and an action plan.
 
 At the requested funding level of $350,000 over 18 months, with a target of 5,000 users in Year 1, the cost per person served is **$70** — compared to $200–$500 for traditional community assessment and navigation services.
 
@@ -231,7 +231,7 @@ We are deeply committed to evidence-based learning and rapid iteration:
 
 ## 13. Alignment with Agency Fund Values
 
-| Agency Fund Criterion | ThriveUp Academy Alignment |
+| Agency Fund Criterion | ThriveUp Alignment |
 |---|---|
 | **Engages people's consciousness** | Transforms invisible Census data into visible, understandable community stories |
 | **Embraces dignity** | "This is DATA, not characterization" — every report leads with compassion |
@@ -248,7 +248,7 @@ We are deeply committed to evidence-based learning and rapid iteration:
 
 ## 14. Closing Statement
 
-We believe every neighborhood has a story. Right now, that story is locked inside federal databases that require technical expertise to access and interpret. ThriveUp Academy unlocks those stories and puts them in the hands of the people who live them.
+We believe every neighborhood has a story. Right now, that story is locked inside federal databases that require technical expertise to access and interpret. ThriveUp unlocks those stories and puts them in the hands of the people who live them.
 
 When a pastor in East Austin can pull up a Neighborhood Intelligence report during a community meeting and say, "Here's what our data shows — and here are 20 grants we qualify for," that is agency. When a parent can run a "what if" scenario and see that a 5-point drop in poverty would reduce their community's vulnerability score from 0.46 to 0.39, that is hope backed by evidence. When a community health worker at a grocery store can generate a 10-page PDF action plan for someone they just met, that is infrastructure for human dignity.
 
@@ -257,5 +257,5 @@ We are not building a tool. We are building the bridge between data and agency.
 ---
 
 **Prepared by:** Dr. Terry Flood, President, The Collaborative Advocate Foundation
-**Contact:** thriveupacademy.com
+**Contact:** thrivingcommunitiesforall.com
 **Apply link:** https://lnkd.in/gtDTYQcn

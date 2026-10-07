@@ -19,7 +19,7 @@ import terryMilitaryPhoto from "@assets/pic1_1773768611248.jpg";
 
 const ecosystemPlatforms = [
   {
-    name: "ThriveUp Academy",
+    name: "ThriveUp",
     role: "Develops the People",
     layer: "Education & Workforce",
     entity: "501(c)(3) Nonprofit",
@@ -83,12 +83,12 @@ const ecosystemPlatforms = [
 ];
 
 const fundingStreams = [
-  { source: "DOL Workforce Innovation (WIOA)", amount: "Varies", status: "Aligned", deadline: "Ongoing", platforms: ["ThriveUp Academy"] },
-  { source: "DOE Education Grants", amount: "Varies", status: "Aligned", deadline: "Ongoing", platforms: ["ThriveUp Academy"] },
-  { source: "SBA SBIR/STTR", amount: "Up to $2M", status: "Eligible", deadline: "Rolling", platforms: ["ThriveUp Academy", "MCE"] },
+  { source: "DOL Workforce Innovation (WIOA)", amount: "Varies", status: "Aligned", deadline: "Ongoing", platforms: ["ThriveUp"] },
+  { source: "DOE Education Grants", amount: "Varies", status: "Aligned", deadline: "Ongoing", platforms: ["ThriveUp"] },
+  { source: "SBA SBIR/STTR", amount: "Up to $2M", status: "Eligible", deadline: "Rolling", platforms: ["ThriveUp", "MCE"] },
   { source: "DOC MBDA Grants", amount: "Varies", status: "Aligned", deadline: "Ongoing", platforms: ["MCE"] },
-  { source: "SBA Community Advantage", amount: "Varies", status: "Eligible", deadline: "Ongoing", platforms: ["ThriveUp Academy", "MCE"] },
-  { source: "DOJ/OJJDP Prevention", amount: "Varies", status: "Aligned", deadline: "Ongoing", platforms: ["ThriveUp Academy"] },
+  { source: "SBA Community Advantage", amount: "Varies", status: "Eligible", deadline: "Ongoing", platforms: ["ThriveUp", "MCE"] },
+  { source: "DOJ/OJJDP Prevention", amount: "Varies", status: "Aligned", deadline: "Ongoing", platforms: ["ThriveUp"] },
   { source: "MCE SaaS Subscriptions", amount: "$49-$349+/mo per user", status: "Revenue Stream", deadline: "Ongoing", platforms: ["MCE"] },
   { source: "APEX Accelerator Partnerships", amount: "Contract-based", status: "Pipeline", deadline: "Ongoing", platforms: ["MCE"] },
 ];
@@ -294,7 +294,7 @@ export default function BusinessPlanPage() {
           <div className="flex flex-wrap justify-center gap-3">
             <a href="https://thrivingcommunitiesforall.com" target="_blank" rel="noopener noreferrer">
               <Button size="lg" className="bg-white text-violet-700 font-semibold min-h-[44px]" data-testid="button-bp-thriveup">
-                <GraduationCap className="mr-2 h-5 w-5" /> ThriveUp Academy
+                <GraduationCap className="mr-2 h-5 w-5" /> ThriveUp
                 <ExternalLink className="ml-2 h-4 w-4" />
               </Button>
             </a>
@@ -507,7 +507,7 @@ export default function BusinessPlanPage() {
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-10">
             <Badge variant="secondary" className="mb-4">
-              <Zap className="mr-1 h-3 w-3" /> ThriveUp Academy — The Tools That Do The Work
+              <Zap className="mr-1 h-3 w-3" /> ThriveUp — The Tools That Do The Work
             </Badge>
             <h2 className="text-2xl sm:text-3xl font-bold mb-2" data-testid="text-bp-tools-heading">
               Platform Capabilities
@@ -656,7 +656,7 @@ export default function BusinessPlanPage() {
               </Link>
               <a href="https://thrivingcommunitiesforall.com" target="_blank" rel="noopener noreferrer">
                 <Button size="lg" variant="outline" className="text-white border-white/40 bg-white/10 min-h-[44px]" data-testid="button-bp-cta-explore">
-                  Explore ThriveUp Academy
+                  Explore ThriveUp
                   <ExternalLink className="ml-2 h-4 w-4" />
                 </Button>
               </a>

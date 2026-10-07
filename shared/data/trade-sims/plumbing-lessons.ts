@@ -790,7 +790,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
     engineMode: "pipe-network",
     concept: {
       blurb:
-        "You've worked through 14 days of fundamentals. Now design a real whole-house supply system from scratch: pick the layout, size every pipe, place every valve and fixture, simulate it, explain your choices, and pass an AI-tutor oral exam. Pass the capstone and your ThriveUp Academy profile shows the Plumbing Fundamentals badge — usable as evidence of prior learning at ACC's PLAB sequence, UA Local 286 pre-apprenticeship intake, and PHCC's apprenticeship application.",
+        "You've worked through 14 days of fundamentals. Now design a real whole-house supply system from scratch: pick the layout, size every pipe, place every valve and fixture, simulate it, explain your choices, and pass an AI-tutor oral exam. Pass the capstone and your ThriveUp profile shows the Plumbing Fundamentals badge — usable as evidence of prior learning at ACC's PLAB sequence, UA Local 286 pre-apprenticeship intake, and PHCC's apprenticeship application.",
       keyTerms: [
         { term: "Design intent", definition: "What the system delivers, in plain language: GPM (or m³/s) at peak demand at each fixture, with every fixture holding at least 20 psi (138 kPa) of supply pressure." },
         { term: "Component selection", definition: "Right pipe size (e.g., 1\" / 25 mm trunk, 3/4\" / 19 mm branches), right valves, right backflow devices, code-compliant fittings." },
@@ -829,6 +829,6 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
       prompt: "Free design — anything you want to try.",
     },
     credentialPathway:
-      "On capstone PASS: ThriveUp Academy issues a Plumbing Fundamentals badge that you can attach to your application to ACC's PLAB 1305 (Basic Plumbing) intake, UA Local 286 pre-apprenticeship, or PHCC apprenticeship as evidence of prior learning. Direct-hire and contractor referral pathways are being built out and will be listed here as partnerships are confirmed in writing.",
+      "On capstone PASS: ThriveUp issues a Plumbing Fundamentals badge that you can attach to your application to ACC's PLAB 1305 (Basic Plumbing) intake, UA Local 286 pre-apprenticeship, or PHCC apprenticeship as evidence of prior learning. Direct-hire and contractor referral pathways are being built out and will be listed here as partnerships are confirmed in writing.",
   },
 ];

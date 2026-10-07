@@ -643,7 +643,7 @@ function Step4Summary({
             `# ${title}`,
             `## Program Design Document`,
             `**Generated:** ${new Date().toLocaleDateString()}`,
-            `**Organization:** The Collaborative Advocate Foundation / ThriveUp Academy`,
+            `**Organization:** The Collaborative Advocate Foundation / ThriveUp`,
             ``,
             `## Problem Domain`,
             domainLabel,
@@ -725,7 +725,7 @@ export default function ProgramDesignerPage() {
   const [savedDesign, setSavedDesign] = useState<ProgramDesign | null>(null);
 
   useEffect(() => {
-    document.title = "Program Designer — MAP-GAP Wizard | ThriveUp Academy";
+    document.title = "Program Designer — MAP-GAP Wizard | ThriveUp";
   }, []);
 
   const saveMutation = useMutation({

@@ -71,7 +71,7 @@ function InitialSetupWizard({ onComplete }: { onComplete: () => void }) {
   }
 
 
-  useEffect(() => { document.title = "Student Setup | ThriveUp Academy"; }, []);
+  useEffect(() => { document.title = "Student Setup | ThriveUp"; }, []);
   return (
     <div className="space-y-6" data-testid="wizard-initial-setup">
       <Progress value={progress} className="h-2" data-testid="progress-wizard" />

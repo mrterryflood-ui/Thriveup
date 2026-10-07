@@ -108,7 +108,7 @@ End Sub`;
 const MRSS_TEMPLATE = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/">
   <channel>
-    <title>ThriveUp Academy Channel</title>
+    <title>ThriveUp Channel</title>
     <description>AI-Powered Workforce Development & Community Impact</description>
     <item>
       <title>[VIDEO_TITLE]</title>
@@ -141,7 +141,7 @@ export default function RokuAdsPage() {
   });
 
   useEffect(() => {
-    document.title = "Roku & CTV Ad Studio | Video Creator AI | ThriveUp Academy";
+    document.title = "Roku & CTV Ad Studio | Video Creator AI | ThriveUp";
   }, []);
 
   const generateMutation = useMutation({
@@ -182,8 +182,8 @@ export default function RokuAdsPage() {
 
 Target duration: ${durationGuide}
 Include VAST ad tag positions, RAF integration notes, MRSS feed entry, and revenue estimates.
-This is for the ThriveUp Academy channel on Roku — content focuses on workforce development, housing stability, health equity, veteran services, and community impact in Austin, Texas.
-Channel: ThriveUp Academy (501(c)(3))
+This is for the ThriveUp channel on Roku — content focuses on workforce development, housing stability, health equity, veteran services, and community impact in Austin, Texas.
+Channel: ThriveUp (501(c)(3))
 Brand: Dr. Terry Flood's 15-service-platform AI ecosystem
 Audience: Central Texas community, veterans, families, funders, policymakers`,
     });
@@ -326,7 +326,7 @@ Audience: Central Texas community, veterans, families, funders, policymakers`,
 
           <Card className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20" data-testid="card-thriveup-channel">
             <CardHeader>
-              <CardTitle>ThriveUp Academy Roku Channel</CardTitle>
+              <CardTitle>ThriveUp Roku Channel</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -13,7 +13,7 @@ Dr. Terry Flood, President
 Community organizations, workforce development boards, local health departments, and frontline service providers lack access to integrated, real-time community data. Federal datasets (Census ACS, CDC PLACES, CDC/ATSDR SVI, FBI Crime Data, USDA Food Access, HUD, SAMHSA, BLS) exist in silos, require technical expertise to query, and produce raw statistics without actionable interpretation. The result: communities most in need of data-driven advocacy have the least access to the data that describes them.
 
 ### The Innovation: 4-Engine Consensus AI Architecture
-ThriveUp Academy introduces a novel multi-model AI consensus architecture that eliminates single-model bias in community data interpretation:
+ThriveUp introduces a novel multi-model AI consensus architecture that eliminates single-model bias in community data interpretation:
 
 | Engine | Model | Contribution |
 |---|---|---|

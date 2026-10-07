@@ -764,7 +764,7 @@ const ECOSYSTEM_PLATFORMS_DATA = [
     color: "from-violet-500 to-purple-600",
     platforms: [
       { name: "LifeBridge", url: "https://lifetransitionsaid.org", desc: "Virtual 211 — 24/7 resource navigation for housing, food, healthcare, crisis support, 20,670+ resources, life event guides", icon: Heart },
-      { name: "ThriveUp Academy", url: "https://thriveupacademy.com", desc: "The anchor platform — AI-powered workforce readiness curriculum, career pathways, 4-engine AI, community infrastructure", icon: GraduationCap },
+      { name: "ThriveUp", url: "https://thrivingcommunitiesforall.com", desc: "The anchor platform — AI-powered workforce readiness curriculum, career pathways, 4-engine AI, community infrastructure", icon: GraduationCap },
     ],
   },
   {
@@ -2454,7 +2454,7 @@ export default function LandingPage() {
       <JsonLd data={{
         "@context": "https://schema.org",
         "@type": "WebSite",
-        "name": "ThriveUp Academy — a TCAF platform",
+        "name": "ThriveUp — a TCAF platform",
         "url": "https://ai-mastery-academy.replit.app/",
            "description": "A global-by-design, local-first community infrastructure platform connecting people, evidence, services, and implementation support while keeping local availability and source limits visible.",
         "publisher": {

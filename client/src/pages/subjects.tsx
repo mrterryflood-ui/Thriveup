@@ -54,7 +54,7 @@ export default function SubjectsPage() {
     ? new Set(allSubjects.map(s => s.name)).size
     : null;
 
-  useEffect(() => { document.title = "Subjects | ThriveUp Academy"; }, []);
+  useEffect(() => { document.title = "Subjects | ThriveUp"; }, []);
 
   if (isLoading) {
     return (
@@ -161,7 +161,7 @@ export function SubjectDetailPage() {
   const isLoading = subjectLoading || modulesLoading;
 
   useEffect(() => {
-    document.title = subject ? `${subject.name} | ThriveUp Academy` : "Subject | ThriveUp Academy";
+    document.title = subject ? `${subject.name} | ThriveUp` : "Subject | ThriveUp";
   }, [subject]);
 
   if (isLoading) {

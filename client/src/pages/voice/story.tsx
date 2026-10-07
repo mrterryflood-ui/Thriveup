@@ -77,7 +77,7 @@ export default function VoiceStoryPage() {
     },
     "publisher": {
       "@type": "Organization",
-      "name": "ThriveUp Academy",
+      "name": "ThriveUp",
       "url": "https://ai-mastery-academy.replit.app/"
     },
     "url": `https://ai-mastery-academy.replit.app/voice/${slug}/story`

@@ -170,7 +170,7 @@ async function main() {
   // === Project header (top of replit.md before first H2) ===
   const headerMatch = /^#\s+(.+?)\n([\s\S]*?)(?=\n##\s|$)/.exec(replitMd.content);
   const project = {
-    name: headerMatch ? headerMatch[1].trim() : "ThriveUp Academy",
+    name: headerMatch ? headerMatch[1].trim() : "ThriveUp",
     summary: headerMatch ? headerMatch[2].trim() : "",
   };
 

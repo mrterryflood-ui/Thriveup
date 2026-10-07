@@ -57,12 +57,12 @@ const QUICK_PROMPTS: Record<string, Array<{ label: string; prefix: string }>> = 
 
 const WELCOME_EN: Message = {
   role: "assistant",
-  content: "Hello! I'm Sparky, your companion at ThriveUp Academy. Whether you're a parent, teacher, returning citizen, veteran, career changer, or community leader — I'm here to help with career guidance, workforce resources, learner support, and navigating the platform. How can I assist you today?",
+  content: "Hello! I'm Sparky, your companion at ThriveUp. Whether you're a parent, teacher, returning citizen, veteran, career changer, or community leader — I'm here to help with career guidance, workforce resources, learner support, and navigating the platform. How can I assist you today?",
 };
 
 const WELCOME_ES: Message = {
   role: "assistant",
-  content: "Hola! Soy Sparky, tu companero en ThriveUp Academy. Ya seas padre, maestro, ciudadano en reintegracion, veterano, profesional en transicion o lider comunitario — estoy aqui para ayudarte con orientacion profesional, recursos laborales, apoyo al aprendizaje y navegacion de la plataforma. Como puedo ayudarte hoy?",
+  content: "Hola! Soy Sparky, tu companero en ThriveUp. Ya seas padre, maestro, ciudadano en reintegracion, veterano, profesional en transicion o lider comunitario — estoy aqui para ayudarte con orientacion profesional, recursos laborales, apoyo al aprendizaje y navegacion de la plataforma. Como puedo ayudarte hoy?",
 };
 
 const STORAGE_KEY = "sparky_messages_v1";
@@ -290,7 +290,7 @@ export default function SparkyCompanionPage() {
   const prompts = QUICK_PROMPTS[language === "es" ? "es" : "en"];
   const selectedContext = CONTEXT_OPTIONS.find(c => c.value === context);
 
-  useEffect(() => { document.title = "Sparky AI Companion | ThriveUp Academy"; }, []);
+  useEffect(() => { document.title = "Sparky AI Companion | ThriveUp"; }, []);
 
   return (
     <div className="p-6 max-w-4xl mx-auto">

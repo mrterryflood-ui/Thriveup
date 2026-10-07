@@ -225,7 +225,7 @@ export default function EcosystemOpsCenterPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    document.title = "Ecosystem Operations Center | ThriveUp Academy";
+    document.title = "Ecosystem Operations Center | ThriveUp";
   }, []);
 
   const { data: liveStatus, isLoading, isFetching, refetch } = useQuery<LiveStatus>({

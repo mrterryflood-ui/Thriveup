@@ -8,7 +8,7 @@
 **Duration:** 15 weeks per cohort (5 modules × 3 weeks each)
 **Grades:** 9–12 CTE students
 **Credential:** ThriveUp Workforce Readiness Certificate (verifiable, LinkedIn-shareable)
-**Platform:** Live and interactive at thriveupacademy.com/workforce-readiness
+**Platform:** Live and interactive at thrivingcommunitiesforall.com/workforce-readiness
 
 ---
 
@@ -259,4 +259,4 @@ The Workforce Readiness Academy connects students to ThriveUp's full platform:
 
 The Collaborative Advocate | 501(c)(3) | EIN 41-3618003
 Dr. Terry Flood, President
-thriveupacademy.com/workforce-readiness
+thrivingcommunitiesforall.com/workforce-readiness

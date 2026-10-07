@@ -405,7 +405,7 @@ function RiskBadge({ severity }: { severity: string }) {
 
 function GradeCard({ data, expanded, onToggle }: { data: GradeData; expanded: boolean; onToggle: () => void }) {
 
-  useEffect(() => { document.title = "Implementation Guide | ThriveUp Academy"; }, []);
+  useEffect(() => { document.title = "Implementation Guide | ThriveUp"; }, []);
   return (
     <Card data-testid={`card-grade-${data.grade}`}>
       <CardHeader className="cursor-pointer" onClick={onToggle}>
@@ -989,7 +989,7 @@ export default function ImplementationRecommendationsPage() {
           District Administrator Planning Guide
         </p>
         <p className="text-rose-200 text-sm mt-2 max-w-2xl" data-testid="text-impl-description">
-          Grade-by-grade deployment strategy, pre-rollout checklists, AI framework evaluation, and phased rollout timeline for the ThriveUp Academy platform.
+          Grade-by-grade deployment strategy, pre-rollout checklists, AI framework evaluation, and phased rollout timeline for the ThriveUp platform.
         </p>
       </div>
 

@@ -608,7 +608,7 @@ export function registerChainwebRoutes(app: Express) {
       program,
       causaLCoefficients: matchingCoefficients,
       meta: {
-        source: "ThriveUp Academy / TCAF Evidence Library",
+        source: "ThriveUp / TCAF Evidence Library",
         lastUpdated: "2024-12-01",
         contact: "terryflood@thrivingcommunitiesforall.com",
         disclaimer: "Effect sizes are from peer-reviewed literature. TCAF program data (Dads Care 2) is primary-source organizational data available upon request.",
@@ -658,7 +658,7 @@ export function registerChainwebRoutes(app: Express) {
       jurisdictionRecords: results,
       relatedEvidencePrograms: relatedPrograms,
       meta: {
-        source: "ThriveUp Academy / TCAF Policy Intelligence Library",
+        source: "ThriveUp / TCAF Policy Intelligence Library",
         note: "Jurisdiction records reflect published evaluations and publicly available outcome data. TCAF-specific program data is available upon request.",
         contact: "terryflood@thrivingcommunitiesforall.com",
       },
@@ -688,7 +688,7 @@ export function registerChainwebRoutes(app: Express) {
   // ── 5. API Discovery endpoint (no auth — tells partners what's available) ──
   app.get("/api/chainweb/api-info", (_req: Request, res: Response) => {
     res.json({
-      platform: "ThriveUp Academy / TCAF Chainweb Evidence Engine",
+      platform: "ThriveUp / TCAF Chainweb Evidence Engine",
       version: "1.0.0",
       contact: "terryflood@thrivingcommunitiesforall.com",
       auth: {

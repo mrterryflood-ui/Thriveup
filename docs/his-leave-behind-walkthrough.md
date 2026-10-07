@@ -156,7 +156,7 @@ These are live, working tools. Not mockups. When a buyer asks "what would reside
 | Voices of Austin | `/voices-of-austin` | Resident voice |
 | Texas Assessment | `/texas-assessment` | Statewide picture |
 
-### 3.7 ThriveUp Academy (workforce + youth + AI literacy)
+### 3.7 ThriveUp (workforce + youth + AI literacy)
 | Surface | URL | Use |
 |---|---|---|
 | Academy Hub | `/academy/hub` | Front door |

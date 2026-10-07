@@ -26,7 +26,7 @@ interface EcosystemPlatform {
 }
 
 const ECOSYSTEM_PLATFORMS: EcosystemPlatform[] = [
-  { id: "thriveup", name: "ThriveUp Academy", shortName: "ThriveUp", icon: Rocket, color: "text-violet-600", role: "Central coordination hub — curriculum, workforce, engagement, case management" },
+  { id: "thriveup", name: "ThriveUp", shortName: "ThriveUp", icon: Rocket, color: "text-violet-600", role: "Central coordination hub — curriculum, workforce, engagement, case management" },
   { id: "incubator", name: "The Incubator", shortName: "Incubator", icon: Lightbulb, color: "text-amber-600", role: "Grant discovery, opportunity scoring, SAM.gov scanning" },
   { id: "mce", name: "Minority Capital Exchange", shortName: "MCE", icon: Building2, color: "text-emerald-600", role: "Minority business SaaS, contracting support, economic mobility" },
   { id: "lifebridge", name: "LifeBridge", shortName: "LifeBridge", icon: Heart, color: "text-rose-600", role: "24/7 virtual 211, resource navigation, housing/crisis referrals" },

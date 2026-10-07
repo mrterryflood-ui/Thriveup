@@ -104,7 +104,7 @@ export default function AgTradeSimsPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-5">
-        <nav className="text-xs text-slate-500 mb-2 flex items-center gap-1"><FlaskConical className="w-3 h-3" /><span>Agricultural Trade Simulations — ThriveUp Academy</span></nav>
+        <nav className="text-xs text-slate-500 mb-2 flex items-center gap-1"><FlaskConical className="w-3 h-3" /><span>Agricultural Trade Simulations — ThriveUp</span></nav>
         <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-50">Agricultural Trade Simulations</h1>
         <p className="mt-1 text-slate-500 max-w-2xl">Physics-based irrigation (FAO-56), soil amendment, and cover crop rotation simulators. Based on NRCS practice standards and land-grant extension research.</p>
       </div>

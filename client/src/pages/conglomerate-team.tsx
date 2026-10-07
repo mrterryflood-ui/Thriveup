@@ -29,7 +29,7 @@ const PARTNERS: Partner[] = [
     location: "Pflugerville, TX",
     lane: "Digital platform, reporting, participant engagement, AI/data infrastructure",
     capabilities: [
-      "ThriveUp Academy platform (211 pages, 271 data tables, production-grade)",
+      "ThriveUp platform (211 pages, 271 data tables, production-grade)",
       "AI literacy curriculum + tools (multi-model: GPT-5-nano, Claude Haiku, Gemini, DeepSeek)",
       "FAFSA + financial literacy modules",
       "90 trade-sim lessons across 6 skilled trades (CTE-ready)",
@@ -145,7 +145,7 @@ const UNITED_WAY_PITCH = [
     pillar: "Education" as const,
     headline: "K-12 → workforce pipeline",
     bullets: [
-      "ThriveUp Academy AI literacy + STEM concepts (with real working physics simulators)",
+      "ThriveUp AI literacy + STEM concepts (with real working physics simulators)",
       "Six skilled-trade lesson tracks (90 lessons total) — CTE-aligned",
       "FAFSA navigation + college-and-career readiness",
       "Bilingual family engagement via Talk Your Talk (107 languages)",

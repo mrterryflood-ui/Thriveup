@@ -402,7 +402,7 @@ export function registerExportPdfRoutes(app: Express) {
           .text(subtitle, 50, 60, { width: W });
       }
       doc.fontSize(8.5).font("Helvetica").fillColor("#bee3f8")
-        .text(`Generated ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })} · ThriveUp Academy / TCAF`, 50, 96, { width: W });
+        .text(`Generated ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })} · ThriveUp / TCAF`, 50, 96, { width: W });
 
       doc.moveDown(5.5);
       doc.rect(50, doc.y, W, 1.5).fill(TEAL);
@@ -414,7 +414,7 @@ export function registerExportPdfRoutes(app: Express) {
       doc.rect(50, doc.y, W, 1).fill(TEAL);
       doc.moveDown(0.5);
       doc.fontSize(8).font("Helvetica-Oblique").fillColor(LIGHT_GRAY)
-        .text("Thriving Communities for All (TCAF) · ThriveUp Academy · thrivingcommunitiesforall.com", 50, undefined, { width: W, align: "center" });
+        .text("Thriving Communities for All (TCAF) · ThriveUp · thrivingcommunitiesforall.com", 50, undefined, { width: W, align: "center" });
 
       doc.end();
     } catch (err) {
@@ -589,7 +589,7 @@ export function registerExportPdfRoutes(app: Express) {
       doc.moveDown(0.5);
       doc.fontSize(8).font("Helvetica-Oblique").fillColor(LIGHT_GRAY)
         .text(
-          "Thriving Communities for All (TCAF) · ThriveUp Academy · thrivingcommunitiesforall.com",
+          "Thriving Communities for All (TCAF) · ThriveUp · thrivingcommunitiesforall.com",
           60,
           undefined,
           { width: 492, align: "center" },

@@ -113,7 +113,7 @@ export default function ProducerVoicePage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-5">
-        <nav className="text-xs text-slate-500 mb-2 flex items-center gap-1"><Mic className="w-3 h-3" /><span>Producer Voice — ThriveUp Academy</span></nav>
+        <nav className="text-xs text-slate-500 mb-2 flex items-center gap-1"><Mic className="w-3 h-3" /><span>Producer Voice — ThriveUp</span></nav>
         <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-50">Producer Voice</h1>
         <p className="mt-1 text-slate-500 max-w-2xl">Farmers, ranchers, and food producers: share what's blocking your operation. Anonymous. Your voice shapes USDA program design and ThriveUp advocacy.</p>
       </div>

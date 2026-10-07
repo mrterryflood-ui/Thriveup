@@ -2,7 +2,7 @@
 How the three platforms form an ecosystem for the business plan:
 
 Layer	Platform	Role	Entity Type
-Education & Workforce	ThriveUp Academy (easyailearning.com / thrivingcommunitiesforall.com)	Develops the people — AI education, workforce training, career pipelines for under-resourced communities	Nonprofit (501(c)(3))
+Education & Workforce	ThriveUp (easyailearning.com / thrivingcommunitiesforall.com)	Develops the people — AI education, workforce training, career pipelines for under-resourced communities	Nonprofit (501(c)(3))
 Business Ecosystem	Minority Center of Excellence	Develops the businesses — formation, certification, contracting, AI tools, networking, intelligence	For-profit SaaS
 Umbrella / Advocacy	The Collaborative Advocate	The web presence connecting it all — advocacy, coordination, community voice	Organization
 What goes into the business plan — the strategic narrative:

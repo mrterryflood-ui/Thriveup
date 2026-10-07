@@ -107,7 +107,7 @@ ThriveUp wiring:
 
 New tables family_circles, family_circle_members, family_circle_consents.
 Family events (parent completed a school meeting, elder sent a doctor message) optionally show in shared timeline.
-Routes to ThriveUp Academy if a family member wants to learn the platform itself.
+Routes to ThriveUp if a family member wants to learn the platform itself.
 Stakeholders served: Parents. Kids (now seen as helpers, not interpreters). Elders (voice preserved). Caregivers.
 
 Grant alignment: ✅ Foster belonging + trust. ✅ Long-term stability. (And it's the storytelling spine for the grant narrative.)

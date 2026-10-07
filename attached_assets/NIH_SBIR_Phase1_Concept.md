@@ -23,7 +23,7 @@ Health disparities in the United States remain stubbornly persistent. Communitie
 Yet frontline health workers serving these communities — community health workers, peer navigators, faith-based health ministers, and social workers — lack access to integrated, real-time data about the communities they serve. They navigate fragmented systems, make referrals to services they can't verify, and lack the data to advocate for their communities with policymakers and funders.
 
 ### The Innovation: AI-Powered SDOH Intelligence
-ThriveUp Academy's health equity platform cluster addresses this gap through:
+ThriveUp's health equity platform cluster addresses this gap through:
 
 **1. Real-Time Community Health Intelligence**
 - Integrates 8 federal health and social data sources (Census ACS, CDC PLACES, CDC/ATSDR SVI, SAMHSA, USDA Food Atlas, HUD, BLS, FBI Crime Data)

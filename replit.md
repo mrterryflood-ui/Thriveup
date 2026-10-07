@@ -1,4 +1,4 @@
-# ThriveUp Academy
+# ThriveUp
 National community-infrastructure platform: connects people to grant funding, aligns service delivery with workforce development, produces measurable community impact.
 
 **Memory system:** `docs/agent-memory/` is the source of truth for facts. This file is the **constitutional layer** — Iron Rules + pointers only. **If a fact isn't in `docs/agent-memory/` or `docs/memory-archive.md`, it doesn't exist next session.**

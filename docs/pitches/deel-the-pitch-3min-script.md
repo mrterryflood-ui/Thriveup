@@ -48,7 +48,7 @@ In ThriveUp — she walks through **any door** and every platform responds. Miss
 
 And here's the moment that proves why this matters. Keisha is mid-chemo when she finds out she's pregnant. In the current system, her oncologist and her OB-GYN are in different networks, different records, different worlds. Treatment decisions that affect **two lives** are made in isolation. And her daughter? The school sees falling grades. They don't know about the cancer, the pregnancy, the depression, the job loss. They just see a struggling student.
 
-In ThriveUp, Sankofa and Maternal Health are already connected. ISSS and ThriveUp Academy already know the family context. The AI sees cancer protocol **plus** pregnancy risk **plus** depression **plus** her child's grades — and it alerts the right people **before** anyone falls through the cracks.
+In ThriveUp, Sankofa and Maternal Health are already connected. ISSS and ThriveUp already know the family context. The AI sees cancer protocol **plus** pregnancy risk **plus** depression **plus** her child's grades — and it alerts the right people **before** anyone falls through the cracks.
 
 **[SLIDE 6 — MARCUS]** *(flip quickly)*
 

@@ -327,7 +327,7 @@ export async function resolveLocationToZip(locationText: string): Promise<Resolv
         if (match.coordinates) {
           const revUrl = `https://nominatim.openstreetmap.org/reverse?lat=${match.coordinates.y}&lon=${match.coordinates.x}&format=json&addressdetails=1&zoom=16`;
           try {
-            const revResp = await fetch(revUrl, { signal: AbortSignal.timeout(8000), headers: { Accept: "application/json", "User-Agent": "ThriveUpAcademy/1.0" } });
+            const revResp = await fetch(revUrl, { signal: AbortSignal.timeout(8000), headers: { Accept: "application/json", "User-Agent": "ThriveUp/1.0" } });
             if (revResp.ok) {
               const revData = await revResp.json() as any;
               const z5 = revData?.address?.postcode?.match(/(\d{5})/)?.[1];
@@ -381,7 +381,7 @@ export async function resolveLocationToZip(locationText: string): Promise<Resolv
 
   // ── Layer 4: Nominatim (last resort, avoid double-appending state) ──────────
   try {
-    const headers = { Accept: "application/json", "User-Agent": "ThriveUpAcademy/1.0" };
+    const headers = { Accept: "application/json", "User-Agent": "ThriveUp/1.0" };
     // Only append ", USA" — never append a state if the user already included one
     const nomQuery = trimmed + (trimmed.includes(",") ? ", USA" : ", USA");
     const nominatimUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(nomQuery)}&format=json&addressdetails=1&limit=1&countrycodes=us`;
@@ -1061,7 +1061,7 @@ function processIndicators(v: (n: string) => number, v2: (n: string) => number, 
   else if (unemploymentRate > 8) needsAttention.push({ label: "High Unemployment", detail: `${r(unemploymentRate)}% unemployment rate exceeds the national average.`, value: r(unemploymentRate), solution: "Explore apprenticeship programs, workforce training grants, WIOA-funded career services, and employer incentive programs for local hiring." });
 
   if (noHsDpPct < 10) goingWell.push({ label: "High Educational Attainment", detail: `${r(100 - noHsDpPct)}% of adults have at least a high school diploma — strong educational foundation.`, value: r(noHsDpPct) });
-  else if (noHsDpPct > 15) needsAttention.push({ label: "Educational Attainment Gap", detail: `${r(noHsDpPct)}% of adults lack a high school diploma. This correlates with reduced lifetime earnings and health outcomes.`, value: r(noHsDpPct), solution: "GED programs, adult education centers, community college bridge programs, and digital literacy initiatives can close this gap. ThriveUp Academy offers free online coursework." });
+  else if (noHsDpPct > 15) needsAttention.push({ label: "Educational Attainment Gap", detail: `${r(noHsDpPct)}% of adults lack a high school diploma. This correlates with reduced lifetime earnings and health outcomes.`, value: r(noHsDpPct), solution: "GED programs, adult education centers, community college bridge programs, and digital literacy initiatives can close this gap. ThriveUp offers free online coursework." });
 
   if (uninsuredRate < 5) goingWell.push({ label: "Strong Insurance Coverage", detail: `${r(100 - uninsuredRate)}% of residents have health insurance — excellent coverage.`, value: r(uninsuredRate) });
   else if (uninsuredRate > 12) needsAttention.push({ label: "Insurance Coverage Gap", detail: `${r(uninsuredRate)}% of residents lack health insurance, limiting access to preventive care.`, value: r(uninsuredRate), solution: "ACA Marketplace enrollment assistance, Medicaid expansion navigation, FQHC (community health center) services, and community health worker outreach." });
@@ -1485,7 +1485,7 @@ export function registerNeighborhoodRoutes(app: Express) {
       doc.rect(0, 0, 612, 160).fill(navy);
       doc.fontSize(28).font("Helvetica-Bold").fillColor("white").text("Neighborhood Intelligence Report", 50, 35, { width: W });
       doc.fontSize(14).font("Helvetica").text(locationLine, 50, 80, { width: W });
-      doc.fontSize(10).text(`Generated ${new Date(profile.generatedAt).toLocaleDateString()} by ThriveUp Academy`, 50, 105, { width: W });
+      doc.fontSize(10).text(`Generated ${new Date(profile.generatedAt).toLocaleDateString()} by ThriveUp`, 50, 105, { width: W });
       doc.fontSize(10).text(`Census Tract: ${profile.tractName}`, 50, 125, { width: W });
 
       doc.moveDown(6);
@@ -1518,7 +1518,7 @@ export function registerNeighborhoodRoutes(app: Express) {
       doc.rect(50, doc.y, W, 1).fill(teal);
       doc.moveDown(0.5);
       doc.fillColor(gray).fontSize(9).font("Helvetica-Oblique")
-        .text("\"This is DATA, not characterization.\" — ThriveUp Academy", 50, undefined, { width: W, align: "center" });
+        .text("\"This is DATA, not characterization.\" — ThriveUp", 50, undefined, { width: W, align: "center" });
 
       // ── PAGE 2: COMMUNITY SNAPSHOT ──
       doc.addPage();
@@ -1850,7 +1850,7 @@ export function registerNeighborhoodRoutes(app: Express) {
       doc.fillColor(navy).fontSize(12).font("Helvetica-Bold").text("Ongoing Commitments");
       doc.moveDown(0.5);
       doc.fillColor(gray).fontSize(10).font("Helvetica");
-      doc.text(`${stepNum}. Connect with ThriveUp Academy for free educational resources, workforce training, and community advocacy tools.`, 50, undefined, { width: W });
+      doc.text(`${stepNum}. Connect with ThriveUp for free educational resources, workforce training, and community advocacy tools.`, 50, undefined, { width: W });
       doc.moveDown(0.3);
       stepNum++;
       doc.text(`${stepNum}. Apply for at least 3 matched grants from this report — cast a wide net to maximize your chances.`, 50, undefined, { width: W });
@@ -1907,7 +1907,7 @@ export function registerNeighborhoodRoutes(app: Express) {
       doc.rect(50, doc.y, W, 2).fill(teal);
       doc.moveDown(0.5);
       doc.fillColor(gray).fontSize(8).font("Helvetica-Oblique")
-        .text("Generated by ThriveUp Academy Neighborhood Intelligence | thriveupacademy.com | For questions or partnership inquiries, contact us through the platform.", 50, undefined, { width: W, align: "center" });
+        .text("Generated by ThriveUp Neighborhood Intelligence | thrivingcommunitiesforall.com | For questions or partnership inquiries, contact us through the platform.", 50, undefined, { width: W, align: "center" });
       doc.moveDown(0.5);
       doc.fillColor(gray).fontSize(8).font("Helvetica-Oblique")
         .text("\"Every neighborhood has a story. Data helps us tell it with compassion and precision.\"", 50, undefined, { width: W, align: "center" });
@@ -1929,7 +1929,7 @@ export function registerNeighborhoodRoutes(app: Express) {
       if (!profile) return res.status(400).json({ error: "Profile required" });
 
       const pptx = new PptxGenJS();
-      pptx.author = "ThriveUp Academy";
+      pptx.author = "ThriveUp";
       pptx.title = `Neighborhood Intelligence: ${profile.neighborhoodName}`;
       pptx.subject = `Data story for ZIP ${profile.zipCode}`;
 
@@ -1947,7 +1947,7 @@ export function registerNeighborhoodRoutes(app: Express) {
       };
 
       const addFooter = (slide: any, pageNum: number, total: number) => {
-        slide.addText("ThriveUp Academy | Neighborhood Intelligence", { x: 0.5, y: 7.0, w: 7, h: 0.3, fontSize: 8, color: "999999" });
+        slide.addText("ThriveUp | Neighborhood Intelligence", { x: 0.5, y: 7.0, w: 7, h: 0.3, fontSize: 8, color: "999999" });
         slide.addText(`${pageNum}/${total}`, { x: 8.5, y: 7.0, w: 1, h: 0.3, fontSize: 8, color: "999999", align: "right" });
       };
 
@@ -1961,7 +1961,7 @@ export function registerNeighborhoodRoutes(app: Express) {
       slide1.addText("NEIGHBORHOOD\nINTELLIGENCE REPORT", { x: 0.5, y: 1.5, w: 9, h: 2, fontSize: 36, fontFace: "Arial", color: WHITE, bold: true, align: "center" });
       slide1.addText(`${profile.neighborhoodName}`, { x: 0.5, y: 3.5, w: 9, h: 0.8, fontSize: 28, fontFace: "Arial", color: GOLD, align: "center" });
       slide1.addText(`ZIP Code ${profile.zipCode} | ${profile.countyName}, ${profile.stateName}`, { x: 0.5, y: 4.3, w: 9, h: 0.5, fontSize: 16, fontFace: "Arial", color: WHITE, align: "center" });
-      slide1.addText(`Generated ${new Date().toLocaleDateString()} | Powered by ThriveUp Academy`, { x: 0.5, y: 5.5, w: 9, h: 0.4, fontSize: 12, fontFace: "Arial", color: "aaaaaa", align: "center" });
+      slide1.addText(`Generated ${new Date().toLocaleDateString()} | Powered by ThriveUp`, { x: 0.5, y: 5.5, w: 9, h: 0.4, fontSize: 12, fontFace: "Arial", color: "aaaaaa", align: "center" });
       addFooter(slide1, slideNum, totalSlides);
 
       const slide2 = pptx.addSlide();
@@ -2159,7 +2159,7 @@ export function registerNeighborhoodRoutes(app: Express) {
         "Identify which challenges resonate most with your lived experience",
         ...profile.needsAttention.slice(0, 5).map(item => `${item.label}: ${item.solution.split('.')[0]}`),
         "Apply for the matched grants listed in this report",
-        "Connect with ThriveUp Academy for free training and advocacy tools",
+        "Connect with ThriveUp for free training and advocacy tools",
         "Revisit this tool quarterly to track community improvements",
       ];
 
@@ -2175,7 +2175,7 @@ export function registerNeighborhoodRoutes(app: Express) {
       slideNum++;
       slideEnd.addShape("rect", { x: 0, y: 0, w: "100%", h: "100%", fill: { color: NAVY } });
       slideEnd.addText("Data is Power.\nKnowledge is Action.\nYour Community Matters.", { x: 1, y: 1.5, w: 8, h: 2.5, fontSize: 28, fontFace: "Arial", color: WHITE, align: "center", bold: true, lineSpacing: 40 });
-      slideEnd.addText("This report was generated by ThriveUp Academy's\nNeighborhood Intelligence Engine", { x: 1, y: 4.2, w: 8, h: 0.8, fontSize: 14, fontFace: "Arial", color: GOLD, align: "center" });
+      slideEnd.addText("This report was generated by ThriveUp's\nNeighborhood Intelligence Engine", { x: 1, y: 4.2, w: 8, h: 0.8, fontSize: 14, fontFace: "Arial", color: GOLD, align: "center" });
       slideEnd.addText("Data: U.S. Census Bureau ACS 5-Year Estimates (2018-2022)\nMethodology: CDC/ATSDR Social Vulnerability Index\nResearch: Stillwell (2026) SVI-Education Correlation", { x: 1, y: 5.3, w: 8, h: 1, fontSize: 10, fontFace: "Arial", color: "aaaaaa", align: "center", lineSpacing: 16 });
       slideEnd.addText("www.thrivingcommunitiesforall.com", { x: 1, y: 6.5, w: 8, h: 0.4, fontSize: 12, fontFace: "Arial", color: GOLD, align: "center" });
 

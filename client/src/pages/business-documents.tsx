@@ -61,7 +61,7 @@ const ENTITIES: BusinessEntity[] = [
     website: "https://thrivingcommunitiesforall.com",
     responsibleParty: "Dr. Terry Flood, President",
     principalActivity: "Workforce Development, Community Health, Veteran Services",
-    description: "Veteran-founded, Black-led IRS-determined 501(c)(3) nonprofit (Letter 947, effective January 14, 2026; EIN 41-3618003) serving as the organizational backbone for the ThriveUp Academy ACOS ecosystem. Delivers workforce development, veteran transition services, community health programs, and youth education through an interdependent platform architecture. SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1) — eligible to receive federal awards directly. Grant execution lead for WIOA, SSG Fox VA, St. David's Foundation, TWC, and federal/state workforce programs.",
+    description: "Veteran-founded, Black-led IRS-determined 501(c)(3) nonprofit (Letter 947, effective January 14, 2026; EIN 41-3618003) serving as the organizational backbone for the ThriveUp ACOS ecosystem. Delivers workforce development, veteran transition services, community health programs, and youth education through an interdependent platform architecture. SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1) — eligible to receive federal awards directly. Grant execution lead for WIOA, SSG Fox VA, St. David's Foundation, TWC, and federal/state workforce programs.",
     color: "border-violet-500",
     icon: Shield,
     keyFacts: [
@@ -97,7 +97,7 @@ A future where every community member — regardless of background, circumstance
 THE ACOS ECOSYSTEM (15 Service Platforms)
 The Collaborative Advocate Foundation operates 15 interdependent service platforms working as a unified Adaptive Capability Orchestration System (ACOS):
 
-• ThriveUp Academy — AI-powered workforce development (central hub)
+• ThriveUp — AI-powered workforce development (central hub)
 • Mission Transition (M2C) — Military-to-civilian career pipelines
 • Whole-Person Health — Behavioral health and crisis support
 • SafeReport — Compliance-grade clinical-setting AI / mandatory reporting

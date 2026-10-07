@@ -75,7 +75,7 @@ const DEMO_FLOW = [
 // =====================================================================
 const pptx = new PptxGenJS();
 pptx.layout = "LAYOUT_WIDE"; // 13.333 x 7.5 in
-pptx.title = "ThriveUp Academy — Foster Youth Aging Out (Leave-Behind)";
+pptx.title = "ThriveUp — Foster Youth Aging Out (Leave-Behind)";
 pptx.author = "Dr. Terry Flood, President, TCAF";
 pptx.company = "Thriving Communities for All Foundation, Inc. (TCAF)";
 
@@ -160,7 +160,7 @@ let pageNum = 0;
     { text: " — community advocacy and civic-engagement layer\n" },
     { text: "LifeBridge", options: { bold: true } },
     { text: " — 20,670+ verified resources, 211 + SDOH navigation, bilingual EN/ES\n" },
-    { text: "ThriveUp Academy", options: { bold: true } },
+    { text: "ThriveUp", options: { bold: true } },
     { text: " — workforce, AI literacy, FAFSA, ETV, and the Foster-Youth-Aging-Out experience\n" },
     { text: "Whole-Person Health Ecosystem", options: { bold: true } },
     { text: " — behavioral-health safety floor; receives crisis events from every platform" },
@@ -290,7 +290,7 @@ const pptxPath = path.join(outDir, "Foster-Youth-Leave-Behind.pptx");
 
   md.push(`## 1. The 30-second version`);
   md.push(``);
-  md.push(`Eleven clickable, working surfaces for young people aging out of foster care AND for the state and county agencies who serve them. Anchored on a parent platform (ThriveUp Academy) that sits inside a five-platform ecosystem (Talk Your Talk · Civic Signal · LifeBridge · ThriveUp Academy · Whole-Person Health Ecosystem). Bilingual EN/ES. No login on youth-facing pages. National in design, Texas-piloted. Mapped to John H. Chafee, ETV, HUD FYI, ACA §2004 Medicaid-to-26, FAFSA Independent-Student, McKinney-Vento, and RHYA.`);
+  md.push(`Eleven clickable, working surfaces for young people aging out of foster care AND for the state and county agencies who serve them. Anchored on a parent platform (ThriveUp) that sits inside a five-platform ecosystem (Talk Your Talk · Civic Signal · LifeBridge · ThriveUp · Whole-Person Health Ecosystem). Bilingual EN/ES. No login on youth-facing pages. National in design, Texas-piloted. Mapped to John H. Chafee, ETV, HUD FYI, ACA §2004 Medicaid-to-26, FAFSA Independent-Student, McKinney-Vento, and RHYA.`);
   md.push(``);
 
   md.push(`## 2. Why this exists`);
@@ -369,7 +369,7 @@ const pptxPath = path.join(outDir, "Foster-Youth-Leave-Behind.pptx");
   md.push(`- **Talk Your Talk** (\`talkyourtalk.net\`) — multilingual access: 89 spoken + 18 sign = 107 total. Crisis-detection events route into Whole-Person Health.`);
   md.push(`- **Civic Signal** — community advocacy and civic-engagement layer.`);
   md.push(`- **LifeBridge** (\`lifetransitionsaid.org\`) — 20,670+ verified resources, 211 + SDOH navigation, bilingual EN/ES.`);
-  md.push(`- **ThriveUp Academy** — workforce, AI literacy, FAFSA, ETV, and the Foster Youth Aging Out experience documented above.`);
+  md.push(`- **ThriveUp** — workforce, AI literacy, FAFSA, ETV, and the Foster Youth Aging Out experience documented above.`);
   md.push(`- **Whole-Person Health Ecosystem** (\`mentalwellnesssupport.net\`) — behavioral-health safety floor; receives crisis events from every platform.`);
   md.push(``);
   md.push(`In external copy: **"15 service platforms operated by TCAF."** "25" is internal architecture only.`);

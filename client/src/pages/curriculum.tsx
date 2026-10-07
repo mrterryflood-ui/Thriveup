@@ -30,7 +30,7 @@ export default function CurriculumPage() {
     queryKey: ["/api/levels/module-counts"],
   });
 
-  useEffect(() => { document.title = "AI Curriculum | ThriveUp Academy"; }, []);
+  useEffect(() => { document.title = "AI Curriculum | ThriveUp"; }, []);
 
   const totalModules = moduleCounts ? Object.values(moduleCounts).reduce((s, c) => s + c, 0) : null;
   const levelCount = levels?.length ?? null;
@@ -136,7 +136,7 @@ export function LevelDetailPage() {
   const colors = LEVEL_COLORS[levelId];
 
   useEffect(() => {
-    document.title = level ? `Level ${level.id}: ${level.title} | ThriveUp Academy` : "Curriculum Level | ThriveUp Academy";
+    document.title = level ? `Level ${level.id}: ${level.title} | ThriveUp` : "Curriculum Level | ThriveUp";
   }, [level]);
 
   if (isLoading) {

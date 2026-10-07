@@ -34,7 +34,7 @@ const FOSTER_YOUTH_SERVICE_SCHEMA = {
   "description": "Free transition support for foster youth aging out of care — toolkits, transition plans, wellbeing check-ins, rights guides, state benefits navigation, and AI-assisted intake for personalized 30/60/90-day action plans.",
   "provider": {
     "@type": "Organization",
-    "name": "ThriveUp Academy",
+    "name": "ThriveUp",
     "url": "https://ai-mastery-academy.replit.app/"
   },
   "serviceType": "Foster Care Transition Support",
@@ -190,7 +190,7 @@ export default function FosterYouthHubPage() {
           <Badge className="mb-3" data-testid="badge-partners">For child-welfare professionals, PHAs, funders, and policymakers</Badge>
           <h2 className="text-2xl font-bold mb-3" data-testid="text-partners-heading">For partners</h2>
           <p className="text-muted-foreground mb-4 max-w-3xl" data-testid="text-partners-body">
-            This experience is one surface in a 5-platform ecosystem (Talk Your Talk · Civic Signal · LifeBridge · ThriveUp Academy · Whole-Person Health) operated by TCAF.
+            This experience is one surface in a 5-platform ecosystem (Talk Your Talk · Civic Signal · LifeBridge · ThriveUp · Whole-Person Health) operated by TCAF.
             It maps to the John H. Chafee Foster Care Program for Successful Transition to Adulthood, the HUD Foster Youth to Independence (FYI) initiative, and the ETV program.
             Want to talk about MOU, sub-grantee designation, or PHA partnership?
           </p>

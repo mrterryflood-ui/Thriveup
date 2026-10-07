@@ -191,7 +191,7 @@ URL: `/foster-youth`
 - ✓ url — HTTP 200
 - ✓ alert-honest-disclosure — test-id present (source: client/src/pages/foster-youth/hub.tsx)
 
-### ✅ FY-013 — Quintet ecosystem framing: Talk Your Talk, Civic Signal, LifeBridge, ThriveUp Academy, Whole-Person Health
+### ✅ FY-013 — Quintet ecosystem framing: Talk Your Talk, Civic Signal, LifeBridge, ThriveUp, Whole-Person Health
 URL: `/foster-youth`
 - ✓ url — HTTP 200
 - ✓ text-partners-body — test-id present (source: client/src/pages/foster-youth/hub.tsx)

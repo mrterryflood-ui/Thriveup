@@ -592,9 +592,9 @@ export default function EcosystemConnectorPage() {
                     <Users className="h-5 w-5 text-violet-600" />
                   </div>
                   <div>
-                    <h4 className="font-semibold">ThriveUp Academy (You Are Here)</h4>
+                    <h4 className="font-semibold">ThriveUp (You Are Here)</h4>
                     <p className="text-xs text-muted-foreground mt-1">
-                      The facilitator and orchestrator. All platforms report to ThriveUp, and ThriveUp reports back. ThriveUp Academy 501(c)(3) serves as the central hub for grant management, workforce development, and ecosystem coordination. Every grant application draws from the platforms relevant to its mission.
+                      The facilitator and orchestrator. All platforms report to ThriveUp, and ThriveUp reports back. ThriveUp 501(c)(3) serves as the central hub for grant management, workforce development, and ecosystem coordination. Every grant application draws from the platforms relevant to its mission.
                     </p>
                     <Badge className="mt-2 bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300 text-[10px]">
                       <CheckCircle2 className="h-3 w-3 mr-1" /> Facilitator — Always Online — All Grants
@@ -910,7 +910,7 @@ function IntegrationPlaybook() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="border rounded-lg p-3">
               <Badge className="bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300 text-[10px] mb-2">501(c)(3)</Badge>
-              <h5 className="font-semibold text-sm">ThriveUp Academy</h5>
+              <h5 className="font-semibold text-sm">ThriveUp</h5>
               <p className="text-xs text-muted-foreground mt-1">Central orchestrator. Grant management, workforce development, ecosystem coordination. Nonprofit backbone.</p>
             </div>
             <div className="border rounded-lg p-3">

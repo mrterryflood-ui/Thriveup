@@ -35,7 +35,7 @@ interface PopulationSegment {
 const PLATFORMS: Platform[] = [
   {
     id: "thriveup",
-    name: "ThriveUp Academy",
+    name: "ThriveUp",
     domain: "Community & Workforce",
     domainCategory: "community-workforce",
     description: "AI-powered workforce development and community enablement platform. The operational backbone for discovering, winning, executing, and sustaining federal grants across the entire ecosystem.",

@@ -106,7 +106,7 @@ async function getResendClient(): Promise<{ client: Resend; fromEmail: string } 
     !configuredFrom;
 
   const fromEmail = isFreeDomain
-    ? "ThriveUp Academy <onboarding@resend.dev>"
+    ? "ThriveUp <onboarding@resend.dev>"
     : configuredFrom;
 
   console.log(`  Resend from_email : ${configuredFrom || "(not set)"}`);

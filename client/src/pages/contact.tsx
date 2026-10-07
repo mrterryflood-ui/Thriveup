@@ -344,7 +344,7 @@ export default function ContactPage() {
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <PageHeader
         title="Contact Us"
-        description="Get in touch with the ThriveUp Academy team for partnerships, demos, grant collaborations, or general inquiries."
+        description="Get in touch with the ThriveUp team for partnerships, demos, grant collaborations, or general inquiries."
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">

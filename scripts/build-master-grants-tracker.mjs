@@ -62,7 +62,7 @@ drafts.sort();
 const today = new Date().toISOString().slice(0, 10);
 
 let md = "";
-md += `# TCAF / ThriveUp Academy — Master Grants Tracker\n\n`;
+md += `# TCAF / ThriveUp — Master Grants Tracker\n\n`;
 md += `**Generated:** ${today}  \n`;
 md += `**Source:** \`grant_opportunities\` DB (671 total rows) + \`docs/grants/\` drafts (${drafts.length} files)  \n`;
 md += `**Purpose:** Single-document inventory of every grant identified, every draft written, with justification for each — built so nothing slips through the cracks when populating an external tracker.\n\n`;

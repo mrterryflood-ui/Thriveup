@@ -110,7 +110,7 @@ export const PARTNER_ENDPOINTS: EndpointDef[] = [
     method: "GET",
     path: "/api/partner/v1/students/overview",
     scope: "student:read",
-    description: "Suppression-safe aggregate analytics on youth enrolled in ThriveUp Academy — grade distribution, lesson completion, engagement streaks. No PII.",
+    description: "Suppression-safe aggregate analytics on youth enrolled in ThriveUp — grade distribution, lesson completion, engagement streaks. No PII.",
     returnsSummary: "aggregateOnly, totalStudents, averages, gradeDistribution, statusDistribution (all suppressed at floor-5)",
     keywords: [
       "youth", "student", "school", "education", "academic", "grade", "graduation",
@@ -502,7 +502,7 @@ export function registerAgencyConnectorRoutes(app: Express) {
             Need help? <a href="mailto:terryflood@thrivingcommunitiesforall.com">terryflood@thrivingcommunitiesforall.com</a>
           </p>
           <p style="color:#9ca3af;font-size:12px">
-            ThriveUp Academy · The Collaborative Advocate Foundation · 501(c)(3) EIN 41-3618003
+            ThriveUp · The Collaborative Advocate Foundation · 501(c)(3) EIN 41-3618003
           </p>
         </div>
       </div>

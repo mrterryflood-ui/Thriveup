@@ -21,7 +21,7 @@ To support Eric Hargrave and Prime Fit in building a winning proposal, Dr. Flood
 
 ### How to Write the Platform into the Narrative:
 
-* **Position It as the Technical Backbone:** Do not present the platform as an external "idea" or software trial. Position it as the active operational infrastructure ([ThriveUp Academy](https://thrivingcommunitiesforall.com/)) that powers community data, integration, and reporting.
+* **Position It as the Technical Backbone:** Do not present the platform as an external "idea" or software trial. Position it as the active operational infrastructure ([ThriveUp](https://thrivingcommunitiesforall.com/)) that powers community data, integration, and reporting.
 * **Map to Rubric Points:**
 * Use platform capabilities (such as Census-verified SDOH data mapping and community needs assessment tools) to substantiate the **System Gap Analysis** and **Project Proposal**.
 * Cite unified screening and cross-agency data pipelines ([Connect Hub](https://thrivingcommunitiesforall.com/hub/connect)) to answer HUD's explicit demand for **Community Connections and Data Sharing**.

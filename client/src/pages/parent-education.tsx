@@ -655,8 +655,8 @@ export default function ParentEducationPage() {
 
   useEffect(() => {
     document.title = lang === "es"
-      ? "Educación para Padres y Fortalecimiento Familiar | ThriveUp Academy"
-      : "Parent Education & Family Strengthening | ThriveUp Academy";
+      ? "Educación para Padres y Fortalecimiento Familiar | ThriveUp"
+      : "Parent Education & Family Strengthening | ThriveUp";
   }, [lang]);
 
   return (

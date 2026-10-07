@@ -85,10 +85,10 @@ export default function CoveragePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-amber-50/20 dark:from-slate-950/40 dark:via-background dark:to-amber-950/10" data-testid="coverage-page">
-      <title>Coverage — Where TCAF deploys | ThriveUp Academy</title>
+      <title>Coverage — Where TCAF deploys | ThriveUp</title>
       <meta
         name="description"
-        content="ThriveUp Academy is a nationwide AI operating system for community-based organizations. Deployed today in Central Texas through the CTX Benefits Initiative 5-county pilot. Available to launch in every U.S. county."
+        content="ThriveUp is a nationwide AI operating system for community-based organizations. Deployed today in Central Texas through the CTX Benefits Initiative 5-county pilot. Available to launch in every U.S. county."
       />
 
       <div className="max-w-5xl mx-auto px-4 py-10 md:py-14">
@@ -101,7 +101,7 @@ export default function CoveragePage() {
             Where we operate
           </h1>
           <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            ThriveUp Academy is the same platform in every U.S. county — wired into local Census data,
+            ThriveUp is the same platform in every U.S. county — wired into local Census data,
             local benefits, and local partners. Today we're activating Central Texas through the
             CTX Benefits Initiative. Your county can be next.
           </p>

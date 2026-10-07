@@ -1,7 +1,7 @@
 # Austin/Travis County ECE Workforce Crisis — Synthesis & Platform Gap Analysis
 
 **Source:** United Way for Greater Austin, ECE Provider Survey ("Overall Results" through "Next Steps" deck), reviewed 2026-07-09.
-**Purpose:** Weave the survey findings into one causal picture, map it against what TCAF/ThriveUp Academy can currently do, and name explicitly what neither the survey's own plan nor the current platform covers.
+**Purpose:** Weave the survey findings into one causal picture, map it against what TCAF/ThriveUp can currently do, and name explicitly what neither the survey's own plan nor the current platform covers.
 
 ---
 
@@ -49,7 +49,7 @@ Meanwhile, **on the other side of the same market**, 51% of providers report a w
 
 ---
 
-## 3. Where TCAF/ThriveUp Academy already has relevant infrastructure
+## 3. Where TCAF/ThriveUp already has relevant infrastructure
 
 Checked directly against the codebase (`server/orchestration/engine-registry.ts`, `server/workforce-routes.ts`, `server/benefits-routes.ts`, `server/reentry-routes.ts`, `server/household-queries.ts`, `server/navigator-routes.ts`) rather than assumed:
 

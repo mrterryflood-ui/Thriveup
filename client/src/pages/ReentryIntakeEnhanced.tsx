@@ -81,7 +81,7 @@ export default function ReentryIntakeEnhanced() {
     <div className="min-h-screen bg-slate-50">
       <div className="bg-white border-b border-slate-200 px-10 py-5">
         <div className="text-xs tracking-widest uppercase text-indigo-500 mb-1">
-          ThriveUp Academy · Reentry Program
+          ThriveUp · Reentry Program
         </div>
         <h1 className="text-xl font-bold text-slate-900" data-testid="heading-reentry-intake">
           Participant Intake

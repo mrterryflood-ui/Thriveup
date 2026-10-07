@@ -2,7 +2,7 @@
 
 **Audience:** Maintainers of HerHealth Network (`herhealthmatters2.com`), Bible Study Buddies (`biblestudybuddies.net`), The Healthy Black Man, Your Health Birthright, and any future ecosystem platform.
 
-**Goal:** Each platform stays standalone with its own auth, branding, and data. ThriveUp Academy receives signed events so admins can see a unified roster and activity across the ecosystem — without ever logging into the source platforms.
+**Goal:** Each platform stays standalone with its own auth, branding, and data. ThriveUp receives signed events so admins can see a unified roster and activity across the ecosystem — without ever logging into the source platforms.
 
 ---
 

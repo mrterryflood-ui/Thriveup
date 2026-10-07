@@ -89,7 +89,7 @@ const POSITIONING_LANGUAGE = [
   {
     key: "Mission",
     icon: BookOpen,
-    value: "ThriveUp Academy empowers justice-impacted and opportunity youth through a technology-enabled, three-pillar framework that moves participants from Relief through Stabilization to Community Contribution.",
+    value: "ThriveUp empowers justice-impacted and opportunity youth through a technology-enabled, three-pillar framework that moves participants from Relief through Stabilization to Community Contribution.",
   },
   {
     key: "Differentiator",
@@ -109,7 +109,7 @@ const POSITIONING_LANGUAGE = [
   {
     key: "Three Entities",
     icon: Target,
-    value: "The Collaborative Advocate Foundation (TCAF) — an IRS-determined 501(c)(3), SAM.gov Active (CAGE 209N1) — holds direct grant eligibility and grant compliance. ThriveUp Academy delivers direct youth services. The Minority Center of Excellence manages contracting and employer partnerships, creating a unified ecosystem of support.",
+    value: "The Collaborative Advocate Foundation (TCAF) — an IRS-determined 501(c)(3), SAM.gov Active (CAGE 209N1) — holds direct grant eligibility and grant compliance. ThriveUp delivers direct youth services. The Minority Center of Excellence manages contracting and employer partnerships, creating a unified ecosystem of support.",
   },
   {
     key: "Outcomes Framework",
@@ -458,7 +458,7 @@ export default function GrantNarrativePage() {
             </ul>
           </div>
           <div className="p-4 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg border border-emerald-200 dark:border-emerald-800">
-            <h3 className="font-semibold text-emerald-700 dark:text-emerald-400 mb-1">ThriveUp Academy</h3>
+            <h3 className="font-semibold text-emerald-700 dark:text-emerald-400 mb-1">ThriveUp</h3>
             <p className="text-xs font-medium text-muted-foreground mb-2">Direct Youth Services & Programs</p>
             <ul className="space-y-1 text-sm text-muted-foreground">
               <li>Youth enrollment and case management</li>

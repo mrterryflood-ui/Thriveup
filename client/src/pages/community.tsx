@@ -111,7 +111,7 @@ const programs = [
 
 export default function CommunityPage() {
   useEffect(() => {
-    document.title = "Community Access & Career Pipeline | ThriveUp Academy";
+    document.title = "Community Access & Career Pipeline | ThriveUp";
   }, []);
 
   const { data: rawPartners, isLoading: partnersLoading } = useQuery<CommunityPartner[]>({
@@ -197,7 +197,7 @@ export default function CommunityPage() {
             Community Access &<br />Career Pipeline Programs
           </h1>
           <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-4">
-            ThriveUp Academy empowers under-resourced communities of all ages with AI skills training, career readiness, and workforce-to-career employment pathways.
+            ThriveUp empowers under-resourced communities of all ages with AI skills training, career readiness, and workforce-to-career employment pathways.
           </p>
           <p className="text-sm md:text-base text-white/60 max-w-xl mx-auto mb-10">
             Six dedicated programs removing barriers to workforce development — from free access and mentorship to career placement and bilingual support.
@@ -356,7 +356,7 @@ export default function CommunityPage() {
               Expanding Career Pipelines Nationwide
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Austin is our pilot city — the proving ground for a workforce development model designed to scale. Every lesson learned here shapes how we bring equitable career access to under-resourced communities in cities across the country. Our goal is to launch in 10 additional cities by 2027, adapting each program to local workforce needs while maintaining the quality and impact that define ThriveUp Academy.
+              Austin is our pilot city — the proving ground for a workforce development model designed to scale. Every lesson learned here shapes how we bring equitable career access to under-resourced communities in cities across the country. Our goal is to launch in 10 additional cities by 2027, adapting each program to local workforce needs while maintaining the quality and impact that define ThriveUp.
             </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center mt-12">
@@ -411,7 +411,7 @@ export default function CommunityPage() {
         <div className="mx-auto max-w-5xl flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <GraduationCap className="h-5 w-5 text-primary" />
-            <span className="font-semibold">ThriveUp Academy</span>
+            <span className="font-semibold">ThriveUp</span>
           </div>
           <p className="text-sm text-muted-foreground">
             Empowering under-resourced communities through AI skills, career pipelines, and workforce development.

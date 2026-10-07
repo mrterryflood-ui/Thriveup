@@ -396,7 +396,7 @@ export default function EcosystemIntelPage() {
         <div className="mb-8">
           <div className="inline-flex items-center gap-2 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-full px-4 py-1.5 text-sm text-indigo-700 dark:text-indigo-300 mb-3">
             <span>🔬</span>
-            <span>Ecosystem Intelligence — ThriveUp Academy</span>
+            <span>Ecosystem Intelligence — ThriveUp</span>
           </div>
           <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-2">County Socioeconomic Chainweb</h1>
           <p className="text-slate-600 dark:text-slate-300 max-w-2xl">

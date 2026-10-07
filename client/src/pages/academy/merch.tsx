@@ -59,7 +59,7 @@ const STATUS_ICONS: Record<string, typeof Clock> = {
 const FUNDRAISING_GOAL = 10000;
 
 export default function AcademyMerchPage() {
-  useEffect(() => { document.title = 'Merch Shop | ThriveUp Academy'; }, []);
+  useEffect(() => { document.title = 'Merch Shop | ThriveUp'; }, []);
   const { user } = useAuth();
   const { toast } = useToast();
   const [selectedItem, setSelectedItem] = useState<AcademyMerchItem | null>(null);
@@ -136,8 +136,8 @@ export default function AcademyMerchPage() {
   return (
     <div className="p-6 max-w-6xl mx-auto" data-testid="page-academy-merch">
       <PageHeader
-        title="ThriveUp Academy Merch Shop"
-        description="Official ThriveUp Academy merchandise - Real fundraising in partnership with UBO"
+        title="ThriveUp Merch Shop"
+        description="Official ThriveUp merchandise - Real fundraising in partnership with UBO"
         breadcrumbs={[{ label: "Academy", href: "/academy" }, { label: "Store" }]}
       />
 
@@ -218,7 +218,7 @@ export default function AcademyMerchPage() {
               <ShoppingBag className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-semibold text-lg mb-2">No Items in Catalog Yet</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Your administrator has not added any merchandise items to the catalog. Contact them to get branded ThriveUp Academy apparel, accessories, and stationery listed.
+                Your administrator has not added any merchandise items to the catalog. Contact them to get branded ThriveUp apparel, accessories, and stationery listed.
               </p>
             </Card>
             <Card className="p-4 mt-4" data-testid="card-preview-notice">

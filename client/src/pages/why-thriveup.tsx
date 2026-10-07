@@ -69,7 +69,7 @@ export default function WhyThriveUpPage() {
             Every Hard Question. Answered Directly.
           </h1>
           <p className="text-white/60 text-sm max-w-lg mx-auto mb-5">
-            ThriveUp Academy is built for communities that have been over-promised and under-delivered.
+            ThriveUp is built for communities that have been over-promised and under-delivered.
             This page exists because you deserve straight answers before you invest a single hour of staff time.
           </p>
           {/* In-page nav */}
@@ -148,9 +148,9 @@ export default function WhyThriveUpPage() {
                   { tool: "211 / Findhelp.org", good: "Resource directory, needs screening", gap: "Points people to services. Doesn't track what happens after they arrive." },
                   { tool: "HMIS (Homeless Mgmt Info)", good: "HUD-required housing outcome tracking", gap: "Single-population, single-domain. No workforce, no community health, no growth journey." },
                   { tool: "Google.org / generic survey tools", good: "Low cost data collection", gap: "Collects data, generates no shared framework or cross-org insight." },
-                  { tool: "ThriveUp Academy", good: "Individual growth journey + org alignment + community gap analysis + funder evidence", gap: "Early-stage outcomes data. Honest about it." },
+                  { tool: "ThriveUp", good: "Individual growth journey + org alignment + community gap analysis + funder evidence", gap: "Early-stage outcomes data. Honest about it." },
                 ].map((r) => (
-                  <tr key={r.tool} className={r.tool === "ThriveUp Academy" ? "bg-emerald-50 dark:bg-emerald-950/20 font-semibold" : ""}>
+                  <tr key={r.tool} className={r.tool === "ThriveUp" ? "bg-emerald-50 dark:bg-emerald-950/20 font-semibold" : ""}>
                     <td className="py-2 pr-3 font-medium">{r.tool}</td>
                     <td className="py-2 pr-3 text-muted-foreground">{r.good}</td>
                     <td className="py-2 text-muted-foreground">{r.gap}</td>

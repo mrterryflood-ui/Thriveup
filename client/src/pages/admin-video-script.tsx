@@ -18,7 +18,7 @@ const WEBSITE_URL = "https://thriveup.org";
 
 const VIDEO_SCRIPT = {
   title: "The Command Center Behind the Culture",
-  subtitle: "A 3-Minute Tour of the ThriveUp Academy Admin Suite",
+  subtitle: "A 3-Minute Tour of the ThriveUp Admin Suite",
   totalDuration: "3:00",
   sections: [
     {
@@ -26,9 +26,9 @@ const VIDEO_SCRIPT = {
       timestamp: "0:00 - 0:20",
       duration: "20 sec",
       label: "OPENING",
-      direction: "FADE IN from black. Soft ambient music builds. Animated particles converge to form the ThriveUp Academy Panther silhouette.",
+      direction: "FADE IN from black. Soft ambient music builds. Animated particles converge to form the ThriveUp Panther silhouette.",
       voiceover: "Every great learning community has something invisible powering it. Behind every student breakthrough, every parent sigh of relief, every teacher celebration... there is a system. A command center. Built not just for managing students, but for believing in them.",
-      visualNotes: "Slow zoom into the Panther Village campus. Golden hour lighting. Subtle animated sparkles around buildings. Text appears: 'ThriveUp Academy'. Then fades to: 'The Admin Suite'.",
+      visualNotes: "Slow zoom into the Panther Village campus. Golden hour lighting. Subtle animated sparkles around buildings. Text appears: 'ThriveUp'. Then fades to: 'The Admin Suite'.",
       icon: Sparkles,
     },
     {
@@ -97,7 +97,7 @@ const VIDEO_SCRIPT = {
       duration: "25 sec",
       label: "CLOSING",
       direction: "PULL BACK to a wide shot of the Panther Village campus at sunset. Music reaches its peak. All feature icons orbit the campus like a constellation.",
-      voiceover: "This is not just software. This is infrastructure for belief. Every dashboard, every alert, every course you create, every student you track... it all adds up to one thing: a community that refuses to let any child be invisible. The ThriveUp Academy Admin Suite. Built by educators. For educators. See it live.",
+      voiceover: "This is not just software. This is infrastructure for belief. Every dashboard, every alert, every course you create, every student you track... it all adds up to one thing: a community that refuses to let any child be invisible. The ThriveUp Admin Suite. Built by educators. For educators. See it live.",
       visualNotes: `Feature icons (shield, book, brain, gamepad, globe) orbit and merge into the Panther logo. Final frame: '${WEBSITE_URL}' with the tagline 'Infrastructure for Belief.' Fade to black.`,
       icon: GraduationCap,
     },
@@ -105,7 +105,7 @@ const VIDEO_SCRIPT = {
   productionNotes: [
     "Total runtime: 3 minutes flat",
     "Music: Inspirational ambient, building to an emotional peak at the close. Suggest royalty-free tracks from Epidemic Sound or Artlist.",
-    "Animation style: Clean motion graphics with the ThriveUp Academy maroon (#7A1F3E) and silver palette. Smooth transitions, no jarring cuts.",
+    "Animation style: Clean motion graphics with the ThriveUp maroon (#7A1F3E) and silver palette. Smooth transitions, no jarring cuts.",
     "Voice talent: Warm, confident, measured pace. Not a sales pitch. A story.",
     "Screen recordings: Capture live from the platform at each URL listed. Use slight zoom and pan effects over the UI.",
     `Website URL for end card and watermark: ${WEBSITE_URL}`,
@@ -177,7 +177,7 @@ export default function AdminVideoScriptPage() {
     },
   });
 
-  useEffect(() => { document.title = "Video Script | ThriveUp Academy"; }, []);
+  useEffect(() => { document.title = "Video Script | ThriveUp"; }, []);
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-5xl mx-auto p-6 space-y-8">

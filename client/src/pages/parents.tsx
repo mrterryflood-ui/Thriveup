@@ -39,7 +39,7 @@ const whyItMatters = [
 const trainingModules = [
   {
     icon: MonitorSmartphone,
-    title: "Getting Started with ThriveUp Academy",
+    title: "Getting Started with ThriveUp",
     difficulty: "Beginner",
     desc: "Navigating the platform, setting up profiles, understanding progress tracking and career pathway tools.",
   },
@@ -395,7 +395,7 @@ function ResourcesTab() {
 
 export default function ParentResourcesPage() {
   useEffect(() => {
-    document.title = "Family Resources & Workforce Readiness | ThriveUp Academy";
+    document.title = "Family Resources & Workforce Readiness | ThriveUp";
   }, []);
   // R1 Phase B: helpers (CHWs, nonprofits, agencies) arrive on the workshops tab; families keep Prevention & Family.
   const arrivalTab = journeyLane(useJourneyContext().audience) === "navigator" ? "training" : "prevention";
@@ -508,7 +508,7 @@ export default function ParentResourcesPage() {
         <div className="mx-auto max-w-5xl flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Heart className="h-5 w-5 text-primary" />
-            <span className="font-semibold">ThriveUp Academy</span>
+            <span className="font-semibold">ThriveUp</span>
           </div>
           <p className="text-sm text-muted-foreground">
             Empowering families and communities for workforce readiness together.

@@ -33,7 +33,7 @@ Let's walk through which ones fit your timeline and capacity. Some of these have
 
 This one stopped me. It is exactly the kind of gap our ecosystem was designed to address — and the timing couldn't be better.
 
-We have a platform called ThriveUp Academy already within the Sankofa Health Network specifically built for youth, veteran, and workforce transition populations. The "aging out of foster care" population fits squarely in that mission space — disconnected from community, lacking resource infrastructure, and invisible to most health and social service systems.
+We have a platform called ThriveUp already within the Sankofa Health Network specifically built for youth, veteran, and workforce transition populations. The "aging out of foster care" population fits squarely in that mission space — disconnected from community, lacking resource infrastructure, and invisible to most health and social service systems.
 
 What Courtney and the UT students are describing is a community + resource navigator app. That's something we could potentially build on the ThriveUp infrastructure, which already has the AI navigation, provider/resource search, and mesh architecture in place. There may be significant grant funding available here — HHS, HRSA, and several private foundations have explicit foster care transition priorities.
 

@@ -121,7 +121,7 @@ export default function FarmProfitabilityPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-5">
-        <nav className="text-xs text-slate-500 mb-2 flex items-center gap-1"><DollarSign className="w-3 h-3" /><span>Farm Profitability Navigator — ThriveUp Academy</span></nav>
+        <nav className="text-xs text-slate-500 mb-2 flex items-center gap-1"><DollarSign className="w-3 h-3" /><span>Farm Profitability Navigator — ThriveUp</span></nav>
         <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-50">Farm Profitability Navigator</h1>
         <p className="mt-1 text-slate-500 max-w-2xl">Enterprise budget calculator using live USDA NASS prices + yields. Compare your farm to county and state benchmarks. All inputs editable.</p>
       </div>

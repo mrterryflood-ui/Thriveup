@@ -108,7 +108,7 @@ function SlideRenderer({ slide, gradient, slideNum, totalSlides }: {
         </Badge>
         <h1 className="text-5xl md:text-6xl font-bold text-center mb-4">{slide.title}</h1>
         {slide.subtitle && <p className="text-2xl text-white/80 text-center">{slide.subtitle}</p>}
-        <div className="mt-12 text-white/50 text-sm">ThriveUp Academy · Press arrow keys or click to navigate</div>
+        <div className="mt-12 text-white/50 text-sm">ThriveUp · Press arrow keys or click to navigate</div>
       </div>
     );
   }

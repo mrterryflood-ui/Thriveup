@@ -1439,7 +1439,7 @@ Center Black, Latina, Indigenous, immigrant, and rural women. Plain language thr
           generated_for: { zip: zip || null, population, language },
           generated_at: new Date().toISOString(),
           disclaimer: "This kit is for educational and self-advocacy purposes. It does not replace a licensed healthcare provider's advice.",
-          powered_by: "ThriveUp Academy — HerHealth Network | Perplexity Sonar Pro + Claude",
+          powered_by: "ThriveUp — HerHealth Network | Perplexity Sonar Pro + Claude",
           save_instructions: "You can copy, print, or download this kit. Bring the 'printable_summary' and 'questions_for_provider' to your next appointment.",
         },
         citations_available: researchContext.length > 0,

@@ -215,7 +215,7 @@ function generateComparisonPDF(comparisons: any[], locationInputs: string[]) {
   doc.setFontSize(8);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(148, 163, 184);
-  doc.text(`${locationInputs.filter(Boolean).join(" vs. ")}  ·  ThriveUp Academy / TCAF  ·  ${new Date().toLocaleDateString("en-US")}`, margin, 22);
+  doc.text(`${locationInputs.filter(Boolean).join(" vs. ")}  ·  ThriveUp / TCAF  ·  ${new Date().toLocaleDateString("en-US")}`, margin, 22);
   y = 40;
 
   const colW = (W - margin * 2 - (comparisons.length - 1) * 6) / comparisons.length;

@@ -1,8 +1,8 @@
-# ThriveUp Academy / Thriving Communities for All (TCAF)
+# ThriveUp / Thriving Communities for All (TCAF)
 > National community-infrastructure platform that connects people to grant funding, aligns service delivery with workforce development, and produces measurable community impact across 50 states.
 
 ## About
-ThriveUp Academy is operated by Thriving Communities for All (TCAF), based in greater Austin, Texas. The platform serves individuals and families navigating housing, employment, childcare, health, justice-system reentry, and educational access — with a particular focus on Black, Latino, Indigenous, immigrant, justice-involved, foster-youth, rural, and low-income communities.
+ThriveUp is operated by Thriving Communities for All (TCAF), based in greater Austin, Texas. The platform serves individuals and families navigating housing, employment, childcare, health, justice-system reentry, and educational access — with a particular focus on Black, Latino, Indigenous, immigrant, justice-involved, foster-youth, rural, and low-income communities.
 
 The platform integrates four AI engines, supports 107 languages, and connects 15 service platforms across workforce development, community health, and public-benefit navigation.
 
@@ -31,7 +31,7 @@ The platform integrates four AI engines, supports 107 languages, and connects 15
 - /opportunity-youth — Opportunity youth programs
 
 ### Academy & Education
-- /academy — ThriveUp Academy hub
+- /academy — ThriveUp hub
 - /academy/trade-sims — Skilled-trade simulation and certification
 - /academy/careers — Career exploration and pathway planning
 - /academy/financial-literacy — Financial literacy curriculum

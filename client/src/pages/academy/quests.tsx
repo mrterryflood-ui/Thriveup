@@ -102,7 +102,7 @@ function LoadingSkeleton() {
 }
 
 export default function AcademyQuestsPage() {
-  useEffect(() => { document.title = 'Daily Quests | ThriveUp Academy'; }, []);
+  useEffect(() => { document.title = 'Daily Quests | ThriveUp'; }, []);
   const { toast } = useToast();
   const { data: quests, isLoading: questsLoading, error: questsError, refetch: refetchQuests } = useQuery<Quest[]>({
     queryKey: ["/api/academy/quests"],

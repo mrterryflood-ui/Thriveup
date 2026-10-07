@@ -27,7 +27,7 @@
 | ID | Name | URL | What it does | Grants | Status |
 |---|---|---|---|---|---|
 | `lifebridge` | **LifeBridge** | lifetransitionsaid.org | Virtual 211 + CHW coordination across housing/food/health/MH/SUD/DV/crisis. 20,670+ resources. Addresses non-combat veteran-suicide drivers (divorce, job loss, retirement, bereavement). | St. David's, SSG Fox | ✅ |
-| `collaborative-advocate` | **The Collaborative Advocate** *(TCAF parent org)* | thrivingcommunitiesforall.com | The 501(c)(3) entity itself. Veteran-founded, Black-led VOSB. Service-delivery + grant-execution arm. Hosts ThriveUp Academy `/academy`. | All | ✅ |
+| `collaborative-advocate` | **The Collaborative Advocate** *(TCAF parent org)* | thrivingcommunitiesforall.com | The 501(c)(3) entity itself. Veteran-founded, Black-led VOSB. Service-delivery + grant-execution arm. Hosts ThriveUp `/academy`. | All | ✅ |
 | `m2c` | Mission Transition (M2C) | vetmissiontransition.com | Full mil-to-civ transition: MOS/AFSC translation, GI Bill/VA/disability claims, identity transition for loss-of-purpose crisis, employer matching. | SSG Fox, WIOA, Foundation | ✅ |
 | `mce` | Minority Center of Excellence | minoritycenterofexcellence.com | 656,794 SAM.gov records; 14 AI tools across 6-stage business lifecycle; dual-AI (GPT+Claude) proposal review; 50-state certification coverage. | WIOA, Foundation, SSG Fox | ✅ |
 
@@ -50,13 +50,13 @@
 | `pinnacle-business-conglomerate` | Pinnacle Business Conglomerate | pinnaclebusinessconglomerate.com | Cradle-to-grave contractor enablement for minority/veteran-owned: 8(a)/HUBZone/SDVOSB/WOSB cert, dual-AI proposal dev, milestone tracking. | All | ❌ |
 
 ## Quintet (the 5 platforms to lead with in narratives)
-**Talk Your Talk · Civic Signal · LifeBridge · ThriveUp Academy · Whole-Person Health Ecosystem.** See `docs/grants/QUARTET-ONE-PAGER.md` for the drop-in narrative.
+**Talk Your Talk · Civic Signal · LifeBridge · ThriveUp · Whole-Person Health Ecosystem.** See `docs/grants/QUARTET-ONE-PAGER.md` for the drop-in narrative.
 
 ## Critical caveats for any grant work
 1. **Civic Signal is not in the hub DB.** It's part of the quintet but missing from `ecosystem_platforms`. Register it before next ecosystem-wide claim.
 2. **TYT row's URL is wrong.** DB says `lexibridge.net` (dead). True URL is `talkyourtalk.net`. The TYT connector self-registers as "LexiBridge" on every heartbeat — fix lives in TYT workspace, not here.
 3. **9 of 24 platforms are not currently public-facing** (DNS dead, parked, or 404). Never link to a platform in a proposal without re-probing first. **Probe ALL known aliases before declaring a platform dead** — `sankofa-feminine-health` was nearly removed because `yourfeminineneeds.com` 404s, but the same site is live at `herhealthmatters2.com` AND `myhealthybreast.com` (same payload). Always check the project's Publishing → Domains tab for verified alternate URLs. The ecosystem-alignment-scan script (`scripts/ecosystem-alignment-scan.sh`) and the probe pattern in `docs/active-commitments.md` ("SPA route 200 ≠ real page") apply here too.
-4. **Platform destinations.** ChildCORE (`childcore.app`) replaced Implementation in Education / ISSS; RPLICE (Better Science Lab) uses `www.bettersciencelab.com`. `yourhealthbirthright.net` hosts BOTH `sankofa` and `sankofa-maternal-health`. `thrivingcommunitiesforall.com/academy` is ThriveUp Academy on the `collaborative-advocate` domain.
+4. **Platform destinations.** ChildCORE (`childcore.app`) replaced Implementation in Education / ISSS; RPLICE (Better Science Lab) uses `www.bettersciencelab.com`. `yourhealthbirthright.net` hosts BOTH `sankofa` and `sankofa-maternal-health`. `thrivingcommunitiesforall.com/academy` is ThriveUp on the `collaborative-advocate` domain.
 5. **Always pull the full table before locking a narrative.** The cost of working from in-context guesses instead of the live DB is missed grant fits.
 
 ---

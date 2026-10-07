@@ -449,7 +449,7 @@ grantConduitRouter.post("/package", async (req: Request, res: Response) => {
           ? `GUN VIOLENCE REGISTRY (last 90 days, ${state}${geography.zip ? ` ZIP ${geography.zip}` : ""}): ${gvIncidents} incidents | ${gvVictims} victims | ${gvFatal} fatalities. This is verified incident-level data from the TCAF Gun Violence Registry — cite it directly in the needs statement. Priority grant programs triggered: DOJ/OJJDP Second Chance Act (CFDA 16.812), CDC Violence Prevention (CFDA 93.136), DOJ/BJA Byrne JAG (CFDA 16.738), SAMHSA Community Mental Health (CFDA 93.958).`
           : "GUN VIOLENCE REGISTRY: No incidents on record for this geography in the last 90 days.",
         `FUNDING LANDSCAPE: ${topGrants.length} matched grant opportunities identified. Top agencies: ${[...new Set(topGrants.slice(0, 5).map(g => g.agency).filter(Boolean))].join(", ")}.`,
-        `TCAF ECOSYSTEM CONTEXT: ThriveUp Academy — 501(c)(3), CAGE 9VKK3, EIN 41-3618003, SAM.gov active. 15 service platforms, 107 languages, 4 AI engines, serving all 50 states as architecture. This ecosystem provides the technology backbone, evaluation infrastructure, and data credibility behind this application.`,
+        `TCAF ECOSYSTEM CONTEXT: ThriveUp — 501(c)(3), CAGE 9VKK3, EIN 41-3618003, SAM.gov active. 15 service platforms, 107 languages, 4 AI engines, serving all 50 states as architecture. This ecosystem provides the technology backbone, evaluation infrastructure, and data credibility behind this application.`,
       ].filter(Boolean).join("\n\n");
 
       const systemPrompt = withEthicalPreamble(
@@ -566,7 +566,7 @@ Return ONLY valid JSON (no markdown, no code fences, no explanation) with exactl
         cedsFramework:        "EDA Comprehensive Economic Development Strategy — PM1 per capita income, PM2 unemployment, PM3 poverty, PM4 employment, PM5 economic complexity",
         rpliceFramework:      "CFIR (Consolidated Framework for Implementation Research) + RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance)",
         platformEcosystem:    "15 service platforms | 107 languages | 4 AI engines | 50 states (architecture) | CAGE 9VKK3 | EIN 41-3618003",
-        conduitStatement:     "ThriveUp Academy is a 501(c)(3) nonprofit serving as the technology backbone, data infrastructure, and evaluation engine for this application. Outcome data is drawn from real platform enrollments, not projections.",
+        conduitStatement:     "ThriveUp is a 501(c)(3) nonprofit serving as the technology backbone, data infrastructure, and evaluation engine for this application. Outcome data is drawn from real platform enrollments, not projections.",
         priorityDomains:      ORG_GRANT_DOMAINS[orgType] ?? [],
       },
 

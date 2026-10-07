@@ -96,7 +96,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **Better Science Lab / RPLICE**, platform ID `betterscience`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **Better Science Lab / RPLICE**, platform ID `betterscience`, part of ThriveUp's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -226,7 +226,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **Black Maternal Health Network**, platform ID `sankofa-maternal-health`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **Black Maternal Health Network**, platform ID `sankofa-maternal-health`, part of ThriveUp's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -356,7 +356,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **Black Men's Health Hub**, platform ID `sankofa-mens-health`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **Black Men's Health Hub**, platform ID `sankofa-mens-health`, part of ThriveUp's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -486,7 +486,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **Ecosystem Nexus**, platform ID `ecosystem-nexus`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **Ecosystem Nexus**, platform ID `ecosystem-nexus`, part of ThriveUp's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -616,7 +616,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **Holistic Black Feminine Health Hub**, platform ID `sankofa-feminine-health`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **Holistic Black Feminine Health Hub**, platform ID `sankofa-feminine-health`, part of ThriveUp's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -746,7 +746,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **ISSS — Integrated Supports for Thriving Youth**, platform ID `isss`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **ISSS — Integrated Supports for Thriving Youth**, platform ID `isss`, part of ThriveUp's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -876,7 +876,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **LifeBridge**, platform ID `lifebridge`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **LifeBridge**, platform ID `lifebridge`, part of ThriveUp's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -1006,7 +1006,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **M2C Transition**, platform ID `m2c`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **M2C Transition**, platform ID `m2c`, part of ThriveUp's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -1136,7 +1136,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **Minority Center of Excellence**, platform ID `mce`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **Minority Center of Excellence**, platform ID `mce`, part of ThriveUp's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -1277,7 +1277,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **Perfectly Different**, platform ID `perfectly-different`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **Perfectly Different**, platform ID `perfectly-different`, part of ThriveUp's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -1407,7 +1407,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **PillScheduler**, platform ID `pillscheduler`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **PillScheduler**, platform ID `pillscheduler`, part of ThriveUp's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -1537,7 +1537,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **SafeCogniCare**, platform ID `safecognicare`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **SafeCogniCare**, platform ID `safecognicare`, part of ThriveUp's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -1667,7 +1667,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **SafeReport**, platform ID `safereport`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **SafeReport**, platform ID `safereport`, part of ThriveUp's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -1797,7 +1797,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **Sankofa Health Network**, platform ID `sankofa`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **Sankofa Health Network**, platform ID `sankofa`, part of ThriveUp's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -1927,7 +1927,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **Shield Atlas**, platform ID `shield-atlas`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **Shield Atlas**, platform ID `shield-atlas`, part of ThriveUp's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -2057,7 +2057,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **The Collaborative Advocate**, platform ID `collaborative-advocate`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **The Collaborative Advocate**, platform ID `collaborative-advocate`, part of ThriveUp's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -2187,7 +2187,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **Video Creator AI**, platform ID `video-creator-ai`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **Video Creator AI**, platform ID `video-creator-ai`, part of ThriveUp's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -2317,7 +2317,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **Whole-Person Health Ecosystem**, platform ID `whole-person-health`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **Whole-Person Health Ecosystem**, platform ID `whole-person-health`, part of ThriveUp's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -2447,7 +2447,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **WholeMind Learning**, platform ID `wholemind`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **WholeMind Learning**, platform ID `wholemind`, part of ThriveUp's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -2576,7 +2576,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **Advertising Targeting for Platforms**, platform ID `ad-targeting`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **Advertising Targeting for Platforms**, platform ID `ad-targeting`, part of ThriveUp's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {

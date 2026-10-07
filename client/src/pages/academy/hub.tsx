@@ -166,7 +166,7 @@ export default function AcademyHubPage() {
   }
 
   useEffect(() => {
-    document.title = careerMode ? "Academy — Career Mode | ThriveUp" : "Academy Hub | ThriveUp Academy";
+    document.title = careerMode ? "Learning — Career Mode | ThriveUp" : "Learning Hub | ThriveUp";
   }, [careerMode]);
 
   const { data, isLoading, error, refetch } = useQuery<DashboardData>({
@@ -181,7 +181,7 @@ export default function AcademyHubPage() {
   }
 
   if (error) {
-    return <div className="p-6"><ErrorRetry message="Failed to load Academy Hub. Please try again." onRetry={refetch} /></div>;
+    return <div className="p-6"><ErrorRetry message="Failed to load Learning Hub. Please try again." onRetry={refetch} /></div>;
   }
 
   const houses = data?.houses ?? [];
@@ -248,9 +248,9 @@ export default function AcademyHubPage() {
     <div className="p-6 max-w-5xl mx-auto" data-testid="academy-hub-page">
       <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
         <PageHeader
-          title="Academy Hub"
+          title="Learning Hub"
           description="Young Leaders Building Their Future Through AI"
-          breadcrumbs={[{ label: "Academy Hub" }]}
+          breadcrumbs={[{ label: "Learning Hub" }]}
         />
         <button
           onClick={toggleMode}

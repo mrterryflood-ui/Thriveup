@@ -1,4 +1,4 @@
-# ThriveUp Academy — API Contract
+# ThriveUp — API Contract
 
 > **Iron Rule:** Any agent building a new server route MUST read this document first.
 > Any agent completing a task MUST run `npx tsx scripts/preflight.ts` and confirm exit 0 before calling `mark_task_complete`.

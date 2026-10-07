@@ -46,7 +46,7 @@ This document identifies open and upcoming federal health grant opportunities fr
 - **Amount:** Up to $125,000/year for 5 years ($625K total)
 - **Deadline:** April 14, 2026
 - **Complexity:** Medium — coalition-based application
-- **TCAF Fit:** Community-based prevention, youth substance use prevention. TCAF's youth empowerment platforms (ThriveUp Academy career pathways, WholeMind Learning) and coalition partnerships qualify. Requires demonstrating an active community coalition with 12 required sectors represented.
+- **TCAF Fit:** Community-based prevention, youth substance use prevention. TCAF's youth empowerment platforms (ThriveUp career pathways, WholeMind Learning) and coalition partnerships qualify. Requires demonstrating an active community coalition with 12 required sectors represented.
 - **Apply:** Grants.gov
 
 ### 5. CDC Community Health Workers (CHW) Program Grant

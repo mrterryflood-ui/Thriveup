@@ -36,7 +36,7 @@ export default function TeacherDashboardPage() {
     enabled: isAuthenticated,
   });
 
-  useEffect(() => { document.title = "Teacher Dashboard | ThriveUp Academy"; }, []);
+  useEffect(() => { document.title = "Teacher Dashboard | ThriveUp"; }, []);
 
   if (authLoading) {
     return (

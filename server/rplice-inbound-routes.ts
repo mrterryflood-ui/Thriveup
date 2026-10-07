@@ -551,10 +551,10 @@ export function registerRpliceInboundRoutes(app: Express) {
   app.get("/api/inbound/rplice/connection-info", (_req: Request, res: Response) => {
     const host = process.env.REPLIT_DEV_DOMAIN
       ? `https://${process.env.REPLIT_DEV_DOMAIN}`
-      : "https://thriveupacademy.com";
+      : "https://thrivingcommunitiesforall.com";
 
     return res.json({
-      platform: "ThriveUp Academy",
+      platform: "ThriveUp",
       description:
         "ThriveUp is the orchestrating hub. RPLICE evidence and research findings directly inform every community brief, AI output, and grant narrative produced here.",
       inboundEndpoint: `${host}/api/inbound/rplice`,

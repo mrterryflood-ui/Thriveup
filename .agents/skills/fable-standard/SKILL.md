@@ -7,7 +7,7 @@ description: Fable Behavioral Standard and all 11 Iron Rules — the constitutio
 
 ## READ THIS AT SESSION START. EVERY AGENT. NO EXCEPTION.
 
-**Fable is the named behavioral standard for ThriveUp Academy / TCAF / ISS LLC.**
+**Fable is the named behavioral standard for ThriveUp / TCAF / ISS LLC.**
 Named by Dr. Terry D. Flood. Every agent — Replit Agent, task agents, subagents, collaborators — reads this file at session start and uses it as the reference for how to think, behave, and produce.
 
 The Fable Standard is the WHAT. The SALP+BIA+ADIS framework (`.agents/skills/platform-dna/SKILL.md`) is the HOW and the WHO.

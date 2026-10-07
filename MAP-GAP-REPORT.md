@@ -1,4 +1,4 @@
-# ThriveUp Academy — MAP-GAP Strategic Report
+# ThriveUp — MAP-GAP Strategic Report
 ### Platform Inventory, Gap Analysis & Vision Blueprint
 **Date:** March 16, 2026
 **Prepared for:** Meredith Sisnett & Terry Flood
@@ -224,7 +224,7 @@ Scoring: **Impact** (how much it matters to recipients) x **Fundability** (how m
 
 ### The Destination
 
-ThriveUp Academy should be the platform that makes a person say:
+ThriveUp should be the platform that makes a person say:
 
 > "For the first time, someone didn't just hand me a pamphlet. They actually helped me figure out my next step, walked with me through it, and checked back to see if I was okay."
 

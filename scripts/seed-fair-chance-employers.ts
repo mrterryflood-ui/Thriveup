@@ -245,7 +245,7 @@ const EMPLOYERS: SeedEmployer[] = [
     location: "Austin, TX",
     website: "https://www.austincc.edu/manufacturing",
     banTheBox: true, fairChanceHiring: true, barrierFriendly: true,
-    description: "ACC connects welding/machining graduates to employer partners. Participates in ThriveUp Academy credential pathway.",
+    description: "ACC connects welding/machining graduates to employer partners. Participates in ThriveUp credential pathway.",
     credentialTags: ["welding", "construction"],
   },
 

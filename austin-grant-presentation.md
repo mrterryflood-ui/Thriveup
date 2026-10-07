@@ -1,4 +1,4 @@
-# ThriveUp Academy — Built for Austin
+# ThriveUp — Built for Austin
 ## Grant Presentation Package — for St. David's Foundation and All Austin Funders
 ### March 2026 — Dr. Terry Flood, Founder and Chief Executive Officer
 
@@ -8,7 +8,7 @@
 
 This brief is written so any reader can follow it — a foundation board member, a city council member, a parent, a teacher, a corporate sponsor, or a federal grant reviewer. Acronyms are spelled out the first time they appear, and a glossary is included at the end. Every program name and dollar figure is current as of March 2026.
 
-**The bottom line in two sentences:** Austin's housing, workforce, mental-health, and youth crises are connected — they cannot be solved one program at a time. ThriveUp Academy connects 20 community-support platforms into one coordinated front door so that families, veterans, and young people stop falling through the cracks between services.
+**The bottom line in two sentences:** Austin's housing, workforce, mental-health, and youth crises are connected — they cannot be solved one program at a time. ThriveUp connects 20 community-support platforms into one coordinated front door so that families, veterans, and young people stop falling through the cracks between services.
 
 ---
 
@@ -46,7 +46,7 @@ This brief is written so any reader can follow it — a foundation board member,
 
 ---
 
-## THE SOLUTION — THRIVEUP ACADEMY'S 20-PLATFORM ECOSYSTEM
+## THE SOLUTION — THRIVEUP'S 20-PLATFORM ECOSYSTEM
 
 ### "We bring solutions to anyone by meeting them where they are with our comprehensive solutions and suite of tools. No problem remains a problem."
 
@@ -259,7 +259,7 @@ When you fund ThriveUp, you receive:
 
 ---
 
-*ThriveUp Academy — 501(c)(3) nonprofit*
+*ThriveUp — 501(c)(3) nonprofit*
 *Dr. Terry Flood, Founder and Chief Executive Officer*
 *thrivingcommunitiesforall.com*
 *20 platforms. One mission. No dead ends.*

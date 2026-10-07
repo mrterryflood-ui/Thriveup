@@ -1,9 +1,9 @@
-# TEKS §127.15 CTE Employability Skills — ThriveUp Academy Alignment Map
+# TEKS §127.15 CTE Employability Skills — ThriveUp Alignment Map
 
 **Standard:** 19 TAC §127.15, Career and Technical Education Employability Skills, Adopted 2025
 **Effective:** 2025-2026 school year
 **Applicant:** The Collaborative Advocate (501(c)(3)), Austin TX
-**Platform:** ThriveUp Academy — AI-Powered Workforce Development
+**Platform:** ThriveUp — AI-Powered Workforce Development
 
 ---
 

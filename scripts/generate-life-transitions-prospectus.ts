@@ -37,7 +37,7 @@ function safe(reserve=80){ if(cy()>PAGE.h-M.b-reserve){ doc.addPage(); doc.y=M.t
 function chrome(title:string, pg:string){
   doc.rect(0,0,PAGE.w,6).fill(C.gold);
   doc.rect(0,6,PAGE.w,34).fill(C.offWhite);
-  doc.font(FB).fontSize(9).fillColor(C.indigo).text("THRIVEUP ACADEMY  ·  TCAF",M.l,17,{lineBreak:false});
+  doc.font(FB).fontSize(9).fillColor(C.indigo).text("THRIVEUP  ·  TCAF",M.l,17,{lineBreak:false});
   doc.font(FR).fontSize(7.5).fillColor(C.muted).text(pg,0,19,{width:PAGE.w-M.r,align:"right",lineBreak:false});
   doc.font(FR).fontSize(7.5).fillColor(C.muted).text(title,M.l,29,{lineBreak:false});
   doc.rect(0,PAGE.h-22,PAGE.w,22).fill(C.indigo);
@@ -145,7 +145,7 @@ for(let i=0;i<8;i++) doc.save().opacity(0.03).moveTo(PAGE.w*0.55+i*28,0).lineTo(
 
 if(LOGO) doc.image(LOGO,PAGE.w/2-56,60,{width:112,height:112});
 
-doc.font(FB).fontSize(30).fillColor(C.white).text("ThriveUp Academy",M.l,196,{width:CW,align:"center"});
+doc.font(FB).fontSize(30).fillColor(C.white).text("ThriveUp",M.l,196,{width:CW,align:"center"});
 doc.font(FB).fontSize(13).fillColor(C.gold).text("The Collaborative Advocate Foundation  ·  TCAF",M.l,234,{width:CW,align:"center"});
 doc.save().rect(M.l+60,268,CW-120,1).fill(C.gold).restore();
 doc.font(FI).fontSize(10.5).fillColor("rgba(255,255,255,0.82)")
@@ -203,7 +203,7 @@ body("A nation where every community organization has the data, technology, and 
 
 hRule(); doc.moveDown(0.5);
 h3("Executive Summary");
-body("ThriveUp Academy / TCAF is a national community-infrastructure platform and the nonprofit for nonprofits — 15 public-facing service platforms, a 5-trade workforce simulation and credentialing engine, a live grant intelligence system tracking 721 opportunities, 24+ federal benefit program pathways, a dedicated rural equity suite, and agriculture tools — all under a single integrated architecture built to serve any U.S. county. Organizations use ThriveUp to discover funding, train and credential their workforce, measure outcomes, and demonstrate impact. Individuals use it to navigate benefits, build careers, access health services, and track growth through the ALIGN framework. Piloting in Travis County, Texas through a two-entity structure (TCAF 501c3 + ISS LLC SBIR/STTR-eligible) with a Hub Adoption Kit ready for 50-state replication.");
+body("ThriveUp / TCAF is a national community-infrastructure platform and the nonprofit for nonprofits — 15 public-facing service platforms, a 5-trade workforce simulation and credentialing engine, a live grant intelligence system tracking 721 opportunities, 24+ federal benefit program pathways, a dedicated rural equity suite, and agriculture tools — all under a single integrated architecture built to serve any U.S. county. Organizations use ThriveUp to discover funding, train and credential their workforce, measure outcomes, and demonstrate impact. Individuals use it to navigate benefits, build careers, access health services, and track growth through the ALIGN framework. Piloting in Travis County, Texas through a two-entity structure (TCAF 501c3 + ISS LLC SBIR/STTR-eligible) with a Hub Adoption Kit ready for 50-state replication.");
 
 hRule(); doc.moveDown(0.4);
 h3("Problem");
@@ -319,7 +319,7 @@ twoCol([
 newPage("Training, Education, Research & Technology","Page 3 of 6");
 banner("Training · Education · Research · Technology",C.indigoMid,"Trade Simulation · Academy · Implementation Science · AI Stack");
 
-h3("Training & Simulation — ThriveUp Academy Trade Sims");
+h3("Training & Simulation — ThriveUp Trade Sims");
 body("5 industry-grade physics simulations, 15 lessons each (75 total), AI tutoring in 10 languages, credential routing at 80% completion. Real physics calculations — not animations.");
 const trades=[
   {t:"Electrical",e:"Modified Nodal Analysis (MNA) DC Solver",s:"Standard undergraduate EE",c:"OSHA 10 · IBEW/NECA · NCCER L1"},
@@ -341,7 +341,7 @@ trades.forEach(({t,e,s,c})=>{
 body("Credential routing fires at 80% completion — in production at server/trade-sims-cert-routes.ts. 9 certifications: OSHA, NCCER, AWS, ASE, EPA, NATE, TDLR, TSBPE. 2–3 registered apprenticeship pathways per trade.");
 
 safe(60); hRule(); doc.moveDown(0.4);
-h3("Education — ThriveUp Academy Learning Engine");
+h3("Education — ThriveUp Learning Engine");
 twoCol([
   {label:"Live Economic Simulation",body:"academyWallets, academyStocks, academyPortfolios — real market simulation. academyCompetitions for gamified cohorts. academyMerchOrders for real fulfillment. academyPantherPower GAM-ready merit scoring."},
   {label:"Financial & Civic Literacy",body:"academyLifeLessons: financial literacy, civic engagement, SDOH navigation, health literacy. Behavioral audit trail (academy_choice_logs). Full outcomes record per learner."},
@@ -403,7 +403,7 @@ scale.forEach(([n,l])=>{
 newPage("Funding Pathways","Page 4 of 6");
 banner("Funding Pathways — The Complete Picture",C.ruby,"Federal Benefits · USDA · DOL · HHS · HUD · DOJ · Child Care · Housing · Veterans · Justice · SBIR");
 
-callout("ThriveUp Academy navigates funding across every major federal agency and dozens of state and private streams. This is not a single grant pipeline — it is a comprehensive funding ecosystem covering individuals, families, organizations, agricultural producers, rural communities, veterans, justice-involved adults, and nonprofits seeking capital.",C.ruby,"#fff1f2");
+callout("ThriveUp navigates funding across every major federal agency and dozens of state and private streams. This is not a single grant pipeline — it is a comprehensive funding ecosystem covering individuals, families, organizations, agricultural producers, rural communities, veterans, justice-involved adults, and nonprofits seeking capital.",C.ruby,"#fff1f2");
 
 h3("Federal Benefit Programs — 24+ Pathways for Individuals & Families");
 fundingTable([
@@ -668,7 +668,7 @@ bullet([
 
 safe(90);
 const csY=cy();
-const csT="If ThriveUp Academy succeeds, every nonprofit in America will have what TCAF has: grant intelligence to find funding, simulation tools to train and credential a workforce, research frameworks to prove impact, and human growth tracking to show funders not just what they funded — but what changed. Rural farmers will find the USDA programs that go unclaimed. Farmworkers will navigate their rights in their language. Communities will have the evidence to demand the investment they deserve. The nonprofit for nonprofits. Built from community. Powered by data.";
+const csT="If ThriveUp succeeds, every nonprofit in America will have what TCAF has: grant intelligence to find funding, simulation tools to train and credential a workforce, research frameworks to prove impact, and human growth tracking to show funders not just what they funded — but what changed. Rural farmers will find the USDA programs that go unclaimed. Farmworkers will navigate their rights in their language. Communities will have the evidence to demand the investment they deserve. The nonprofit for nonprofits. Built from community. Powered by data.";
 const csh=doc.heightOfString(csT,{font:FI,size:9,width:CW-22})+26;
 doc.save().rect(M.l,csY,CW,csh).fill("#ede9fe").restore();
 doc.save().rect(M.l,csY,5,csh).fill(C.violet).restore();

@@ -189,7 +189,7 @@ export async function generateChainwebNarrative(
   const breakdown = (calc.domainBreakdown as any) || {};
 
   const prompt = `
-You are a ThriveUp Academy implementation scientist and public health expert (Dr. Terry D. Flood, Ph.D. framework).
+You are a ThriveUp implementation scientist and public health expert (Dr. Terry D. Flood, Ph.D. framework).
 
 SCENARIO: ${scenario.name}
 INTERVENTION: ${scenario.interventionName}

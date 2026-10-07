@@ -75,7 +75,7 @@ interface LeaderboardEntry {
 }
 
 export default function AcademyGameLobbyPage() {
-  useEffect(() => { document.title = 'Financial Literacy & STEM Engagement Modules | ThriveUp Academy'; }, []);
+  useEffect(() => { document.title = 'Financial Literacy & STEM Engagement Modules | ThriveUp'; }, []);
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [setupOpen, setSetupOpen] = useState(false);

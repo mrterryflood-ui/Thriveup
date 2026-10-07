@@ -396,7 +396,7 @@ export function registerPartnerApiRoutes(app: Express) {
   app.get("/api/partner/v1/docs", (_req, res) => {
     res.setHeader("Cache-Control", "no-store");
     res.json({
-      gateway: "ThriveUp Academy Partner API",
+      gateway: "ThriveUp Partner API",
       version: "1.0",
       baseUrl: "/api/partner/v1",
       auth: {

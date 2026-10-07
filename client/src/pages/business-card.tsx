@@ -137,7 +137,7 @@ function BusinessCardBack({ data, theme }: { data: CardData; theme: string }) {
   const t = themes[theme] || themes.executive;
 
   const platforms = [
-    "ThriveUp Academy", "Sankofa Health", "LifeBridge",
+    "ThriveUp", "Sankofa Health", "LifeBridge",
     "Talk Your Talk", "SafeCogniCare", "Mission Transition"
   ];
 

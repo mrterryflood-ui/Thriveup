@@ -237,7 +237,7 @@ export function registerJusticeRoutes(app: Express) {
   });
 
   app.get("/api/external/justice/health", requireApiKey, async (_req, res) => {
-    res.json({ status: "ok", platform: "ThriveUp Academy - Justice Command Center", version: "2.0", timestamp: new Date().toISOString() });
+    res.json({ status: "ok", platform: "ThriveUp - Justice Command Center", version: "2.0", timestamp: new Date().toISOString() });
   });
 
   app.get("/api/justice/command-center/stats", requireAuth, requireAdmin, async (_req, res) => {
@@ -411,7 +411,7 @@ export function registerJusticeRoutes(app: Express) {
       const ragContext = getJusticeRAGContext(`trends ${area || ""} ${dataType || ""} patterns analysis`);
       const alerts = await db.select().from(trendAlerts).orderBy(desc(trendAlerts.createdAt)).limit(10);
       const neighborhoods = await db.select().from(neighborhoodIntelligence).limit(20);
-      const prompt = `You are the AI analytics engine for the Justice & Community Safety Command Center, part of the ThriveUp Academy 24-platform ecosystem by Dr. Terry Flood, DHA (MSCJ, Implementation Science). Analyze trends and patterns for criminal justice prevention, intervention, and community safety.
+      const prompt = `You are the AI analytics engine for the Justice & Community Safety Command Center, part of the ThriveUp 24-platform ecosystem by Dr. Terry Flood, DHA (MSCJ, Implementation Science). Analyze trends and patterns for criminal justice prevention, intervention, and community safety.
 
 KNOWLEDGE BASE:
 ${ragContext}
@@ -465,7 +465,7 @@ Format as JSON with keys: trends, warnings, rootCauses, interventions, community
 
       const currentWizardStep = wizardSteps.find(s => s.step === currentStep) || wizardSteps[0];
 
-      const prompt = `You are the AI-powered Cycle-Breaking Wizard for the Justice & Community Safety Command Center, part of Dr. Terry Flood's (DHA, MSCJ) ThriveUp Academy ecosystem. You help communities break destructive cycles through evidence-based, implementation-science-driven approaches.
+      const prompt = `You are the AI-powered Cycle-Breaking Wizard for the Justice & Community Safety Command Center, part of Dr. Terry Flood's (DHA, MSCJ) ThriveUp ecosystem. You help communities break destructive cycles through evidence-based, implementation-science-driven approaches.
 
 KNOWLEDGE BASE:
 ${ragContext}

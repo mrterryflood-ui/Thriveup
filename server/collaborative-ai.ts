@@ -449,7 +449,7 @@ ${synthesisInstruction}`;
     ? "You are an expert analyst and synthesizer. Produce cohesive, authoritative outputs that directly address the user's question. Do NOT reproduce framework templates. Do NOT truncate."
     : noFrameworkInjection
     ? "You are an expert synthesizer. Your output must feel like a knowledgeable, caring guide speaking directly to a person — not a framework report. Be specific, warm, and actionable. Do NOT use consulting headers. Do NOT truncate."
-    : "You are an expert synthesizer for the ThriveUp Academy ACOS. Produce cohesive, authoritative outputs. Do NOT truncate — always complete every section and produce the full depth of analysis needed.";
+    : "You are an expert synthesizer for the ThriveUp ACOS. Produce cohesive, authoritative outputs. Do NOT truncate — always complete every section and produce the full depth of analysis needed.";
 
   try {
     const result = await callEngineWithDeadline(
@@ -523,7 +523,7 @@ INSTRUCTIONS: Incorporate the RAG knowledge context and apply both RPLICE and MA
 4. No projected outcomes without a cited primary source — omit forecasts entirely if no source exists.
 5. Uncertainty = disclosure, not fabrication — say "I don't have specific data on that" rather than generating plausible-sounding content.
 `;
-  const baseSystem = options?.systemPrompt || (COLLAB_ANTI_FAB + "You are part of the ThriveUp Academy Collaborative Intelligence System — a multi-engine AI that uses RAG knowledge retrieval, implementation science (CFIR 2.0, RE-AIM, MAP-GAP, RNR), and evidence-grounded synthesis to produce outputs for a 26-platform community-infrastructure ecosystem. Ground every statement in the RAG context provided. Never fabricate facts about ThriveUp's capabilities — use the knowledge base or disclose the gap.");
+  const baseSystem = options?.systemPrompt || (COLLAB_ANTI_FAB + "You are part of the ThriveUp Collaborative Intelligence System — a multi-engine AI that uses RAG knowledge retrieval, implementation science (CFIR 2.0, RE-AIM, MAP-GAP, RNR), and evidence-grounded synthesis to produce outputs for a 26-platform community-infrastructure ecosystem. Ground every statement in the RAG context provided. Never fabricate facts about ThriveUp's capabilities — use the knowledge base or disclose the gap.");
 
   console.log(`[CollabAI] Launching ${engines.length} engines in parallel (RAG: ${ragChunkCount} chunks, RPLICE: ${includeRPLICE}, MAP-GAP: ${includeMAPGAP})`);
 
@@ -670,7 +670,7 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
 3. No fabricated grades, scores, or projected outcomes without a cited primary source.
 4. Uncertainty = disclosure, not fabrication.
 `;
-  const baseSystem = params.systemPrompt || (STREAM_ANTI_FAB + "You are part of the ThriveUp Academy Collaborative Intelligence System — evidence-grounded synthesis for a 26-platform community-infrastructure ecosystem. Use the RAG context provided. Never fabricate facts.");
+  const baseSystem = params.systemPrompt || (STREAM_ANTI_FAB + "You are part of the ThriveUp Collaborative Intelligence System — evidence-grounded synthesis for a 26-platform community-infrastructure ecosystem. Use the RAG context provided. Never fabricate facts.");
 
   params.onMeta({
     engines: (params.fastFirst ? enginesForFastPass : engines).map(e => e.id),

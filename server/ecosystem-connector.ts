@@ -675,12 +675,12 @@ const eventSchema = z.object({
 
 const ECOSYSTEM_PLATFORMS = [
   {
-    // TCAF / ThriveUp Academy — the orchestrating hub itself. Registered so directives
+    // TCAF / ThriveUp — the orchestrating hub itself. Registered so directives
     // with targetFilter:"all" actually apply to us too, and so the compliance dashboard
     // holds the hub to the same standard as external partners.
     id: "thriveup-hub",
-    name: "ThriveUp Academy (TCAF Hub)",
-    url: "https://thriveupacademy.replit.app",
+    name: "ThriveUp (TCAF Hub)",
+    url: "https://thrivingcommunitiesforall.com",
     role: "self-hub",
     domain: "ecosystem-orchestration",
     description: "TCAF national community-infrastructure platform. The orchestrating hub for the 24-platform ecosystem: grant discovery + funder fit, ecosystem directives + enforcement, bilateral exchange, RAG/AI provider with ethical-EI preamble, RPLICE quality gate, MAP-GAP methodology, regional hubs (Austin/Manor/Pflugerville), and the Integration through Invitation dignity primitive. Owns directive authorship and ack adjudication.",
@@ -700,11 +700,11 @@ const ECOSYSTEM_PLATFORMS = [
     url: "https://power2thepeople.net",
     role: "civic-intelligence",
     domain: "civic-engagement",
-    description: "Civic intelligence terminal that lets residents see and act on government before decisions are already made. Real-time Live Civic Feed mixing federal bills, court rulings, federal regulations, CBO cost estimates, and city ordinances (1,448 court items / 880 ordinances / 360 meetings indexed). 10-step 'Get your affairs in order' wizard with healthcare-directive and power-of-attorney walkthroughs sourced from ready.gov and caringinfo.org. Vote tools, civic Q&A via Ask AI, EN/ES throughout. Part of the quintet (Talk Your Talk · Civic Signal · LifeBridge · ThriveUp Academy · Whole-Person Health) — the civic-engagement surface that turns lived knowledge into civic action.",
+    description: "Civic intelligence terminal that lets residents see and act on government before decisions are already made. Real-time Live Civic Feed mixing federal bills, court rulings, federal regulations, CBO cost estimates, and city ordinances (1,448 court items / 880 ordinances / 360 meetings indexed). 10-step 'Get your affairs in order' wizard with healthcare-directive and power-of-attorney walkthroughs sourced from ready.gov and caringinfo.org. Vote tools, civic Q&A via Ask AI, EN/ES throughout. Part of the quintet (Talk Your Talk · Civic Signal · LifeBridge · ThriveUp · Whole-Person Health) — the civic-engagement surface that turns lived knowledge into civic action.",
     capabilities: {
       features: ["Live Civic Feed", "Federal Bills Tracker", "Court Rulings Index", "Federal Regulations Watch", "CBO Cost Estimates", "City Ordinances Index", "Public Meetings Calendar", "10-Step Prepare Wizard", "Healthcare Directive Builder", "Power of Attorney Walkthrough", "Vote Tools", "Civic Q&A (Ask AI)", "Bilingual EN/ES UI"],
       indexedItems: { courtItems: 1448, ordinances: 880, meetings: 360 },
-      integrationDepth: "Surfaces civic context to LifeBridge (resource navigation), Whole-Person Health (advance directives), and ThriveUp Academy (civic literacy curriculum)",
+      integrationDepth: "Surfaces civic context to LifeBridge (resource navigation), Whole-Person Health (advance directives), and ThriveUp (civic literacy curriculum)",
       outcomeMetrics: ["Civic feed daily impressions tracked","Prepare Wizard completion rate","Bilingual session ratio","Civic Q&A queries answered"],
       grantNarrative: "Provides civic-engagement infrastructure and prepare-wizard outcomes for Knight Foundation, Mozilla, and place-based foundation grants targeting civic participation and digital literacy",
     },
@@ -898,10 +898,10 @@ const ECOSYSTEM_PLATFORMS = [
     url: "https://financetrainingandtrading.com",
     role: "financial-literacy",
     domain: "education",
-    description: "Financial literacy and capability platform: budgeting, credit, saving, and investing education with practice trading so people can build money skills before risking real money. Complements ThriveUp Academy's financial literacy track and the Academy economy, and gives community banks, workforce programs, and reentry/youth services a shared financial-education destination. Integrates with ThriveUp Academy for learner pathways and with LifeBridge for referrals when a household needs benefits or housing stabilization alongside financial coaching.",
+    description: "Financial literacy and capability platform: budgeting, credit, saving, and investing education with practice trading so people can build money skills before risking real money. Complements ThriveUp's financial literacy track and the Academy economy, and gives community banks, workforce programs, and reentry/youth services a shared financial-education destination. Integrates with ThriveUp for learner pathways and with LifeBridge for referrals when a household needs benefits or housing stabilization alongside financial coaching.",
     capabilities: {
       features: ["Budgeting & Cash-Flow Education", "Credit & Debt Literacy", "Saving & Emergency Fund Planning", "Investing Fundamentals", "Practice Trading Environment", "Risk Awareness Coaching", "Learner Progress Tracking"],
-      integrationDepth: "Receives learner pathway handoffs from ThriveUp Academy; sends completion signals back; LifeBridge referral for households needing stabilization support",
+      integrationDepth: "Receives learner pathway handoffs from ThriveUp; sends completion signals back; LifeBridge referral for households needing stabilization support",
       grantNarrative: "Supports CRA community-development, financial-capability, and workforce-readiness narratives; no outcome counts are claimed until the platform reports them through the heartbeat/metrics loop",
     },
     dataFlowConfig: {
@@ -1127,7 +1127,7 @@ const ECOSYSTEM_PLATFORMS = [
     url: "https://ecosystemnexus.net",
     role: "ecosystem-coordination",
     domain: "operations",
-    description: "Central coordination and operational intelligence hub for the entire ThriveUp Academy ecosystem — primary co-captain platform providing cross-platform visibility, real-time health monitoring, directive management and enforcement, platform analytics dashboard, and ecosystem-wide operational intelligence. Manages the triad system (team-of-teams architecture), coordinates bilateral exchange protocols, runs self-diagnostic health checks, and provides the operational backbone for the ACOS architecture. If the Whole-Person Health hub goes down, Ecosystem Nexus assumes command authority. Produces operational efficiency data for grant compliance and organizational governance reporting.",
+    description: "Central coordination and operational intelligence hub for the entire ThriveUp ecosystem — primary co-captain platform providing cross-platform visibility, real-time health monitoring, directive management and enforcement, platform analytics dashboard, and ecosystem-wide operational intelligence. Manages the triad system (team-of-teams architecture), coordinates bilateral exchange protocols, runs self-diagnostic health checks, and provides the operational backbone for the ACOS architecture. If the Whole-Person Health hub goes down, Ecosystem Nexus assumes command authority. Produces operational efficiency data for grant compliance and organizational governance reporting.",
     capabilities: {
       features: ["Ecosystem Coordination Hub", "Cross-Platform Visibility", "Real-Time Health Monitoring", "Directive Management & Enforcement", "Platform Analytics Dashboard", "Triad System Management", "Bilateral Exchange Protocol", "Self-Diagnostic Engine", "Co-Captain Failover System", "Operational Intelligence", "Grant Compliance Tracking", "Performance Benchmarking"],
       integrationDepth: "Connected to all 22 sibling platforms via heartbeat, directive, and analytics channels — the operational nervous system of the ecosystem",
@@ -2147,11 +2147,11 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     try {
       const sent = await sendEcosystemUpdate(
         "Email Service Test — " + new Date().toISOString(),
-        `<h2>ThriveUp Academy Email Test</h2>
+        `<h2>ThriveUp Email Test</h2>
         <p>This is a test email from the ecosystem hub.</p>
         <p>If you received this, the email service is working correctly.</p>
         <p>Sent at: ${new Date().toISOString()}</p>
-        <p>— ThriveUp Academy Ecosystem Hub</p>`
+        <p>— ThriveUp Ecosystem Hub</p>`
       );
       res.json({ sent, message: sent ? "Test email sent successfully" : "Test email failed — check server logs" });
     } catch (error: any) {
@@ -2529,7 +2529,7 @@ ${level >= 3 ? "<li>Platform formally reported to funders as non-participating</
 ${level >= 3 ? "<li>Platform may be suspended from ecosystem operations</li>" : ""}
 </ul>
 <p>Active grants affected: WIOA ($200K-$500K), Foundation ($100K-$500K), St. David's (up to $1M), SSG Fox VA ($750K)</p>
-<br/><p><strong>— ThriveUp Academy Compliance Enforcement</strong></p>
+<br/><p><strong>— ThriveUp Compliance Enforcement</strong></p>
 </div>`;
 
     console.log(`[Enforcement] Escalation Level ${level} for ${platform.name} (${hoursNonCompliant}h non-compliant, Grade ${grade}) — stored in system (not emailed)`);
@@ -2581,7 +2581,7 @@ ${level >= 3 ? "<li>Platform may be suspended from ecosystem operations</li>" : 
 ${rows}
 </table>
 ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms Requiring Action:</h3><ul>${nonCompliant.map(r => `<li><strong>${r.name}</strong> — Grade ${r.grade}, ${r.fidelity}% fidelity, ${r.acknowledged}/${r.total} directives${r.escalationLevel > 0 ? `, Escalation Level ${r.escalationLevel}` : ""}</li>`).join("")}</ul>` : ""}
-<br/><p><strong>— ThriveUp Academy Compliance Enforcement Engine</strong></p>
+<br/><p><strong>— ThriveUp Compliance Enforcement Engine</strong></p>
 </div>`;
   }
 
@@ -4440,7 +4440,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
 
     const exchange: CollaborationExchange = {
       id: `exchange_${crypto.randomBytes(8).toString("hex")}`,
-      from: "ThriveUp Academy ACOS",
+      from: "ThriveUp ACOS",
       timestamp: new Date().toISOString(),
       ecosystemHealth: {
         totalPlatforms: 23,
@@ -4603,7 +4603,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
           timestamp: e.timestamp,
           healthSnapshot: e.ecosystemHealth,
         })),
-        yourInboundUpdates: inboundExchanges.filter(e => e.from !== "ThriveUp Academy ACOS").length,
+        yourInboundUpdates: inboundExchanges.filter(e => e.from !== "ThriveUp ACOS").length,
         howToRespond: "POST /api/ecosystem/shadow/exchange/update — send your ecosystem's status back to ThriveUp",
       });
     } catch (error) {
@@ -4750,7 +4750,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
   app.get("/api/ecosystem/capability-portfolio", async (_req, res) => {
     try {
       const portfolio = {
-        organization: "ThriveUp Academy ACOS",
+        organization: "ThriveUp ACOS",
         identity: "Not a one-trick pony — a powerful ecosystem that solves the toughest problems in an empathetic way with an equity-focused lens",
         totalPlatforms: 23,
         contact: {
@@ -4884,7 +4884,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
             pitch: "Individuals build careers. Companies build workforces. Government builds community capacity. AI-powered training aligned with WIOA standards.",
             platforms: [
               {
-                name: "ThriveUp Academy (Hub)",
+                name: "ThriveUp (Hub)",
                 capability: "AI-powered workforce training across 7 tracks, grant management, case management, career pipelines, mentor networks, reentry support",
                 forIndividuals: ["AI career training (7 tracks)", "Mentor matching", "Career pathway planning", "Reentry support", "Financial literacy"],
                 forCompanies: ["Employee upskilling programs", "AI workforce training", "Apprenticeship management", "Corporate training partnerships"],
@@ -6476,7 +6476,7 @@ if (typeof module !== "undefined") {
         ragAIIntegration: {
           required: true,
           yourStatus: hasRagIntegration ? "INTEGRATED — Thank you" : "NOT INTEGRATED — Action required",
-          instruction: "ThriveUp Academy's RAG AI must be integrated into your platform. This AI has knowledge of all 23 ecosystem platforms, all active grants (internal AND external macro opportunities), community hubs, compliance data, and implementation science frameworks. Your users deserve access to this intelligence.",
+          instruction: "ThriveUp's RAG AI must be integrated into your platform. This AI has knowledge of all 23 ecosystem platforms, all active grants (internal AND external macro opportunities), community hubs, compliance data, and implementation science frameworks. Your users deserve access to this intelligence.",
           whatItDoes: "Answers questions about the entire ThriveUp ecosystem — any platform, any grant, any program, any community hub. It knows real-time fidelity scores, platform health, grant readiness, and work chain activity. It provides sourced, accurate responses.",
           howToIntegrate: {
             step1: "Send a POST request to the query endpoint with your user's question",
@@ -8984,7 +8984,7 @@ if (typeof module !== "undefined") {
         corePremise: "Veteran suicide is not a single-point problem. It's a continuum — from the moment someone separates from service, through life transitions, into crisis, through stabilization, and into long-term recovery. No single app, hotline, or VA program covers the full spectrum. This ecosystem does. Sixteen platforms. One mission. Each serves a distinct role. Together, they ensure that no matter where a veteran, youth, or community member is — geographically, emotionally, or in their journey — there is always a next step. Never a dead end.",
         author: "Dr. Terry Flood, DMSc — U.S. Army (20 years), Former Veterans Crisis Line Responder",
         entities: {
-          nonprofit: "ThriveUp Academy 501(c)(3) — Central orchestrator and facilitator",
+          nonprofit: "ThriveUp 501(c)(3) — Central orchestrator and facilitator",
           vosb: "The Collaborative Advocate (VOSB) — Veteran-owned service delivery",
           saas: "Minority Center of Excellence (MCE) — Minority business SaaS",
         },
@@ -9073,7 +9073,7 @@ if (typeof module !== "undefined") {
 
       res.json({
         ecosystem: {
-          name: "ThriveUp Academy Ecosystem",
+          name: "ThriveUp Ecosystem",
           totalPlatforms: sanitized.length,
           health: { online, degraded, offline, unknown: sanitized.length - online - degraded - offline },
         },
@@ -10287,7 +10287,7 @@ if (typeof module !== "undefined") {
       const htmlContent = `
         <div style="max-width: 800px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1a1a2e;">
           <div style="background: linear-gradient(135deg, #4c1d95, #6d28d9); padding: 32px; border-radius: 12px 12px 0 0;">
-            <h1 style="color: white; margin: 0; font-size: 28px;">ThriveUp Academy Ecosystem Report Card</h1>
+            <h1 style="color: white; margin: 0; font-size: 28px;">ThriveUp Ecosystem Report Card</h1>
             <p style="color: #c4b5fd; margin: 8px 0 0;">${dateStr}</p>
           </div>
 
@@ -10341,7 +10341,7 @@ if (typeof module !== "undefined") {
           </div>
 
           <div style="padding: 16px; text-align: center; color: #9ca3af; font-size: 11px;">
-            <p>ThriveUp Academy | thrivingcommunitiesforall.com | Ecosystem Operations Center</p>
+            <p>ThriveUp | thrivingcommunitiesforall.com | Ecosystem Operations Center</p>
           </div>
         </div>
       `;
@@ -10529,7 +10529,7 @@ if (typeof module !== "undefined") {
       const registeredCount = roster.filter(p => p.healthStatus === "registered").length;
 
       res.json({
-        ecosystem: "ThriveUp Academy — Collaborative Advocate Ecosystem",
+        ecosystem: "ThriveUp — Collaborative Advocate Ecosystem",
         parent: "The Collaborative Advocate Foundation (501(c)(3))",
         founder: "Dr. Terry Flood",
         ein: "41-3618003",
@@ -10583,7 +10583,7 @@ if (typeof module !== "undefined") {
 
       res.json({
         status: "operational",
-        ecosystem: "ThriveUp Academy",
+        ecosystem: "ThriveUp",
         totalPlatforms: allPlatforms.length,
         onlinePlatforms: online,
         offlinePlatforms: allPlatforms.length - online,

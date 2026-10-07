@@ -2190,7 +2190,7 @@ export function registerConductorRoutes(app: Express) {
 
       const host = process.env.REPLIT_DEV_DOMAIN
         ? `https://${process.env.REPLIT_DEV_DOMAIN}`
-        : "https://thriveupacademy.com";
+        : "https://thrivingcommunitiesforall.com";
 
       // Never use a caller's alternate geography for attribution.  The export
       // is bound to the geography carried by the generated brief; countyName is

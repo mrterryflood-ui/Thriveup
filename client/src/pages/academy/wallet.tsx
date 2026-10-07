@@ -111,7 +111,7 @@ function FundCampusSection({ campusContributed }: { campusContributed: string })
 }
 
 export default function AcademyWalletPage() {
-  useEffect(() => { document.title = 'Wallet | ThriveUp Academy'; }, []);
+  useEffect(() => { document.title = 'Wallet | ThriveUp'; }, []);
   const [showFundSection, setShowFundSection] = useState(false);
 
   const { data: wallet, isLoading: walletLoading, error: walletError, refetch: refetchWallet } = useQuery<WalletData>({

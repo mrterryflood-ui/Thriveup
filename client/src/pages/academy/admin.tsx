@@ -581,7 +581,7 @@ function GrantMetrics({ metrics, students }: { metrics: MetricsData | undefined;
 }
 
 export default function AcademyAdminPage() {
-  useEffect(() => { document.title = 'Admin Dashboard | ThriveUp Academy'; }, []);
+  useEffect(() => { document.title = 'Admin Dashboard | ThriveUp'; }, []);
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
   const [studentSearch, setStudentSearch] = useState("");

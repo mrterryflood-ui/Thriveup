@@ -124,7 +124,7 @@ export default function ConceptsHubPage() {
         </div>
 
         <div className={cn("mt-8 text-center text-xs text-muted-foreground")}>
-          ThriveUp Academy · Concepts · {CONCEPTS.length} cards · v1
+          ThriveUp · Concepts · {CONCEPTS.length} cards · v1
         </div>
       </div>
     </div>

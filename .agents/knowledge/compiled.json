@@ -28,7 +28,7 @@
     }
   ],
   "project": {
-    "name": "ThriveUp Academy",
+    "name": "ThriveUp",
     "summary": "National community-infrastructure platform: connects people to grant funding, aligns service delivery with workforce development, produces measurable community impact.\n\n**Memory system:** `docs/agent-memory/` is the source of truth for facts. This file is the **constitutional layer** — Iron Rules + pointers only. **If a fact isn't in `docs/agent-memory/` or `docs/memory-archive.md`, it doesn't exist next session.**"
   },
   "stack": {},
@@ -598,7 +598,7 @@
     },
     {
       "id": "thriveup-hub",
-      "name": "ThriveUp Academy (TCAF Hub)",
+      "name": "ThriveUp (TCAF Hub)",
       "url": "https://thriveupacademy.replit.app",
       "role": "self-hub",
       "domain": "ecosystem-orchestration",
@@ -767,7 +767,7 @@
       "status": "registered",
       "health_status": "online",
       "public_visible": true,
-      "description": "Civic intelligence terminal that lets residents see and act on government before decisions are already made. Real-time Live Civic Feed mixing federal bills, court rulings, federal regulations, CBO cost estimates, and city ordinances (1,448 court items / 880 ordinances / 360 meetings indexed). 10-step 'Get your affairs in order' wizard with healthcare-directive and power-of-attorney walkthroughs sourced from ready.gov and caringinfo.org. Vote tools, civic Q&A via Ask AI, EN/ES throughout. Part of the quintet (Talk Your Talk · Civic Signal · LifeBridge · ThriveUp Academy · Whole-Person Health) — the civic-engagement surface that turns lived knowledge into civic action.",
+      "description": "Civic intelligence terminal that lets residents see and act on government before decisions are already made. Real-time Live Civic Feed mixing federal bills, court rulings, federal regulations, CBO cost estimates, and city ordinances (1,448 court items / 880 ordinances / 360 meetings indexed). 10-step 'Get your affairs in order' wizard with healthcare-directive and power-of-attorney walkthroughs sourced from ready.gov and caringinfo.org. Vote tools, civic Q&A via Ask AI, EN/ES throughout. Part of the quintet (Talk Your Talk · Civic Signal · LifeBridge · ThriveUp · Whole-Person Health) — the civic-engagement surface that turns lived knowledge into civic action.",
       "capabilities": {
         "features": [
           "Live Civic Feed",
@@ -796,7 +796,7 @@
           "Bilingual session ratio",
           "Civic Q&A queries answered"
         ],
-        "integrationDepth": "Surfaces civic context to LifeBridge (resource navigation), Whole-Person Health (advance directives), and ThriveUp Academy (civic literacy curriculum)"
+        "integrationDepth": "Surfaces civic context to LifeBridge (resource navigation), Whole-Person Health (advance directives), and ThriveUp (civic literacy curriculum)"
       },
       "grant_alignment": [
         "foundation",
@@ -991,7 +991,7 @@
       "status": "active",
       "health_status": "online",
       "public_visible": false,
-      "description": "Central coordination and operational intelligence hub for the entire ThriveUp Academy ecosystem — primary co-captain platform providing cross-platform visibility, real-time health monitoring, directive management and enforcement, platform analytics dashboard, and ecosystem-wide operational intelligence. Manages the triad system (team-of-teams architecture), coordinates bilateral exchange protocols, runs self-diagnostic health checks, and provides the operational backbone for the ACOS architecture. If the Whole-Person Health hub goes down, Ecosystem Nexus assumes command authority. Produces operational efficiency data for grant compliance and organizational governance reporting.",
+      "description": "Central coordination and operational intelligence hub for the entire ThriveUp ecosystem — primary co-captain platform providing cross-platform visibility, real-time health monitoring, directive management and enforcement, platform analytics dashboard, and ecosystem-wide operational intelligence. Manages the triad system (team-of-teams architecture), coordinates bilateral exchange protocols, runs self-diagnostic health checks, and provides the operational backbone for the ACOS architecture. If the Whole-Person Health hub goes down, Ecosystem Nexus assumes command authority. Produces operational efficiency data for grant compliance and organizational governance reporting.",
       "capabilities": {
         "features": [
           "Ecosystem Coordination Hub",
@@ -1580,7 +1580,7 @@
       "last_heartbeat": null
     }
   ],
-  "quintet": "**Talk Your Talk · Civic Signal · LifeBridge · ThriveUp Academy · Whole-Person Health Ecosystem.** See `docs/grants/QUARTET-ONE-PAGER.md` for the drop-in narrative.",
+  "quintet": "**Talk Your Talk · Civic Signal · LifeBridge · ThriveUp · Whole-Person Health Ecosystem.** See `docs/grants/QUARTET-ONE-PAGER.md` for the drop-in narrative.",
   "ecosystem_caveats": [
     {
       "id": 1,
@@ -1596,7 +1596,7 @@
     },
     {
       "id": 4,
-      "rule": "**Some URLs are shared.** `implementationineducatio.com` hosts BOTH `isss` and `betterscience`. `yourhealthbirthright.net` hosts BOTH `sankofa` and `sankofa-maternal-health`. `thrivingcommunitiesforall.com/academy` is ThriveUp Academy on the `collaborative-advocate` domain."
+      "rule": "**Some URLs are shared.** `implementationineducatio.com` hosts BOTH `isss` and `betterscience`. `yourhealthbirthright.net` hosts BOTH `sankofa` and `sankofa-maternal-health`. `thrivingcommunitiesforall.com/academy` is ThriveUp on the `collaborative-advocate` domain."
     },
     {
       "id": 5,
@@ -1658,7 +1658,7 @@
       {
         "id": "ssg-fox-suicide-prevention-grant-tcaf-is-applying-verified-may-15-2026",
         "heading": "SSG Fox Suicide Prevention Grant — TCAF is applying (verified May 15, 2026)",
-        "summary": "User confirmed TCAF is **already applying** for SSG Fox FY27 (deadline 2026-06-12 at 4:59 PM ET). Verified intel and full funder brief at `docs/grants/ssg-fox-fy27/00-funder-brief.md`.\n\n**🟢 Live submission assets — vetmissiontransition.com (HTTP 200 verified 2026-05-15):**\n- Full Application Narrative: https://vetmissiontransition.com/ssg-fox-program\n- Reviewer One-Pager (print/PDF ready): https://vetmissiontransition.com/ssg-fox-onepager\n- Platform Overview One-Pager: https://vetmissiontransition.com/platform-onepager\n- Live Evidence Dashboard (TCAF): https://vetmissiontransition.com/evidence/tcaf\n\nThe Fox application narrative + supporting one-pagers live on the **M2C / Mission Transition platform** (`vetmissiontransition.com`), NOT in this ThriveUp Academy codebase. Do not rebuild Fox "
+        "summary": "User confirmed TCAF is **already applying** for SSG Fox FY27 (deadline 2026-06-12 at 4:59 PM ET). Verified intel and full funder brief at `docs/grants/ssg-fox-fy27/00-funder-brief.md`.\n\n**🟢 Live submission assets — vetmissiontransition.com (HTTP 200 verified 2026-05-15):**\n- Full Application Narrative: https://vetmissiontransition.com/ssg-fox-program\n- Reviewer One-Pager (print/PDF ready): https://vetmissiontransition.com/ssg-fox-onepager\n- Platform Overview One-Pager: https://vetmissiontransition.com/platform-onepager\n- Live Evidence Dashboard (TCAF): https://vetmissiontransition.com/evidence/tcaf\n\nThe Fox application narrative + supporting one-pagers live on the **M2C / Mission Transition platform** (`vetmissiontransition.com`), NOT in this ThriveUp codebase. Do not rebuild Fox "
       },
       {
         "id": "grant-opportunity-scan-may-14-2026-20-new-non-federal-opportunities",
@@ -1948,7 +1948,7 @@
       {
         "id": "2026-05-18-pm-aisd-26rfp052-youth-family-enrichment-services-bid-package-drafted",
         "heading": "2026-05-18 (PM) — AISD 26RFP052 Youth & Family Enrichment Services — bid package drafted (ARCHIVED — see 2026-05-19 pass)",
-        "summary": "**Deadline:** 2026-05-19 at 2:00 PM CST · **Submission:** Bonfire portal `https://austinisd.bonfirehub.com/portal/`\n**Type:** Vendor-pool / approved-list, Pass/Fail eval, multiple-award, term through 2031-06-30 (5-year approved list).\n**Categories bid:** Enrichment · Family Engagement · College & Career Readiness (skipped Academic Assistance — tutoring excluded per RFP).\n**Package location:** `docs/grants/aisd-26rfp052/` (4 MD + 4 PDF).\n\n**Drafting decisions made:**\n- Bid as TCAF (501(c)(3) determined 01/14/2026), not ISS LLC. AISD is K-12 enrichment, federal/state pass-through funded.\n- d/b/a \"ThriveUp Academy\" used as program-division name on the response.\n- Sample unit plan drawn from Software Engineering Trade Sims track (3 of 15 lessons) — first unit \"How the Computer Hears You\" with "
+        "summary": "**Deadline:** 2026-05-19 at 2:00 PM CST · **Submission:** Bonfire portal `https://austinisd.bonfirehub.com/portal/`\n**Type:** Vendor-pool / approved-list, Pass/Fail eval, multiple-award, term through 2031-06-30 (5-year approved list).\n**Categories bid:** Enrichment · Family Engagement · College & Career Readiness (skipped Academic Assistance — tutoring excluded per RFP).\n**Package location:** `docs/grants/aisd-26rfp052/` (4 MD + 4 PDF).\n\n**Drafting decisions made:**\n- Bid as TCAF (501(c)(3) determined 01/14/2026), not ISS LLC. AISD is K-12 enrichment, federal/state pass-through funded.\n- d/b/a \"ThriveUp\" used as program-division name on the response.\n- Sample unit plan drawn from Software Engineering Trade Sims track (3 of 15 lessons) — first unit \"How the Computer Hears You\" with "
       },
       {
         "id": "2026-05-18-pm-parked-sba-combined-7a504-10m-ceiling",

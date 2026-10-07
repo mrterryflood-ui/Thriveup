@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 
 const ECOSYSTEM = [
-  { id: "thriveup-academy", name: "ThriveUp Academy", icon: GraduationCap, value: "Workforce, financial literacy, FAFSA, attendance & dosage tracking — the platform your tracker plugs into.", href: "/academy", category: "TCAF" },
+  { id: "thriveup-academy", name: "ThriveUp", icon: GraduationCap, value: "Workforce, financial literacy, FAFSA, attendance & dosage tracking — the platform your tracker plugs into.", href: "/academy", category: "TCAF" },
   { id: "whole-person-health", name: "Whole-Person Health", icon: Heart, value: "Behavioral-health screenings (PHQ-9, GAD-7) and crisis routing. Direct fit for your Sedgwick County Mental Health Advisory Board lane.", href: "https://mentalwellnesssupport.net", category: "ecosystem" },
   { id: "bible-study-buddies", name: "Bible Study Buddies", icon: BookOpen, value: "Faith-formation curriculum & cohorts. Built for the Iasis Joshua Generation / Academy of Excellence Wednesday tracks.", href: "/network-members", category: "ecosystem" },
   { id: "talk-your-talk", name: "Talk Your Talk", icon: Globe, value: "89 spoken + 18 sign = 107 total languages, RTL-aware. Spanish + Vietnamese materials for the Wichita households who need them.", href: "https://talkyourtalk.net", category: "ecosystem" },
@@ -33,7 +33,7 @@ export default function VannCollaborationHubPage() {
         </p>
         <p className="text-muted-foreground max-w-3xl">
           A working-session workspace for Dr. J. Michelle Vann (Sistahs Can We Talk &amp; Iasis Christian Center) and TCAF /
-          ThriveUp Academy. Two seeded organizations, the full ecosystem map, a working family/youth tracker, and
+          ThriveUp. Two seeded organizations, the full ecosystem map, a working family/youth tracker, and
           two live RFP-match storylines — designed to be picked up and used on day one.
         </p>
       </div>

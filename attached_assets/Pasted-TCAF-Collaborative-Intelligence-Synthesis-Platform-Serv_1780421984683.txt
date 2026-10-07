@@ -1,6 +1,6 @@
 TCAF Collaborative Intelligence Synthesis: Platform Services Overview
 
-ThriveUp Academy is a comprehensive human services operating system designed to eliminate service delivery gaps and provide end-to-end support across critical life domains. Our platform is not just a database of resources, but an integrated ecosystem that actively guides participants through complex life challenges.
+ThriveUp is a comprehensive human services operating system designed to eliminate service delivery gaps and provide end-to-end support across critical life domains. Our platform is not just a database of resources, but an integrated ecosystem that actively guides participants through complex life challenges.
 
 CORE SERVICE CATEGORIES:
 

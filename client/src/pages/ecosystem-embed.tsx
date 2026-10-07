@@ -182,7 +182,7 @@ export default function EcosystemEmbedPage() {
       </Card>
 
       <p className="text-xs text-center text-muted-foreground" data-testid="text-footer">
-        Powered by ThriveUp Academy Ecosystem
+        Powered by ThriveUp Ecosystem
       </p>
     </div>
   );
@@ -577,7 +577,7 @@ export function LifeBridgeEmbedPage() {
       )}
 
       <p className="text-xs text-center text-muted-foreground" data-testid="text-lb-footer">
-        LifeBridge within the ThriveUp Academy Ecosystem
+        LifeBridge within the ThriveUp Ecosystem
       </p>
     </div>
   );

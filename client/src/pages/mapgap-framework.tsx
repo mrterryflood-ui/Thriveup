@@ -216,7 +216,7 @@ const SCENARIO_CONFIGS = [
       { id: "hr-management", role: "CHW workforce pipeline trained in substance use prevention. Facilitator competency models ensure quality delivery." },
       { id: "io-psychology", role: "Behavioral nudge architecture for youth engagement. Perception of risk messaging calibrated to developmental stage." },
     ],
-    platforms: ["ThriveUp Academy", "Sankofa Health", "SafeReport", "DFC Command Center", "Coalition Dashboard", "Dosage Tracking"],
+    platforms: ["ThriveUp", "Sankofa Health", "SafeReport", "DFC Command Center", "Coalition Dashboard", "Dosage Tracking"],
     threeRealities: {
       research: "SAMHSA's Strategic Prevention Framework. Evidence-based curricula (Botvin LifeSkills, Too Good for Drugs). Risk/protective factor model.",
       politics: "CDC/ONDCP DFC funding requirements: 12-sector coalition, 4 core measures, community readiness assessment. State-level marijuana legalization creates messaging complexity.",
@@ -236,7 +236,7 @@ const SCENARIO_CONFIGS = [
       { id: "hr-management", role: "Competency modeling for emerging industries (telehealth, renewable energy, remote tech). Career pathway mapping from assessment to placement to retention." },
       { id: "io-psychology", role: "Motivation and engagement systems for long-term unemployed. Combating learned helplessness through achievable milestone design." },
     ],
-    platforms: ["ThriveUp Academy", "MCE", "LifeBridge", "M2C Transition", "Workforce Dashboard", "Career Explorer"],
+    platforms: ["ThriveUp", "MCE", "LifeBridge", "M2C Transition", "Workforce Dashboard", "Career Explorer"],
     threeRealities: {
       research: "WIOA Title I workforce development frameworks. Competency-based education models. Sectoral employment strategies with demonstrated ROI.",
       politics: "WIOA performance accountability measures. State workforce board priorities may not align with local needs. Employer tax incentives for hiring qualified candidates.",
@@ -256,7 +256,7 @@ const SCENARIO_CONFIGS = [
       { id: "hr-management", role: "Workforce readiness assessment, credential recovery, employer engagement, and job placement with 90-day retention tracking." },
       { id: "io-psychology", role: "Cognitive-behavioral intervention design. Motivation interviewing training for case managers. Engagement systems that sustain participation through the critical first 90 days." },
     ],
-    platforms: ["ThriveUp Academy", "LifeBridge", "SafeReport", "Reentry Dashboard", "Case Management", "Outcome Reporting"],
+    platforms: ["ThriveUp", "LifeBridge", "SafeReport", "Reentry Dashboard", "Case Management", "Outcome Reporting"],
     threeRealities: {
       research: "Risk-Needs-Responsivity (RNR) model. SAMHSA's GAINS Center guidelines. National Institute of Justice reentry research. Cognitive-behavioral therapy evidence base.",
       politics: "Second Chance Act funding requirements. State sentencing reform landscape. Ban-the-box policies vary by jurisdiction. Victims' rights considerations in restorative programs.",

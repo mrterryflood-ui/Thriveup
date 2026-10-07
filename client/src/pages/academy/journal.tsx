@@ -40,7 +40,7 @@ function getMoodLabel(mood: string | null) {
 }
 
 export default function AcademyJournalPage() {
-  useEffect(() => { document.title = 'Reflection Journal | ThriveUp Academy'; }, []);
+  useEffect(() => { document.title = 'Reflection Journal | ThriveUp'; }, []);
   const { user, isLoading: authLoading } = useAuth();
   const [period, setPeriod] = useState("daily");
   const [mood, setMood] = useState("");

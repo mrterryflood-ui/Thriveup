@@ -115,7 +115,7 @@ export default function InvasiveSpeciesPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-5">
-        <nav className="text-xs text-slate-500 mb-2 flex items-center gap-1"><Bug className="w-3 h-3" /><span>Invasive Species Watch — ThriveUp Academy</span></nav>
+        <nav className="text-xs text-slate-500 mb-2 flex items-center gap-1"><Bug className="w-3 h-3" /><span>Invasive Species Watch — ThriveUp</span></nav>
         <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-50">Invasive Species Watch</h1>
         <p className="mt-1 text-slate-500 max-w-2xl">USDA APHIS priority species list + live iNaturalist research-grade sightings + community reporting. Protect your operation before it arrives.</p>
       </div>

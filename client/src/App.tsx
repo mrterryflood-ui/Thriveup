@@ -533,12 +533,12 @@ function AppRouter() {
       <Route path="/academy/avatar" component={AcademyAvatarPage} />
       <Route path="/academy/stocks" component={AcademyStocksPage} />
       <Route path="/academy/wallet">
-        <RequireAuth reason="Your wallet holds your ThriveUp Academy balance. Sign in to view it.">
+        <RequireAuth reason="Your wallet holds your ThriveUp balance. Sign in to view it.">
           <AcademyWalletPage />
         </RequireAuth>
       </Route>
       <Route path="/academy/campus">
-        <RequireAuth reason="Campus Builder uses your ThriveUp Academy wallet and projects. Sign in to continue.">
+        <RequireAuth reason="Campus Builder uses your ThriveUp wallet and projects. Sign in to continue.">
           <AcademyCampusPage />
         </RequireAuth>
       </Route>

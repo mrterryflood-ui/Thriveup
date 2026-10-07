@@ -31,7 +31,7 @@ const ACTIVE_GRANTS = [
     alignment: ["Workforce Pipeline", "Credential Attainment", "Job Placement", "Retention Tracking"],
     txStandards: ["TEKS Career Development (§127)", "TWC Workforce Board Standards", "WIOA Title I Performance Measures"],
     keyMetrics: ["Credential attainment rate ≥65%", "Employment rate Q2 ≥72%", "Median earnings Q2 ≥$6,800", "Measurable Skill Gains ≥50%"],
-    platforms: ["ThriveUp Academy", "Mission Transition", "LifeBridge"],
+    platforms: ["ThriveUp", "Mission Transition", "LifeBridge"],
   },
   {
     id: "stdavids",
@@ -44,7 +44,7 @@ const ACTIVE_GRANTS = [
     alignment: ["Whole-Person Health", "Community Health Workers", "Maternal Health", "Social Determinants", "Health Equity", "Behavioral Health Integration"],
     txStandards: ["DSHS Community Health Worker Standards", "TX HHSC Social Determinants Framework", "Maternal Mortality Task Force Recommendations", "SAMHSA Behavioral Health Guidelines"],
     keyMetrics: ["CHW-to-participant ratio 1:30", "Health screening completion ≥80%", "SDOH referral follow-through ≥70%", "Maternal health visit adherence ≥75%", "Behavioral health screening ≥60%", "Community partner retention ≥85%"],
-    platforms: ["Sankofa Health", "Whole-Person Health Ecosystem", "Black Maternal Health Network", "ThriveUp Academy", "SafeCogniCare"],
+    platforms: ["Sankofa Health", "Whole-Person Health Ecosystem", "Black Maternal Health Network", "ThriveUp", "SafeCogniCare"],
     requiresPartners: false,
     partnerNote: "Direct 501(c)(3) application to St. David's Foundation. Strong preference for Travis County / Central Texas organizations with demonstrated community impact.",
     curriculumAlignment: [
@@ -85,7 +85,7 @@ const ACTIVE_GRANTS = [
     alignment: ["Veteran Suicide Prevention", "Peer Support", "Transition Services", "Crisis Intervention"],
     txStandards: ["VA Community Care Standards", "TX Veterans Commission Standards", "SAMHSA Suicide Prevention Guidelines"],
     keyMetrics: ["Crisis response within 24 hours", "Veteran engagement retention ≥60%", "Peer support contact monthly ≥85%", "Safety plan completion 100%"],
-    platforms: ["Mission Transition", "SafeReport", "ThriveUp Academy"],
+    platforms: ["Mission Transition", "SafeReport", "ThriveUp"],
   },
   {
     id: "foundation",
@@ -98,7 +98,7 @@ const ACTIVE_GRANTS = [
     alignment: ["Community Development", "Youth Programs", "Reentry Support", "Education Access"],
     txStandards: ["TEA Chapter 110–128 TEKS", "TJJD Reentry Standards", "TDCJ Reentry Guidelines"],
     keyMetrics: ["Program completion rate ≥70%", "Recidivism reduction ≥25%", "Family reunification ≥60%", "Education enrollment ≥80%"],
-    platforms: ["ThriveUp Academy", "LifeBridge", "ISSS"],
+    platforms: ["ThriveUp", "LifeBridge", "ISSS"],
   },
   {
     id: "twcrfa",
@@ -111,7 +111,7 @@ const ACTIVE_GRANTS = [
     alignment: ["Skills Development Fund", "Employer-Driven Training", "Industry Partnerships", "Credential Programs"],
     txStandards: ["TWC Skills Development Fund Rules (Chapter 803)", "THECB Credential Standards", "TEA CTE Standards"],
     keyMetrics: ["Training completion ≥80%", "Industry credential attainment ≥70%", "Employer satisfaction ≥90%", "Wage increase ≥15%"],
-    platforms: ["ThriveUp Academy", "AI Workforce Academy", "Minority Center of Excellence"],
+    platforms: ["ThriveUp", "AI Workforce Academy", "Minority Center of Excellence"],
     contact: "Cassandra Johnson, RFAgrants@twc.texas.gov",
     requiresPartners: true,
     partnerRequirements: [
@@ -162,7 +162,7 @@ const ACTIVE_GRANTS = [
     alignment: ["Nonclinical Workforce Pipeline", "Youth Mental Health", "Peer Mentor Pathways", "Culturally Responsive Care", "Health Equity"],
     txStandards: ["TEA Equity Standards", "DSHS Community Health Worker Standards", "SAMHSA Youth Mental Health First Aid"],
     keyMetrics: ["Youth served annually ≥500", "Nonclinical provider pipeline ≥50 trainees/year", "Program reach in underserved ZIP codes ≥5", "Culturally responsive training completion ≥80%", "Participant satisfaction ≥85%"],
-    platforms: ["ThriveUp Academy", "ISSS", "Perfectly Different", "Sankofa Health Network"],
+    platforms: ["ThriveUp", "ISSS", "Perfectly Different", "Sankofa Health Network"],
     requiresPartners: false,
     partnerNote: "No formal partner requirements — direct 501(c)(3) application. 2-year grant cycle.",
     curriculumAlignment: [
@@ -248,7 +248,7 @@ const ACTIVE_GRANTS = [
     alignment: ["Military-to-Civilian Transition", "SkillBridge Internships", "Space & Cyber Workforce", "AI/ML Training Pipelines", "Credential Translation"],
     txStandards: ["VA Community Care Standards", "TX Veterans Commission Standards", "DoD SkillBridge Program Requirements", "CompTIA Security+ / Space Operations Standards"],
     keyMetrics: ["SkillBridge participant placement ≥85%", "Credential attainment within 90 days ≥75%", "Employer match satisfaction ≥90%", "Retention at 12 months ≥70%"],
-    platforms: ["Mission Transition", "SafeReport", "ThriveUp Academy", "Minority Center of Excellence"],
+    platforms: ["Mission Transition", "SafeReport", "ThriveUp", "Minority Center of Excellence"],
     requiresPartners: true,
     partnerRequirements: [
       "DoD SkillBridge-approved training provider (or pending application)",

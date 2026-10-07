@@ -250,7 +250,7 @@ const RESOURCE_CATEGORIES: CategoryData[] = [
     borderColor: "border-cyan-700/50",
     description: "The 15-service-platform ACOS ecosystem built by The Collaborative Advocate Foundation. Each platform serves a distinct role — together, they ensure no matter where someone is in their journey, there is always a next step. Never a dead end.",
     organizations: [
-      { name: "ThriveUp Academy (ISSS)", description: "AI-powered K-12 and adult education platform with culturally responsive curriculum, SEL integration, STAAR prep, financial literacy, career pathways, and mentoring.", website: "/academy/hub", focus: ["K-12 Education", "SEL", "Financial Literacy", "Career Pathways"], national: true },
+      { name: "ThriveUp (ISSS)", description: "AI-powered K-12 and adult education platform with culturally responsive curriculum, SEL integration, STAAR prep, financial literacy, career pathways, and mentoring.", website: "/academy/hub", focus: ["K-12 Education", "SEL", "Financial Literacy", "Career Pathways"], national: true },
       { name: "Whole Person Health (WPH)", description: "Integrative health platform addressing physical, mental, social, and spiritual wellbeing. Community Health Worker dashboards, maternal health, preventive care.", website: "/health-wellness", focus: ["Integrative Health", "CHW", "Maternal Health", "Preventive Care"], national: true },
       { name: "Mission Transition (M2C)", description: "Veteran and first responder crisis intervention, peer support, and transition services. Connected to 988 Veterans Crisis Line and local VA facilities.", website: "/ecosystem", focus: ["Veteran Crisis", "Peer Support", "Transition", "First Responders"], national: true },
       { name: "SafeReport", description: "Anonymous community safety reporting. Allows individuals to report concerns without fear of retaliation — school safety, workplace issues, community threats.", website: "/ecosystem", focus: ["Anonymous Reporting", "School Safety", "Workplace", "Community Safety"], national: true },
@@ -823,7 +823,7 @@ export default function CommunityResourceDirectoryPage() {
             <div>
               <h3 className="text-lg font-bold text-white mb-2">Connected to the ThriveUp ACOS Ecosystem</h3>
               <p className="text-sm text-slate-300 mb-3">
-                Every resource on this page connects back to the 15-service-platform ACOS ecosystem. When someone finds the NAACP, they can also find a mentor through M2C. When they find legal aid, they can find housing through LifeBridge. When they find a church, they can find education through ThriveUp Academy. No dead ends. Just doors.
+                Every resource on this page connects back to the 15-service-platform ACOS ecosystem. When someone finds the NAACP, they can also find a mentor through M2C. When they find legal aid, they can find housing through LifeBridge. When they find a church, they can find education through ThriveUp. No dead ends. Just doors.
               </p>
               <div className="flex flex-wrap gap-2">
                 <Button size="sm" variant="outline" className="text-xs" asChild>

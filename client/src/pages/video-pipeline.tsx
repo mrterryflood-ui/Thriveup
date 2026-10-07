@@ -62,7 +62,7 @@ export default function VideoPipelinePage() {
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "Video Production Pipeline | ThriveUp Academy";
+    document.title = "Video Production Pipeline | ThriveUp";
   }, []);
 
   const { data: jobsRaw, isLoading: jobsLoading } = useQuery<VideoRenderJob[]>({

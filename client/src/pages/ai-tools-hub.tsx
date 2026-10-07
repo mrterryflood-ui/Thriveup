@@ -200,7 +200,7 @@ export default function AIToolsHubPage() {
   };
 
 
-  useEffect(() => { document.title = "AI Literacy Curriculum & Creation Studio | ThriveUp Academy"; }, []);
+  useEffect(() => { document.title = "AI Literacy Curriculum & Creation Studio | ThriveUp"; }, []);
 
   if (toolsError) {
     return <div className="p-6"><ErrorRetry message="Failed to load AI tools." onRetry={refetchTools} /></div>;

@@ -178,7 +178,7 @@ export default function TradeSimsLandingPage() {
 
       <div className="text-center pt-4">
         <Button asChild variant="outline" data-testid="button-back-academy">
-          <Link href="/academy">← Back to ThriveUp Academy</Link>
+          <Link href="/academy">← Back to ThriveUp</Link>
         </Button>
       </div>
     </div>

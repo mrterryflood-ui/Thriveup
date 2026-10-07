@@ -13,10 +13,10 @@
 
 ## Target audience
 - Under-resourced communities of all ages seeking workforce development, education, benefits, and support
-- Community partners, funders, and public-sector collaborators evaluating ThriveUp Academy
+- Community partners, funders, and public-sector collaborators evaluating ThriveUp
 
 ## Primary keywords
-- ThriveUp Academy
+- ThriveUp
 - workforce development
 - community enablement
 - AI education

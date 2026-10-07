@@ -1097,7 +1097,7 @@ function CycleDetail({ cycleId, onBack }: { cycleId: string; onBack: () => void 
       pdf.text("MAP-GAP Continuous Quality Improvement", margin, y);
       y += 6;
       pdf.setFontSize(9);
-      pdf.text(`ThriveUp Academy — Generated ${new Date().toLocaleDateString()}`, margin, y);
+      pdf.text(`ThriveUp — Generated ${new Date().toLocaleDateString()}`, margin, y);
       y += 12;
 
       heading("Cycle Overview");
@@ -1538,7 +1538,7 @@ export default function MapGapCqiPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    document.title = "MAP-GAP CQI Engine | ThriveUp Academy";
+    document.title = "MAP-GAP CQI Engine | ThriveUp";
   }, []);
 
   const { data: rawCycles, isLoading } = useQuery<CqiCycle[]>({ queryKey: ["/api/cqi/cycles"] });

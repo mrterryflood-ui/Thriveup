@@ -965,12 +965,12 @@ export const MODULE_GUIDES: Record<string, GuideSection> = {
 
   "academy-admin": {
     moduleId: "academy-admin",
-    moduleName: "Academy Administration",
+    moduleName: "Learning Administration",
     icon: "Settings",
-    story: "Behind every great learning experience is an administrative system that keeps everything organized. Academy Admin is where administrators manage courses, users, assessments, and certifications. It's the engine room that keeps the educational components of ThriveUp running smoothly.",
+    story: "Behind every great learning experience is an administrative system that keeps everything organized. Learning Admin is where administrators manage courses, users, assessments, and certifications. It's the engine room that keeps the educational components of ThriveUp running smoothly.",
     purpose: "Administrative control panel for managing the academy's courses, users, and certifications.",
     userManual: [
-      { step: 1, action: "Open Academy Admin", detail: "Navigate from sidebar to administration panel." },
+      { step: 1, action: "Open Learning Admin", detail: "Navigate from sidebar to administration panel." },
       { step: 2, action: "Manage Users", detail: "Create, edit, or deactivate user accounts." },
       { step: 3, action: "Configure Courses", detail: "Set up courses, modules, and learning pathways." },
       { step: 4, action: "Review Assessments", detail: "Monitor assessment completion and scores." },
@@ -993,7 +993,7 @@ export const MODULE_GUIDES: Record<string, GuideSection> = {
     ],
     whatToDoNext: [
       { moduleId: "pm-academy", label: "PM Academy", reason: "Review PM training progress" },
-      { moduleId: "academy-pathway", label: "Academy Pathway", reason: "Configure learning pathways" },
+      { moduleId: "academy-pathway", label: "Learning Pathway", reason: "Configure learning pathways" },
       { moduleId: "dashboard", label: "Dashboard", reason: "Return to main dashboard" },
     ],
     technicalReference: {
@@ -1005,7 +1005,7 @@ export const MODULE_GUIDES: Record<string, GuideSection> = {
 
   "academy-pathway": {
     moduleId: "academy-pathway",
-    moduleName: "Academy Learning Pathways",
+    moduleName: "Learning Pathways",
     icon: "Route",
     story: "Learning isn't one-size-fits-all. Some people need remedial support, others are ready for advanced training. Learning Pathways creates personalized routes through the curriculum based on where someone starts and where they need to go. It's the difference between throwing everyone into the same classroom and giving each person a map to their destination.",
     purpose: "Personalized learning route creation based on skills assessment and career goals.",
@@ -1765,7 +1765,7 @@ export function generateFullManual(): string {
   const lines: string[] = [];
 
   lines.push("═══════════════════════════════════════════════════════════");
-  lines.push("  THRIVEUP ACADEMY — COMPLETE OPERATIONS MANUAL");
+  lines.push("  THRIVEUP — COMPLETE OPERATIONS MANUAL");
   lines.push("  The Collaborative Advocate | ACOS Ecosystem");
   lines.push("  Generated: " + new Date().toLocaleDateString());
   lines.push("═══════════════════════════════════════════════════════════");

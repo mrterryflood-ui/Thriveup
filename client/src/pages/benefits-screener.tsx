@@ -1070,7 +1070,7 @@ export default function BenefitsScreenerPage() {
           </div>
           <p className="text-sm text-muted-foreground">Free · Confidential · Takes 3 minutes</p>
           <div className="flex items-center gap-2 justify-center mt-2 flex-wrap">
-            <Badge variant="outline" className="text-xs">Powered by ThriveUp Academy</Badge>
+            <Badge variant="outline" className="text-xs">Powered by ThriveUp</Badge>
             <Badge variant="outline" className="text-xs">The Collaborative Advocate Foundation</Badge>
           </div>
           {/* CHW Field Mode toggle — lets navigators send referrals directly from results */}

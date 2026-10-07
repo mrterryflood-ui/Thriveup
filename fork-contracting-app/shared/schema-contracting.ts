@@ -1,6 +1,6 @@
 // fork-contracting-app/shared/schema-contracting.ts
 //
-// CONTRACTING-ONLY SCHEMA EXTRACT — generated 2026-05-27 from ThriveUp Academy
+// CONTRACTING-ONLY SCHEMA EXTRACT — generated 2026-05-27 from ThriveUp
 // shared/schema.ts. Drop into your new Repl's shared/schema.ts.
 //
 // NOTE: You will also need from your Replit Auth integration:

@@ -438,7 +438,7 @@ function InstantRewards() {
 }
 
 export default function AcademyHousesPage() {
-  useEffect(() => { document.title = 'Houses | ThriveUp Academy'; }, []);
+  useEffect(() => { document.title = 'Houses | ThriveUp'; }, []);
   const { data: houses, isLoading, error: housesError, refetch: refetchHouses } = useQuery<AcademyHouse[]>({
     queryKey: ["/api/academy/houses"],
   });

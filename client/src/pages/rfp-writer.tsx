@@ -142,7 +142,7 @@ export default function RfpWriterPage() {
       const res = await fetch("/api/export/pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: md, title: "Grant Proposal Draft", subtitle: "RFP-Driven Narrative — ThriveUp Academy / TCAF", filename: "grant-draft" }),
+        body: JSON.stringify({ content: md, title: "Grant Proposal Draft", subtitle: "RFP-Driven Narrative — ThriveUp / TCAF", filename: "grant-draft" }),
       });
       if (!res.ok) throw new Error("PDF generation failed");
       const blob = await res.blob();

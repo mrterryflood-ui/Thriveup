@@ -498,7 +498,7 @@ function DreamProfileForm({
 }
 
 export default function AcademyDreamsPage() {
-  useEffect(() => { document.title = 'Dream Profile | ThriveUp Academy'; }, []);
+  useEffect(() => { document.title = 'Dream Profile | ThriveUp'; }, []);
 
   const [editing, setEditing] = useState(false);
 

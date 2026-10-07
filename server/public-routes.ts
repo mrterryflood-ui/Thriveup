@@ -1,5 +1,5 @@
 /**
- * Canonical public route inventory for ThriveUp Academy.
+ * Canonical public route inventory for ThriveUp.
  * Used by the SPA fallback handlers in vite.ts (dev) and static.ts (prod)
  * to return HTTP 404 for genuinely unknown paths instead of a soft-200.
  *

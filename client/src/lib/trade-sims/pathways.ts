@@ -44,7 +44,7 @@ export const TRADE_PATHWAYS: TradePathway[] = [
     tagline: "From Ohm's Law to a working capstone in 15 days.",
     iconKey: "electrical",
     earn:
-      "Pass the Day-15 capstone and your ThriveUp Academy profile shows the Electrical Fundamentals badge — usable as evidence of prior learning at ACC's pre-apprenticeship intake and NCCER-affiliated programs.",
+      "Pass the Day-15 capstone and your ThriveUp profile shows the Electrical Fundamentals badge — usable as evidence of prior learning at ACC's pre-apprenticeship intake and NCCER-affiliated programs.",
     nextSteps: [
       "ACC pre-apprenticeship cohort (Austin Community College)",
       "Sponsoring electrical contractor",

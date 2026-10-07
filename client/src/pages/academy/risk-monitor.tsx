@@ -72,7 +72,7 @@ function getPatternBadge(rate: number) {
 }
 
 export default function AcademyRiskMonitorPage() {
-  useEffect(() => { document.title = 'Risk Monitor | ThriveUp Academy'; }, []);
+  useEffect(() => { document.title = 'Risk Monitor | ThriveUp'; }, []);
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
 

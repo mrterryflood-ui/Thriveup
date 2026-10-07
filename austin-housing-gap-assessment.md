@@ -1,5 +1,5 @@
 # Austin and Pflugerville Housing Gap and Needs Assessment
-## Prepared by ThriveUp Academy — March 19, 2026
+## Prepared by ThriveUp — March 19, 2026
 ### Plain-language brief for elected officials, city staff, foundations, partner nonprofits, employers, faith leaders, and residents
 
 ---
@@ -8,13 +8,13 @@
 
 This document was written so that anyone can read it — a parent, a city council member, a teacher, a foundation officer, a small-business owner, or a federal grant reviewer — without needing to know government acronyms. The first time an acronym appears, it is spelled out in full. A short glossary is at the end.
 
-**The bottom line in two sentences:** The Austin–Pflugerville area along the Interstate 35 corridor is short more than 48,000 homes that working and lower-income families can afford. ThriveUp Academy's connected set of community-support platforms is built to help close that gap by joining housing, workforce, health, and youth services into one coordinated front door — and five active grant opportunities (totaling between $2.1 million and $3.4 million) line up directly with this work.
+**The bottom line in two sentences:** The Austin–Pflugerville area along the Interstate 35 corridor is short more than 48,000 homes that working and lower-income families can afford. ThriveUp's connected set of community-support platforms is built to help close that gap by joining housing, workforce, health, and youth services into one coordinated front door — and five active grant opportunities (totaling between $2.1 million and $3.4 million) line up directly with this work.
 
 ---
 
 ## EXECUTIVE SUMMARY
 
-The Austin–Pflugerville area faces a serious shortage of homes that working families, veterans, and people in historically underserved neighborhoods can afford. Median home prices sit at $429,000–$435,000 in Austin (only 2 of 75 ZIP codes are affordable to a median-income household) and around $390,000 in Pflugerville. The documented shortage is more than 48,000 homes for households earning less than 30% of Area Median Income (AMI is the regional household income figure that federal housing programs use to define affordability — for the Austin metro, 30% AMI is roughly $26,000 a year for a family of four). ThriveUp Academy's network of 19 connected community-support platforms is positioned to address housing stability through workforce training, health-care integration, and wraparound family services. Five active grant opportunities line up directly with this work.
+The Austin–Pflugerville area faces a serious shortage of homes that working families, veterans, and people in historically underserved neighborhoods can afford. Median home prices sit at $429,000–$435,000 in Austin (only 2 of 75 ZIP codes are affordable to a median-income household) and around $390,000 in Pflugerville. The documented shortage is more than 48,000 homes for households earning less than 30% of Area Median Income (AMI is the regional household income figure that federal housing programs use to define affordability — for the Austin metro, 30% AMI is roughly $26,000 a year for a family of four). ThriveUp's network of 19 connected community-support platforms is positioned to address housing stability through workforce training, health-care integration, and wraparound family services. Five active grant opportunities line up directly with this work.
 
 ---
 
@@ -58,7 +58,7 @@ When working families cannot find a home they can afford near their jobs, school
 - **The gap:** Pflugerville is making major investments in physical infrastructure (pipes, roads, buildings), but virtually no investment in the community-support side — no workforce training tied to the new affordable units, no veteran services, no integrated health-and-housing supports, and no wraparound services for the families who will move into the 330 affordable apartments coming online.
 
 ### The opportunity
-Pflugerville is building housing without building the community supports that make housing succeed. ThriveUp Academy fills that gap by bringing the human-services side of infrastructure: workforce pathways, health navigation, veteran support, and family stability services.
+Pflugerville is building housing without building the community supports that make housing succeed. ThriveUp fills that gap by bringing the human-services side of infrastructure: workforce pathways, health navigation, veteran support, and family stability services.
 
 ---
 
@@ -240,6 +240,6 @@ A 19-platform integrated set of community-support tools, powered by artificial i
 
 ---
 
-*Prepared by ThriveUp Academy's 19-platform AI-powered ecosystem*
+*Prepared by ThriveUp's 19-platform AI-powered ecosystem*
 *Dr. Terry Flood, President*
 *thrivingcommunitiesforall.com*

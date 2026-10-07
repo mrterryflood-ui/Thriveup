@@ -63,7 +63,7 @@ export default function OpenInnovationLabPage() {
           <CardTitle className="flex items-center gap-2"><Cpu className="h-5 w-5 text-primary" aria-hidden="true" /> Active Lab streams</CardTitle>
         </CardHeader>
         <CardContent className="grid sm:grid-cols-2 gap-3 text-sm">
-          <Stream icon={Brain} title="AI Literacy Curriculum" desc="Curriculum design for the AI Literacy track inside ThriveUp Academy. Anchored to age-appropriate AI literacy standards and ethics." href="/curriculum" />
+          <Stream icon={Brain} title="AI Literacy Curriculum" desc="Curriculum design for the AI Literacy track inside ThriveUp. Anchored to age-appropriate AI literacy standards and ethics." href="/curriculum" />
           <Stream icon={FlaskConical} title="RPLICE protocol refinement" desc="Iterating the Research-to-Practice Lifecycle Implementation & Community Evidence protocol against live program implementations." href="/rplice-tools" />
           <Stream icon={Microscope} title="MAP-GAP framework" desc="Continuous-improvement protocol for community programs, validated against pilot operations." href="/mapgap-framework" />
           <Stream icon={Sparkles} title="Spark companion" desc="AI companion experimentation surface — focused on AI-as-coach for staff and community-facing roles." href="/ai-companion" />

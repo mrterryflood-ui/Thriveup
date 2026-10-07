@@ -1157,7 +1157,7 @@ Generate 4-6 milestones per phase. Make them specific to the region's data. Use 
             name: "Phase 2: Program Launch & Data Collection",
             days: "Days 31-60",
             milestones: [
-              { title: "Launch pilot intervention programs", description: "Begin evidence-based programs in highest-risk tracts", owner: "Program Manager", deadline: "Day 35", status: "pending", linkedPlatform: "ThriveUp Academy" },
+              { title: "Launch pilot intervention programs", description: "Begin evidence-based programs in highest-risk tracts", owner: "Program Manager", deadline: "Day 35", status: "pending", linkedPlatform: "ThriveUp" },
               { title: "Begin participant enrollment", description: "Recruit and screen participants using eligibility criteria", owner: "Intake Coordinator", deadline: "Day 40", status: "pending", linkedPlatform: "" },
               { title: "Implement fidelity monitoring", description: "Use RPLICE fidelity checklists for all program activities", owner: "Quality Manager", deadline: "Day 45", status: "pending", linkedPlatform: "RPLICE" },
               { title: "Collect baseline outcome data", description: "Record initial metrics for all enrolled participants", owner: "Data Analyst", deadline: "Day 50", status: "pending", linkedPlatform: "" },

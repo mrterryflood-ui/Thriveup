@@ -51,7 +51,7 @@ const portalToAcademy = [
 ];
 
 export default function AcademyIntegrationPage() {
-  useEffect(() => { document.title = 'Integration Portal | ThriveUp Academy'; }, []);
+  useEffect(() => { document.title = 'Integration Portal | ThriveUp'; }, []);
   const { user, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);

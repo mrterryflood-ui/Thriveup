@@ -112,7 +112,7 @@ export default function LessonViewerPage() {
     },
   });
 
-  useEffect(() => { document.title = "Lesson | ThriveUp Academy"; }, []);
+  useEffect(() => { document.title = "Lesson | ThriveUp"; }, []);
 
   if (isLoading) {
     return (

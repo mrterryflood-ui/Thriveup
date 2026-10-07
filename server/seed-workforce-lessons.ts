@@ -865,8 +865,8 @@ Completing this module means you now have REAL training to put on your resume. L
 - ThriveUp Workforce Readiness Certificate — The Collaborative Advocate, 2026
 - OSHA 10-Hour General Industry Safety — OSHA Education Center, 2026
 - Texas Food Handler Certification — Texas DSHS, 2026
-- Workplace Hazard Identification Training — ThriveUp Academy, 2026
-- Emergency Response Procedures — ThriveUp Academy, 2026
+- Workplace Hazard Identification Training — ThriveUp, 2026
+- Emergency Response Procedures — ThriveUp, 2026
 
 ### Your Turn
 

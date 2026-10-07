@@ -1,5 +1,5 @@
 /**
- * Partnership Resume Generator — ThriveUp Academy / LifeBridge
+ * Partnership Resume Generator — ThriveUp / LifeBridge
  * Uses real platform knowledge. Run: npx tsx scripts/generate-partnership-resume.ts
  * Output: attached_assets/TerryFlood_Partnership_Resume_ACCURATE.docx
  */
@@ -136,12 +136,12 @@ const children: Paragraph[] = [
     "infrastructure that expands access to social services, workforce opportunity, and health equity for " +
     "underserved populations across Texas and the nation. Founder of The Collaborative Advocate Foundation (TCAF), " +
     "EIN 41-3618003 — a Texas 501(c)(3) — operating two complementary production platforms: LifeBridge " +
-    "(virtual 211 and CHW navigation hub at lifetransitionsaid.org) and ThriveUp Academy (AI-powered community " +
+    "(virtual 211 and CHW navigation hub at lifetransitionsaid.org) and ThriveUp (AI-powered community " +
     "infrastructure at thrivingcommunitiesforall.com)."
   ),
   blank(40),
   body(
-    "ThriveUp Academy is not a concept or a roadmap — it is a live, production-grade platform: 271 database " +
+    "ThriveUp is not a concept or a roadmap — it is a live, production-grade platform: 271 database " +
     "tables, 211 frontend pages, 26 interconnected ecosystem platforms, a 4-engine AI synthesis stack " +
     "(Claude + GPT-4o-mini + Gemini Flash + DeepSeek R1), 88 RAG knowledge chunks grounded in TCAF's own " +
     "commitments, 721+ grants tracked with AI-powered fit scoring, physics-grade trade simulation engines, " +
@@ -201,8 +201,8 @@ const children: Paragraph[] = [
 
   blank(60),
 
-  // ThriveUp Academy
-  heading3("ThriveUp Academy — National Community Infrastructure Platform", "2026–Present"),
+  // ThriveUp
+  heading3("ThriveUp — National Community Infrastructure Platform", "2026–Present"),
   new Paragraph({
     children: [
       new TextRun({ text: "thrivingcommunitiesforall.com", bold: true, size: 20, color: TEAL, font: "Calibri" }),
@@ -425,7 +425,7 @@ const children: Paragraph[] = [
   blank(120),
   new Paragraph({
     children: [new TextRun({
-      text: "Prepared by ThriveUp Academy  •  The Collaborative Advocate Foundation  •  thrivingcommunitiesforall.com",
+      text: "Prepared by ThriveUp  •  The Collaborative Advocate Foundation  •  thrivingcommunitiesforall.com",
       size: 16, color: LITE, font: "Calibri", italics: true,
     })],
     alignment: AlignmentType.CENTER,
@@ -435,9 +435,9 @@ const children: Paragraph[] = [
 // ─── Build document ───────────────────────────────────────────────────────────
 
 const doc = new Document({
-  creator: "ThriveUp Academy — TCAF",
+  creator: "ThriveUp — TCAF",
   title: "Terry D. Flood — Partnership Resume",
-  description: "Partnership profile with accurate ThriveUp Academy and LifeBridge platform capabilities",
+  description: "Partnership profile with accurate ThriveUp and LifeBridge platform capabilities",
   styles: {
     default: {
       document: {
@@ -472,7 +472,7 @@ Packer.toBuffer(doc).then((buffer) => {
   const kb = Math.round(buffer.length / 1024);
   console.log(`✅  Generated: ${outputPath}`);
   console.log(`   Size: ${kb} KB`);
-  console.log(`   Sections: Header, Partnership Profile, LifeBridge, ThriveUp Academy (10 subsections), Implementation Science, Community Engagement, Professional Background, Education`);
+  console.log(`   Sections: Header, Partnership Profile, LifeBridge, ThriveUp (10 subsections), Implementation Science, Community Engagement, Professional Background, Education`);
 }).catch((err) => {
   console.error("❌  Generation failed:", err);
   process.exit(1);

@@ -279,7 +279,7 @@ export function registerCrossPlatformRoutes(app: Express) {
   app.get("/api/external/health", requireApiKey, async (_req, res) => {
     res.json({ 
       status: "ok", 
-      platform: "ThriveUp Academy",
+      platform: "ThriveUp",
       version: "1.0",
       endpoints: [
         "GET /api/external/students/overview",

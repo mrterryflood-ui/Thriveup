@@ -1,4 +1,4 @@
-# The Collaborative Advocate Foundation (TCAF) / ThriveUp Academy
+# The Collaborative Advocate Foundation (TCAF) / ThriveUp
 **Briefing for Kevin Packer · InvesTech Consulting · 10:30 AM CT, Monday, May 18, 2026**
 
 ---
@@ -38,7 +38,7 @@ Most early-stage non-profits ship slide decks. We shipped the product.
 - **6 trade simulations** (Electrical, Plumbing, HVAC, Welding, Automotive, Software Engineering) × **15 lessons each = 90 lessons**, with industry-standard physics engines, registered-apprenticeship pathways, and AI tutors
 
 ### The 15 service platforms TCAF operates
-**Quintet we lead with** — Talk Your Talk (107 languages: 89 spoken + 18 signed) · Civic Signal · LifeBridge · ThriveUp Academy · Whole-Person Health.
+**Quintet we lead with** — Talk Your Talk (107 languages: 89 spoken + 18 signed) · Civic Signal · LifeBridge · ThriveUp · Whole-Person Health.
 
 The remaining ten — Sankofa Network, Black Maternal Health Network, Black Men's Health Hub, HerHealth Network, SafeCogniCare, Perfectly Different, Mission Transition (veteran C2C), Minority Center of Excellence, ISSS (Integrated Supports for Thriving Youth), RPLICE/BetterScience, SafeReport (FHIR + CDS-Hooks clinical AI). All 15 are externally reachable services, not slideware.
 
@@ -49,7 +49,7 @@ The remaining ten — Sankofa Network, Black Maternal Health Network, Black Men'
 2. **Health Equity** — Whole-Person Health, maternal health, behavioral health
 3. **Behavioral Health** — SafeReport (compliance-grade clinical AI), longitudinal screening (PHQ-9, GAD-7, C-SSRS, PCL-5, ACES)
 4. **Workforce & Business** — Mission Transition (veteran), Trade Sims, Minority Center of Excellence
-5. **Education & Learning** — ThriveUp Academy: AI literacy, financial literacy, STEM, FAFSA, foster-youth transition planning
+5. **Education & Learning** — ThriveUp: AI literacy, financial literacy, STEM, FAFSA, foster-youth transition planning
 6. **Community & Advocacy** — Civic Signal, Community Voice (map-pinned community input → AI clustering → ecosystem routing → #DATA storytelling)
 
 ---

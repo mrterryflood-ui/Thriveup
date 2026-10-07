@@ -68,7 +68,7 @@ function groupByStudent(logs: AttendanceLog[]): StudentStats[] {
 }
 
 export default function AcademyAttendancePage() {
-  useEffect(() => { document.title = 'Attendance | ThriveUp Academy'; }, []);
+  useEffect(() => { document.title = 'Attendance | ThriveUp'; }, []);
   const { user, isLoading: authLoading } = useAuth();
   const isAdmin = !!(user as any)?.isAdmin;
 

@@ -1389,7 +1389,7 @@ function PlanDetail({ plan, applications, credentials, followUps }: {
 }
 
 export default function TransitionPlansPage() {
-  useEffect(() => { document.title = "Postsecondary Transition Plans | ThriveUp Academy"; }, []);
+  useEffect(() => { document.title = "Postsecondary Transition Plans | ThriveUp"; }, []);
 
   const [plans, setPlans] = useState<TransitionPlan[]>(SAMPLE_PLANS);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);

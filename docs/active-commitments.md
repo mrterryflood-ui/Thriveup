@@ -81,7 +81,7 @@
 
 **Where:** `/voice` (list) · `/voice/pflugerville-holistic-services` (pilot map). Sidebar: Community Intelligence → Community Voice.
 
-# Active Commitments — TCAF / ThriveUp Academy
+# Active Commitments — TCAF / ThriveUp
 
 ## 🚨 Pipeline triage pass (2026-05-17 PM-late — "this is causing me to miss opportunities")
 
@@ -480,7 +480,7 @@ User confirmed TCAF is **already applying** for SSG Fox FY27 (deadline 2026-06-1
 - Platform Overview One-Pager: https://vetmissiontransition.com/platform-onepager
 - Live Evidence Dashboard (TCAF): https://vetmissiontransition.com/evidence/tcaf
 
-The Fox application narrative + supporting one-pagers live on the **M2C / Mission Transition platform** (`vetmissiontransition.com`), NOT in this ThriveUp Academy codebase. Do not rebuild Fox pages here. Treat vetmissiontransition.com as the single source of truth for what is being submitted; link to it from this app rather than duplicating content.
+The Fox application narrative + supporting one-pagers live on the **M2C / Mission Transition platform** (`vetmissiontransition.com`), NOT in this ThriveUp codebase. Do not rebuild Fox pages here. Treat vetmissiontransition.com as the single source of truth for what is being submitted; link to it from this app rather than duplicating content.
 
 Headlines:
 - Up to $750,000 per Priority 2 (new applicant) org · $112M FY27 pool · one-year award starting 2026-09-30
@@ -594,17 +594,17 @@ Full brief: **`docs/grants/Grant-Opportunity-Scan-2026-05-14.md`**. Sliced 5 eac
 
 | Program | Pool | Cycle | TCAF Fit | Aligned Platform | Notes |
 |---|---|---|---|---|---|
-| **SBA PRIME** (Program for Investment in Microentrepreneurs) — CFDA 59.050 | $7M FY26 appropriated | FY26 NOFO **not yet posted** as of May 14, 2026 | 🟢 **STRONG** | Minority Center of Excellence · ThriveUp Academy (financial literacy/entrepreneurship) | Funds nonprofit microenterprise dev orgs serving businesses with <5 employees lacking conventional credit. **501(c)(3) required ✅.** Watch Grants.gov. Highest natural fit. |
+| **SBA PRIME** (Program for Investment in Microentrepreneurs) — CFDA 59.050 | $7M FY26 appropriated | FY26 NOFO **not yet posted** as of May 14, 2026 | 🟢 **STRONG** | Minority Center of Excellence · ThriveUp (financial literacy/entrepreneurship) | Funds nonprofit microenterprise dev orgs serving businesses with <5 employees lacking conventional credit. **501(c)(3) required ✅.** Watch Grants.gov. Highest natural fit. |
 | **SBA WBC** (Women's Business Center) Cooperative Agreement | Multi-year cooperative agreement | Annual Program Announcement; 5-yr initial / 3-yr renewal | 🟢 **STRONG** *(with caveat)* | HerHealth Network · Black Maternal Health Hub | 501(c)(3) ✅. **Caveat:** requires a full-time WBC Program Director whose time is solely dedicated to the WBC project. Major staffing commitment. Texas already has WBCs (Greater Houston Women's Chamber, WBEA Houston). Travis County / Austin may be unfilled gap. |
 | **SBA VBOC** (Veterans Business Outreach Center) | Cooperative agreement | Renews periodically; 31 nationwide | 🟡 **MEDIUM-STRONG** | Mission Transition (M2C) | Dr. Flood is **US Army Retiree** — natural alignment. **BUT:** Texas already has VBOCs at **UT-RGV** and **UT-Arlington** (incumbent advantage). Partnership/subaward path likelier than displacing. |
 | **SBA Minority Business Development Grants** *(already in TCAF discovery DB, fit_score 71)* | $100K–$300K | Varies | 🟢 **STRONG** | Minority Center of Excellence | Already tracked. Source: sba.gov/funding-programs/grants. |
-| **SBA GAFC** (Growth Accelerator Fund Competition) | $9M total in prizes — $75K Stage 1 / $150K Stage 2 | FY26 not announced; FY25 was Jan–Sept 2025 | 🟡 **MEDIUM** | ThriveUp Academy (incubation elements) · RPLICE | For Entrepreneurship Support Orgs / accelerators. TCAF isn't primarily an accelerator, but the AI-literacy + workforce + financial-literacy bundle is plausibly framed as one. Lower priority than PRIME / WBC. |
+| **SBA GAFC** (Growth Accelerator Fund Competition) | $9M total in prizes — $75K Stage 1 / $150K Stage 2 | FY26 not announced; FY25 was Jan–Sept 2025 | 🟡 **MEDIUM** | ThriveUp (incubation elements) · RPLICE | For Entrepreneurship Support Orgs / accelerators. TCAF isn't primarily an accelerator, but the AI-literacy + workforce + financial-literacy bundle is plausibly framed as one. Lower priority than PRIME / WBC. |
 | **SBA Community Navigator Pilot Program (CNPP) successor** | Original $100M ended May 2024 | **No active successor announced** | 🟢 **STRONG when reborn** | All 15 platforms (literal navigator architecture) | TCAF's whole platform IS the hub-and-spoke navigator model CNPP funded. **Watch closely** — if Congress reauthorizes, this is TCAF's natural lane. |
 | **SBA SBDC** (Small Business Development Center) | Cooperative agreement | CY25 cycle expired April 22, 2026 | 🔴 **LOW** | n/a | State-administered (Texas SBDC Network at UTSA). Incumbent-locked. |
 | **SBA E2G Manufacturing** | $50M | Deadline June 15, 2026 | 🔴 **PASS** | n/a | Reasoning above. |
 
 ### Decisions
-- **🟢 PURSUE (watch & prepare):** SBA PRIME — pre-position to apply when FY26 NOFO drops. Draft the technical-assistance narrative now using Minority Center of Excellence + ThriveUp Academy + RPLICE outcome measurement. Need: full microenterprise client roster build (currently TCAF has individual-services audience, not micro-business owners specifically — bridge by surveying ThriveUp Academy graduates for self-employed/business-curious).
+- **🟢 PURSUE (watch & prepare):** SBA PRIME — pre-position to apply when FY26 NOFO drops. Draft the technical-assistance narrative now using Minority Center of Excellence + ThriveUp + RPLICE outcome measurement. Need: full microenterprise client roster build (currently TCAF has individual-services audience, not micro-business owners specifically — bridge by surveying ThriveUp graduates for self-employed/business-curious).
 - **🟢 PURSUE (relationship-build):** SBA WBC — explore whether Austin/Travis County has an unfilled gap. If yes, this is a long-horizon (12-24 month) build. Requires hiring a dedicated WBC Program Director, so it's a strategic commitment, not opportunistic.
 - **🟡 PURSUE (partnership-route):** SBA VBOC — reach out to UT-Arlington VBOC (`vboc.uta.edu`) about subaward partnership for veteran-led nonprofit-to-business pipeline programs. Lever Dr. Flood's Army Retiree status. Lower-risk than competing for a new VBOC slot.
 - **🟢 WATCH:** SBA Community Navigator successor — set Grants.gov alerts for "Community Navigator," "navigator pilot," "entrepreneurship navigator." If reauthorized, TCAF should apply as Hub.
@@ -618,7 +618,7 @@ Full brief: **`docs/grants/Grant-Opportunity-Scan-2026-05-14.md`**. Sliced 5 eac
 >
 > Dear Mr. Brewer,
 >
-> I'm Dr. Terry Flood, President of The Collaborative Advocate Foundation (TCAF), a Texas-based 501(c)(3) (EIN 41-3618003, determination effective January 14, 2026; **SAM.gov UEI KDDVD1FGLW35 — ACTIVE; CAGE 209N1**). We operate 15 public-facing service platforms — a national community-infrastructure model piloted in Travis County — including Minority Center of Excellence, Mission Transition (military-to-civilian pathways), and ThriveUp Academy (AI literacy, financial literacy, workforce pathways).
+> I'm Dr. Terry Flood, President of The Collaborative Advocate Foundation (TCAF), a Texas-based 501(c)(3) (EIN 41-3618003, determination effective January 14, 2026; **SAM.gov UEI KDDVD1FGLW35 — ACTIVE; CAGE 209N1**). We operate 15 public-facing service platforms — a national community-infrastructure model piloted in Travis County — including Minority Center of Excellence, Mission Transition (military-to-civilian pathways), and ThriveUp (AI literacy, financial literacy, workforce pathways).
 >
 > I'm reaching out following the Texas Economic Development Corporation's notice on the SBA Manufacturing in America Empower to Grow (E2G) Initiative. After honest review, E2G isn't a fit for TCAF as prime — we don't operate a small-manufacturer portfolio. But the framing in your team's note — *"other opportunities in that same domain"* — suggests there may be programs better aligned with our work in **microenterprise development, women's business ownership, veteran entrepreneurship, and minority-business technical assistance.**
 >
@@ -876,7 +876,7 @@ DHA, MSIOP, MSL, MSCJPP, MSHRM, MSIS(c — conferred 06/10/2026), BHA, CHW-I
 | 6 | Texas Bar Foundation | 20 | 32 | 5 | 5 | 5 | 5 | **72** |
 | 8 | TDHCA Community Affairs | 16 | 24 | 5 | -5 | 5 | 5 | **50** |
 
-**Disclosed correction:** TVC FVA was scored 95 in my Round-1 narrative (claimed 5/5 quintet). The `platform_funder_fit` table shows only **3/5 quintet platforms** have explicitly veteran-tagged capabilities in the live DB (WPH, LifeBridge, TYT). ThriveUp Academy and Civic Signal touch veterans narratively but lack the DB-tagged veteran capability — so the honest data-backed score is 79, not 95. TVC drops from rank #2 → rank #5. M2C's veteran specialization is captured in component A (it's one of the 8 vet-tagged platforms), not B.
+**Disclosed correction:** TVC FVA was scored 95 in my Round-1 narrative (claimed 5/5 quintet). The `platform_funder_fit` table shows only **3/5 quintet platforms** have explicitly veteran-tagged capabilities in the live DB (WPH, LifeBridge, TYT). ThriveUp and Civic Signal touch veterans narratively but lack the DB-tagged veteran capability — so the honest data-backed score is 79, not 95. TVC drops from rank #2 → rank #5. M2C's veteran specialization is captured in component A (it's one of the 8 vet-tagged platforms), not B.
 
 **Cadence #1–#3 status (May 9, 2026):**
 - ✅ #1 Push data-backed fit scores into `grant_opportunities.fit_score` — 8 rows, written through `samgov_notice_id`.
@@ -1000,7 +1000,7 @@ Run via `scripts/ecosystem-alignment-scan.sh`. Re-run anytime alignment is in do
   - **May 12 sweep (WRONG):** Agent replaced `41-3618003` → `41-3618503` across ~61 files claiming the `003` was a typo and `503` was correct per "IRS Letter 947." Agent never opened the IRS PDFs. The PDFs said `003` all along. This sweep was the error.
   - **May 15 sweep (CORRECTION):** Agent reverted `41-3618503` → `41-3618003` across 72 files (count grew between sweeps as new content was authored using the wrong number). `attached_assets/` left untouched both times.
   - **Funder-side implications (now that we know `003` is right all along):** any grant submitted before May 12 with EIN `41-3618003` was CORRECT. Any grant drafted or submitted between May 12 and May 15 with EIN `41-3618503` was WRONG and may need correction. Check each: (a) **City of Austin AEI FY26** — submitted, verify which EIN appeared on the submitted PDF in AustinFirst portal; (b) **TWC RFA 32026-00162** — FORM-A-APPLICATION submitted, verify EIN on submitted Form A; (c) **Spencer Foundation Narrative** — check submission status; (d) **St. David's WAB2 LOI** — submitted via GivingData 4/27/2026 (before May 12 sweep, so likely correct `003`); (e) NSF / DOL / CDMRP / RARE / Borealis / RWJF drafts — drafts only, no correction needed.
-  - **Live public-facing sites:** ThriveUp Academy pages (`landing.tsx`, `grant-command-center.tsx`, etc.) carried wrong `503` for 3 days; now correct. M2C / vetmissiontransition.com (separate Replit project) was never touched by either sweep — its `003` has been correct continuously.
+  - **Live public-facing sites:** ThriveUp pages (`landing.tsx`, `grant-command-center.tsx`, etc.) carried wrong `503` for 3 days; now correct. M2C / vetmissiontransition.com (separate Replit project) was never touched by either sweep — its `003` has been correct continuously.
 - **501(c)(3) DETERMINED** by IRS Letter 947 dated **04/30/2026**, effective **01/14/2026**. Public charity under **170(b)(1)(A)(vi)** (publicly-supported organization). Contributions ARE deductible. Form 990/990-EZ/990-N required. Accounting period ends Dec 31. No addendum.
 - Person to contact at IRS if questions: **Mrs. Hurst, ID# 1793423, 877-829-5500**.
 - **Stop using:** "501(c)(3) determination pending," "Tracking 281OIP7B," "fiscal sponsorship via Abundant Life Church," "during the determination period." All superseded.
@@ -1060,7 +1060,7 @@ Full brief at `docs/grants/AEI-Funder-Intelligence.md`. Key adopted findings:
 
 **Why this matters strategically for TCAF:**
 1. **National FYI Program** = HUD's Foster Youth to Independence voucher program — federal housing assistance for youth aging out of foster care, administered through Public Housing Authorities. Jim leads national implementation = direct line to HUD/HHS/Children's Bureau funding flows.
-2. **Austin-based 1st-degree connection** in a niche we already serve (LifeBridge, ISSS, Whole-Person Mental Health, ThriveUp Academy financial literacy, FAFSA navigator) but have no senior advisor in.
+2. **Austin-based 1st-degree connection** in a niche we already serve (LifeBridge, ISSS, Whole-Person Mental Health, ThriveUp financial literacy, FAFSA navigator) but have no senior advisor in.
 3. **Letter-of-support / advisor candidate** for HHS/HRSA, HUD, Children's Bureau, and SAMHSA grants where youth transition is in scope.
 
 **TCAF surface area that aligns with Jim's work:**
@@ -1072,7 +1072,7 @@ Full brief at `docs/grants/AEI-Funder-Intelligence.md`. Key adopted findings:
 | **Whole-Person Mental Health Ecosystem** | Trauma-informed, multilingual; foster-experienced youth carry disproportionate trauma load |
 | **ISSS (K-12 multi-tiered supports)** | Many foster youth need IEP/504 advocacy; ISSS infrastructure already deployed in districts |
 | **Perfectly Different** | Neurodiversity / IEP-504 navigation — overrepresented in foster population |
-| **ThriveUp Academy** | Financial literacy + workforce readiness — exactly what FYI youth need at independence |
+| **ThriveUp** | Financial literacy + workforce readiness — exactly what FYI youth need at independence |
 | **FAFSA navigator + apprenticeship tracker** | Foster youth have specific FAFSA pathways (independent student status, ETV); we already build this |
 | **Talk Your Talk** | Multilingual support for youth in mixed-status families and refugee youth in foster care |
 
@@ -1259,7 +1259,7 @@ Full reference: `docs/grants/Top-5-Grants-URLs-and-Requirements.md`
 - **REFRAME for grants:** This is a Chafee Foster Care Independence Program tool, not just a 211. Major HHS/ACF grant angle.
 - Best grant fits: HHS/ACF Chafee, HRSA CHW training, SAMHSA crisis services, HUD CoC, USDA SNAP-Ed, DOJ OVW, St. David's (Foster Youth angle), SSG Fox
 
-### ThriveUp Academy — thrivingcommunitiesforall.com
+### ThriveUp — thrivingcommunitiesforall.com
 - Schema.org markup declares EducationalOrganization with **5-course AI Mastery Curriculum** mapped K-12: AI Explorer (3-5), Guide (3-5), Architect (6-8), Innovator (9-10), Master (11-12) — TEKS-alignable
 - Marcus persona is the strongest reentry narrative across all our materials: foster youth → incarcerated → reentering, "Borders aren't real, but laws and policies are"
 - 10 service domains in sidebar; Texas as St. David's pilot deployment (national framing)
@@ -1272,7 +1272,7 @@ Full reference: `docs/grants/Top-5-Grants-URLs-and-Requirements.md`
 |---|---|---|
 | Civic Signal | Can't see/understand/influence government | Returning citizens, low-income, rural, LEP |
 | LifeBridge | Can't navigate the safety net | Foster youth aging out, families in crisis, vets in non-combat life events |
-| ThriveUp Academy | Can't build skills for the new economy | Under-resourced learners of all ages |
+| ThriveUp | Can't build skills for the new economy | Under-resourced learners of all ages |
 
 TCAF is the only operator addressing all three non-clinical drivers — civic exclusion, navigation failure, skills gap — with one shared identity, one data layer, one outcome metric set.
 
@@ -1347,7 +1347,7 @@ Talk Your Talk is the **horizontal accessibility substrate** under the other thr
 | Talk Your Talk | Communication substrate (under all 3) | Can't be understood in your own voice |
 | Civic Signal | Civic intelligence | Can't see/influence government |
 | LifeBridge | Safety-net navigation | Can't navigate services |
-| ThriveUp Academy | Skill building | Can't build new-economy skills |
+| ThriveUp | Skill building | Can't build new-economy skills |
 
 Pitch line: *"Three service platforms, one accessibility substrate. You can't get civic information you don't understand. You can't navigate a 211 in a language no one offered. You can't learn AI through a screen reader that mispronounces your name. Talk Your Talk runs underneath."*
 
@@ -1484,7 +1484,7 @@ The homepage just added a "Learning that meets you where you are" section with 6
 Talk Your Talk is no longer "just" the horizontal accessibility substrate. It's now **substrate + learning loop**:
 - LifeBridge gets you to the resource
 - Civic Signal gets you civic agency
-- ThriveUp Academy builds workforce skills
+- ThriveUp builds workforce skills
 - **Talk Your Talk lets you be understood AND helps you learn the new language/vocabulary you need to navigate any of the above** — in your dialect, with your family, at your pace, with crisis safety always one tap away.
 
 That dual-role framing (interpretation + learning) is unusually strong. Most grant programs fund one OR the other; you can pitch into both buckets with the same platform.
@@ -1714,7 +1714,7 @@ Almost removed `sankofa-feminine-health` from the registry because `yourfeminine
 
 Architect first review flagged additional leaks beyond Wave-3 batch. Second sweep cleaned:
 - Count phrases: `austin-housing-initiative.tsx` (hero badge + ecosystem H2), `business-card.tsx`, `business-documents.tsx` (2), `presentations.tsx` (PDF title + tab H2), `stakeholder-presentation.tsx` hero, `ecosystem-ai.tsx` hero, `data-sources.tsx` ecosystem-connector name + description, `pm-academy.tsx` 20-platform claim
-- Platform-name leaks (reviewer-facing): `community-resource-directory.tsx` ("Emergency Management & Crisis Response" → Mission Transition; "WholeMind AI" → Whole-Person Health), `data-sources.tsx:449` usedBy ("Emergency Management" → SafeReport), `grant-command-center.tsx` notes at lines 893/1095/1714/1735/1924/2313/2504 (narrative refs swapped to HerHealth Network/Talk Your Talk/Perfectly Different/Whole-Person Health/ThriveUp Academy), platforms arrays at 869/2272 (swapped to SafeReport/Civic Signal), `directive-compliance.tsx` lines 91 + 250 (Emergency Management → SafeReport on ssgfox + spaceforce-skillbridge pursuits), `mvv-content.ts` (2 refs → Talk Your Talk), `tutorial-content.ts` (2 narrative examples), `case-studies.tsx` 3 additional narrative refs, `grant-packages.tsx` task guidance + Texas Health checklist, `program-lifecycle.tsx` keyActions
+- Platform-name leaks (reviewer-facing): `community-resource-directory.tsx` ("Emergency Management & Crisis Response" → Mission Transition; "WholeMind AI" → Whole-Person Health), `data-sources.tsx:449` usedBy ("Emergency Management" → SafeReport), `grant-command-center.tsx` notes at lines 893/1095/1714/1735/1924/2313/2504 (narrative refs swapped to HerHealth Network/Talk Your Talk/Perfectly Different/Whole-Person Health/ThriveUp), platforms arrays at 869/2272 (swapped to SafeReport/Civic Signal), `directive-compliance.tsx` lines 91 + 250 (Emergency Management → SafeReport on ssgfox + spaceforce-skillbridge pursuits), `mvv-content.ts` (2 refs → Talk Your Talk), `tutorial-content.ts` (2 narrative examples), `case-studies.tsx` 3 additional narrative refs, `grant-packages.tsx` task guidance + Texas Health checklist, `program-lifecycle.tsx` keyActions
 - Inline historical-exception comment added at `directive-compliance.tsx:207-213` documenting why the DoD C2 Transport pursuit retains "Emergency Management" + "Ecosystem Nexus" platform names (faithful pursuit-record artifact, not a model for new references)
 
 **Remaining documented exceptions (final state):**
@@ -1871,7 +1871,7 @@ User-forwarded LinkedIn screenshots. Iron-Rule applies — nothing below is veri
 - Eligibility: 501(c)(3) tax-exempt orgs — TCAF qualifies (EIN 41-3618003)
 - 2026 rule change: **one LOI per PI per cycle** across both Major + Officers' awards
 
-**🚨 Critical correction to image-based intel:** This grant funds **RESEARCH ONLY**, NOT program implementation. Funder's own page (verbatim): "the Foundation does not support non-research activities such as program implementation and operational costs." TCAF cannot apply for ThriveUp Academy program funding here — only for a research STUDY of ThriveUp Academy (or Foster Youth platform) as the intervention being evaluated.
+**🚨 Critical correction to image-based intel:** This grant funds **RESEARCH ONLY**, NOT program implementation. Funder's own page (verbatim): "the Foundation does not support non-research activities such as program implementation and operational costs." TCAF cannot apply for ThriveUp program funding here — only for a research STUDY of ThriveUp (or Foster Youth platform) as the intervention being evaluated.
 
 **Funded study types:**
 1. Descriptive — describe/explore/explain how a program reduces inequality
@@ -1884,7 +1884,7 @@ User-forwarded LinkedIn screenshots. Iron-Rule applies — nothing below is veri
 - **Institutional research anchor already in hand:** Dartmouth Geisel (via Dr. Flood's MSIS program network).
 - **Coalition partners already named on prior NSF submissions:** Prof. Laura Franco (Austin Community College), Eric Hargrave (Fountain of Life Ministries). See `docs/grants/TCAF-Coalition-Partner-Presentation.md` and `docs/grants/NSF-TechAccess-LOI-Draft.md` lines 14-30 for canonical bio + partner roster.
 - **Path: collaborative LOI** with Dr. Flood as PI, Dartmouth Geisel faculty as methodology Co-PI/consultant, ACC + coalition partners as senior personnel / practice partners.
-- **Intervention candidates** (study target, not funded activity): ThriveUp Academy (cleaner cluster-randomized potential at cohort level) and/or Foster Youth Aging Out platform (paired against FosteringtheFuture.gov landscape).
+- **Intervention candidates** (study target, not funded activity): ThriveUp (cleaner cluster-randomized potential at cohort level) and/or Foster Youth Aging Out platform (paired against FosteringtheFuture.gov landscape).
 
 **Prior agent failure logged (don't repeat):** Original entry above claimed "Solo TCAF LOI = high risk of screen-out (no research PI track record)" and listed UT-Austin / Texas State / Chapin Hall as institutions "to find." That was scarcity conjecture — Dr. Flood's credentials and the Dartmouth + ACC ties were already in memory. New Iron-Rule extension added to `replit.md` gotchas: "SCARCITY CONJECTURE IS THE SAME FAILURE."
 
@@ -2087,8 +2087,8 @@ Logged in `docs/partners/investech/03-Opportunities-Currently-Tracking.md` Secti
 **Partial Harris/Travis/Walker counties grant (IMG_7718 top, funder name cut off):** ✅ RESOLVED 2026-05-19 PM via follow-up screenshot — funder is **The Powell Foundation**. Inserted at fit 60.
 
 **Second screenshot batch (3 more from same roundup, screenshot IMG image_1779234555596.png):**
-- ✅ **Joe & Jess Crump Foundation — Children with Disabilities & Cancer Research Grants** (deadline 2026-05-31, fit 78) — INSERTED `identified`. **USER-FLAGGED FOR RPLICE ALIGNMENT.** Concept paper drafted at `docs/grants/crump-foundation-2026/01-concept-paper.md`. Two-prong honest framing: TCAF leads Prong A (children with disabilities — Perfectly Different + Talk Your Talk + ThriveUp Academy + LifeBridge + Whole-Person Health, all direct capability); offers Prong B (cancer research) as an RPLICE implementation-partnership lane for a Texas pediatric oncology research team, NOT as a pretend wet-lab cancer-research program. Iron Rule: budget cap and page limit blank until primary-source verified.
-- ✅ **The Powell Foundation — Harris/Travis/Walker Counties Grants** (5/31, fit 60) — INSERTED `identified`. Travis County eligible. Education + human services prongs = ThriveUp Academy + LifeBridge direct fit; arts and conservation not our lane.
+- ✅ **Joe & Jess Crump Foundation — Children with Disabilities & Cancer Research Grants** (deadline 2026-05-31, fit 78) — INSERTED `identified`. **USER-FLAGGED FOR RPLICE ALIGNMENT.** Concept paper drafted at `docs/grants/crump-foundation-2026/01-concept-paper.md`. Two-prong honest framing: TCAF leads Prong A (children with disabilities — Perfectly Different + Talk Your Talk + ThriveUp + LifeBridge + Whole-Person Health, all direct capability); offers Prong B (cancer research) as an RPLICE implementation-partnership lane for a Texas pediatric oncology research team, NOT as a pretend wet-lab cancer-research program. Iron Rule: budget cap and page limit blank until primary-source verified.
+- ✅ **The Powell Foundation — Harris/Travis/Walker Counties Grants** (5/31, fit 60) — INSERTED `identified`. Travis County eligible. Education + human services prongs = ThriveUp + LifeBridge direct fit; arts and conservation not our lane.
 - ❌ **Hancock Whitney — Southeast Texas Grants** (5/31, fit 25) — INSERTED `identified`. Wrong geography (Houston/Beaumont/Golden Triangle). Only pursue with SE-Texas-based partner as lead/named subrecipient.
 
 **🚨 SYSTEM BUG observed → FIXED 2026-05-19 PM:** `recomputeAllGrantFitScores()` in `server/grant-routes.ts` (runs on every startup at boot+15s, line 6605) was blindly overwriting fit scores — clobbered manually set Rosendin 80→39, Seawell 60→39, etc. Statuses survived. **Fix shipped:** added two guards in the recompute loop — (1) skip rows whose status is not 'identified' (dismissed/pursuing/loi_drafting/submitted/awarded/watch_next_cycle/expired are lifecycle-locked, never touch them); (2) for 'identified' rows, **never downgrade** — only update when recomputed score is strictly higher than the current value. Algorithm improvements can still surface newly-recognized fit; manual upgrades win. Verified live after restart: Hancock Whitney was upgraded 25→39 (legitimate algorithmic improvement); Rosendin held at 80; all dismissed rows untouched.
@@ -2099,7 +2099,7 @@ Logged in `docs/partners/investech/03-Opportunities-Currently-Tracking.md` Secti
 
 - **The Powell Foundation:** Verified at `powellfoundation.org/grant-guidelines/` + portal `thepowellfoundation.my.site.com/grantees/s/apply` + annual grantmaking page. **5/31 deadline is CORRECT** for Fall 2026 cycle (Spring cycle was 11/30/2025, already passed). Status notification early July 2026; board decision November 2026. 2024 grantmaking: $16.9M across 130 grants, Education avg $270K, Supportive Communities avg $110K. 2025 Travis County share: 25% / $4.7M. TCAF eligibility CONFIRMED: §509(a)(1) status under §170(b)(1)(A)(vi). **Pre-application draft at `docs/grants/powell-foundation-2026/01-pre-application-draft.md`** — drop-in content for the portal's Section 1–3 form fields. Open TODOs: operating budget figure, annual beneficiary count, request amount (recommend $150K–$250K), preferred phone.
 
-- **TCAF Capability Statement v1.0 written 2026-05-19 PM** at `docs/capability-statement/TCAF-Capability-Statement.md`. 2-page general-multipurpose format (federal + state + foundation + corporate + municipal). Coverage confirmed by user: 15-platform ecosystem (Quintet + 10 supporting), Trade Sims (90 lessons across 6 trades incl. SE), SafeReport clinical stack (FHIR + CDS Hooks + 0 PHI egress), RNR/CBI/NRRC justice stack, Foster-Youth tools, Grant Discovery Engine (651 tracked), Corridor Chainweb, Community Voice, ThriveUp Academy learning domains, Donor outcome receipts, CFIR/RE-AIM/RPLICE/MAP-GAP backbone, two-entity strategy (TCAF + ISS LLC). Contact = President + (254) 319-8460 (per QUARTET pager). Meredith NOT on the document (City of Austin conflict — must stay safe for any audience including City). Vann Collaboration Kit intentionally excluded (partner-specific, not a general capability). To update: re-verify all counts against the capabilities inventory `docs/grants/tcaf-capabilities-inventory-2026-05-17.md` before any major funder send.
+- **TCAF Capability Statement v1.0 written 2026-05-19 PM** at `docs/capability-statement/TCAF-Capability-Statement.md`. 2-page general-multipurpose format (federal + state + foundation + corporate + municipal). Coverage confirmed by user: 15-platform ecosystem (Quintet + 10 supporting), Trade Sims (90 lessons across 6 trades incl. SE), SafeReport clinical stack (FHIR + CDS Hooks + 0 PHI egress), RNR/CBI/NRRC justice stack, Foster-Youth tools, Grant Discovery Engine (651 tracked), Corridor Chainweb, Community Voice, ThriveUp learning domains, Donor outcome receipts, CFIR/RE-AIM/RPLICE/MAP-GAP backbone, two-entity strategy (TCAF + ISS LLC). Contact = President + (254) 319-8460 (per QUARTET pager). Meredith NOT on the document (City of Austin conflict — must stay safe for any audience including City). Vann Collaboration Kit intentionally excluded (partner-specific, not a general capability). To update: re-verify all counts against the capabilities inventory `docs/grants/tcaf-capabilities-inventory-2026-05-17.md` before any major funder send.
 
 - **City of Austin Equity Office grant programs** (user link 2026-05-19 PM): Verified at `austintexas.gov/equity-inclusion/grant-programs`. Three programs surfaced: (1) **Equity Mini Grant Fund** — $25K unrestricted, 6th Window FY26 ran Apr 17–May 8 2026. **✅ USER CONFIRMED APPLICATION SUBMITTED 2026-05-19 PM.** Row updated `submitted`. Decision late June 2026; disbursement July 2026. Track for follow-up. FY26 theme = immigrant/refugee communities in Austin/Travis County/ETJ. (2) **Reentry Services Grant — Hub Award** $200K to 501(c)(3)s providing wraparound services for formerly incarcerated; window currently dormant. (3) **Reentry Services Grant — Spoke Award** $50K direct services (too small to prioritize). Plus periodic Reimagining Public Safety Grants. **Two rows added to tracker as `watch_next_cycle`:** Mini Grant FY27 (fit 55) and Reentry Hub Award (fit 75 — RNR/CBI/NRRC stack + Trade Sims + LifeBridge + WPH = wraparound by design). **🚨 CRITICAL: ALL City of Austin Equity Office grants are City of Austin work — Meredith Sisnett (City employee) CANNOT be listed in any role.** Apply portal: aei.grantplatform.com. Action item for user: subscribe TCAF/Dr. Flood to Equity Action Team notifications at https://app.smartsheet.com/b/form/ff4cc4bd0b4147f4aa74af7ea0d13a8d to get FY27 + Reentry window opening alerts.
 
@@ -2124,7 +2124,7 @@ Logged in `docs/partners/investech/03-Opportunities-Currently-Tracking.md` Secti
 
 **Drafting decisions made:**
 - Bid as TCAF (501(c)(3) determined 01/14/2026), not ISS LLC. AISD is K-12 enrichment, federal/state pass-through funded.
-- d/b/a "ThriveUp Academy" used as program-division name on the response.
+- d/b/a "ThriveUp" used as program-division name on the response.
 - Sample unit plan drawn from Software Engineering Trade Sims track (3 of 15 lessons) — first unit "How the Computer Hears You" with anchor phrase "anybody can vibe code, you have to know how the system works to make vibecoding work."
 - TEKS crosswalks named explicitly (§126.32, §126.33, §126.7, §127, §111, §112) per RFP Section V.B.3 requirement.
 - LEP framing led with our 89 spoken + 18 sign + 6 learning surfaces against AISD's 28.1% ELL student population.

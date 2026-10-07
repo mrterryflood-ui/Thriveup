@@ -299,7 +299,7 @@ export function registerStreetsRoutes(app: Express) {
 
       const hmisPackage = {
         exportMeta: {
-          system: "ThriveUp Academy / TCAF",
+          system: "ThriveUp / TCAF",
           exportedAt: new Date().toISOString(),
           version: "HMIS-CSV-2024-compatible",
           organization: "The Collaborative Advocate Foundation",

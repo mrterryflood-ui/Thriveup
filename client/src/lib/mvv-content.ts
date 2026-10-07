@@ -162,7 +162,7 @@ export const PROGRAM_SHOWCASES = [
       { discipline: "I-O Psychology", action: "Behavioral nudges for students, staff motivation systems, mentor engagement design" },
     ],
     stakeholders: ["Schools", "Community Mentors", "Law Enforcement", "Employers", "Parents", "CHWs"],
-    platforms: ["ThriveUp Academy", "ISSS", "SafeReport", "LifeBridge", "Talk Your Talk", "Sankofa Health"],
+    platforms: ["ThriveUp", "ISSS", "SafeReport", "LifeBridge", "Talk Your Talk", "Sankofa Health"],
     outcomes: "Reduced suspensions, increased graduation rates, youth diverted from justice system, families connected to SDOH resources, sustainable community ownership.",
   },
   {
@@ -179,7 +179,7 @@ export const PROGRAM_SHOWCASES = [
       { discipline: "I-O Psychology", action: "Community engagement adapted to DC cultural context — different motivation drivers" },
     ],
     stakeholders: ["DC Public Schools", "Community Organizations", "DC Courts", "Federal Employers", "Parents", "Faith-Based Orgs"],
-    platforms: ["ThriveUp Academy", "ISSS", "SafeReport", "LifeBridge", "M2C Transition"],
+    platforms: ["ThriveUp", "ISSS", "SafeReport", "LifeBridge", "M2C Transition"],
     outcomes: "Same framework, adapted execution. Three Realities ensure the program fits DC — not a copy of Chicago. MG-PATR captures both for future deployments.",
   },
   {
@@ -196,7 +196,7 @@ export const PROGRAM_SHOWCASES = [
       { discipline: "I-O Psychology", action: "Community resilience programming, combating learned helplessness, sustaining engagement" },
     ],
     stakeholders: ["Regional Health Systems", "Community Colleges", "Employers", "Recovery Courts", "CHWs", "Faith Communities"],
-    platforms: ["ThriveUp Academy", "Sankofa Health", "LifeBridge", "MCE", "HerHealth Network"],
+    platforms: ["ThriveUp", "Sankofa Health", "LifeBridge", "MCE", "HerHealth Network"],
     outcomes: "Economic diversification, reduced substance use, new career pathways, healthcare access expansion — proving the ecosystem is truly agnostic to setting and problem.",
   },
 ] as const;

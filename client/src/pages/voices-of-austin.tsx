@@ -230,7 +230,7 @@ export default function VoicesOfAustinPage() {
   const [opportunityFilter, setOpportunityFilter] = useState("all");
 
   useEffect(() => {
-    document.title = "Voices of Austin | ThriveUp Academy";
+    document.title = "Voices of Austin | ThriveUp";
   }, []);
 
   const { data: stories, isLoading: storiesLoading } = useQuery<CommunityStory[]>({
@@ -282,8 +282,8 @@ export default function VoicesOfAustinPage() {
         workforce: ["Mission Transition", "MCE"],
         health: ["Whole-Person Health", "Sankofa Health"],
         veteran: ["Collaborative Advocate", "Mission Transition"],
-        education: ["Talk Your Talk", "ThriveUp Academy"],
-        financial: ["MCE", "ThriveUp Academy"],
+        education: ["Talk Your Talk", "ThriveUp"],
+        financial: ["MCE", "ThriveUp"],
         community: ["LifeBridge", "ISSS"],
         youth: ["ISSS", "Perfectly Different", "Talk Your Talk"],
       };

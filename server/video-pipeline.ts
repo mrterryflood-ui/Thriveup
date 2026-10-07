@@ -19,7 +19,7 @@ function generateMrssEntry(job: { title: string; id: number; duration: number | 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/">
   <channel>
-    <title>ThriveUp Academy Channel</title>
+    <title>ThriveUp Channel</title>
     <description>AI-Powered Workforce Development &amp; Community Impact</description>
     <item>
       <title>${job.title}</title>

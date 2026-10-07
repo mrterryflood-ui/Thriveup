@@ -1,5 +1,5 @@
 # IT Service Management (ITSM) Compliance Framework
-**Organization:** Thriving Communities for All (TCAF) / ThriveUp Academy
+**Organization:** Thriving Communities for All (TCAF) / ThriveUp
 **Version:** 1.0 — Effective July 2, 2026
 **Owner:** Dr. Terry Flood, President, TCAF
 **Contact:** terryflood@thrivingcommunitiesforall.com
@@ -9,7 +9,7 @@
 
 ## 1. Purpose & Scope
 
-This framework establishes TCAF's IT Service Management practices aligned with ITIL 4 principles. It governs the 15 public-facing platforms operated under the ThriveUp Academy / Ecosystem umbrella, covering service delivery, incident response, change management, and problem resolution.
+This framework establishes TCAF's IT Service Management practices aligned with ITIL 4 principles. It governs the 15 public-facing platforms operated under the ThriveUp / Ecosystem umbrella, covering service delivery, incident response, change management, and problem resolution.
 
 This document satisfies ITSM compliance requirements for:
 - Federal cooperative agreements (OMB Circular A-130, FISMA-adjacent reviews)
@@ -25,7 +25,7 @@ This document satisfies ITSM compliance requirements for:
 
 | Service ID | Service Name | URL | Description | Populations Served |
 |---|---|---|---|---|
-| SVC-001 | ThriveUp Academy Platform | thriveupcademy.com | Primary educational and workforce development hub; AI Workforce Academy, Trade Sims, Career Explorer, 55+ pathways | Youth, adult learners, justice-involved, foster youth |
+| SVC-001 | ThriveUp Platform | thriveupcademy.com | Primary educational and workforce development hub; AI Workforce Academy, Trade Sims, Career Explorer, 55+ pathways | Youth, adult learners, justice-involved, foster youth |
 | SVC-002 | Whole-Person Health Ecosystem | mentalwellnesssupport.net | Behavioral-health safety floor; C-SSRS/PHQ-9/GAD-7 screenings, safety plans, 20,670+ resources, offline PWA | All populations; crisis-adjacent |
 | SVC-003 | SafeReport Compliance Platform | safereports.net | Mandatory-reporter incident management; 50-state regulation DB, 7-stage lifecycle, tamper-evident audit trails, court-admissible records | Clinicians, educators, mandatory reporters |
 | SVC-004 | Community Voice | thrivingcommunitiesforall.com | Participant intake, benefits navigation, community issue-surfacing, ITI (Integration Through Invitation) | Under-resourced community members |
@@ -222,7 +222,7 @@ Before any proposal, partnership agreement, or funder meeting that references a 
 
 ## 9. Compliance Attestation
 
-This framework is adopted as of **July 2, 2026** by Thriving Communities for All (TCAF), EIN 41-3618003, operating as ThriveUp Academy.
+This framework is adopted as of **July 2, 2026** by Thriving Communities for All (TCAF), EIN 41-3618003, operating as ThriveUp.
 
 **ITIL 4 alignment:** This framework applies ITIL 4 guiding principles — focus on value, progress iteratively, collaborate and promote visibility, think and work holistically, keep it simple and practical — sized appropriately for a mission-driven nonprofit operating at community scale.
 

@@ -94,7 +94,7 @@ function generateInvoicePDF(data: any, locationQuery: string) {
   doc.setFontSize(8);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(148, 163, 184);
-  doc.text("TCAF scenario and historical model summary · ThriveUp Academy / TCAF", margin, 22);
+  doc.text("TCAF scenario and historical model summary · ThriveUp / TCAF", margin, 22);
   doc.text(`Generated ${new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}`, margin, 29);
   y = 46;
 
@@ -249,7 +249,7 @@ function generateInvoicePDF(data: any, locationQuery: string) {
   doc.setFont("helvetica", "normal");
   doc.setTextColor(100, 116, 139);
   doc.text("Observed inputs: Census ACS at the disclosed geography. Costs are TCAF model/scenario outputs, not Census-verified expenditures.", margin, footerY + 2, { maxWidth: maxW - 30 });
-  doc.text("thriveupacademy.com", W - margin, footerY + 2, { align: "right" });
+  doc.text("thrivingcommunitiesforall.com", W - margin, footerY + 2, { align: "right" });
 
   doc.save(`community-invoice-${(displayName || locationQuery).replace(/[^a-z0-9]/gi, "-").toLowerCase()}.pdf`);
 }

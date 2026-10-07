@@ -124,7 +124,7 @@ const THIRD_SPACES: ThirdSpace[] = [
 ];
 
 const ECOSYSTEM_PLATFORMS = [
-  { name: "ThriveUp Academy", inPerson: true, virtual: true, mobile: true, kiosk: true, category: "Education & Youth" },
+  { name: "ThriveUp", inPerson: true, virtual: true, mobile: true, kiosk: true, category: "Education & Youth" },
   { name: "LifeBridge", inPerson: true, virtual: true, mobile: true, kiosk: true, category: "Housing & Transitions" },
   { name: "Mission Transition", inPerson: true, virtual: true, mobile: true, kiosk: false, category: "Workforce" },
   { name: "MCE", inPerson: true, virtual: true, mobile: false, kiosk: false, category: "Business Development" },

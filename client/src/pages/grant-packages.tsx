@@ -242,7 +242,7 @@ SERVICE AREA: Central Texas (Travis, Williamson, Hays, Bastrop, Caldwell countie
         tasks: [
           { id: "wc1", task: "Identify target Local Workforce Development Board (LWDB)", owner: "Dr. Flood", status: "pending", dueDate: "TBD", guidance: "Your primary target is Workforce Solutions Capital Area (wfsca.org) which serves Travis County. You could also apply to Workforce Solutions Rural Capital Area for Williamson, Hays, Bastrop, Caldwell counties. Contact the Youth Program Manager at your target LWDB to discuss funding availability and local priorities before writing." },
           { id: "wc2", task: "Review state WIOA plan and local area priorities", owner: "Dr. Flood + AI", status: "pending", dueDate: "TBD", guidance: "Texas Workforce Commission publishes the state WIOA plan at twc.texas.gov. Your LWDB also publishes a Local Plan with specific priority sectors, performance targets, and youth service strategies. Align your proposal to BOTH. The AI can analyze these documents if you share them.", aiCanHelp: true, aiAction: "Analyze state/local WIOA plan alignment" },
-          { id: "wc3", task: "Map platform capabilities to all 14 WIOA youth elements", owner: "AI", status: "pending", dueDate: "TBD", guidance: "WIOA requires all 14 youth program elements. ThriveUp's 15 service platforms map directly — e.g., ThriveUp Academy = tutoring, Talk Your Talk = comprehensive communication-access guidance, SafeReport = safe environment, MCE = entrepreneurial skills. The AI can generate a complete platform-to-element mapping matrix.", aiCanHelp: true, aiAction: "Generate 14-element platform mapping" },
+          { id: "wc3", task: "Map platform capabilities to all 14 WIOA youth elements", owner: "AI", status: "pending", dueDate: "TBD", guidance: "WIOA requires all 14 youth program elements. ThriveUp's 15 service platforms map directly — e.g., ThriveUp = tutoring, Talk Your Talk = comprehensive communication-access guidance, SafeReport = safe environment, MCE = entrepreneurial skills. The AI can generate a complete platform-to-element mapping matrix.", aiCanHelp: true, aiAction: "Generate 14-element platform mapping" },
           { id: "wc4", task: "Identify 3-5 employer partners for work-based learning", owner: "Dr. Flood", status: "pending", dueDate: "TBD", guidance: "WIOA requires 20% of funds on Work Experience. Target Austin-area employers in growth sectors: Healthcare (Ascension Seton, St. David's, CommUnityCare), IT (Dell, Indeed), Manufacturing (Samsung, Tesla Gigafactory), Logistics (H-E-B, Amazon). Reach out to HR/workforce development contacts. You need signed commitment letters." },
           { id: "wc5", task: "Gather local labor market data for target occupations", owner: "AI", status: "pending", dueDate: "TBD", guidance: "Pull Austin MSA data from BLS, Texas Workforce Commission, and EMSI/Lightcast. Key data points: youth unemployment rate (16-24), in-demand occupations, median wages by sector, credential gaps, OSY population estimates for Travis County (~18,000). The AI can compile this into a data brief.", aiCanHelp: true, aiAction: "Compile Austin labor market data brief" },
         ],
@@ -288,7 +288,7 @@ SERVICE AREA: Central Texas (Travis, Williamson, Hays, Bastrop, Caldwell countie
       },
     ],
     preExecutionChecklist: [
-      { id: "wpe-1", category: "Registration", item: "SAM.gov registration active", status: "verified", notes: "", guidance: "Your SAM.gov registration must be current and active. Verify at sam.gov — search for ThriveUp Academy. Ensure your UEI number matches across all federal systems.", resources: [{ label: "SAM.gov", url: "https://sam.gov" }] },
+      { id: "wpe-1", category: "Registration", item: "SAM.gov registration active", status: "verified", notes: "", guidance: "Your SAM.gov registration must be current and active. Verify at sam.gov — search for ThriveUp. Ensure your UEI number matches across all federal systems.", resources: [{ label: "SAM.gov", url: "https://sam.gov" }] },
       { id: "wpe-2", category: "Compliance", item: "501(c)(3) status confirmed", status: "verified", notes: "TCAF IRS-determined 501(c)(3) — Letter 947, eff. 01/14/2026 (EIN 41-3618003). Attach to application.", guidance: "Attach IRS Letter 947 (TCAF determination letter, effective January 14, 2026). If your status is less than 5 years old, you may also need to include most recent Form 990." },
       { id: "wpe-3", category: "Compliance", item: "WIOA eligible provider status", status: "action-needed", notes: "Apply through state Eligible Training Provider List (ETPL)", guidance: "Texas requires training providers to be on the state's Eligible Training Provider List (ETPL). Apply through the Texas Workforce Commission. This process can take 30-90 days — start immediately. Without ETPL status, you cannot receive WIOA training funds.", resources: [{ label: "Texas ETPL Application", url: "https://www.twc.texas.gov/programs/eligible-training-provider-system" }] },
       { id: "wpe-4", category: "Partnerships", item: "LWDB relationship established", status: "action-needed", notes: "Contact local board for partnership discussion", guidance: "Contact Workforce Solutions Capital Area (WFSCA). Ask for the Youth Program Director. Request a meeting to discuss: (1) current funding availability for WIOA Title I Youth, (2) their local priorities and performance targets, (3) what they look for in service providers, (4) MOU requirements. This is the most critical relationship — they are your funder.", resources: [{ label: "WFSCA Website", url: "https://www.wfsca.org/" }] },
@@ -676,14 +676,14 @@ Target: Enroll [NUMBER] households in at least one new public benefit within 12 
 
 TRACK 2: FINANCIAL COACHING & ASSET BUILDING
 Service: Individualized financial coaching addressing budgeting, debt management, credit repair, savings strategies, and tax preparation.
-Technology: Financial Literacy module within ThriveUp Academy provides structured curricula, progress tracking, and goal setting.
+Technology: Financial Literacy module within ThriveUp provides structured curricula, progress tracking, and goal setting.
 Delivery Model: One-on-one coaching sessions (in-person or virtual) + group workshops + self-paced digital modules.
 Curriculum: 8-session core program covering: (1) Financial assessment, (2) Budgeting, (3) Banking and credit, (4) Debt management, (5) Savings strategies, (6) Benefits optimization, (7) Tax credits (EITC, CTC), (8) Long-term financial planning.
 Target: [NUMBER] participants complete financial coaching with measurable improvement in financial stability indicators.
 
 TRACK 3: WORKFORCE PATHWAYS TO ECONOMIC STABILITY
 Service: Career readiness training, digital literacy, and industry-specific certifications for participants whose economic instability stems from unemployment or underemployment.
-Technology: ThriveUp Academy platform provides learning management, skills assessment, career pathway mapping, and employer connections.
+Technology: ThriveUp platform provides learning management, skills assessment, career pathway mapping, and employer connections.
 Industries: Healthcare (CNA, MA, CHW), IT (CompTIA, help desk), Manufacturing (safety, quality), Logistics (CDL prep, warehouse).
 Delivery Model: Cohort-based training (8-12 week programs) with wraparound supports (childcare, transportation, benefits continuation during training).
 Target: [NUMBER] participants placed in employment at or above 150% FPL within 90 days of program completion.
@@ -693,7 +693,7 @@ IV. SERVICE DELIVERY INFRASTRUCTURE
 TECHNOLOGY ECOSYSTEM:
 Our 15-service-platform ACOS (Advanced Community Operating System) provides integrated digital infrastructure that no single-program organization can match:
 - LifeBridge: Benefits navigation, enrollment tracking, referral management
-- ThriveUp Academy: Workforce training, learning management, career pathways
+- ThriveUp: Workforce training, learning management, career pathways
 - RPLICE (Better Science Lab): Implementation science validation engine — provides CFIR 2.0 assessments, RE-AIM outcome scoring, implementation fidelity tracking, and Three Realities diagnostic tools. This is our evidence-based quality assurance backbone — every program component is validated against implementation science frameworks, not just activity metrics.
 - MAP-GAP Engine: Continuous quality improvement — translates RPLICE's fidelity data into actionable program modifications within 30-day cycles
 - SafeReport: Community safety reporting and response coordination
@@ -941,13 +941,13 @@ Reporting: Quarterly cohort analysis
 OUTCOME 5: WORKFORCE PLACEMENT (for Track 3 participants)
 Metric: Participants placed in employment at or above 150% FPL
 Target: >65% placement rate within 90 days of program completion
-Measurement: ThriveUp Academy placement tracking, employer verification, wage records
+Measurement: ThriveUp placement tracking, employer verification, wage records
 Reporting: Quarterly placement and wage analysis
 
 III. DATA COLLECTION & MANAGEMENT
 
 LifeBridge Platform: Automated tracking of benefits enrollment, application status, follow-up scheduling, and retention monitoring
-ThriveUp Academy: Learning progress, certification completion, employment placement
+ThriveUp: Learning progress, certification completion, employment placement
 RPLICE (Better Science Lab): Implementation fidelity validation — ensures program delivery matches evidence-based design. RPLICE provides:
   - CFIR 2.0 domain assessments across all 5 implementation science domains (Innovation, Outer Setting, Inner Setting, Individuals, Process)
   - RE-AIM outcome scoring (Reach, Effectiveness, Adoption, Implementation, Maintenance)
@@ -1096,7 +1096,7 @@ TCAF operates a 15-service-platform Advanced Community Operating System (ACOS) p
 
 Relevant Platforms for This Grant:
 - LifeBridge: Benefits navigation, enrollment tracking, referral management — directly supports Track 1
-- ThriveUp Academy: Workforce training and career pathways — directly supports Track 3
+- ThriveUp: Workforce training and career pathways — directly supports Track 3
 - Financial Literacy Module: Financial coaching curricula and tracking — directly supports Track 2
 - RPLICE (Better Science Lab): Implementation science validation engine — CFIR 2.0 assessments, RE-AIM outcome scoring, implementation fidelity tracking, Three Realities diagnostic tools. This is the evidence-based quality assurance backbone that most organizations cannot afford to build. It is live and operational.
 - MAP-GAP Engine: Continuous quality improvement — translates RPLICE fidelity data into actionable 30-day improvement cycles
@@ -1564,8 +1564,8 @@ APPLICATION WINDOW: June 12–18, 2026 (confirm exact date at Grants.gov). Award
     preExecutionChecklist: [
       { id: "fxpe-1", category: "Registration", item: "SAM.gov registration active and current", status: "verified", notes: "Verify UEI number is valid", guidance: "Your SAM.gov registration must be active and current. Verify at sam.gov. Registration must be renewed annually. Ensure NAICS codes include 624190 (Other Individual and Family Services) and 624221 (Temporary Shelters).", resources: [{ label: "SAM.gov", url: "https://sam.gov" }] },
       { id: "fxpe-2", category: "Registration", item: "Grants.gov account active with AOR credentials", status: "verified", notes: "AOR credentials confirmed", guidance: "Your Authorized Organization Representative (AOR) must have an active Grants.gov account. The submission window is only June 12–18 — verify login credentials NOW.", resources: [{ label: "Grants.gov", url: "https://www.grants.gov" }] },
-      { id: "fxpe-3", category: "Compliance", item: "501(c)(3) determination letter ready", status: "pending", notes: "ThriveUp Academy 501(c)(3)", guidance: "Attach your IRS 501(c)(3) determination letter. VA requires eligible applicants to be a 501(c)(3), state/local government, or federally recognized tribe." },
-      { id: "fxpe-4", category: "Compliance", item: "VOSB certification documentation (The Collaborative Advocate)", status: "pending", notes: "Highlight veteran-owned status in organizational capacity", guidance: "While ThriveUp Academy applies as the 501(c)(3), reference The Collaborative Advocate's VOSB (Veteran-Owned Small Business) certification to demonstrate authentic veteran connection. This strengthens your organizational capacity narrative." },
+      { id: "fxpe-3", category: "Compliance", item: "501(c)(3) determination letter ready", status: "pending", notes: "ThriveUp 501(c)(3)", guidance: "Attach your IRS 501(c)(3) determination letter. VA requires eligible applicants to be a 501(c)(3), state/local government, or federally recognized tribe." },
+      { id: "fxpe-4", category: "Compliance", item: "VOSB certification documentation (The Collaborative Advocate)", status: "pending", notes: "Highlight veteran-owned status in organizational capacity", guidance: "While ThriveUp applies as the 501(c)(3), reference The Collaborative Advocate's VOSB (Veteran-Owned Small Business) certification to demonstrate authentic veteran connection. This strengthens your organizational capacity narrative." },
       { id: "fxpe-5", category: "Compliance", item: "Indirect cost rate agreement or de minimis 10%", status: "pending", notes: "Use de minimis 10% if no negotiated rate", guidance: "Same as other federal grants — use the de minimis 10% rate if you don't have a negotiated indirect cost rate." },
       { id: "fxpe-6", category: "Veteran Services", item: "Demonstrated veteran-serving experience documented", status: "action-needed", notes: "Compile evidence of veteran engagement across platforms", guidance: "VA reviewers will look for DEMONSTRATED experience serving veterans — not just capability. Document: (1) Mission Transition platform veteran users, (2) Any prior veteran-focused programming, (3) Dr. Flood's veteran community relationships, (4) VOSB partnership. If limited direct experience, emphasize the ecosystem's capability and committed veteran partners." },
       { id: "fxpe-7", category: "Partnerships", item: "VA Medical Center or CBOC partnership initiated", status: "action-needed", notes: "Contact Central Texas VAHCS (Temple) or Austin CBOC", guidance: "This is your HIGHEST PRIORITY partnership. Contact the Central Texas Veterans Health Care System in Temple (254-778-4811) or the Austin VA Outpatient Clinic. Ask for the Suicide Prevention Coordinator — they often help community organizations with SSG Fox applications.", resources: [{ label: "Central Texas VAHCS", url: "https://www.va.gov/central-texas-health-care/" }] },
@@ -1861,7 +1861,7 @@ Description: [2-3 sentences] | Relevance: [How it relates]
 Reference: [NAME, TITLE, PHONE, EMAIL]
 
 IF LIMITED FORMAL CONTRACT HISTORY:
-The CMS platform itself IS past performance — document the development effort, timeline, technical scope as a case study. Also include: consulting engagements, pro-bono government/nonprofit work, ThriveUp Academy platform (15-service-platform ACOS ecosystem), academic/research work. Frame honestly — evaluators respect transparency over fabricated experience.`,
+The CMS platform itself IS past performance — document the development effort, timeline, technical scope as a case study. Also include: consulting engagements, pro-bono government/nonprofit work, ThriveUp platform (15-service-platform ACOS ecosystem), academic/research work. Frame honestly — evaluators respect transparency over fabricated experience.`,
         reviewNotes: "Weak references lose more bids than weak tech. Notify references before submission.", lastUpdated: "", assignee: "Dr. Flood",
         pageLimit: "3-5 pages", wordCount: "1,000-2,000 words",
       },
@@ -2621,10 +2621,10 @@ RPLICE is not a proposal — it is a live system that has already conducted CFIR
 PURPOSE: Invest in nonprofit partners building career pathways for nonclinical youth mental health providers — peer mentors, community health workers, navigators, and educators. 2-year grants.
 PRIORITIES: (1) Expand culturally responsive nonclinical support, (2) Strengthen workforce pipeline for undervalued mental health roles, (3) Elevate youth voices and equity strategies, (4) Build legitimacy for nonclinical roles in mental health ecosystem.
 SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501(c)(3).
-WHY WE FIT: ThriveUp Academy provides the workforce training infrastructure. RPLICE tracks whether training programs produce competent nonclinical providers. Perfectly Different addresses K-12 mental health and neurodiversity supports. Sankofa Health provides culturally responsive screening. Three Realities ensures youth voice drives program design.
+WHY WE FIT: ThriveUp provides the workforce training infrastructure. RPLICE tracks whether training programs produce competent nonclinical providers. Perfectly Different addresses K-12 mental health and neurodiversity supports. Sankofa Health provides culturally responsive screening. Three Realities ensures youth voice drives program design.
 LOI DEADLINE: April 10, 2026.`,
     essentials: [
-      { label: "Nonclinical Workforce Focus", detail: "Must build career pathways for peer mentors, CHWs, navigators, educators — not licensed clinicians. ThriveUp Academy trains exactly these roles.", critical: true },
+      { label: "Nonclinical Workforce Focus", detail: "Must build career pathways for peer mentors, CHWs, navigators, educators — not licensed clinicians. ThriveUp trains exactly these roles.", critical: true },
       { label: "Youth Mental Health", detail: "Programs must serve youth mental health — Perfectly Different + Sankofa Health + SafeReport screening tools are direct alignment", critical: true },
       { label: "LOI Due April 10", detail: "Letter of Intent due April 10, 2026 — URGENT. Must be submitted within 11 days.", critical: true },
       { label: "$250K-$500K, 2-Year", detail: "Substantial multi-year funding — request $400K+ with full ecosystem justification" },
@@ -2632,7 +2632,7 @@ LOI DEADLINE: April 10, 2026.`,
       { label: "Youth Voice Required", detail: "Must elevate youth voices in program design — Three Realities Lived Reality centers this" },
     ],
     competitiveEdge: [
-      "ThriveUp Academy already trains nonclinical mental health workforce roles — not building from scratch",
+      "ThriveUp already trains nonclinical mental health workforce roles — not building from scratch",
       "RPLICE tracks whether training produces competent providers using AI-powered fidelity monitoring",
       "Sankofa Health has PHQ-9/GAD-7 screening built in — culturally responsive mental health tools operational",
       "Perfectly Different addresses K-12 mental health and neurodiversity — school-based pathway for nonclinical support",
@@ -2680,7 +2680,7 @@ Texas ranks 51st nationally in mental health workforce per capita. In Central Te
 
 OUR APPROACH:
 Using our 15-service-platform ACOS ecosystem, we provide:
-1. TRAINING: ThriveUp Academy (thrivingcommunitiesforall.com) delivers workforce training with AI-powered career pathway mapping, competency-based progression, and industry-recognized credential tracks for CHW, peer specialist, and navigator roles.
+1. TRAINING: ThriveUp (thrivingcommunitiesforall.com) delivers workforce training with AI-powered career pathway mapping, competency-based progression, and industry-recognized credential tracks for CHW, peer specialist, and navigator roles.
 2. CLINICAL TOOLS: Sankofa Health (herhealthmatters2.com) provides responsive PHQ-9/GAD-7 screening tools that nonclinical providers learn to administer — giving them real clinical support technology from Day 1.
 3. SCHOOL INTEGRATION: Perfectly Different and ISSS provide K-12 mental health and wraparound support tools that connect school-based nonclinical staff to the broader care ecosystem.
 4. QUALITY ASSURANCE: RPLICE (bettersciencelab.com) tracks whether our training program produces competent providers using AI-powered implementation fidelity monitoring. Our 4-engine RAG architecture (GPT-5, Claude, 6 scholarly databases, ecosystem context) validates training effectiveness against published evidence — with anti-hallucination guardrails and APA citations on every assessment.
@@ -2706,7 +2706,7 @@ PROGRAM: "Pathways to Purpose: AI-Powered Career Development for Nonclinical You
 I. PROGRAM DESIGN
 
 A. Career Pathway Model
-ThriveUp Academy provides a structured career pathway from lived experience to professional credential for nonclinical youth mental health roles:
+ThriveUp provides a structured career pathway from lived experience to professional credential for nonclinical youth mental health roles:
 
 Track 1 — Community Health Worker (CHW): 120-hour certification program covering mental health first aid, motivational interviewing, trauma-informed care, and cultural humility. Graduates qualify for Texas DSHS CHW certification.
 
@@ -2758,7 +2758,7 @@ Personnel ($120,000):
 
 Technology & AI ($30,000):
 - RPLICE AI engine operations (RAG queries, fidelity monitoring): $15,000
-- ThriveUp Academy training platform operations: $10,000
+- ThriveUp training platform operations: $10,000
 - Sankofa Health screening tool configuration: $5,000
 
 Training Delivery ($35,000):
@@ -2855,13 +2855,13 @@ All outcomes assessed through RPLICE's 4-engine AI + RAG architecture. Scholarly
         id: "pre-execute" as PhaseId, name: "5. Pre-Execution Readiness", description: "Prepare full proposal if LOI accepted", status: "upcoming" as const,
         tasks: [
           { id: "rifp1", task: "Draft full proposal narrative (15 pages)", owner: "AI + Dr. Flood", status: "pending" as const, dueDate: "TBD" },
-          { id: "rifp2", task: "Configure ThriveUp Academy CHW/peer specialist training tracks", owner: "AI", status: "pending" as const, dueDate: "TBD" },
+          { id: "rifp2", task: "Configure ThriveUp CHW/peer specialist training tracks", owner: "AI", status: "pending" as const, dueDate: "TBD" },
         ],
       },
     ],
     preExecutionChecklist: [
       { id: "rifpe-1", category: "Eligibility", item: "501(c)(3) determination letter", status: "verified" as const, notes: "TCAF EIN 41-3618003" },
-      { id: "rifpe-2", category: "Alignment", item: "Nonclinical workforce pathway documented", status: "verified" as const, notes: "ThriveUp Academy career pathways" },
+      { id: "rifpe-2", category: "Alignment", item: "Nonclinical workforce pathway documented", status: "verified" as const, notes: "ThriveUp career pathways" },
       { id: "rifpe-3", category: "Technology", item: "Training platform operational", status: "verified" as const, notes: "thrivingcommunitiesforall.com — live" },
       { id: "rifpe-4", category: "Technology", item: "Mental health screening tools operational", status: "verified" as const, notes: "Sankofa Health — herhealthmatters2.com" },
       { id: "rifpe-5", category: "Community", item: "Youth advisory board established", status: "action-needed" as const, notes: "Dr. Flood: recruit 12+ youth ages 16-24" },
@@ -3528,7 +3528,7 @@ SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501
     referenceLabel: "Texas Capital Foundation",
     grantKnowledge: `Texas Capital Foundation Honors Awards — $50,000–$100,000.
 THREE CATEGORIES: (1) Housing Solutions — $50K, (2) Education & Workforce Development — $50K, (3) Veterans & First Responders — $100K.
-TCAF QUALIFIES FOR TWO: Veterans & First Responders ($100K) — veteran-founded organization serving veteran population. Education & Workforce Development ($50K) — ThriveUp Academy is literally a workforce development platform.
+TCAF QUALIFIES FOR TWO: Veterans & First Responders ($100K) — veteran-founded organization serving veteran population. Education & Workforce Development ($50K) — ThriveUp is literally a workforce development platform.
 ELIGIBILITY: 501(c)(3) or 501(c)(4) with 3+ year performance record. Must serve low-to-moderate-income communities within Texas Capital's service areas: Dallas, Fort Worth, Austin, Houston, San Antonio. Must be active in IRS Publication 78.
 ALSO AVAILABLE: Community Impact Grants — smaller grants aligned to CRA requirements, same focus areas.
 NOT ELIGIBLE: Political advocacy, for-profit orgs, municipalities, membership orgs, ticketed events.

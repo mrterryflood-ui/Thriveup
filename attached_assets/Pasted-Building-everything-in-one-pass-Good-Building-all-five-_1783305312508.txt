@@ -24,7 +24,7 @@ Building everything in one pass.Good. Building all five workstreams simultaneous
 
 **PCL-5** — Weathers et al., VA public domain. 20 items, 0–4 each, total 0–80. Four DSM-5 clusters (B/C/D/E). Cutoff ≥ 33 = probable PTSD. Dominant cluster identified to guide treatment focus.
 
-**Referral routing engine** — `generateReferrals()` maps domain scores to your existing partner network: CommUnity Care FQHCs, Integral Care, Austin Recovery, LifeBridge, Foundation Communities, HACA Section 8, ACC Continuing Education, Workforce Solutions Capital Area, Texas RioGrande Legal Aid (expungement), Lone Star Justice Alliance, Thinking for a Change (CBT), ThriveUp Academy trade sims. Urgency levels: immediate/within_week/within_month/routine. Crisis override always fires first. Referrals deduplicated by resource name.
+**Referral routing engine** — `generateReferrals()` maps domain scores to your existing partner network: CommUnity Care FQHCs, Integral Care, Austin Recovery, LifeBridge, Foundation Communities, HACA Section 8, ACC Continuing Education, Workforce Solutions Capital Area, Texas RioGrande Legal Aid (expungement), Lone Star Justice Alliance, Thinking for a Change (CBT), ThriveUp trade sims. Urgency levels: immediate/within_week/within_month/routine. Crisis override always fires first. Referrals deduplicated by resource name.
 
 ---
 

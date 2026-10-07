@@ -81,7 +81,7 @@ const INVESTING_WISDOM = [
 ];
 
 export default function AcademyStocksPage() {
-  useEffect(() => { document.title = 'Stock Market | ThriveUp Academy'; }, []);
+  useEffect(() => { document.title = 'Stock Market | ThriveUp'; }, []);
   const { toast } = useToast();
   const [tradingStock, setTradingStock] = useState<Stock | null>(null);
   const [tradeAction, setTradeAction] = useState<"buy" | "sell">("buy");

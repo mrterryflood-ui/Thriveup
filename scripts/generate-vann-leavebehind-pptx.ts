@@ -65,7 +65,7 @@ async function main() {
   const s1 = pptx.addSlide();
   s1.background = { color: NAVY };
   s1.addText("Vann Collaboration Kit", { x: 0.6, y: 1.4, w: 12, h: 1.2, fontSize: 48, bold: true, color: "FFFFFF", fontFace: "Calibri" });
-  s1.addText("Sistahs Can We Talk · Iasis Christian Center · ThriveUp Academy / TCAF", { x: 0.6, y: 2.6, w: 12, h: 0.6, fontSize: 22, color: "FFFFFF" });
+  s1.addText("Sistahs Can We Talk · Iasis Christian Center · ThriveUp / TCAF", { x: 0.6, y: 2.6, w: 12, h: 0.6, fontSize: 22, color: "FFFFFF" });
   s1.addText("A working-session leave-behind. Every number on every slide reflects what the live system shows today.", { x: 0.6, y: 3.3, w: 12, h: 0.6, fontSize: 16, color: "CBD5E1" });
   s1.addText(`${APP_BASE}/partners/vann-hub`, { x: 0.6, y: 6.2, w: 8, h: 0.4, fontSize: 14, color: "93C5FD" });
   s1.addText(`Prepared by Dr. Terry Flood, President, TCAF · ${new Date().toLocaleDateString()}`, { x: 0.6, y: 6.7, w: 12, h: 0.4, fontSize: 12, color: "94A3B8" });
@@ -178,7 +178,7 @@ async function main() {
   s7.addText("The ecosystem you'd be plugging into", { x: 0.5, y: 0.3, w: 12, h: 0.6, fontSize: 24, bold: true, color: NAVY });
   s7.addText("Externally we describe this as 15 service platforms operated by TCAF. Nine of them are immediately relevant here.", { x: 0.5, y: 0.95, w: 12, h: 0.4, fontSize: 11, color: GRAY, italic: true });
   const eco = [
-    ["ThriveUp Academy", "Workforce, financial literacy, FAFSA, attendance/dosage. The platform your tracker plugs into."],
+    ["ThriveUp", "Workforce, financial literacy, FAFSA, attendance/dosage. The platform your tracker plugs into."],
     ["Whole-Person Health", "PHQ-9 / GAD-7 screenings, crisis routing. Fit for your Sedgwick County MH Board lane."],
     ["Bible Study Buddies", "Faith-formation curriculum. Built for the Iasis Joshua Generation / Academy of Excellence tracks."],
     ["Talk Your Talk", "89 spoken + 18 sign = 107 languages. Spanish + Vietnamese materials for the families who need them."],
