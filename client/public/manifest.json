@@ -1,7 +1,7 @@
 {
-  "name": "ThriveUp Academy",
+  "name": "ThriveUp",
   "short_name": "ThriveUp",
-  "description": "The community integration and implementation platform — for residents, the organizations that serve them, and the institutions that support them.",
+  "description": "Find help near you — food, housing, child care, benefits, health and work support — then follow through with what you find.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -19,5 +19,5 @@
       "type": "image/png"
     }
   ],
-  "categories": ["education", "business"]
+  "categories": ["government", "health", "education"]
 }

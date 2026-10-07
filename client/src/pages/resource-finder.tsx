@@ -71,15 +71,18 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export default function ResourceFinderPage() {
-  useEffect(() => { document.title = "Resource Finder | ThriveUp Academy"; }, []);
+  useEffect(() => { document.title = "Find Help & Resources | ThriveUp"; }, []);
 
   const { toast } = useToast();
+  const initialUrlParams = new URLSearchParams(window.location.search);
+  const initialQuery = initialUrlParams.get("q") ?? "";
+  const initialState = initialUrlParams.get("state") ?? "";
   const [wizardStep, setWizardStep] = useState(1);
-  const [selectedState, setSelectedState] = useState("");
+  const [selectedState, setSelectedState] = useState(initialState);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [ageFilter, setAgeFilter] = useState("");
-  const [showResults, setShowResults] = useState(false);
+  const [showResults, setShowResults] = useState(Boolean(initialQuery || initialState));
   const [activeTab, setActiveTab] = useState("search");
   const [aiSituation, setAiSituation] = useState("");
   const [aiResponse, setAiResponse] = useState("");
@@ -238,8 +241,8 @@ export default function ResourceFinderPage() {
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto space-y-6" data-testid="resource-finder-page">
       <PageHeader
-        title="Community Resource Finder"
-        description="Find real government and community resources across all 50 states, DC, and U.S. territories"
+        title="Find Help & Resources"
+        description="Search real government and community resources across all 50 states, DC, and U.S. territories — free, no sign-in needed"
         breadcrumbs={[{label:"Resource Finder"}]}
         actions={<TrainingGuideButton moduleId="resource-finder" />}
       />

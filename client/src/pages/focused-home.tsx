@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import { Link } from "wouter";
-import { ArrowRight, MoveRight } from "lucide-react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { Link, useLocation } from "wouter";
+import { ArrowRight, MoveRight, Search } from "lucide-react";
 import {
   WORKSPACES,
   homeEntryTasks,
@@ -11,6 +11,15 @@ import { GuidedStart } from "@/components/guided-start";
 import { FocusedInvitation } from "@/components/focused-invitation";
 import { HomeWhyStrip, HomeDoorCard, HOME_IMAGE_NOTE } from "@/components/home-experience-map";
 import { POSITIONING_SHORT } from "@shared/canonical-claims";
+
+const HELP_QUICK_LINKS: Array<{ label: string; query: string }> = [
+  { label: "Food", query: "food" },
+  { label: "Housing & rent", query: "housing" },
+  { label: "Child care", query: "child care" },
+  { label: "Benefits", query: "benefits" },
+  { label: "Health", query: "health" },
+  { label: "Jobs & training", query: "jobs" },
+];
 
 function TaskLink({ task }: { task: WorkspaceTask }) {
   const { setWorkspace } = useWorkspace();
@@ -36,10 +45,18 @@ function TaskLink({ task }: { task: WorkspaceTask }) {
 
 export default function FocusedHome() {
   const { workspace, setWorkspace, storageUnavailable } = useWorkspace();
+  const [, navigate] = useLocation();
   const [guideOpen, setGuideOpen] = useState(false);
+  const [helpQuery, setHelpQuery] = useState("");
   const guideTrigger = useRef<HTMLButtonElement>(null);
   const primaryTasks = homeEntryTasks();
   const returningWorkspace = WORKSPACES.find((item) => item.id === workspace);
+
+  function submitHelpSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const query = helpQuery.trim();
+    navigate(query ? `/resources?q=${encodeURIComponent(query)}` : "/resources");
+  }
 
   useEffect(() => {
     // Returning from a task must not leave keyboard focus on a removed link.
@@ -70,14 +87,58 @@ export default function FocusedHome() {
         </header>
 
         <div>
-          <section className="mt-3 flex flex-col gap-1 sm:mt-7 sm:gap-2" aria-labelledby="home-title">
-            <p className="hidden sm:block text-[10px] font-bold uppercase tracking-[.17em] text-[#668078]">A practical place to begin</p>
+          <section className="mt-3 flex flex-col gap-2 sm:mt-7 sm:gap-3" aria-labelledby="home-title">
+            <p className="text-[10px] font-bold uppercase tracking-[.17em] text-[#668078]">Free help finder · no sign-in</p>
             <h1 id="home-title" tabIndex={-1} className="font-[var(--font-display)] text-[1.6rem] font-semibold leading-[1.03] tracking-[-.045em] text-[#203b38] focus:outline-none sm:text-5xl">
-              What would help today?
+              Find help near you
             </h1>
             <p className="max-w-2xl text-xs leading-5 text-[#62766e] sm:mt-1 sm:text-base sm:leading-6">
-              Choose one task. No account needed.
+              Food, housing, child care, benefits, health and work support — start with what your family needs today, then take the next step with what you find.
             </p>
+            <form
+              onSubmit={submitHelpSearch}
+              className="mt-1 flex flex-col gap-2 sm:mt-3 sm:flex-row sm:items-center"
+              data-testid="home-help-search-form"
+              role="search"
+              aria-label="Search for services and help"
+            >
+              <label htmlFor="home-help-search-input" className="sr-only">Search for a service or need</label>
+              <div className="relative flex-1 sm:max-w-[430px]">
+                <Search aria-hidden="true" size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#61776d]" />
+                <input
+                  id="home-help-search-input"
+                  type="search"
+                  value={helpQuery}
+                  onChange={(event) => setHelpQuery(event.target.value)}
+                  placeholder="e.g. rent help, food pantry, child care"
+                  className="min-h-11 w-full rounded-xl border border-[#c8d7cd] bg-white py-2 pl-9 pr-3 text-sm text-[#203b38] placeholder:text-[#8aa095] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#24756b]"
+                  data-testid="home-help-search-input"
+                />
+              </div>
+              <button
+                type="submit"
+                className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-[#24756b] px-4 text-sm font-semibold text-white transition hover:bg-[#1c5f57] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#24756b] focus-visible:ring-offset-2"
+                data-testid="home-help-search-submit"
+              >
+                Find help <Search aria-hidden="true" size={15} className="sm:hidden" />
+              </button>
+            </form>
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-2 text-[11px] text-[#62766e] sm:text-xs">
+              <span className="font-semibold text-[#53776b]">Common needs:</span>
+              {HELP_QUICK_LINKS.map((item) => (
+                <Link
+                  key={item.label}
+                  href={`/resources?q=${encodeURIComponent(item.query)}`}
+                  className="inline-flex min-h-8 items-center rounded-full border border-[#c8d7cd] bg-[#f8f8f2] px-3 py-1 font-medium text-[#375c53] transition hover:border-[#729b88] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#24756b]"
+                  data-testid={`home-quick-${item.query.replace(/\s+/g, "-")}`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              <Link href="/get-help" className="inline-flex min-h-8 items-center rounded-full border border-[#d9c9b0] bg-[#faf6ec] px-3 py-1 font-semibold text-[#7a4a1f] transition hover:border-[#b3935f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a28b4b]" data-testid="home-crisis-help">
+                Urgent support &amp; crisis contacts
+              </Link>
+            </div>
           </section>
 
           <section className="mt-3 sm:mt-7" id="start-with-a-task" aria-labelledby="task-first-title">
@@ -117,7 +178,6 @@ export default function FocusedHome() {
                 </>
               )}
             </div>
-            <Link href="/get-help" className="mt-1 inline-flex min-h-11 items-center text-xs font-semibold text-[#375c53] underline underline-offset-4 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#24756b]" data-testid="home-crisis-help">Urgent support &amp; crisis contacts</Link>
           </section>
 
           {returningWorkspace && (
