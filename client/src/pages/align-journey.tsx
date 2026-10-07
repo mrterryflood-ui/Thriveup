@@ -54,7 +54,7 @@ const PHASE_DETAILS: Record<AlignPhase, {
     next: "navigate",
     resources: [
       { label: "Transition Plans", url: "/transition-plans" },
-      { label: "Academy Pathways", url: "/academy" },
+      { label: "Learning Pathways", url: "/academy" },
       { label: "Workforce Assessment", url: "/workforce-assessment" },
     ],
   },

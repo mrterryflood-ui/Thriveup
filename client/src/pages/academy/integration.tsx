@@ -106,7 +106,7 @@ export default function AcademyIntegrationPage() {
           title="Support Portal"
           description="Connect the Academy with the Student Support Portal — Grades 6-12+"
           breadcrumbs={[
-            { label: "Academy", href: "/academy" },
+            { label: "Learn", href: "/academy" },
             { label: "Support Portal" },
           ]}
         />

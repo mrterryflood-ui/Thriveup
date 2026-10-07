@@ -274,7 +274,7 @@ export default function AcademyStocksPage() {
       <PageHeader
         title="Virtual Stock Market"
         description="Learn investing in a safe environment - simulated money only"
-        breadcrumbs={[{ label: "Academy", href: "/academy" }, { label: "Stock Market" }]}
+        breadcrumbs={[{ label: "Learn", href: "/academy" }, { label: "Stock Market" }]}
       />
 
       <Card className="p-4 mb-6 bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800" data-testid="card-investing-wisdom">

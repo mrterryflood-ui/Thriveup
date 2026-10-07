@@ -425,7 +425,7 @@ export default function AcademyAvatarPage() {
         title="Your Avatar"
         description="Customize your academy avatar and see your classmates"
         breadcrumbs={[
-          { label: "Academy", href: "/academy" },
+          { label: "Learn", href: "/academy" },
           { label: "Avatar" },
         ]}
       />

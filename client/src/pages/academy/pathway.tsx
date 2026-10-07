@@ -721,7 +721,7 @@ export default function AcademyPathwayPage() {
       <PageHeader
         title="Career Pathways"
         breadcrumbs={[
-          { label: "Academy", href: "/academy" },
+          { label: "Learn", href: "/academy" },
           { label: "My Pathway" },
         ]}
         actions={<TrainingGuideButton moduleId="academy-pathway" />}

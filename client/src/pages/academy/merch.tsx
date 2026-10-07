@@ -138,7 +138,7 @@ export default function AcademyMerchPage() {
       <PageHeader
         title="ThriveUp Merch Shop"
         description="Official ThriveUp merchandise - Real fundraising in partnership with UBO"
-        breadcrumbs={[{ label: "Academy", href: "/academy" }, { label: "Store" }]}
+        breadcrumbs={[{ label: "Learn", href: "/academy" }, { label: "Store" }]}
       />
 
       <Card className="p-6 mb-8 bg-gradient-to-br from-primary/5 to-accent/5" data-testid="card-mission-statement">

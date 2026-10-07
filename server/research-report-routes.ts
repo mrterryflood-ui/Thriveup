@@ -444,7 +444,7 @@ function renderPDF(
 
   const stages = [
     { label: "YHSI Intake",        n: cf.intake,   color: BRAND_BLUE  },
-    { label: "Academy Completed",  n: cf.academy,  color: BRAND_GREEN },
+    { label: "Learning completed",  n: cf.academy,  color: BRAND_GREEN },
     { label: "Workforce Placed",   n: cf.placed,   color: BRAND_GOLD  },
     { label: "Retained (90 days)", n: cf.retained, color: "#E53E3E"   },
   ];

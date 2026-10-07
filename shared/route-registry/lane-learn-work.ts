@@ -3,7 +3,7 @@ import type { RouteClassificationLane } from "../route-registry.types";
 
 export const LANE_LEARN_WORK: RouteClassificationLane = {
   "/academy": {
-    title: "Learn skills or explore careers", description: "Explore the academy village, classmates, learning activities, and career planning tools.", outcome: "learn", audiences: ["students-youth", "resident-family"], upstream: ["/", "/tools"], downstream: ["/academy/lessons", "/academy/careers", "/academy/avatar"], guide: "Want to build skills → Academy village → choose a learning activity or career tool",
+    title: "Learn skills or explore careers", description: "Explore the learning village, classmates, learning activities, and career planning tools.", outcome: "learn", audiences: ["students-youth", "resident-family"], upstream: ["/", "/tools"], downstream: ["/academy/lessons", "/academy/careers", "/academy/avatar"], guide: "Want to build skills → Learning village → choose a learning activity or career tool",
   },
   "/academy/admin-video-script": {
     title: "Create an academy video", description: "Review and copy an administrator-focused video script or submit it to the video rendering pipeline.", outcome: "operate", audiences: ["agency-government", "nonprofit-cbo"], upstream: ["/academy/admin", "/academy/phased-rollout"], downstream: ["/academy/admin", "/academy/course-creator", "/implementation"], guide: "Need an academy presentation → Video Script Generator → copy the script or request a render",
@@ -42,13 +42,13 @@ export const LANE_LEARN_WORK: RouteClassificationLane = {
     title: "Play dominoes", description: "Play a dominoes session, review the result, and start another game.", outcome: "learn", audiences: ["students-youth", "resident-family"], upstream: ["/academy/games"], downstream: ["/academy/games", "/academy/games/dominoes/:id"], guide: "Ready for a strategy game → Dominoes → finish the session and review your result",
   },
   "/academy/help": {
-    title: "Help & FAQ", description: "Search student FAQs about academy activities, rewards, and how to use the platform.", outcome: "learn", audiences: ["students-youth", "resident-family"], upstream: ["/academy"], downstream: ["/academy"], guide: "Unsure how an academy feature works → Help & FAQ → find an answer and return to the academy",
+    title: "Help & FAQ", description: "Search student FAQs about learning activities, rewards, and how to use the platform.", outcome: "learn", audiences: ["students-youth", "resident-family"], upstream: ["/academy"], downstream: ["/academy"], guide: "Unsure how a learning feature works → Help & FAQ → find an answer and return to the learning hub",
   },
   "/academy/houses": {
     title: "House Points", description: "Review house standings, merit categories, recent awards, and rewards, with a point-awarding form.", outcome: "learn", audiences: ["students-youth", "agency-government"], upstream: ["/academy", "/academy/hub"], downstream: ["/academy"], guide: "Want to understand house recognition → House Points → review standings and merit activities",
   },
   "/academy/hub": {
-    title: "Academy Hub", description: "Review academy activity, house membership, power scores, and daily quests or choose career-mode tools.", outcome: "learn", audiences: ["students-youth", "resident-family"], upstream: ["/academy", "/dashboard"], downstream: ["/academy/quests", "/academy/power", "/academy/houses"], guide: "Need a starting point for academy activities → Academy Hub → choose a quest or learning tool",
+    title: "Learning Hub", description: "Review learning activity, house membership, power scores, and daily quests or choose career-mode tools.", outcome: "learn", audiences: ["students-youth", "resident-family"], upstream: ["/academy", "/dashboard"], downstream: ["/academy/quests", "/academy/power", "/academy/houses"], guide: "Need a starting point for learning activities → Learning Hub → choose a quest or learning tool",
   },
   "/academy/journal": {
     title: "My Journal", description: "Write daily or weekly reflections with mood ratings and review your past entries.", outcome: "learn", audiences: ["students-youth", "resident-family"], upstream: ["/academy"], downstream: ["/academy"], guide: "Want to reflect on your learning → My Journal → save a reflection and review past entries",
@@ -57,7 +57,7 @@ export const LANE_LEARN_WORK: RouteClassificationLane = {
     title: "Life Lessons", description: "Read how academy activities teach life and business skills and open the related practice tools.", outcome: "learn", audiences: ["students-youth", "resident-family"], upstream: ["/academy"], downstream: ["/academy/stocks", "/academy/wallet", "/academy/campus"], guide: "Want practical life skills → Life Lessons → read a lesson and try its academy activity",
   },
   "/academy/marketplace": {
-    title: "Marketplace", description: "Browse classmates' listings and practice buying, selling, and tracking trades in the academy economy.", outcome: "learn", audiences: ["students-youth"], upstream: ["/academy", "/academy/lessons"], downstream: ["/academy/financial-literacy", "/academy"], guide: "Want to practice peer commerce → Marketplace → browse a listing or create your own",
+    title: "Marketplace", description: "Browse classmates' listings and practice buying, selling, and tracking trades in the learning economy.", outcome: "learn", audiences: ["students-youth"], upstream: ["/academy", "/academy/lessons"], downstream: ["/academy/financial-literacy", "/academy"], guide: "Want to practice peer commerce → Marketplace → browse a listing or create your own",
   },
   "/academy/mentor-finder": {
     title: "Find a Mentor", description: "Browse mentor and business-partner resources and submit a mentor outreach request.", outcome: "connect", audiences: ["students-youth", "resident-family", "nonprofit-cbo"], upstream: ["/academy", "/academy/careers"], downstream: ["/academy"], guide: "Need a mentor or partner → Mentor Finder → browse resources or submit an outreach request",
@@ -72,7 +72,7 @@ export const LANE_LEARN_WORK: RouteClassificationLane = {
     title: "My Pathway", description: "Create and revise a career pathway plan with education goals, stage tracking, and portfolio evidence.", outcome: "work-earn", audiences: ["students-youth"], upstream: ["/academy", "/academy/careers"], downstream: ["/academy"], guide: "Need a school-to-career plan → My Pathway → set goals and add evidence of progress",
   },
   "/academy/phased-rollout": {
-    title: "Implementation Roadmap", description: "Review the academy's quarterly deployment phases, readiness checklists, and administrator milestones.", outcome: "operate", audiences: ["agency-government", "nonprofit-cbo"], upstream: ["/implementation", "/academy/admin"], downstream: ["/academy/admin", "/academy/course-creator", "/implementation"], guide: "Need to plan an academy rollout → Implementation Roadmap → review milestones and open an implementation tool",
+    title: "Implementation Roadmap", description: "Review the learning platform's quarterly deployment phases, readiness checklists, and administrator milestones.", outcome: "operate", audiences: ["agency-government", "nonprofit-cbo"], upstream: ["/implementation", "/academy/admin"], downstream: ["/academy/admin", "/academy/course-creator", "/implementation"], guide: "Need to plan a learning-platform rollout → Implementation Roadmap → review milestones and open an implementation tool",
   },
   "/academy/power": {
     title: "Panther Power", description: "Review your academy empowerment score by category, learning streaks, and level progression.", outcome: "see-the-data", audiences: ["students-youth"], upstream: ["/academy", "/academy/quests", "/academy/hub"], downstream: [], guide: "Want to understand your progress → Panther Power → review category scores and ways to earn points",

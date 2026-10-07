@@ -164,7 +164,7 @@ export default function AcademySelfAssessmentPage() {
       <PageHeader
         title="Daily Check-In"
         description="How are you doing today?"
-        breadcrumbs={[{ label: "Academy", href: "/academy" }, { label: "Self-Assessment" }]}
+        breadcrumbs={[{ label: "Learn", href: "/academy" }, { label: "Self-Assessment" }]}
       />
 
       <Form {...form}>

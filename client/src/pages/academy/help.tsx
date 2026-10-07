@@ -234,7 +234,7 @@ export default function AcademyHelpPage() {
         <PageHeader
           title="Help Center"
           breadcrumbs={[
-            { label: "Academy", href: "/academy" },
+            { label: "Learn", href: "/academy" },
             { label: "Help" },
           ]}
         />

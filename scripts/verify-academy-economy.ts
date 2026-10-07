@@ -1,5 +1,5 @@
 /**
- * Authenticated verification of the academy economy hardening:
+ * Authenticated verification of the learning economy hardening:
  *  1. There is no client-triggered mint path: POST /api/academy/transactions is retired (410).
  *  2. Cold-start wallet creation is race-safe: concurrent first requests yield ONE wallet.
  *  3. POST /api/academy/campus ignores client amountFunded (server-owned) and

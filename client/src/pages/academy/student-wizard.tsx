@@ -623,7 +623,7 @@ export default function AcademyStudentWizardPage() {
           title="Student Setup"
           description="Personalize every student's learning journey"
           breadcrumbs={[
-            { label: "Academy", href: "/academy" },
+            { label: "Learn", href: "/academy" },
             { label: "Student Setup" },
           ]}
         />

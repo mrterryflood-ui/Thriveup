@@ -144,7 +144,7 @@ export default function DashboardPage() {
           <h2 className="font-semibold mb-3 flex items-center gap-2">
             <Zap className="h-5 w-5 text-primary" /> Getting Started
           </h2>
-          <p className="text-sm text-muted-foreground mb-4">Complete these steps to get the most out of the academy:</p>
+          <p className="text-sm text-muted-foreground mb-4">Complete these steps to get the most out of the learning hub:</p>
           <div className="space-y-2">
             {checklistItems.map((item, i) => (
               <Link key={i} href={item.link}>

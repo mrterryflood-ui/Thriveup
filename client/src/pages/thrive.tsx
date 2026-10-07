@@ -35,7 +35,7 @@ const THRIVE_PILLARS = [
     color: "from-emerald-500 to-teal-600",
     desc: "Keep learning, keep evolving. Your journey doesn't end at stability — it accelerates.",
     actions: [
-      { label: "Academy", url: "/academy" },
+      { label: "Learn", url: "/academy" },
       { label: "Mentorship Directory", url: "/mentorship-directory" },
     ],
   },

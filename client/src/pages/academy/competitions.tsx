@@ -329,7 +329,7 @@ export default function AcademyCompetitionsPage() {
       <PageHeader
         title="Competitions"
         breadcrumbs={[
-          { label: "Academy", href: "/academy" },
+          { label: "Learn", href: "/academy" },
           { label: "Competitions" },
         ]}
       />

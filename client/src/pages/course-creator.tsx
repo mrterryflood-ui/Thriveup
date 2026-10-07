@@ -1160,7 +1160,7 @@ export default function CourseCreatorPage() {
         title="Course Creator"
         description="Build, manage, and publish your courses"
         breadcrumbs={[
-          { label: "Academy", href: "/academy" },
+          { label: "Learn", href: "/academy" },
           { label: "Course Creator" },
         ]}
       />

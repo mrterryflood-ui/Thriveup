@@ -127,7 +127,7 @@ export default function AcademyAnnouncementsPage() {
           title="Announcements"
           description="Stay updated with the latest news from your teachers and administrators"
           breadcrumbs={[
-            { label: "Academy", href: "/academy" },
+            { label: "Learn", href: "/academy" },
             { label: "Announcements" },
           ]}
         />

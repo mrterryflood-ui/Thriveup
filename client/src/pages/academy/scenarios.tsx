@@ -247,7 +247,7 @@ export default function AcademyScenariosPage() {
       <PageHeader
         title="Choose Your Adventure"
         description="Walk in someone else's shoes. Every choice matters, and every path teaches empathy."
-        breadcrumbs={[{ label: "Academy", href: "/academy" }, { label: "Scenarios" }]}
+        breadcrumbs={[{ label: "Learn", href: "/academy" }, { label: "Scenarios" }]}
       />
 
       {!selectedScenarioId && (

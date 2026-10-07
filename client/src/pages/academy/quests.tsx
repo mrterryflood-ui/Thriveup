@@ -157,7 +157,7 @@ export default function AcademyQuestsPage() {
         title="Daily Quests"
         description="Complete challenges across the Academy to earn Panther Power"
         breadcrumbs={[
-          { label: "Academy", href: "/academy" },
+          { label: "Learn", href: "/academy" },
           { label: "Quests" },
         ]}
       />

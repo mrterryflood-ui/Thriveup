@@ -124,7 +124,7 @@ const INTERNAL_ROUTES = new Set([
 const CONTEXTUAL_ROUTES = new Map<string, string>([
   ["/academy/admin-video-script", "academy content-authoring step reached from academy administration"],
   ["/academy/course-creator", "academy content-authoring step reached from academy administration"],
-  ["/academy/hub", "legacy academy sub-hub reached from the academy village"],
+  ["/academy/hub", "legacy academy sub-hub reached from the learning village"],
   ["/academy/mentor-finder", "guided mentor-matching step reached from academy pathways"],
   ["/academy/mentors", "academy mentor detail surface reached from academy pathways"],
   ["/academy/phased-rollout", "academy implementation detail reached from academy administration"],

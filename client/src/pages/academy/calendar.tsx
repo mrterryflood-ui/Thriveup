@@ -189,7 +189,7 @@ export default function AcademyCalendarPage() {
           title="Academy Calendar"
           description="Stay up to date with upcoming events, competitions, and activities."
           breadcrumbs={[
-            { label: "Academy", href: "/academy" },
+            { label: "Learn", href: "/academy" },
             { label: "Calendar" },
           ]}
         />

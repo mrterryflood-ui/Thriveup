@@ -781,7 +781,7 @@ export default function AcademyTutorialPage() {
         title="Arthur's Journey"
         description="From his first day at ThriveUp to Howard University"
         breadcrumbs={[
-          { label: "Academy", href: "/academy" },
+          { label: "Learn", href: "/academy" },
           { label: "Tutorial" },
         ]}
       />

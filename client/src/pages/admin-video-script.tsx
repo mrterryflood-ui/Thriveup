@@ -121,7 +121,7 @@ const VIDEO_SCRIPT = {
     { name: "Attendance Tracker", path: "/academy/attendance", description: "Real-time attendance logging and reporting" },
     { name: "Progress Reports", path: "/academy/progress-report", description: "Student progress analytics and summaries" },
     { name: "Announcements", path: "/academy/announcements", description: "Platform-wide communication to all students" },
-    { name: "Academy Calendar", path: "/academy/calendar", description: "Event management and scheduling" },
+    { name: "Learning Calendar", path: "/academy/calendar", description: "Event management and scheduling" },
     { name: "Cross-Platform Integration", path: "/academy/integration", description: "ISSS and external system connectivity" },
     { name: "Game Platform Admin", path: "/academy/games", description: "Game lobby with ELO ratings and play session monitoring" },
     { name: "Implementation Guide", path: "/implementation", description: "District rollout planning with checklists and cost calculators" },

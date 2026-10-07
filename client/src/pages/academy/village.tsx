@@ -252,7 +252,7 @@ export default function AcademyVillagePage() {
       <PageHeader
         title="The Global Village"
         breadcrumbs={[
-          { label: "Academy", href: "/academy" },
+          { label: "Learn", href: "/academy" },
           { label: "Village" },
         ]}
       />
@@ -266,7 +266,7 @@ export default function AcademyVillagePage() {
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-1" data-testid="text-village-title">
               Panther Village
             </h1>
-            <Button variant="secondary" className="min-h-11 my-2" onClick={() => setShowOnboarding(true)} data-testid="button-open-academy-orientation">Optional academy tour</Button>
+            <Button variant="secondary" className="min-h-11 my-2" onClick={() => setShowOnboarding(true)} data-testid="button-open-academy-orientation">Optional learning tour</Button>
             <p className="text-rose-100 text-lg" data-testid="text-village-subtitle">
               Your Campus, Your Community, Your Future
             </p>

@@ -156,7 +156,7 @@ export default function AcademyGameLobbyPage() {
         title="Financial Literacy & STEM Engagement Modules"
         description="Game-based learning modules with documented learning objectives — financial decision-making (Wallet, Stocks), strategic reasoning (Dominoes, Scenarios), and applied STEM. Aligned to TEKS §127.15 employability skills and DOL/ETA youth-workforce standards."
         breadcrumbs={[
-          { label: "Academy", href: "/academy" },
+          { label: "Learn", href: "/academy" },
           { label: "Engagement Modules" },
         ]}
       />

@@ -125,7 +125,7 @@ export default function AcademyJournalPage() {
         <PageHeader
           title="Reflection Journal"
           description="Track your learning journey with daily reflections"
-          breadcrumbs={[{ label: "Academy", href: "/academy" }, { label: "Journal" }]}
+          breadcrumbs={[{ label: "Learn", href: "/academy" }, { label: "Journal" }]}
         />
       </div>
 

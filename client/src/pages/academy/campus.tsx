@@ -286,7 +286,7 @@ export default function AcademyCampusPage() {
         title="Build Your Campus"
         description="Design your dream home and community space"
         breadcrumbs={[
-          { label: "Academy", href: "/academy" },
+          { label: "Learn", href: "/academy" },
           { label: "Campus" },
         ]}
       />

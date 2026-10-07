@@ -324,7 +324,7 @@ export default function AcademyThrivePage() {
       <PageHeader
         title="Thrive System"
         breadcrumbs={[
-          { label: "Academy", href: "/academy" },
+          { label: "Learn", href: "/academy" },
           { label: "Thrive" },
         ]}
       />

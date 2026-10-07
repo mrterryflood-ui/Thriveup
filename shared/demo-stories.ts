@@ -161,7 +161,7 @@ export const DEMO_VIEWS: Record<DemoAudienceKey, DemoAudienceView> = {
         url: "https://www.wiley.com/en-us/Advancing+Health+Literacy%3A+A+Framework+for+Understanding+and+Action-p-9780787984335",
       },
     ],
-    cta: { label: "Open the academy", route: "/academy" },
+    cta: { label: "Open the learning hub", route: "/academy" },
   },
   governments: {
     key: "governments",

@@ -337,7 +337,7 @@ export default function AcademyStaarPrepPage() {
         <PageHeader
           title="STAAR Test Prep"
           description="Grade-level study guides aligned to Texas Essential Knowledge and Skills (TEKS)"
-          breadcrumbs={[{ label: "Academy", href: "/academy" }, { label: "STAAR Prep" }]}
+          breadcrumbs={[{ label: "Learn", href: "/academy" }, { label: "STAAR Prep" }]}
         />
       </div>
 

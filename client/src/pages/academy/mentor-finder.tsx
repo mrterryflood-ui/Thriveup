@@ -329,7 +329,7 @@ export default function AcademyMentorFinderPage() {
       <PageHeader
         title="Find a Mentor"
         breadcrumbs={[
-          { label: "Academy", href: "/academy" },
+          { label: "Learn", href: "/academy" },
           { label: "Mentor Finder" },
         ]}
       />

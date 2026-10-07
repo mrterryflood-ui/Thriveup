@@ -65,7 +65,7 @@ export default function AcademyProgressReportPage() {
         <PageHeader
           title="Progress Report"
           breadcrumbs={[
-            { label: "Academy", href: "/academy" },
+            { label: "Learn", href: "/academy" },
             { label: "Progress Report" },
           ]}
         />

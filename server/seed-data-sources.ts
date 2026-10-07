@@ -214,7 +214,7 @@ const SOURCES = [
     suppressionRules: "Floor-5 applied to all aggregate outputs",
     primarySourceUrl: null,
     citationFormat: "TCAF Platform Program Enrollment, [program name], [date range]",
-    steward: "Academy / Program Management",
+    steward: "Learning / Program Management",
   },
   {
     id: "community-intelligence-submissions",

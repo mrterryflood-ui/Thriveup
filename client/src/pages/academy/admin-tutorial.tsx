@@ -331,7 +331,7 @@ export default function AcademyAdminTutorialPage() {
         title="Admin Guide"
         description="A complete walkthrough of every platform management feature"
         breadcrumbs={[
-          { label: "Academy", href: "/academy" },
+          { label: "Learn", href: "/academy" },
           { label: "Admin Guide" },
         ]}
       />

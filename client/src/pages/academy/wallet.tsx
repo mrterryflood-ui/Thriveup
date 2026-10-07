@@ -161,7 +161,7 @@ export default function AcademyWalletPage() {
         title="My Virtual Wallet"
         description="Track your earnings and investments"
         breadcrumbs={[
-          { label: "Academy", href: "/academy" },
+          { label: "Learn", href: "/academy" },
           { label: "Wallet" },
         ]}
       />

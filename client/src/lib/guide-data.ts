@@ -968,7 +968,7 @@ export const MODULE_GUIDES: Record<string, GuideSection> = {
     moduleName: "Learning Administration",
     icon: "Settings",
     story: "Behind every great learning experience is an administrative system that keeps everything organized. Learning Admin is where administrators manage courses, users, assessments, and certifications. It's the engine room that keeps the educational components of ThriveUp running smoothly.",
-    purpose: "Administrative control panel for managing the academy's courses, users, and certifications.",
+    purpose: "Administrative control panel for managing the learning hub's courses, users, and certifications.",
     userManual: [
       { step: 1, action: "Open Learning Admin", detail: "Navigate from sidebar to administration panel." },
       { step: 2, action: "Manage Users", detail: "Create, edit, or deactivate user accounts." },

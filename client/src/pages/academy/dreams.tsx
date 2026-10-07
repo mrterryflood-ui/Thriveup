@@ -528,7 +528,7 @@ export default function AcademyDreamsPage() {
       <PageHeader
         title="Dream Design & Assessment"
         description="Plan your future, build your holistic resume"
-        breadcrumbs={[{ label: "Academy", href: "/academy" }, { label: "Dream Board" }]}
+        breadcrumbs={[{ label: "Learn", href: "/academy" }, { label: "Dream Board" }]}
       />
 
       {editing || !hasProfile ? (

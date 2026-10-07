@@ -93,7 +93,7 @@ export default function AcademyAttendancePage() {
           title="Attendance Tracking"
           description="Student login activity"
           breadcrumbs={[
-            { label: "Academy", href: "/academy" },
+            { label: "Learn", href: "/academy" },
             { label: "Attendance" },
           ]}
         />
@@ -120,7 +120,7 @@ export default function AcademyAttendancePage() {
           title="Attendance Tracking"
           description="Monitor student login activity and streaks"
           breadcrumbs={[
-            { label: "Academy", href: "/academy" },
+            { label: "Learn", href: "/academy" },
             { label: "Attendance" },
           ]}
         />

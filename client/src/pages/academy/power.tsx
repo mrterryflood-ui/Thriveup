@@ -118,7 +118,7 @@ export default function AcademyPowerPage() {
       <PageHeader
         title="Panther Power Score"
         description="Your unified empowerment metric across all Academy activities"
-        breadcrumbs={[{ label: "Academy", href: "/academy" }, { label: "Power Score" }]}
+        breadcrumbs={[{ label: "Learn", href: "/academy" }, { label: "Power Score" }]}
       />
 
       <div className="flex flex-col items-center mb-8" data-testid="section-total-score">

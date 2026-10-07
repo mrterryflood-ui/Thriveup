@@ -694,7 +694,7 @@ export default function AcademyAdminPage() {
       <PageHeader
         title="Academy Administration"
         breadcrumbs={[
-          { label: "Academy", href: "/academy" },
+          { label: "Learn", href: "/academy" },
           { label: "Administration" },
         ]}
         actions={<TrainingGuideButton moduleId="academy-admin" />}
