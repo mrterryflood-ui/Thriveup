@@ -56,7 +56,7 @@ const CARDS: HubCardDef[] = [
   { icon: Wallet,       title: "My Wallet",             subtitle: "Manage your Panther Points",           href: "/academy/wallet",        tag: "Learn",     color: "amber",   authOnly: true, roles: ["youth", "community", "admin"] },
   { icon: DollarSign,   title: "Financial Literacy",    subtitle: "Real money skills",                    href: "/academy/financial-literacy",tag: "Learn", color: "emerald" },
   { icon: GraduationCap,title: "FAFSA Navigator",       subtitle: "Federal financial aid guide",          href: "/fafsa-navigator",       tag: "Learn",     color: "blue",    roles: ["youth", "community", "chw", "admin"] },
-  { icon: Calendar,     title: "Academy Calendar",      subtitle: "Events, deadlines, check-ins",         href: "/academy/calendar",      tag: "Learn",     color: "indigo",  roles: ["youth", "community", "chw", "admin"] },
+  { icon: Calendar,     title: "Learning Calendar",      subtitle: "Events, deadlines, check-ins",         href: "/academy/calendar",      tag: "Learn",     color: "indigo",  roles: ["youth", "community", "chw", "admin"] },
   { icon: Megaphone,    title: "Announcements",         subtitle: "Platform-wide news",                   href: "/academy/announcements", tag: "Learn",     color: "rose" },
   { icon: HelpCircle,   title: "Help & FAQ",            subtitle: "Get support",                          href: "/academy/help",          tag: "Learn",     color: "slate" },
   { icon: ShoppingBag,  title: "Print Shop",            subtitle: "Custom merch & certificates",          href: "/academy/merch",         tag: "Learn",     color: "pink",    authOnly: true, roles: ["youth", "admin"] },
@@ -68,9 +68,9 @@ export default function HubGrowPage() {
   return (
     <HubShell
       title="Grow"
-      subtitle="Trade Sims · Workforce · Academy · AI Tools"
+      subtitle="Trade Sims · Workforce · Learn · AI Tools"
       headerGradient="from-blue-600 via-indigo-600 to-blue-800"
-      chips={["All", "Trade Sims", "Workforce", "Veterans", "Academy", "AI"]}
+      chips={["All", "Trade Sims", "Workforce", "Veterans", "Learn", "AI"]}
       cards={CARDS}
       isAuthenticated={isAuthenticated}
       role={role}
