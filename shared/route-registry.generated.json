@@ -117,8 +117,8 @@
    ],
    "classified": true,
    "legacyGroup": "academyLearningItems",
-   "description": "Explore the academy village, classmates, learning activities, and career planning tools.",
-   "guide": "Want to build skills → Academy village → choose a learning activity or career tool"
+   "description": "Explore the learning village, classmates, learning activities, and career planning tools.",
+   "guide": "Want to build skills → Learning village → choose a learning activity or career tool"
   },
   {
    "path": "/academy/admin",
@@ -140,8 +140,8 @@
    ],
    "classified": true,
    "legacyGroup": "adminAcademyItems",
-   "description": "Review Academy students, activity, support notes, safety reports, and grant metrics.",
-   "guide": "Need to manage the Academy → Admin Dashboard → review students and resolve reports"
+   "description": "Review learning-hub students, activity, support notes, safety reports, and grant metrics.",
+   "guide": "Need to manage the learning hub → Admin Dashboard → review students and resolve reports"
   },
   {
    "path": "/academy/admin-tutorial",
@@ -163,12 +163,12 @@
    ],
    "classified": true,
    "legacyGroup": "adminAcademyItems",
-   "description": "Read a slide-by-slide walkthrough of Academy management features and implementation planning.",
-   "guide": "Need management instructions → Admin Guide → use the Academy tools"
+   "description": "Read a slide-by-slide walkthrough of learning-hub management features and implementation planning.",
+   "guide": "Need management instructions → Admin Guide → use the learning-hub tools"
   },
   {
    "path": "/academy/admin-video-script",
-   "title": "Create an academy video",
+   "title": "Create a learning-hub video",
    "outcome": "operate",
    "audiences": [
     "agency-government",
@@ -189,7 +189,7 @@
    ],
    "classified": true,
    "description": "Review and copy an administrator-focused video script or submit it to the video rendering pipeline.",
-   "guide": "Need an academy presentation → Video Script Generator → copy the script or request a render"
+   "guide": "Need a learning-hub presentation → Video Script Generator → copy the script or request a render"
   },
   {
    "path": "/academy/announcements",
@@ -212,8 +212,8 @@
    ],
    "classified": true,
    "legacyGroup": "academyLearningItems",
-   "description": "Read academy news from teachers and administrators, with publishing controls for administrators.",
-   "guide": "Need academy updates → Announcements → read the latest notices"
+   "description": "Read learning-hub news from teachers and administrators, with publishing controls for administrators.",
+   "guide": "Need learning-hub updates → Announcements → read the latest notices"
   },
   {
    "path": "/academy/attendance",
@@ -259,8 +259,8 @@
    ],
    "classified": true,
    "legacyGroup": "academyLearningItems",
-   "description": "Customize your academy avatar, view classmates, and review your latest personality check-in.",
-   "guide": "Want to personalize your academy identity → My Avatar → save your avatar or update your check-in"
+   "description": "Customize your learning-hub avatar, view classmates, and review your latest personality check-in.",
+   "guide": "Want to personalize your learning identity → My Avatar → save your avatar or update your check-in"
   },
   {
    "path": "/academy/calendar",
@@ -283,8 +283,8 @@
    ],
    "classified": true,
    "legacyGroup": "academyLearningItems",
-   "description": "Browse academy events and competitions by date, with event creation and deletion for administrators.",
-   "guide": "Need to know what is coming up → Academy Calendar → review an event's time and details"
+   "description": "Browse learning events and competitions by date, with event creation and deletion for administrators.",
+   "guide": "Need to know what is coming up → Learning Calendar → review an event's time and details"
   },
   {
    "path": "/academy/campus",
@@ -306,7 +306,7 @@
    ],
    "classified": true,
    "legacyGroup": "academyLearningItems",
-   "description": "Create a virtual campus project and advance its building phases using your academy wallet.",
+   "description": "Create a virtual campus project and advance its building phases using your learning-hub wallet.",
    "guide": "Want to practice project planning → Campus Builder → name and fund a virtual campus project"
   },
   {
@@ -355,7 +355,7 @@
    ],
    "classified": true,
    "legacyGroup": "academyLearningItems",
-   "description": "Enter academy competitions and review entries, leaderboards, and your competition history.",
+   "description": "Enter learning-hub competitions and review entries, leaderboards, and your competition history.",
    "guide": "Want to test your skills → Competitions → enter a challenge or visit the game room"
   },
   {
@@ -378,7 +378,7 @@
     "app-routes"
    ],
    "classified": true,
-   "description": "Create, edit, and publish academy courses with modules, lessons, and enrollment tracking.",
+   "description": "Create, edit, and publish learning-hub courses with modules, lessons, and enrollment tracking.",
    "guide": "Need to publish learning content → Course Creator → build modules and publish a course"
   },
   {
@@ -498,8 +498,8 @@
    ],
    "classified": true,
    "legacyGroup": "academyLearningItems",
-   "description": "Search student FAQs about academy activities, rewards, and how to use the platform.",
-   "guide": "Unsure how an academy feature works → Help & FAQ → find an answer and return to the academy"
+   "description": "Search student FAQs about learning activities, rewards, and how to use the platform.",
+   "guide": "Unsure how a learning feature works → Help & FAQ → find an answer and return to the learning hub"
   },
   {
    "path": "/academy/houses",
@@ -527,7 +527,7 @@
   },
   {
    "path": "/academy/hub",
-   "title": "Academy Hub",
+   "title": "Learning Hub",
    "outcome": "learn",
    "audiences": [
     "students-youth",
@@ -547,8 +547,8 @@
     "app-routes"
    ],
    "classified": true,
-   "description": "Review academy activity, house membership, power scores, and daily quests or choose career-mode tools.",
-   "guide": "Need a starting point for academy activities → Academy Hub → choose a quest or learning tool"
+   "description": "Review learning activity, house membership, power scores, and daily quests or choose career-mode tools.",
+   "guide": "Need a starting point for learning activities → Learning Hub → choose a quest or learning tool"
   },
   {
    "path": "/academy/integration",
@@ -570,7 +570,7 @@
    ],
    "classified": true,
    "legacyGroup": "adminTeachingItems",
-   "description": "Review the Academy support-portal integration guide, data-sync descriptions, and external API endpoints.",
+   "description": "Review the learning-hub support-portal integration guide, data-sync descriptions, and external API endpoints.",
    "guide": "Need to connect student support → Support Portal → open the external portal or check the API"
   },
   {
@@ -618,8 +618,8 @@
    ],
    "classified": true,
    "legacyGroup": "workforceTradesItems",
-   "description": "Read how academy activities teach life and business skills and open the related practice tools.",
-   "guide": "Want practical life skills → Life Lessons → read a lesson and try its academy activity"
+   "description": "Read how learning-hub activities teach life and business skills and open the related practice tools.",
+   "guide": "Want practical life skills → Life Lessons → read a lesson and try its learning-hub activity"
   },
   {
    "path": "/academy/longitudinal",
@@ -665,7 +665,7 @@
    ],
    "classified": true,
    "legacyGroup": "academyLearningItems",
-   "description": "Browse classmates' listings and practice buying, selling, and tracking trades in the academy economy.",
+   "description": "Browse classmates' listings and practice buying, selling, and tracking trades in the learning economy.",
    "guide": "Want to practice peer commerce → Marketplace → browse a listing or create your own"
   },
   {
@@ -717,7 +717,7 @@
   },
   {
    "path": "/academy/merch",
-   "title": "Shop academy merchandise",
+   "title": "Shop learning-hub merchandise",
    "outcome": "fund",
    "audiences": [
     "students-youth",
@@ -785,8 +785,8 @@
     "app-routes"
    ],
    "classified": true,
-   "description": "Review the academy's quarterly deployment phases, readiness checklists, and administrator milestones.",
-   "guide": "Need to plan an academy rollout → Implementation Roadmap → review milestones and open an implementation tool"
+   "description": "Review the learning platform's quarterly deployment phases, readiness checklists, and administrator milestones.",
+   "guide": "Need to plan a learning-platform rollout → Implementation Roadmap → review milestones and open an implementation tool"
   },
   {
    "path": "/academy/power",
@@ -807,7 +807,7 @@
    ],
    "classified": true,
    "legacyGroup": "academyLearningItems",
-   "description": "Review your academy empowerment score by category, learning streaks, and level progression.",
+   "description": "Review your learning-hub empowerment score by category, learning streaks, and level progression.",
    "guide": "Want to understand your progress → Panther Power → review category scores and ways to earn points"
   },
   {
@@ -975,7 +975,7 @@
    ],
    "classified": true,
    "legacyGroup": "academyLearningItems",
-   "description": "Practice investing with simulated academy money and review stock prices and portfolio performance.",
+   "description": "Practice investing with simulated learning-hub money and review stock prices and portfolio performance.",
    "guide": "Want to learn investing without real-money risk → Stock Market → study prices and try a simulated trade"
   },
   {
@@ -1181,8 +1181,8 @@
    ],
    "classified": true,
    "legacyGroup": "adminAcademyItems",
-   "description": "Follow a fictional student's Academy journey and open the learning features used in each chapter.",
-   "guide": "Need to understand the Academy → Arthur's Journey → start your own learning journey"
+   "description": "Follow a fictional student's learning journey and open the learning features used in each chapter.",
+   "guide": "Need to understand the learning hub → Arthur's Journey → start your own learning journey"
   },
   {
    "path": "/academy/wallet",
@@ -1206,8 +1206,8 @@
    ],
    "classified": true,
    "legacyGroup": "academyLearningItems",
-   "description": "Review your virtual academy balance and transactions and use coins for campus funding or investing practice.",
-   "guide": "Want to manage academy coins → My Wallet → review transactions or choose an earning and spending activity"
+   "description": "Review your virtual learning-hub balance and transactions and use coins for campus funding or investing practice.",
+   "guide": "Want to manage learning-hub coins → My Wallet → review transactions or choose an earning and spending activity"
   },
   {
    "path": "/achievements",
@@ -2722,7 +2722,7 @@
    "classified": true,
    "legacyGroup": "partnersCoalitionsItems",
    "description": "Explore access, mentorship, and workforce-readiness programs for under-resourced communities and connect with partners.",
-   "guide": "Need access to career preparation → Community Access & Career Pipeline → explore the academy or contact a partner"
+   "guide": "Need access to career preparation → Community Access & Career Pipeline → explore the learning hub or contact a partner"
   },
   {
    "path": "/community-analysis",
@@ -3599,7 +3599,7 @@
     "app-routes"
    ],
    "classified": true,
-   "description": "Review your saved academy progress and journeys and continue lessons or explore learning tools.",
+   "description": "Review your saved learning-hub progress and journeys and continue lessons or explore learning tools.",
    "guide": "Need to resume learning → My learning dashboard → continue a module or review your journey"
   },
   {
@@ -5367,7 +5367,7 @@
   },
   {
    "path": "/implementation",
-   "title": "Plan academy implementation",
+   "title": "Plan learning-hub implementation",
    "outcome": "learn",
    "audiences": [
     "agency-government",
@@ -5385,7 +5385,7 @@
    "classified": true,
    "legacyGroup": "aboutTrustItems",
    "description": "Review grade-level deployment recommendations, AI provider options, cost estimates, and rollout checklists.",
-   "guide": "Need a school deployment plan → Plan academy implementation → review grade-specific recommendations and rollout steps"
+   "guide": "Need a school deployment plan → Plan learning-hub implementation → review grade-specific recommendations and rollout steps"
   },
   {
    "path": "/initiatives",
@@ -6989,7 +6989,7 @@
     "app-routes"
    ],
    "classified": true,
-   "description": "View a stakeholder slide presentation covering the academy, AI tools, careers, impact, and partner pathways.",
+   "description": "View a stakeholder slide presentation covering learning, AI tools, careers, impact, and partner pathways.",
    "guide": "Need a stakeholder introduction → platform presentation → review the slides and open a live tool"
   },
   {

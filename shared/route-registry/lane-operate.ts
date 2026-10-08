@@ -3,14 +3,14 @@ import type { RouteClassificationLane } from "../route-registry.types";
 
 export const LANE_OPERATE: RouteClassificationLane = {
   "/academy/admin": {
-    title: "Admin Dashboard", description: "Review Academy students, activity, support notes, safety reports, and grant metrics.",
+    title: "Admin Dashboard", description: "Review learning-hub students, activity, support notes, safety reports, and grant metrics.",
     outcome: "operate", audiences: ["nonprofit-cbo", "agency-government"], upstream: ["/academy"], downstream: ["/academy"],
-    guide: "Need to manage the Academy → Admin Dashboard → review students and resolve reports",
+    guide: "Need to manage the learning hub → Admin Dashboard → review students and resolve reports",
   },
   "/academy/admin-tutorial": {
-    title: "Admin Guide", description: "Read a slide-by-slide walkthrough of Academy management features and implementation planning.",
+    title: "Admin Guide", description: "Read a slide-by-slide walkthrough of learning-hub management features and implementation planning.",
     outcome: "operate", audiences: ["nonprofit-cbo", "agency-government"], upstream: ["/academy/admin"], downstream: ["/academy"],
-    guide: "Need management instructions → Admin Guide → use the Academy tools",
+    guide: "Need management instructions → Admin Guide → use the learning-hub tools",
   },
   "/academy/attendance": {
     title: "Attendance", description: "Monitor student login activity, attendance summaries, and login streaks.",
@@ -18,7 +18,7 @@ export const LANE_OPERATE: RouteClassificationLane = {
     guide: "Need to check engagement → Attendance → review student login patterns",
   },
   "/academy/integration": {
-    title: "Support Portal", description: "Review the Academy support-portal integration guide, data-sync descriptions, and external API endpoints.",
+    title: "Support Portal", description: "Review the learning-hub support-portal integration guide, data-sync descriptions, and external API endpoints.",
     outcome: "operate", audiences: ["nonprofit-cbo", "agency-government"], upstream: ["/academy/admin"], downstream: ["/academy"],
     guide: "Need to connect student support → Support Portal → open the external portal or check the API",
   },
@@ -38,9 +38,9 @@ export const LANE_OPERATE: RouteClassificationLane = {
     guide: "Need to personalize student support → Student Setup Wizards → review the generated summary",
   },
   "/academy/tutorial": {
-    title: "Arthur's Journey", description: "Follow a fictional student's Academy journey and open the learning features used in each chapter.",
+    title: "Arthur's Journey", description: "Follow a fictional student's learning journey and open the learning features used in each chapter.",
     outcome: "learn", audiences: ["students-youth", "resident-family", "nonprofit-cbo"], upstream: ["/academy"], downstream: ["/academy", "/curriculum", "/ai-companion"],
-    guide: "Need to understand the Academy → Arthur's Journey → start your own learning journey",
+    guide: "Need to understand the learning hub → Arthur's Journey → start your own learning journey",
   },
   "/admin/platform-health": {
     title: "Platform Health Monitor", description: "Inspect live system counts, service health, AI provider status, and probe-alert email failures.",
