@@ -21,3 +21,16 @@ must be transparent and user-selected; never turn this into automatic
 matching, surveillance, identity collection, or autonomous consequential
 action. Preserve the PII wall, consent defaults, small-cell suppression, and
 observed-vs-modeled labels at every handoff.
+
+The user's standing direction for this platform is an integration and
+coordination effort: ingest and interpret existing information rather than
+reinventing systems; it should be dynamic, not static, with the right tools
+at the right times for the right people.
+
+**Why:** The user explicitly requested this approach when approving the
+government-resource integration.
+
+**How to apply:** Treat source discovery, qualified ingestion, contextual
+interpretation, and human-selected action as separate states. Reuse existing
+specialist tools and preserve provenance/coverage through handoffs; never
+describe a catalog link as retrieved evidence or operational service capacity.

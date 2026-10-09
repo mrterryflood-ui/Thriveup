@@ -15,6 +15,8 @@ import { dataSources } from "@shared/schema";
 import { eq, ilike, or } from "drizzle-orm";
 import { requireStaff } from "./yhsi-routes";
 import { z } from "zod";
+import { governmentRequestSchema } from "@shared/government-coordination";
+import { coordinateGovernmentEvidence } from "./government-coordination";
 
 const CreateSourceSchema = z.object({
   id: z
@@ -46,6 +48,34 @@ const CreateSourceSchema = z.object({
 const UpdateSourceSchema = CreateSourceSchema.partial().omit({ id: true });
 
 export function setupDataSourcesRoutes(app: Express): void {
+  // Literal before :id. Public aggregate evidence only; no AI, credentials, or private records.
+  const evidenceRequests = new Map<string, { count: number; until: number }>();
+  app.get("/api/data-sources/coordination", async (req: Request, res: Response) => {
+    const now = Date.now();
+    const ip = req.ip || "unknown";
+    if (evidenceRequests.size >= 2000) {
+      for (const [key, window] of evidenceRequests) if (window.until <= now) evidenceRequests.delete(key);
+      if (evidenceRequests.size >= 2000 && !evidenceRequests.has(ip)) {
+        return res.status(429).json({ error: "Evidence reader is busy; retry shortly." });
+      }
+    }
+    let window = evidenceRequests.get(ip);
+    if (!window || window.until <= now) { window = { count: 0, until: now + 60_000 }; evidenceRequests.set(ip, window); }
+    if (++window.count > 30) {
+      res.setHeader("Retry-After", "60");
+      return res.status(429).json({ error: "Too many evidence requests. Retry in one minute." });
+    }
+    const parsed = governmentRequestSchema.safeParse(req.query);
+    if (!parsed.success) return res.status(400).json({ error: "Use an explicit geography, valid identifier, and supported need.", details: parsed.error.issues });
+    try {
+      const result = await coordinateGovernmentEvidence(parsed.data);
+      res.setHeader("Cache-Control", "no-store");
+      return res.json(result); // A partial bundle preserves useful tools, with explicit source failure.
+    } catch (error) {
+      console.error("[GovernmentCoordination] request failed:", error);
+      return res.status(502).json({ error: "Government coordination unavailable; no evidence was substituted." });
+    }
+  });
   // ── Public: list sources ────────────────────────────────────────────────
   app.get("/api/data-sources", async (req: Request, res: Response) => {
     try {

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import GovernmentEvidencePanel from "@/components/government-evidence-panel";
 import {
   Database, Globe, MapPin, Shield, Heart, GraduationCap,
   Building2, Users, Search, ExternalLink, CheckCircle2,
@@ -59,13 +60,13 @@ const FEDERAL_SOURCES: DataSource[] = [
     name: "CDC PLACES -- Local Data for Better Health",
     shortName: "CDC PLACES",
     agency: "Centers for Disease Control and Prevention",
-    description: "Census tract-level health outcome and prevention measures: high blood pressure, diabetes, mental health, obesity, sleep deprivation, and healthcare access.",
-    dataTypes: ["High Blood Pressure (BPHIGH)", "Diabetes Prevalence (DIABETES)", "Mental Health (MHLTH)", "Obesity (OBESITY)", "Sleep Deprivation (SLEEP)", "Lack of Health Insurance (ACCESS2)"],
+    description: "Forty modeled adult health measures available through the on-demand evidence panel for county, tract, place, and ZCTA geographies.",
+    dataTypes: ["40 modeled adult measures", "County", "Census tract", "Place", "ZCTA"],
     url: "https://data.cdc.gov",
-    apiEndpoint: "https://data.cdc.gov/resource/swc5-untb.json",
+    apiEndpoint: "https://data.cdc.gov/resource/swc5-untb.json — public county dataset endpoint; the on-demand panel separately reports retrieval for its requested geography.",
     status: "live",
     updateFrequency: "Annual",
-    geographyLevel: "Census Tract, County",
+    geographyLevel: "County in this catalog endpoint; on-demand panel supports County, Census Tract, Place, and ZCTA",
     usedBy: ["SDOH Explorer", "Health Network", "Grant Packages", "HerHealth Network", "CHW Dashboard"],
     icon: Heart,
     category: "federal"
@@ -553,7 +554,7 @@ const ALL_SOURCES = [...FEDERAL_SOURCES, ...STATE_SOURCES, ...LOCAL_SOURCES, ...
 function getStatusBadge(status: SourceStatus) {
   switch (status) {
     case "live":
-      return <Badge className="bg-green-600 text-white" data-testid="badge-status-live"><Wifi className="h-3 w-3 mr-1" /> Live API</Badge>;
+      return <Badge className="bg-green-700 text-white" data-testid="badge-status-live"><Wifi className="h-3 w-3 mr-1" /> Listed endpoint</Badge>;
     case "available":
       return <Badge variant="secondary" data-testid="badge-status-available"><CheckCircle2 className="h-3 w-3 mr-1" /> Available</Badge>;
     case "key-required":
@@ -664,7 +665,7 @@ function SummaryStats() {
       </Card>
       <Card className="p-3 text-center" data-testid="stat-live">
         <p className="text-2xl font-bold text-green-600">{live}</p>
-        <p className="text-xs text-muted-foreground">Live APIs</p>
+        <p className="text-xs text-muted-foreground">Listed endpoints</p>
       </Card>
       <Card className="p-3 text-center" data-testid="stat-available">
         <p className="text-2xl font-bold text-blue-600">{available}</p>
@@ -745,10 +746,11 @@ export default function DataSourcesPage() {
       <div>
         <h1 className="text-3xl font-bold" data-testid="text-page-title">Data Sources</h1>
         <p className="text-muted-foreground mt-1">
-          All federal, state, local, and internal data sources powering the TCAF ecosystem -- {ALL_SOURCES.length} sources across {ALL_SOURCES.filter(s => s.status === "live").length} live APIs
+          A catalog of {ALL_SOURCES.length} federal, state, local, and internal sources. Listed endpoints are not independently verified operational integrations; the evidence panel reports what was actually retrieved.
         </p>
       </div>
 
+      <GovernmentEvidencePanel />
       <SummaryStats />
       <LocalHighlightBanner />
 
@@ -772,7 +774,7 @@ export default function DataSourcesPage() {
           <TabsTrigger value="federal" data-testid="tab-federal">Federal ({FEDERAL_SOURCES.length})</TabsTrigger>
           <TabsTrigger value="state" data-testid="tab-state">State ({STATE_SOURCES.length})</TabsTrigger>
           <TabsTrigger value="internal" data-testid="tab-internal">TCAF Internal ({INTERNAL_SOURCES.length})</TabsTrigger>
-          <TabsTrigger value="live" data-testid="tab-live">Live APIs ({ALL_SOURCES.filter(s => s.status === "live").length})</TabsTrigger>
+          <TabsTrigger value="live" data-testid="tab-live">Listed endpoints ({ALL_SOURCES.filter(s => s.status === "live").length})</TabsTrigger>
         </TabsList>
 
         <div className="mt-4 space-y-3">

@@ -4,6 +4,7 @@ import { queryClient, apiRequest } from "@/lib/queryClient";
 import { safeGetRaw, safeSetRaw, safeRemove } from "@/lib/safe-storage";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation, Link } from "wouter";
+import { governmentDraftFromSearch } from "@shared/government-coordination";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -425,7 +426,7 @@ export function AINavigator({
   const [isExpanded, setIsExpanded] = useState(false);
   const [view, setView] = useState<"chat" | "history">("chat");
   const [messages, setMessages] = useState<NavigatorMessage[]>([]);
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState(() => mode === "page" ? governmentDraftFromSearch(window.location.search) : "");
   const [isStreaming, setIsStreaming] = useState(false);
   const [activeConversationId, setActiveConversationId] = useState<
     string | null

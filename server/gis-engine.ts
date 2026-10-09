@@ -2,6 +2,7 @@ import { eq, like } from "drizzle-orm";
 import { gisContextData } from "@shared/schema";
 import type { GisContextData } from "@shared/schema";
 import { countyCentroid } from "@shared/nationwide/county-centroids";
+import { normalizePlacesRows, readGovernmentJson, PLACES_LIMITATIONS } from "./government-places";
 
 const CDC_PLACES_URL = "https://data.cdc.gov/resource/swc5-untb.json";
 const CDC_SVI_URL = "https://data.cdc.gov/resource/4d8n-kk8a.json";
@@ -139,36 +140,69 @@ export async function ingestCdcPlacesData(
   countyFips?: string
 ): Promise<number> {
   try {
-    const measuresFilter = PLACES_MEASURES.map((m) => `'${m}'`).join(",");
-    let whereClause = `stateabbr='${stateAbbr.toUpperCase()}' AND measureid IN(${measuresFilter})`;
+    if (!getStateFips(stateAbbr) || (countyFips && !/^\d{3}(?:\d{2})?$/.test(countyFips))) {
+      throw new Error("CDC ingestion requires a recognized state and county FIPS");
+    }
+    let whereClause = `stateabbr='${stateAbbr.toUpperCase()}' AND data_value_type='Crude prevalence'`;
     if (countyFips) {
-      whereClause += ` AND countyfips='${countyFips}'`;
+      const fullFips = countyFips.length === 5 ? countyFips : `${getStateFips(stateAbbr)}${countyFips}`;
+      if (!fullFips.startsWith(getStateFips(stateAbbr)!)) throw new Error("County/state FIPS mismatch");
+      whereClause += ` AND locationid='${fullFips}'`;
     }
 
-    const url = `${CDC_PLACES_URL}?$where=${encodeURIComponent(whereClause)}&$limit=50000`;
-    const data = await fetchJson(url);
-
-    if (!Array.isArray(data) || data.length === 0) {
+    const url = `${CDC_PLACES_URL}?$where=${encodeURIComponent(whereClause)}`;
+    const data: any[] = [];
+    const startedAt = Date.now();
+    const pageSize = 2000;
+    for (let offset = 0; offset <= 50000; offset += pageSize) {
+      if (Date.now() - startedAt >= 60000) throw new Error("CDC state ingestion exceeded its total read budget");
+      const page = await readGovernmentJson(`${url}&$order=locationid,measureid,year&$limit=${pageSize}&$offset=${offset}`,
+        Math.min(15000, 60000 - (Date.now() - startedAt)), 3_000_000);
+      if (!Array.isArray(page)) throw new Error("Invalid CDC array");
+      if (data.length + page.length > 50000) throw new Error("CDC state ingestion exceeds row budget; refusing incomplete import");
+      data.push(...page);
+      if (page.length < pageSize) break;
+      if (offset === 50000) throw new Error("CDC state pagination did not terminate");
+    }
+    if (data.length === 0) {
       return 0;
     }
 
-    const tractMap = new Map<string, Map<string, number>>();
+    const countyRows = new Map<string, unknown[]>();
     for (const record of data) {
-      const locationId = record.locationid || record.locationname;
-      if (!locationId) continue;
-
-      const measureId = record.measureid;
-      const dataValue = parseFloat(record.data_value);
-      if (isNaN(dataValue)) continue;
-
-      if (!tractMap.has(locationId)) {
-        tractMap.set(locationId, new Map());
+      const locationId = record?.locationid;
+      if (typeof locationId !== "string" || !/^\d{5}$/.test(locationId) || !locationId.startsWith(getStateFips(stateAbbr)!)) {
+        throw new Error("CDC returned a mismatched county identity");
       }
-      tractMap.get(locationId)!.set(measureId, dataValue);
+      if (!countyRows.has(locationId)) countyRows.set(locationId, []);
+      countyRows.get(locationId)!.push(record);
     }
 
+    const parsedCounties = new Map<string, ReturnType<typeof normalizePlacesRows>>();
+    for (const [key, rows] of countyRows) {
+      const parsed = normalizePlacesRows(rows, key, stateAbbr.toUpperCase());
+      if (!parsed.measures.length || parsed.rejectedRows) throw new Error(`Invalid CDC rows for county ${key}; refusing replacement`);
+      parsedCounties.set(key, parsed);
+    }
     let upsertCount = 0;
-    for (const [geographyKey, measures] of Array.from(tractMap.entries())) {
+    for (const [geographyKey, rawRows] of countyRows) {
+      const parsed = parsedCounties.get(geographyKey)!;
+      const measures = new Map(parsed.measures.filter(m => m.value !== null).map(m => [m.id, m.value!]));
+      const rawPlacesData = {
+        ...Object.fromEntries(measures), // Preserve legacy keyed-number readers.
+        _evidence: {
+          geography: "county", id: geographyKey, sourceUrl: url, fetchedAt: new Date().toISOString(),
+          measures: parsed.measures, limitations: PLACES_LIMITATIONS,
+          composite: {
+            definition: "Legacy unweighted mean of six crude percentages; not a validated clinical index or outcome",
+            measureIds: PLACES_MEASURES,
+            years: Object.fromEntries(parsed.measures.filter(m => PLACES_MEASURES.includes(m.id)).map(m => [m.id, m.year])),
+            missingIds: PLACES_MEASURES.filter(id => !measures.has(id)),
+            mixedYear: new Set(parsed.measures.filter(m => PLACES_MEASURES.includes(m.id)).map(m => m.year)).size > 1,
+          },
+        },
+      };
+      const dataYear = Math.max(...parsed.measures.map(m => m.year));
       const values: number[] = [];
       for (const measure of PLACES_MEASURES) {
         const val = measures.get(measure);
@@ -177,7 +211,7 @@ export async function ingestCdcPlacesData(
         }
       }
 
-      const healthBurdenComposite = values.length > 0
+      const healthBurdenComposite = values.length === PLACES_MEASURES.length
         ? clamp(values.reduce((a, b) => a + b, 0) / values.length)
         : null;
 
@@ -192,20 +226,23 @@ export async function ingestCdcPlacesData(
           .update(gisContextData)
           .set({
             healthBurdenComposite,
-            rawPlacesData: Object.fromEntries(measures),
-            dataSource: "cdc_places",
-            dataYear: new Date().getFullYear(),
+            rawPlacesData,
+            dataSource: appendSource(existing[0].dataSource, "cdc_places"),
+            dataYear,
+            geographyType: "county",
             updatedAt: new Date(),
           })
           .where(eq(gisContextData.geographyKey, geographyKey));
       } else {
         await db.insert(gisContextData).values({
           geographyKey,
-          geographyType: "tract",
+          geographyType: "county",
           healthBurdenComposite,
-          rawPlacesData: Object.fromEntries(measures),
+          rawPlacesData,
           dataSource: "cdc_places",
-          dataYear: new Date().getFullYear(),
+          dataYear,
+          stateCode: stateAbbr.toUpperCase(),
+          locationName: parsed.label,
         });
       }
       upsertCount++;
@@ -214,7 +251,7 @@ export async function ingestCdcPlacesData(
     return upsertCount;
   } catch (error) {
     console.error(`[GIS Engine] Error ingesting CDC PLACES data:`, error);
-    return 0;
+    throw error;
   }
 }
 

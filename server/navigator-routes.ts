@@ -1,4 +1,6 @@
 import type { Express, Request } from "express";
+import { governmentRequestFromDraft } from "@shared/government-coordination";
+import { governmentContextForRequest } from "./government-coordination";
 import { groundContacts } from "./contact-grounding";
 import { randomUUID } from "crypto";
 import { navigatorHonesty } from "./inference-honesty-adapter";
@@ -551,12 +553,17 @@ async function assembleContext(
   const userName = getUserName(req);
   let censusIndicators: NavigatorCensusIndicators | null = null;
   let gvTotals: NavigatorGvTotals | null = null;
+  const governmentHandoff = governmentRequestFromDraft(userMessage);
+  if (governmentHandoff) {
+    contextParts.push(await governmentContextForRequest(governmentHandoff));
+    signal?.throwIfAborted();
+  }
 
   if (userName) {
     contextParts.push(`[User: ${userName}]`);
   }
 
-  const locationMatch =
+  const locationMatch = governmentHandoff ? null :
     userMessage.match(
       /(?:zip\s*(?:code)?\s*|in\s+|near\s+|around\s+)(\d{5})/i,
     ) || userMessage.match(/\b(\d{5})\b/);
@@ -582,7 +589,7 @@ async function assembleContext(
       // future requests that carry ZIP in the body).
       const [{ records, locationName }, communityCtx] = await Promise.all([
         searchByLocation(db, zipCode),
-        buildCommunityAIContext({ zip: zipCode }).catch(() => ""),
+        import("./community-context").then(({ warmCommunityContext }) => warmCommunityContext(zipCode)),
       ]);
       if (records.length > 0) {
         const narrative = generateCommunityNarrative(records[0]);

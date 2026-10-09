@@ -21,6 +21,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { AsyncLocalStorage } from "async_hooks";
 import { buildCommunityAIContext, buildCommunityAIContextWithStatus } from "./rplice-intelligence";
+import { governmentContextForZipWithStatus } from "./government-coordination";
 
 // ─── AsyncLocalStorage (the wire) ─────────────────────────────────────────────
 const communityStorage = new AsyncLocalStorage<string>();
@@ -72,17 +73,20 @@ export async function warmCommunityContext(zip: string): Promise<string> {
     return "";
   }
 
-  const promise = buildCommunityAIContextWithStatus({ zip })
-    .then(result => {
-      const ctx = result.content;
+  const promise = Promise.all([
+    buildCommunityAIContextWithStatus({ zip }),
+    governmentContextForZipWithStatus(zip),
+  ])
+    .then(([result, government]) => {
+      const ctx = [result.content, government.content].filter(Boolean).join("\n\n");
       if (!ctx) {
         inFlight.delete(zip);
         return "";
       }
       evictOldest();
-      const hasFailedSource = Object.values(result.sources).includes("failed");
+      const hasFailedSource = Object.values(result.sources).includes("failed") || government.failed;
       const ttl = hasFailedSource ? 5 * 60 * 1000 : CACHE_TTL_MS;
-      cache.set(zip, { context: ctx, expiresAt: Date.now() + ttl });
+      cache.set(zip, { context: ctx, expiresAt: Math.min(Date.now() + ttl, government.expiresAt) });
       inFlight.delete(zip);
       return ctx;
     })
@@ -148,7 +152,12 @@ export function communityContextMiddleware() {
     // supplied the geography receives the same evidence-aware context as the
     // next request. This is the consistency path; in-flight deduplication and
     // the 30-minute cache keep subsequent interactions fast.
-    void warmCommunityContext(zip)
+    let budgetTimer: ReturnType<typeof setTimeout>;
+    const budget = new Promise<string>((resolve) => {
+      budgetTimer = setTimeout(() => resolve(`[Community sources for ZIP ${zip} are still loading; no current evidence has been retrieved for this request. Do not invent local facts.]`), 250);
+    });
+    void Promise.race([warmCommunityContext(zip), budget])
+      .finally(() => clearTimeout(budgetTimer))
       .then((context) => {
         if (context) {
           runWithCommunityContext(context, () => next());

@@ -289,7 +289,7 @@ const PLATFORM_INTERVENTION_MAP: Record<string, {
 }> = {
   "education": {
     platforms: [
-      { id: "isss", name: "ChildCORE", interventions: ["Child and family community intelligence", "Provider availability and school information", "County-level community metrics", "Navigation and referral context"] },
+      { id: "isss", name: "ChildCORE", url: "/childcore-integration", interventions: ["Child and family community intelligence", "Provider availability and school information", "County-level community metrics", "Navigation and referral context"] },
       { id: "wholemind", name: "WholeMind Learning", url: "https://wholemindlearning.com", interventions: ["Pre-K to 12th grade curriculum", "AI homework help", "Adaptive learning", "Skill mastery tracking"] },
     ],
   },
