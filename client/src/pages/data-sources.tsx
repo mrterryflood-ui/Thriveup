@@ -488,7 +488,7 @@ const LOCAL_SOURCES: DataSource[] = [
 const INTERNAL_SOURCES: DataSource[] = [
   {
     id: "rplice",
-    name: "RPLICE -- Research-to-Practice Lifecycle Implementation and Community Evidence",
+    name: "RPLICE -- Research-to-Practice Lifecycle Implementation & Community Evidence",
     shortName: "RPLICE",
     agency: "ThriveUp / TCAF",
     description: "RPLICE public API provides research records, implementation-framework definitions, and service-health status.",
@@ -701,11 +701,11 @@ function LocalHighlightBanner() {
           <h3 className="font-bold text-lg text-emerald-800 dark:text-emerald-200">Local Data -- Central Texas Focus</h3>
           <p className="text-sm text-emerald-700 dark:text-emerald-300 mt-1">
             TCAF operates in a 5-county Central Texas region (Travis, Williamson, Hays, Bastrop, Caldwell) with deep community partnerships. 
-            Local data sources are marked with green borders and include direct partnership data from PfISD (active ISSS pilot), 
-            St. David's Foundation (CHNA data), ECHO (homeless CoC), Foundation Communities (affordable housing), and municipal open data from Austin, Pflugerville, and Manor.
+            Local data sources are marked with green borders and include district and community sources such as PfISD,
+            St. David's Foundation (CHNA data), ECHO (homeless CoC), Foundation Communities (affordable housing), and municipal open data from Austin, Pflugerville, and Manor. Each card discloses when a current feed is not verified.
           </p>
           <div className="flex flex-wrap gap-2 mt-3">
-            <Badge className="bg-emerald-200 dark:bg-emerald-800 text-emerald-800 dark:text-emerald-200">PfISD -- Active Pilot</Badge>
+            <Badge className="bg-emerald-200 dark:bg-emerald-800 text-emerald-800 dark:text-emerald-200">PfISD -- Feed Unverified</Badge>
             <Badge className="bg-emerald-200 dark:bg-emerald-800 text-emerald-800 dark:text-emerald-200">St. David's 5-County</Badge>
             <Badge className="bg-emerald-200 dark:bg-emerald-800 text-emerald-800 dark:text-emerald-200">ECHO CoC</Badge>
             <Badge className="bg-emerald-200 dark:bg-emerald-800 text-emerald-800 dark:text-emerald-200">City of Austin</Badge>
