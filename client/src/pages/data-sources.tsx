@@ -556,7 +556,7 @@ function getStatusBadge(status: SourceStatus) {
     case "live":
       return <Badge className="bg-green-700 text-white" data-testid="badge-status-live"><Wifi className="h-3 w-3 mr-1" /> Listed endpoint</Badge>;
     case "available":
-      return <Badge variant="secondary" data-testid="badge-status-available"><CheckCircle2 className="h-3 w-3 mr-1" /> Available</Badge>;
+      return <Badge variant="secondary" data-testid="badge-status-available"><CheckCircle2 className="h-3 w-3 mr-1" /> Listed resource</Badge>;
     case "key-required":
       return <Badge variant="outline" className="border-amber-500 text-amber-600" data-testid="badge-status-key"><AlertTriangle className="h-3 w-3 mr-1" /> API Key Required</Badge>;
     case "planned":
@@ -669,7 +669,7 @@ function SummaryStats() {
       </Card>
       <Card className="p-3 text-center" data-testid="stat-available">
         <p className="text-2xl font-bold text-blue-600">{available}</p>
-        <p className="text-xs text-muted-foreground">Available</p>
+        <p className="text-xs text-muted-foreground">Listed resources</p>
       </Card>
       <Card className="p-3 text-center bg-blue-50 dark:bg-blue-950/30" data-testid="stat-federal">
         <p className="text-2xl font-bold text-blue-700">{federal}</p>

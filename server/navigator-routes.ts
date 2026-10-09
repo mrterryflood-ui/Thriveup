@@ -1,6 +1,7 @@
 import type { Express, Request } from "express";
-import { governmentRequestFromDraft } from "@shared/government-coordination";
-import { governmentContextForRequest } from "./government-coordination";
+import { resolveGovernmentNavigatorRequest, type GovernmentRequest, type GovernmentNavigatorReceipt } from "@shared/government-coordination";
+import { coordinateGovernmentEvidence } from "./government-coordination";
+import { governmentNavigatorReceipt, governmentNavigatorRules, governmentNavigatorInstructions } from "./government-navigator";
 import { groundContacts } from "./contact-grounding";
 import { randomUUID } from "crypto";
 import { navigatorHonesty } from "./inference-honesty-adapter";
@@ -553,10 +554,11 @@ async function assembleContext(
   const userName = getUserName(req);
   let censusIndicators: NavigatorCensusIndicators | null = null;
   let gvTotals: NavigatorGvTotals | null = null;
-  const governmentHandoff = governmentRequestFromDraft(userMessage);
+  const governmentHandoff = resolveGovernmentNavigatorRequest(userMessage, req.body.governmentContext);
   if (governmentHandoff) {
-    contextParts.push(await governmentContextForRequest(governmentHandoff));
-    signal?.throwIfAborted();
+    // Its validated source snapshot is injected by the handler independently
+    // of this general-context budget. Never re-introduce a rejected receipt.
+    contextParts.push(`[Government geography: ${governmentHandoff.geography}:${governmentHandoff.id}; source availability is disclosed in the request-specific receipt.]`);
   }
 
   if (userName) {
@@ -1405,10 +1407,12 @@ function applyNavigatorGrounding(
   gvContext: ReturnType<typeof detectGunViolenceContext>,
   gvTotals: NavigatorGvTotals | null,
   grantHuntTotal: number | null,
+  governmentEvidence: GovernmentNavigatorReceipt | null = null,
 ): string {
   if (!text || text.length === 0) return text;
   try {
     const rules: ClaimRule[] = [];
+    if (governmentEvidence) rules.push(...governmentNavigatorRules(governmentEvidence));
 
     // Census indicators
     if (censusIndicators) {
@@ -1491,7 +1495,9 @@ function applyNavigatorGrounding(
 
     const result = enforceGroundedClaims(text, rules);
     if (result.decisions.length > 0) {
-      const subject = censusIndicators
+      const subject = governmentEvidence?.evidence
+        ? `${governmentEvidence.request.geography}:${governmentEvidence.request.id}; CDC ${governmentEvidence.evidence.datasetId}; retrieved ${governmentEvidence.evidence.fetchedAt}`
+        : censusIndicators
         ? `ZIP ${censusIndicators.zip}`
         : (gvContext.geography ?? "navigator");
       recordClaimDecisions("navigator", subject, result.decisions).catch(
@@ -1520,7 +1526,9 @@ function applyNavigatorGrounding(
       "[Navigator] applyNavigatorGrounding error (non-fatal):",
       err,
     );
-    return text;
+    return governmentEvidence
+      ? "I could not safely check this government-data interpretation. Use the source-backed evidence and tool section below; no numeric interpretation is being delivered."
+      : text;
   }
 }
 
@@ -1559,6 +1567,13 @@ export function registerNavigatorRoutes(app: Express) {
       return res.status(400).json({
         error: `Message is too long (max ${MAX_MESSAGE_CHARS} characters). Please shorten it and try again.`,
       });
+    }
+
+    let governmentRequest: GovernmentRequest | null;
+    try {
+      governmentRequest = resolveGovernmentNavigatorRequest(message, req.body.governmentContext);
+    } catch {
+      return res.status(400).json({ error: "Invalid government context. Re-select its place and topic in Data Sources." });
     }
 
     // Check saved-thread authority before opening SSE; never weaken a 403
@@ -1601,6 +1616,27 @@ export function registerNavigatorRoutes(app: Express) {
     };
     progress.setPhase("context");
 
+    // Read independently of the shorter general-context budget. A handoff may
+    // land on a different autoscale instance from the original evidence lookup.
+    let governmentEvidence: GovernmentNavigatorReceipt | null = null;
+    if (governmentRequest) {
+      try {
+        governmentEvidence = governmentNavigatorReceipt(await withinNavigatorBudget(
+          coordinateGovernmentEvidence(governmentRequest), 8_000, requestAbortController.signal,
+        ));
+      } catch (error) {
+        if (requestAbortController.signal.aborted) return;
+        console.warn("[Navigator] Government evidence unavailable:", error instanceof Error ? error.message : "lookup failure");
+        governmentEvidence = {
+          request: governmentRequest, checkedAt: new Date().toISOString(), evidence: null,
+          error: "Government evidence could not be retrieved within its budget. No source numbers were used.",
+          tools: [{ path: "/data-sources", title: "Retry government evidence", reason: "Check source availability before interpreting local estimates.", access: "public" }],
+          nextQuestion: "Recheck source availability before making data-driven decisions.",
+        };
+      }
+      safeWrite(`data: ${JSON.stringify({ governmentEvidence })}\n\n`);
+    }
+
     let contextResult: Awaited<ReturnType<typeof assembleContext>>;
     try {
       contextResult = await withinNavigatorBudget(signal => assembleContext(req, message, signal), quickFirst ? 3_000 : 8_000, requestAbortController.signal);
@@ -1613,6 +1649,7 @@ export function registerNavigatorRoutes(app: Express) {
       };
       progress.setPhase("context", "Community information is unavailable for this first answer. Continuing with general guidance, not verified local facts.");
     }
+    if (governmentEvidence) contextResult.context += "\n" + governmentNavigatorInstructions(governmentEvidence);
     const {
       context: contextData,
       censusIndicators: navigatorCensusIndicators,
@@ -2136,7 +2173,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
         await withinNavigatorBudget((async () => {
           await db.insert(navigatorMessages).values({
             conversationId: activeConversationId, role: "assistant",
-            content: answer, metadata: { honesty },
+            content: answer, metadata: { honesty, ...(governmentEvidence ? { governmentEvidence } : {}) },
           });
           if (answer.length > 50) {
             await db.update(navigatorConversations)
@@ -2251,8 +2288,9 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
             gunViolenceContext,
             navigatorGvTotals,
             navigatorGrantHuntTotal,
+            governmentEvidence,
           ), msgs.map((m: any) => (typeof m.content === "string" ? m.content : "")).join("\n")).text;
-          const honesty = navigatorHonesty(groundedResponse, navigatorCensusIndicators, navigatorGvTotals, gunViolenceContext.injected, navigatorGrantHuntTotal);
+          const honesty = navigatorHonesty(groundedResponse, navigatorCensusIndicators, navigatorGvTotals, gunViolenceContext.injected, navigatorGrantHuntTotal, governmentEvidence);
           safeWrite(`data: ${JSON.stringify({ honesty })}\n\n`);
 
           // Emit the grounded response text to the client as a content SSE event.
@@ -2310,8 +2348,9 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
                 gunViolenceContext,
                 navigatorGvTotals,
                 navigatorGrantHuntTotal,
+                governmentEvidence,
               ), msgs.map((m: any) => (typeof m.content === "string" ? m.content : "")).join("\n")).text;
-              const fallbackHonesty = navigatorHonesty(fallbackGrounded, navigatorCensusIndicators, navigatorGvTotals, gunViolenceContext.injected, navigatorGrantHuntTotal);
+              const fallbackHonesty = navigatorHonesty(fallbackGrounded, navigatorCensusIndicators, navigatorGvTotals, gunViolenceContext.injected, navigatorGrantHuntTotal, governmentEvidence);
               safeWrite(`data: ${JSON.stringify({ honesty: fallbackHonesty })}\n\n`);
               if (fallbackGrounded.length > 0) {
                 safeWrite(
@@ -2343,8 +2382,9 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
                     gunViolenceContext,
                     navigatorGvTotals,
                     navigatorGrantHuntTotal,
+                    governmentEvidence,
                   ), msgs.map((m: any) => (typeof m.content === "string" ? m.content : "")).join("\n")).text;
-                  const lastResortHonesty = navigatorHonesty(lastResortGrounded, navigatorCensusIndicators, navigatorGvTotals, gunViolenceContext.injected, navigatorGrantHuntTotal);
+                  const lastResortHonesty = navigatorHonesty(lastResortGrounded, navigatorCensusIndicators, navigatorGvTotals, gunViolenceContext.injected, navigatorGrantHuntTotal, governmentEvidence);
                   safeWrite(`data: ${JSON.stringify({ honesty: lastResortHonesty })}\n\n`);
                   if (lastResortGrounded.length > 0) {
                     safeWrite(

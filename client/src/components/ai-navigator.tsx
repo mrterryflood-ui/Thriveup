@@ -4,7 +4,8 @@ import { queryClient, apiRequest } from "@/lib/queryClient";
 import { safeGetRaw, safeSetRaw, safeRemove } from "@/lib/safe-storage";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation, Link } from "wouter";
-import { governmentDraftFromSearch } from "@shared/government-coordination";
+import { governmentDraftFromSearch, governmentNavigatorReceiptSchema, type GovernmentNavigatorReceipt } from "@shared/government-coordination";
+import GovernmentNavigatorEvidence from "@/components/government-navigator-evidence";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -63,6 +64,7 @@ interface NavigatorMessage {
   content: string;
   createdAt?: string;
   honesty?: GateVerdict;
+  governmentEvidence?: GovernmentNavigatorReceipt;
   honestyNotRecorded?: boolean;
   deepThinking?: string;
   deepThinkingPending?: boolean;
@@ -839,6 +841,10 @@ export function AINavigator({
           content: m.content,
           createdAt: m.createdAt,
           honesty: isGateVerdict(m.metadata?.honesty) ? m.metadata.honesty : undefined,
+          governmentEvidence: (() => {
+            const receipt = governmentNavigatorReceiptSchema.safeParse(m.metadata?.governmentEvidence);
+            return receipt.success ? receipt.data : undefined;
+          })(),
           honestyNotRecorded: m.role === "assistant" && !isGateVerdict(m.metadata?.honesty),
         })),
       );
@@ -1298,6 +1304,7 @@ export function AINavigator({
             conversationId: activeConversationId,
             responseMode,
             youthMode,
+            governmentContext: [...messages].reverse().find(m => m.governmentEvidence)?.governmentEvidence?.request,
           }),
         });
         if (navigatorRequestIdRef.current !== requestId) return;
@@ -1347,6 +1354,12 @@ export function AINavigator({
                 // unlocked the composer. Never let this older stream mutate the
                 // newer request or install a stale R1 poll.
                 if (navigatorRequestIdRef.current !== requestId) continue;
+                if (parsed.governmentEvidence) {
+                  const receipt = governmentNavigatorReceiptSchema.safeParse(parsed.governmentEvidence);
+                  if (receipt.success) setMessages(prev => navigatorRequestIdRef.current !== requestId ? prev
+                    : prev.map((entry, index) => index === assistantIdx && entry.role === "assistant"
+                      ? { ...entry, governmentEvidence: receipt.data } : entry));
+                }
                 if (isGateVerdict(parsed.honesty)) {
                   setMessages(prev => prev.map((entry, index) => index === assistantIdx ? { ...entry, honesty: parsed.honesty } : entry));
                 }
@@ -1512,7 +1525,7 @@ export function AINavigator({
                     }
                     return updated;
                   });
-                  refetchConversations();
+                  if (isAuthenticated && user?.id) void refetchConversations();
                   if (parsed.gunViolenceContext) {
                     setMessages((prev) => {
                       const updated = [...prev];
@@ -2068,6 +2081,7 @@ export function AINavigator({
                                     </span>
                                   </div>
                                 )}
+                                {msg.governmentEvidence && <GovernmentNavigatorEvidence receipt={msg.governmentEvidence} />}
                               </div>
                             ) : (
                               <div className="leading-relaxed whitespace-pre-wrap select-text cursor-text">
@@ -2780,6 +2794,7 @@ export function AINavigator({
                                 </span>
                               </div>
                             )}
+                            {msg.governmentEvidence && <GovernmentNavigatorEvidence receipt={msg.governmentEvidence} />}
                           </div>
                         ) : (
                           <div className="leading-relaxed whitespace-pre-wrap select-text cursor-text">

@@ -133,3 +133,76 @@ export interface GovernmentCoordination {
   nextQuestion: string;
   handoff: { geography: string; need: GovernmentNeed; evidenceUrl: string; instruction: string };
 }
+
+/** Server-owned receipt, not an AI-authored account of which data was used. */
+export const governmentNavigatorReceiptSchema = z.object({
+  request: governmentRequestSchema,
+  checkedAt: z.string().datetime(),
+  error: z.string().nullable(),
+  nextQuestion: z.string(),
+  tools: z.array(z.object({
+    path: z.string().regex(/^\/(?!\/)[a-z0-9/-]+$/),
+    title: z.string(),
+    reason: z.string(),
+    access: z.string(),
+  })).max(30),
+  evidence: z.object({
+    geography: z.enum(["county", "tract", "place", "zcta"]),
+    id: z.string(),
+    label: z.string(),
+    state: z.string().nullable(),
+    sourceUrl: z.string().url().refine(url => {
+      try {
+        const source = new URL(url);
+        return source.protocol === "https:" && source.hostname === "data.cdc.gov";
+      } catch { return false; }
+    }),
+    datasetId: z.string(),
+    release: z.string(),
+    sourceUpdatedAt: z.string().nullable(),
+    fetchedAt: z.string().datetime(),
+    rejectedRows: z.number().int().nonnegative(),
+    status: z.enum(["available", "partial", "empty"]),
+    coverage: z.object({
+      datasetMeasureCount: z.number().int().nonnegative(),
+      returnedMeasureCount: z.number().int().nonnegative(),
+      unavailableMeasureIds: z.array(z.string()),
+      geographyVerified: z.boolean(),
+    }),
+    limitations: z.array(z.string()),
+    measures: z.array(z.object({
+      id: z.string(), label: z.string(), category: z.string(),
+      value: z.number().min(0).max(100).nullable(), unit: z.string(),
+      year: z.number().int(), lower95: z.number().min(0).max(100).nullable(),
+      upper95: z.number().min(0).max(100).nullable(),
+      population: z.number().nonnegative().nullable(), footnote: z.string().nullable(),
+      method: z.literal("modeled"), valueType: z.literal("Crude prevalence"),
+    })).max(200),
+  }).nullable(),
+}).superRefine((receipt, ctx) => {
+  const evidence = receipt.evidence;
+  if (!evidence) return;
+  if (evidence.geography !== receipt.request.geography || evidence.id !== receipt.request.id) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Receipt geography does not match request" });
+  }
+  if (evidence.coverage.returnedMeasureCount !== evidence.measures.length ||
+      evidence.coverage.datasetMeasureCount < evidence.measures.length ||
+      new Set(evidence.measures.map(m => m.id)).size !== evidence.measures.length ||
+      new Set(evidence.coverage.unavailableMeasureIds).size !== evidence.coverage.unavailableMeasureIds.length ||
+      evidence.coverage.datasetMeasureCount !== evidence.measures.length + evidence.coverage.unavailableMeasureIds.length ||
+      evidence.coverage.unavailableMeasureIds.some(id => evidence.measures.some(m => m.id === id))) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Receipt coverage is inconsistent" });
+  }
+});
+export type GovernmentNavigatorReceipt = z.infer<typeof governmentNavigatorReceiptSchema>;
+
+/** A new valid draft wins over inherited context; malformed tags never become ZIPs. */
+export function resolveGovernmentNavigatorRequest(text: string, inherited?: unknown): GovernmentRequest | null {
+  if (text.includes("[Government evidence:")) {
+    const request = governmentRequestFromDraft(text);
+    if (!request) throw new Error("Government evidence draft is invalid. Re-select its place and topic in Data Sources.");
+    return request;
+  }
+  if (inherited === undefined || inherited === null) return null;
+  return governmentRequestSchema.parse(inherited);
+}
