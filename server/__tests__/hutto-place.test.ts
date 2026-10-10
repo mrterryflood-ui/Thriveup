@@ -1,8 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { HUTTO_PLACE, isHuttoPlace } from "../../shared/places/hutto";
 import { describeJourneyPlace, placeToZip, parseJourneyContext } from "../../shared/journey-context";
-import { HUTTO_FACTS, HUTTO_JOURNEY, HUTTO_READY_LINKS, HUTTO_READY_TITLE } from "../../shared/hutto-ready";
+import { HUTTO_FACTS, HUTTO_JOURNEY, HUTTO_ORCHESTRATION, HUTTO_READY_LINKS, HUTTO_READY_TITLE } from "../../shared/hutto-ready";
+import { resolvePlace } from "../community-banks/profile";
 
 const SPEC_INPUTS = ["Hutto", "hutto", "Hutto, TX", "Hutto, Texas", "Hutto TX", "78634", "Hutto ISD", "Hutto Independent School District"];
 
@@ -13,6 +16,32 @@ test("every spec input resolves to Hutto by name", () => {
     assert.equal(place, input, `journey context keeps ${input}`);
     assert.equal(describeJourneyPlace(input), "Hutto, TX (78634)", input);
     assert.equal(placeToZip(input), "78634", input);
+  }
+});
+
+// resolvePlace() backs both /api/community-banks/profile and /api/community-gravity/map.
+// The Hutto branch returns before any DB or network lookup, so this runs without Postgres.
+test("server resolvePlace() resolves every spec input to Hutto, Williamson County", async () => {
+  for (const input of SPEC_INPUTS) {
+    const result = await resolvePlace(input);
+    assert.equal(result.ok, true, input);
+    if (!result.ok) continue;
+    assert.equal(result.geography.label, "Hutto, TX (78634) · Williamson County", input);
+    assert.equal(result.geography.state, "TX", input);
+    assert.deepEqual(result.geography.counties, [{ fips: "48491", name: "Williamson County" }], input);
+  }
+});
+
+test("server resolvePlace() leaves non-Hutto curated cities unchanged", async () => {
+  const result = await resolvePlace("Round Rock, TX");
+  assert.equal(result.ok, true);
+  if (result.ok) assert.doesNotMatch(result.geography.label, /Hutto/);
+});
+
+test("orchestration copy keeps unconnected handoffs and receipts in the proposed state", () => {
+  for (const step of HUTTO_ORCHESTRATION.filter(o => /named person|Measure/.test(o.step))) {
+    assert.match(step.text, /^Proposed:/, step.step);
+    assert.doesNotMatch(step.text, /^Each handoff (goes|leaves)/, step.step);
   }
 });
 
@@ -44,4 +73,10 @@ test("Hutto Ready strip and journey follow the spec", () => {
   assert.deepEqual(HUTTO_JOURNEY.map(s => s.n), [1, 2, 3, 4, 5, 6]);
   assert.deepEqual(HUTTO_JOURNEY.map(s => s.platform), HUTTO_READY_LINKS.map(l => l.key));
   for (const f of Object.values(HUTTO_FACTS)) assert.match(f.href, /^https:\/\//, f.id);
+});
+
+test("binding spec is committed and every displayed fact source is one of its allowed facts", () => {
+  const spec = readFileSync(resolve(process.cwd(), "docs/hutto/HUTTO_DEMO_SPEC.md"), "utf8");
+  for (const f of Object.values(HUTTO_FACTS)) assert.ok(spec.includes(f.href), `${f.id} source is listed in the spec`);
+  for (const l of HUTTO_READY_LINKS) assert.ok(spec.includes(l.href), `${l.name} URL is listed in the spec`);
 });

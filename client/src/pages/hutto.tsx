@@ -2,8 +2,8 @@ import { useMemo, useState, type FormEvent } from "react";
 import { Link } from "wouter";
 import { ArrowRight, ArrowUpRight, Compass, ExternalLink, MapPin } from "lucide-react";
 import { HuttoReadyStrip } from "@/components/hutto-ready-strip";
-import { RESOURCE_CATEGORIES } from "@/pages/community-resource-directory";
-import { mentorshipPrograms } from "@/pages/mentorship-directory";
+import { RESOURCE_CATEGORIES } from "@/data/resource-directory";
+import { mentorshipPrograms } from "@/data/mentorship-programs";
 import { HUTTO_PLACE, isHuttoPlace } from "@shared/places/hutto";
 import {
   HUTTO_COMPOSITE_LABEL,
@@ -67,7 +67,7 @@ export default function HuttoReadyPage() {
   const platformHref = (key: string) => HUTTO_READY_LINKS.find((l) => l.key === key)!;
 
   return (
-    <main className="min-h-[100dvh] bg-[#f2f0e7] text-[#182720]" data-testid="hutto-ready-page">
+    <div className="min-h-[100dvh] bg-[#f2f0e7] text-[#182720]" data-testid="hutto-ready-page">
       <header className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-4 md:px-10" aria-label="Hutto Ready navigation">
         <Link href="/" className="inline-flex min-h-11 items-center gap-2 text-sm font-bold tracking-tight">
           <span className="grid h-8 w-8 place-items-center rounded-sm bg-[#18352b] text-[#e8e5d9]"><Compass size={17} aria-hidden="true" /></span>
@@ -127,7 +127,7 @@ export default function HuttoReadyPage() {
             <article className="border border-[#b8b9aa] bg-[#f7f6f0] p-5">
               <SectionLabel>03 · Fix</SectionLabel>
               <h3 className="mt-2 text-lg font-semibold">Connect the links so a family only starts once</h3>
-              <p className="mt-3 text-sm leading-relaxed">The programs exist; the gap is the handoff between them. Hutto Ready links six platforms behind one front door, each with its own Hutto page, and every handoff goes to a named person and is measured.</p>
+              <p className="mt-3 text-sm leading-relaxed">The programs exist; the gap is the handoff between them. Hutto Ready links six platforms behind one front door, each with its own Hutto page. The proposed next step is for every handoff to go to a named person and be measured; partner contacts are still to be confirmed.</p>
               <p className="mt-3 text-sm leading-relaxed text-[#4f5d55]">Local outcome data is not connected yet, so no outcome numbers are shown here.</p>
             </article>
           </div>
@@ -243,6 +243,6 @@ export default function HuttoReadyPage() {
           <p className="mt-2">Family: {HUTTO_COMPOSITE_LABEL}. No student-level data is shown. Statistics appear only with their source link; data that is not connected is shown as missing.</p>
         </footer>
       </div>
-    </main>
+    </div>
   );
 }

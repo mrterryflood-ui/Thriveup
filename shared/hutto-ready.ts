@@ -1,7 +1,7 @@
 /**
  * Hutto Ready — integrated demo content (route /hutto).
  *
- * Binding source: hutto/HUTTO_DEMO_SPEC.md. Every statistic below is one of the
+ * Binding source: docs/hutto/HUTTO_DEMO_SPEC.md (committed in this repo). Every statistic below is one of the
  * spec's allowed facts and carries its source URL; no other Hutto statistic may
  * be added here. Evidence state: "observed" (cited external source) for facts,
  * "illustrative" for the composite family. Missing data is shown as missing.
@@ -94,6 +94,6 @@ export const HUTTO_ORCHESTRATION: ReadonlyArray<{ step: string; text: string }> 
   { step: "Signal", text: "A need shows up: a Pre-K waitlist, a robotics interest, a first paycheck, a weather alert." },
   { step: "Front door", text: "The family starts at ThriveUp's Hutto page, recognized by name as Hutto, TX (78634)." },
   { step: "Act", text: "The right platform opens on its own Hutto page: ChildCORE, LineReady, FinLitSpark, HazardAware or Funding Path Pro." },
-  { step: "Hand off to a named person", text: "Each handoff goes to a named contact at the receiving organization. Named contacts: to be confirmed with partners before any live use." },
-  { step: "Measure", text: "Each handoff leaves a receipt. Outcomes are measurable once local data is connected; nothing here is a projected result." },
+  { step: "Hand off to a named person", text: "Proposed: each handoff would go to a named contact at the receiving organization. Not live yet; named contacts are to be confirmed with partners before any live use." },
+  { step: "Measure", text: "Proposed: each handoff would leave a receipt once local data is connected. No receipts or outcomes are recorded yet; nothing here is a projected result." },
 ];
