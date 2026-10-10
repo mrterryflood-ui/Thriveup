@@ -111,3 +111,4 @@
 - [Geographic provenance](geographic-provenance.md) — populated coordinates do not prove accuracy; preserve FIPS/ZIP scope and distinguish filing locations, seeded pins, and metric definitions.
 - [Verification resource budget](verification-resource-budget.md) — serialize compiler/build and browser checks in constrained containers; interrupted checks are not passing proof.
 - [Access truth = route registry](access-truth-registry.md) — one predicate (shared/route-access); sidebar group flags over-restrict; regenerate registry JSON from the target branch inputs, never local.
+- [Repository document boundary](repository-document-boundary.md) — personal applications and unpublished proposals stay private; verify tracked files and history, not ignore rules alone.
