@@ -1,5 +1,5 @@
 {
- "routeCount": 421,
+ "routeCount": 422,
  "entries": [
   {
    "path": "/",
@@ -5335,6 +5335,33 @@
    "classified": true,
    "description": "Choose benefits, foster-youth, reentry, and health support tools or role-restricted service-delivery workspaces.",
    "guide": "Need a service pathway → Serve People → choose a benefits, transition, reentry, or health tool"
+  },
+  {
+   "path": "/hutto",
+   "title": "Hutto Ready — Every Link, One Community",
+   "outcome": "fund",
+   "audiences": [
+    "funder-evaluator",
+    "agency-government",
+    "nonprofit-cbo",
+    "students-youth"
+   ],
+   "access": "public",
+   "upstream": [
+    "/demo"
+   ],
+   "downstream": [
+    "/demo",
+    "/411",
+    "/resource-directory",
+    "/mentorship-directory"
+   ],
+   "sources": [
+    "app-routes"
+   ],
+   "classified": true,
+   "description": "See the integrated Hutto, TX (78634) demo: one composite family's six-stop journey across ThriveUp, ChildCORE, LineReady, FinLitSpark, HazardAware and Funding Path Pro, with cited facts and Hutto resources.",
+   "guide": "Need to show Hutto stakeholders the connected platforms → Hutto Ready → walk the six family stops, then open each platform's Hutto page"
   },
   {
    "path": "/impact",

@@ -7,14 +7,14 @@ test("place carries 411 → screener → parents → academy → impact with zer
   page.on("dialog", (d) => { consentPrompts.push(d.message()); void d.dismiss(); });
 
   await page.goto(`${BASE}/411?place=78634`, { waitUntil: "domcontentloaded" });
-  await expect(page.getByTestId("journey-place-showing")).toContainText("ZIP 78634");
+  await expect(page.getByTestId("journey-place-showing")).toContainText("Hutto, TX (78634)");
   await expect(page.getByTestId("input-zip")).toHaveValue("78634");
 
   const steps = ["/benefits-screener", "/parents", "/academy/financial-literacy", "/academy/careers", "/impact"];
   for (const path of steps) {
     await page.getByTestId("journey-place-next").click();
     await expect(page).toHaveURL(new RegExp(`${path}\\?.*place=78634`));
-    await expect(page.getByTestId("journey-place-showing")).toContainText("ZIP 78634");
+    await expect(page.getByTestId("journey-place-showing")).toContainText("Hutto, TX (78634)");
   }
   expect(consentPrompts).toEqual([]);
   await expect(page.getByText(/sign in to (view|continue)/i)).toHaveCount(0);
