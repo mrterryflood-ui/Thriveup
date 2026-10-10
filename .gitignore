@@ -10,3 +10,16 @@ vite.config.ts.*
 test-results/
 # Chat transcripts pasted into the workspace are not repository content
 attached_assets/Pasted-*.txt
+# Security cleanup (owner-approved Oct 10, 2026) — never commit secrets, session data or codebase dumps
+cookies.txt
+*.cookies
+.env
+.env.*
+!.env.example
+thriveup-codebase.*
+*-full-code-export.md
+*.b64
+*.b64.part*
+*.hex.part*
+*.tar.gz.part*
+.tmp-*
