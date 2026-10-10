@@ -41,7 +41,7 @@ interface CategoryData {
   organizations: Organization[];
 }
 
-const RESOURCE_CATEGORIES: CategoryData[] = [
+export const RESOURCE_CATEGORIES: CategoryData[] = [
   {
     id: "civil-rights",
     label: "Civil Rights & Advocacy",

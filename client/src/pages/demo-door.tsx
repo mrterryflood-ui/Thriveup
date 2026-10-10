@@ -15,6 +15,8 @@ import {
   type DemoStep,
 } from "@shared/demo-stories";
 import { useWorkspaceAccess } from "@/lib/workspace-context";
+import { describeJourneyPlace } from "@shared/journey-context";
+import { HUTTO_PLACE, isHuttoPlace } from "@shared/places/hutto";
 
 /**
  * Stakeholder Demo Door (one canonical route: /demo?audience=...&place=...).
@@ -190,8 +192,13 @@ export default function DemoDoor() {
               </nav>
               {explicitPlace && (
                 <p className="mt-6 inline-flex w-fit items-center gap-2 rounded-full border border-[#aab4a5]/40 px-3 py-1.5 text-xs text-[#d4ddd3]" data-testid="demo-place-badge">
-                  <MapPin size={12} aria-hidden="true" /> Showing: <strong>{explicitPlace}</strong>
+                  <MapPin size={12} aria-hidden="true" /> Showing: <strong>{describeJourneyPlace(explicitPlace)}</strong>
                 </p>
+              )}
+              {explicitPlace && isHuttoPlace(explicitPlace) && (
+                <Link href={HUTTO_PLACE.path} className="mt-3 inline-flex min-h-11 w-fit items-center gap-2 border-b border-[#df9975] text-sm font-semibold text-[#f3f0e5] hover:text-[#df9975]" data-testid="demo-hutto-link">
+                  Open the Hutto Ready integrated demo <ArrowRight size={15} aria-hidden="true" />
+                </Link>
               )}
               <p className="mt-6 max-w-xs border-l-2 border-[#d06a4a] pl-3 font-mono text-[10px] uppercase leading-relaxed tracking-[.14em] text-[#aab9ae]">
                 No default city is assumed. No synthetic data about a city, ever.

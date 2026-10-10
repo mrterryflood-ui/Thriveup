@@ -56,7 +56,7 @@ const categoryConfig: Record<ProgramCategory, { label: string; color: string; ic
   faith: { label: "Faith-Based", color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200", icon: <Star className="w-5 h-5" /> },
 };
 
-const mentorshipPrograms: MentorshipProgram[] = [
+export const mentorshipPrograms: MentorshipProgram[] = [
   {
     id: "100-black-men",
     name: "100 Black Men of Austin",
