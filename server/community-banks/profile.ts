@@ -13,6 +13,7 @@ import { resolveZipBestEffort } from "../geo/zip-county-resolver";
 import { fetchCountyAcs } from "../equity-loss/acs-county-source";
 import { getChildcareIntelByFips } from "../childcare-provider-intel";
 import { getStateName } from "../gis-engine";
+import { HUTTO_PLACE, isHuttoPlace } from "@shared/places/hutto";
 
 export interface BankGeography {
   label: string;
@@ -124,6 +125,20 @@ export async function resolvePlace(raw: string | undefined): Promise<ResolveResu
   const place = (raw ?? "").trim();
   if (!place) return { ok: true, geography: AUSTIN_MSA };
   if (place.length > 80) return { ok: false, reason: "Place query too long." };
+
+  // Canonical named place: "Hutto", "Hutto, TX", "Hutto ISD", "78634" → Hutto, TX (78634), Williamson County.
+  if (isHuttoPlace(place)) {
+    return {
+      ok: true,
+      geography: {
+        label: `${HUTTO_PLACE.label} · ${HUTTO_PLACE.countyName}`,
+        state: HUTTO_PLACE.state,
+        stateName: getStateName(HUTTO_PLACE.state),
+        counties: [{ fips: HUTTO_PLACE.countyFips, name: HUTTO_PLACE.countyName }],
+        resolvedFrom: "zip",
+      },
+    };
+  }
 
   // Explicit county FIPS: "county:48453" / "fips:48453" (bare 5 digits are ambiguous with ZIPs).
   const explicitFips = /^(?:county|fips):?\s*(\d{5})$/i.exec(place)?.[1];

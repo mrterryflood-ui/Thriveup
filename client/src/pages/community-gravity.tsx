@@ -9,6 +9,7 @@ import { ArrowRight, ArrowLeft, Magnet, ShieldCheck, ExternalLink, Search, Build
 import { MagnetMap } from "@/components/magnet-map";
 import { IntegrationInvitation } from "@/components/integration-invitation";
 import { useMagnetJourneyPlace } from "@/hooks/use-magnet-journey-place";
+import { describeJourneyPlace } from "@shared/journey-context";
 import { apiRequest } from "@/lib/queryClient";
 import { useWorkspaceAccess } from "@/lib/workspace-context";
 
@@ -243,7 +244,7 @@ export default function CommunityGravityPage() {
   return <div className="mx-auto max-w-6xl px-5 py-8" data-testid="community-gravity-page">
     <Link href="/" className="inline-flex items-center gap-2 min-h-11 text-sm text-muted-foreground" data-testid="gravity-home"><ArrowLeft size={15} />Starting points</Link>
     <div className="mt-4 flex items-start gap-3"><Magnet className="h-8 w-8 text-primary shrink-0" aria-hidden="true" /><div>
-      <h1 className="text-3xl font-semibold">Community Rolodex: {city ? `organizations to know in ${titleCase(city)}, ${state.toUpperCase()}` : broadPlace ? `organizations to know near ${broadPlace}` : "choose a community"}</h1>
+      <h1 className="text-3xl font-semibold">Community Rolodex: {city ? `organizations to know in ${titleCase(city)}, ${state.toUpperCase()}` : broadPlace ? `organizations to know near ${describeJourneyPlace(broadPlace)}` : "choose a community"}</h1>
       <p className="mt-2 max-w-3xl text-muted-foreground">A place-based directory of adjacent stakeholders across sectors: schools, early learning and daycare, workforce development, universities, banks, hospitals, nonprofits, government, and community institutions. Sector labels are open so each community can describe its own partners. A listing does not mean partnership, endorsement, referral acceptance, or a shared service area.</p>
     </div></div>
 
@@ -344,7 +345,7 @@ export default function CommunityGravityPage() {
     {journey.pending && <p role="status" className="mt-4">Loading your journey place…</p>}
     {(journey.error || journey.unsupported) && <p role="alert" className="mt-4">{journey.unsupported ? "This map currently supports U.S. communities only." : "Your saved journey place could not load."} Choose a city and state above to continue; no substitute place has been selected.</p>}
     {!!broadPlace && !reportedCity && !journey.pending && <section className="mt-6 rounded-xl border p-4" data-testid="gravity-journey-map">
-      <h2 className="font-semibold">Map for {broadPlace}</h2>
+      <h2 className="font-semibold">Map for {describeJourneyPlace(broadPlace)}</h2>
       <p className="mt-2 text-sm text-muted-foreground">Your ZIP or county is preserved. Choose a city above if you also want city-level organization profiles.</p>
       <Button type="button" variant="outline" className="mt-3 min-h-11" onClick={() => setMapOpen(v => !v)} aria-expanded={mapOpen} data-testid="gravity-map-toggle">{mapOpen ? "Hide community map" : "Open community map"}</Button>
       {mapOpen && <div className="mt-4"><MagnetMap place={broadPlace} /></div>}
