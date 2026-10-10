@@ -38,6 +38,12 @@ const STATIC_META: Record<string, RouteMeta> = {
     ogTitle: "Community Gravity",
     ogDescription: "Browse source-cited community organization profiles separately from IRS nonprofit filings.",
   },
+  "/hutto": {
+    title: "Hutto Ready — Every Link, One Community | ThriveUp",
+    description: "An integrated demo for Hutto, TX (78634): one illustrative composite family's six-stop journey across ThriveUp, ChildCORE, LineReady, FinLitSpark, HazardAware and Funding Path Pro, with every fact source-linked.",
+    ogTitle: "Hutto Ready — Every Link, One Community",
+    ogDescription: "Six platforms, one front door for Hutto, TX families. Not affiliated with or endorsed by Hutto ISD, the Hutto Area Chamber or VeraBank.",
+  },
   "/community-banks": {
     title: "Community Bank Impact View | TCAF + ThriveUp",
     description: "A public county or metro snapshot for banks, funders, and CRA teams: poverty, vulnerability, housing, and child-care supply with every number labeled observed, modeled, or unavailable and traced to Census, CDC, or HUD.",

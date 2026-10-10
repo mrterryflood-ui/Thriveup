@@ -5,6 +5,7 @@ import type { PublicOutcome } from "@shared/outcome-landings";
 import { OUTCOME_LANDINGS, outcomeLandingPath } from "@shared/outcome-landings";
 import { AUDIENCE_LABELS, OUTCOME_LABELS, canSeeRoute, navRoute } from "@shared/route-nav";
 import { canOpenPath } from "@shared/route-access";
+import { describeJourneyPlace } from "@shared/journey-context";
 import { useWorkspaceAccess } from "@/lib/workspace-context";
 import { useAudience } from "@/lib/audience-preference";
 import { useAuth } from "@/hooks/use-auth";
@@ -62,7 +63,9 @@ export default function OutcomeLandingPage({ outcome }: { outcome: PublicOutcome
   const journey = useMagnetJourneyPlace(!!activeExplicitPlace);
   const mapPlace = activeExplicitPlace || journey.place || undefined;
   const mapLoading = !activeExplicitPlace && journey.pending;
-  const placeLabel = activeExplicitPlace || journey.place;
+  const rawPlace = activeExplicitPlace || journey.place;
+  // Display only: canonical label ("Hutto, TX (78634)", "ZIP 78701"); mapPlace keeps the raw value for queries.
+  const placeLabel = rawPlace ? describeJourneyPlace(rawPlace) : rawPlace;
   useEffect(() => {
     setSyncedPlaceSource(placeSource);
     setExplicitPlace(queryPlace);

@@ -8,6 +8,7 @@
  * Merge rule: explicit URL place wins; else the signed-in journey place; else the tool asks.
  * There is no default city, ever.
  */
+import { HUTTO_PLACE, isHuttoPlace } from "./places/hutto";
 
 export interface JourneyContext {
   place?: string;
@@ -41,9 +42,14 @@ export function parseJourneyContext(search: string | URLSearchParams | null | un
   return ctx;
 }
 
-/** A 5-digit ZIP carried in `place`, or null. Never infers a ZIP from a name. */
+/**
+ * A 5-digit ZIP carried in `place`, or null. Never infers a ZIP from a name — the only
+ * exception is the curated canonical-place alias table (shared/places/hutto.ts), so
+ * "Hutto", "Hutto, TX" and "Hutto ISD" land on 78634.
+ */
 export function placeToZip(place: string | null | undefined): string | null {
   const value = place?.trim();
+  if (value && isHuttoPlace(value)) return HUTTO_PLACE.zip;
   return value && /^\d{5}$/.test(value) ? value : null;
 }
 
@@ -55,6 +61,7 @@ export function placeToCountyFips(place: string | null | undefined): string | nu
 
 /** Human-readable label for the place chip. */
 export function describeJourneyPlace(place: string): string {
+  if (isHuttoPlace(place)) return HUTTO_PLACE.label;
   const zip = placeToZip(place);
   if (zip) return `ZIP ${zip}`;
   const fips = placeToCountyFips(place);
