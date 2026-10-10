@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { HUTTO_PLACE, isHuttoPlace } from "../../shared/places/hutto";
 import { describeJourneyPlace, placeToZip, parseJourneyContext } from "../../shared/journey-context";
-import { HUTTO_FACTS, HUTTO_JOURNEY, HUTTO_ORCHESTRATION, HUTTO_READY_LINKS, HUTTO_READY_TITLE } from "../../shared/hutto-ready";
+import { HUTTO_FACTS, HUTTO_JOURNEY, HUTTO_ORCHESTRATION, HUTTO_READY_LINKS, HUTTO_READY_TITLE, HUTTO_STAKEHOLDERS } from "../../shared/hutto-ready";
 import { resolvePlace } from "../community-banks/profile";
 
 const SPEC_INPUTS = ["Hutto", "hutto", "Hutto, TX", "Hutto, Texas", "Hutto TX", "78634", "Hutto ISD", "Hutto Independent School District"];
@@ -79,4 +79,18 @@ test("binding spec is committed and every displayed fact source is one of its al
   const spec = readFileSync(resolve(process.cwd(), "docs/hutto/HUTTO_DEMO_SPEC.md"), "utf8");
   for (const f of Object.values(HUTTO_FACTS)) assert.ok(spec.includes(f.href), `${f.id} source is listed in the spec`);
   for (const l of HUTTO_READY_LINKS) assert.ok(spec.includes(l.href), `${l.name} URL is listed in the spec`);
+});
+
+test("VeraBank is never presented as a sponsor (neutral sponsor slot renders separately)", () => {
+  const veraBank = HUTTO_STAKEHOLDERS.find(s => s.org === "VeraBank");
+  assert.ok(veraBank);
+  for (const line of veraBank.gets) assert.doesNotMatch(line, /sponsor/i, line);
+});
+
+test("place display surfaces route the raw ZIP through describeJourneyPlace()", () => {
+  const gravity = readFileSync(resolve(process.cwd(), "client/src/pages/community-gravity.tsx"), "utf8");
+  assert.match(gravity, /organizations to know near \$\{describeJourneyPlace\(broadPlace\)\}/);
+  assert.match(gravity, /Map for \{describeJourneyPlace\(broadPlace\)\}/);
+  const landing = readFileSync(resolve(process.cwd(), "client/src/pages/outcome-landing.tsx"), "utf8");
+  assert.match(landing, /const placeLabel = rawPlace \? describeJourneyPlace\(rawPlace\)/);
 });

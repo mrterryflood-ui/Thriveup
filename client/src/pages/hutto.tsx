@@ -1,7 +1,8 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link } from "wouter";
 import { ArrowRight, ArrowUpRight, Compass, ExternalLink, MapPin } from "lucide-react";
 import { HuttoReadyStrip } from "@/components/hutto-ready-strip";
+import { FocusedInvitation } from "@/components/focused-invitation";
 import { RESOURCE_CATEGORIES } from "@/data/resource-directory";
 import { mentorshipPrograms } from "@/data/mentorship-programs";
 import { HUTTO_PLACE, isHuttoPlace } from "@shared/places/hutto";
@@ -28,6 +29,9 @@ import {
 
 const HUTTO_TEXT = /\bhutto\b|williamson/i;
 
+/** Matches server/route-meta.ts "/hutto" so SPA navigation (e.g. from /demo) gets the same title as a hard load. */
+const HUTTO_DOCUMENT_TITLE = `${HUTTO_READY_TITLE} | ThriveUp`;
+
 function FactList({ facts }: { facts: HuttoFact[] }) {
   if (!facts.length) return null;
   return (
@@ -36,7 +40,7 @@ function FactList({ facts }: { facts: HuttoFact[] }) {
         <li key={f.id} className="text-sm leading-relaxed">
           {f.text}{" "}
           <a href={f.href} target="_blank" rel="noopener noreferrer" className="inline-flex flex-wrap items-center gap-1 break-words text-xs font-semibold text-[#9c472f] underline underline-offset-2 hover:text-[#6e2f1d]">
-            Source: {f.source} <ExternalLink size={11} aria-hidden="true" />
+            Source: {f.source} <ExternalLink size={11} aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span>
           </a>
         </li>
       ))}
@@ -51,6 +55,11 @@ function SectionLabel({ children }: { children: string }) {
 export default function HuttoReadyPage() {
   const [draft, setDraft] = useState("Hutto");
   const [checked, setChecked] = useState<string | null>(null);
+  useEffect(() => {
+    const previous = document.title;
+    document.title = HUTTO_DOCUMENT_TITLE;
+    return () => { document.title = previous; };
+  }, []);
 
   const directoryRecords = useMemo(() => RESOURCE_CATEGORIES.flatMap((cat) =>
     cat.organizations
@@ -94,7 +103,7 @@ export default function HuttoReadyPage() {
             <form onSubmit={checkPlace} className="self-end rounded-lg border border-white/15 bg-[#12291f] p-5" aria-label="Check a place name">
               <label htmlFor="hutto-place-check" className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-[#aab9ae]">Try a place name or ZIP</label>
               <div className="flex flex-wrap gap-2">
-                <input id="hutto-place-check" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Hutto, 78634, Hutto ISD" className="min-h-12 min-w-[180px] flex-1 border border-[#4c6a5a] bg-[#0f2219] px-3 text-sm text-[#f3f0e5] outline-none placeholder:text-[#6f8074] focus:border-[#d06a4a]" data-testid="hutto-place-input" />
+                <input id="hutto-place-check" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Hutto, 78634, Hutto ISD" className="min-h-12 min-w-[180px] flex-1 border border-[#4c6a5a] bg-[#0f2219] px-3 text-sm text-[#f3f0e5] outline-none placeholder:text-[#8a9b8f] focus:border-[#d06a4a]" data-testid="hutto-place-input" />
                 <button type="submit" disabled={!draft.trim()} className="min-h-12 bg-[#b74b30] px-4 text-sm font-semibold text-[#fff8ea] hover:bg-[#913a25] disabled:opacity-50" data-testid="hutto-place-submit">Check</button>
               </div>
               <p className="mt-3 min-h-[1.5rem] text-sm" role="status" aria-live="polite" data-testid="hutto-place-result">
@@ -237,6 +246,8 @@ export default function HuttoReadyPage() {
             </div>
           )}
         </section>
+
+        <FocusedInvitation surfaceContext="hutto-ready" />
 
         <footer className="border-t border-[#b8b9aa] pt-6 text-xs leading-relaxed text-[#4f5d55]">
           <p>{HUTTO_DISCLAIMER}</p>

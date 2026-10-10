@@ -5,6 +5,7 @@ import { test, expect } from "@playwright/test";
 // filtering, landmark structure, no floating widgets, and no horizontal overflow.
 const BASE = process.env.E2E_BASE_URL ?? "http://localhost:5000";
 const WIDTHS = [375, 1024, 1440] as const;
+const HUTTO_TITLE = "Hutto Ready — Every Link, One Community | ThriveUp";
 
 const STRIP = [
   { key: "thriveup", text: /ThriveUp[\s\S]*Community front door/, href: "/hutto" },
@@ -29,6 +30,7 @@ for (const width of WIDTHS) {
     await page.goto(`${BASE}/hutto`, { waitUntil: "networkidle" });
     const root = page.getByTestId("hutto-ready-page");
     await expect(root).toBeVisible();
+    await expect(page).toHaveTitle(HUTTO_TITLE);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Hutto Ready — Every Link, One Community");
     await expect(page.getByText(/sign in to (view|continue)/i)).toHaveCount(0);
 
@@ -40,6 +42,22 @@ for (const width of WIDTHS) {
     await expect(page.getByTestId("hutto-disclaimer")).toContainText("Not affiliated with, endorsed by, or sponsored by these organizations.");
     await expect(page.getByTestId("hutto-composite-label")).toHaveText("Illustrative composite family, not a real Hutto record");
     await expect(page.getByTestId("hutto-sponsor-slot")).toHaveText("Community sponsor: to be confirmed");
+    // VeraBank is a conversation partner, never presented as the sponsor.
+    await expect(page.getByTestId("hutto-stakeholder-verabank")).not.toContainText(/sponsor/i);
+
+    // Every new-tab source link announces that it opens a new tab.
+    const newTabLinks = root.locator("a[target='_blank']");
+    expect(await newTabLinks.count()).toBeGreaterThan(0);
+    const names = await newTabLinks.evaluateAll((els) => els.map((el) => `${el.getAttribute("aria-label") ?? ""} ${el.textContent ?? ""}`));
+    for (const name of names) expect(name).toContain("(opens in a new tab)");
+
+    // Integration Through Invitation is offered before the footer (replit.md Iron Rule 8).
+    await expect(page.getByTestId("focused-invitation-toggle")).toBeVisible();
+    expect(await page.evaluate(() => {
+      const toggle = document.querySelector("[data-testid='focused-invitation-toggle']");
+      const footer = document.querySelector("[data-testid='hutto-ready-page'] footer");
+      return !!toggle && !!footer && !!(toggle.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING);
+    })).toBe(true);
 
     // Six-link strip in spec order; ThriveUp is "You are here".
     const strip = page.getByTestId("hutto-ready-strip");
@@ -131,4 +149,26 @@ test("/hutto/ (trailing slash) renders the page and keeps floating overlays supp
         rect.width < 200 && rect.height < 200 && rect.bottom > innerHeight - 160 && rect.right > innerWidth - 160;
     }).length);
   expect(floating).toBe(0);
+});
+
+test("SPA navigation from /demo to /hutto sets the Hutto document title", async ({ page }) => {
+  await page.goto(`${BASE}/demo?place=Hutto`, { waitUntil: "networkidle" });
+  await expect(page).not.toHaveTitle(HUTTO_TITLE);
+  await page.getByTestId("demo-hutto-link").click();
+  await expect(page.getByTestId("hutto-ready-page")).toBeVisible();
+  await expect(page).toHaveURL(/\/hutto$/);
+  await expect(page).toHaveTitle(HUTTO_TITLE);
+});
+
+test("/hutto place input placeholder meets 4.5:1 contrast", async ({ page }) => {
+  await page.goto(`${BASE}/hutto`, { waitUntil: "domcontentloaded" });
+  const ratio = await page.getByTestId("hutto-place-input").evaluate((el) => {
+    const parse = (c: string) => (c.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+    const lum = ([r, g, b]: number[]) => [r, g, b].map((v) => { const s = v / 255; return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4; })
+      .reduce((acc, v, i) => acc + v * [0.2126, 0.7152, 0.0722][i], 0);
+    const fg = lum(parse(getComputedStyle(el, "::placeholder").color));
+    const bg = lum(parse(getComputedStyle(el).backgroundColor));
+    return (Math.max(fg, bg) + 0.05) / (Math.min(fg, bg) + 0.05);
+  });
+  expect(ratio).toBeGreaterThanOrEqual(4.5);
 });

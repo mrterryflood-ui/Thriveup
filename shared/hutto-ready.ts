@@ -82,7 +82,6 @@ export const HUTTO_STAKEHOLDERS: HuttoStakeholder[] = [
   { org: "VeraBank", gets: [
     "A place-scoped community view (Hutto, TX) that a community bank can use to see local needs and financial-readiness touchpoints.",
     "A financial-readiness link for first-time earners like Sofia.",
-    `${HUTTO_SPONSOR_SLOT}.`,
   ], facts: [HUTTO_FACTS.hb27] },
   { org: "Success By 6", gets: [
     "An early-childhood link (ChildCORE) that connects families on Pre-K waitlists to early-learning options.",
