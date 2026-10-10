@@ -255,6 +255,7 @@ const STATIC_PATHS = new Set<string>([
   "/coalition-portal",
   "/donors",
   "/donor-receipt-demo",
+  "/hutto",
   "/sdoh-chain",
   "/chainweb",
   "/sdoh-explorer",
