@@ -1,0 +1,16 @@
+attached_assets/
+docs/grants/
+grant-materials/
+.agents/outputs/
+.private-documents/
+Dr_Terry_Flood_TNTP_Application_Answers.md
+TCAF_*.md
+austin-*.md
+wellcome_prize.html
+ecs-thrive-briefing.html
+cookies.txt
+*.cookies
+.env
+.env.*
+!.env.example
+test-results/

@@ -23,3 +23,14 @@ thriveup-codebase.*
 *.hex.part*
 *.tar.gz.part*
 .tmp-*
+# Private working material is not application source. Public media belongs in client/src/assets.
+attached_assets/
+docs/grants/
+grant-materials/
+.agents/outputs/
+.private-documents/
+/Dr_Terry_Flood_TNTP_Application_Answers.md
+/TCAF_*.md
+/austin-*.md
+/wellcome_prize.html
+/ecs-thrive-briefing.html

@@ -86,16 +86,8 @@ function SedgwickCollaborateCTA() {
     </Alert>
   );
 }
-import strategicMd from "../../../docs/grants/sedgwick-rfp-26-0028/strategic-analysis.md?raw";
-import proposalV3Md from "../../../docs/grants/sedgwick-rfp-26-0028/vitality-proposal-v3.md?raw";
-import proposalMd from "../../../docs/grants/sedgwick-rfp-26-0028/vitality-proposal-v2.md?raw";
-import proposalV1Md from "../../../docs/grants/sedgwick-rfp-26-0028/vitality-proposal.md?raw";
-import checklistMd from "../../../docs/grants/sedgwick-rfp-26-0028/pre-submission-checklist.md?raw";
-import crosswalkMd from "../../../docs/grants/sedgwick-rfp-26-0028/compliance-crosswalk.md?raw";
-import baseRfpMd from "../../../docs/grants/sedgwick-rfp-26-0028/base-rfp.md?raw";
-import addendum2Md from "../../../docs/grants/sedgwick-rfp-26-0028/addendum-2.md?raw";
-import strategicDocxUrl from "@assets/RFP-26-0028-Addendum2-Strategic-Analysis_1779560701300.docx?url";
-import proposalDocxUrl from "@assets/RFP-26-0028-Vitality-Proposal_1779560701306.docx?url";
+const strategicDocxUrl = "/api/private-documents/file/sedgwick-strategy";
+const proposalDocxUrl = "/api/private-documents/file/sedgwick-proposal";
 
 function MarkdownRender({ source }: { source: string }) {
   const blocks = useMemo(() => source.split(/\n{2,}/g).filter((b) => b.trim().length > 0), [source]);
@@ -130,6 +122,22 @@ function MarkdownRender({ source }: { source: string }) {
 }
 
 export default function SedgwickVitalityProposalPage() {
+  const { isAuthenticated, user } = useAuth();
+  const documents = useQuery<Record<string, string>>({
+    queryKey: ["/api/private-documents/sedgwick", user?.id],
+    queryFn: async ({ signal }) => {
+      const response = await fetch("/api/private-documents/sedgwick", { credentials: "include", signal });
+      if (!response.ok) throw new Error("Private document access is unavailable");
+      return response.json();
+    },
+    enabled: Boolean(isAuthenticated && user?.id),
+    retry: false,
+    gcTime: 0,
+  });
+  if (!isAuthenticated) return <Alert className="m-6"><AlertTitle>Staff access required</AlertTitle><AlertDescription>Private proposal documents are not public. Sign in with an authorized staff account to view them.</AlertDescription></Alert>;
+  if (documents.isError) return <Alert variant="destructive" className="m-6"><AlertTitle>Private documents unavailable</AlertTitle><AlertDescription>Staff authorization and private storage are required. <Button variant="outline" onClick={() => documents.refetch()}>Retry</Button></AlertDescription></Alert>;
+  if (!documents.data) return <p className="p-6" role="status">Loading authorized private documents…</p>;
+  const { strategicMd, proposalV3Md, proposalMd, proposalV1Md, checklistMd, crosswalkMd, baseRfpMd, addendum2Md } = documents.data;
   return (
     <div className="container max-w-6xl mx-auto p-6 space-y-6" data-testid="sedgwick-vitality-page">
       <SedgwickCollaborateCTA />

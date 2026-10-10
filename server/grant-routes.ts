@@ -1,5 +1,6 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { db, storage } from "./storage";
+import { sedgwickDocuments, privateDownloads, readPrivateWorkingDocument, privateSourceFileFromUrl } from "./private-working-documents";
 import { lookup as dnsLookup } from "dns/promises";
 import { isIP } from "net";
 import { randomBytes, timingSafeEqual } from "crypto";
@@ -736,6 +737,50 @@ function grantToCSVRow(g: GrantOpportunity): string {
 }
 
 export function registerGrantRoutes(app: Express) {
+  app.use(["/api/private-documents", "/api/proposal-pipeline", "/docs/grants", "/attached_assets"], (_req, res, next) => {
+    res.set({ "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff" });
+    next();
+  });
+  app.get(["/docs/grants/{*file}", "/attached_assets/{*file}"], requireStaff, async (req, res) => {
+    res.set({ "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff" });
+    const file = privateSourceFileFromUrl(req.originalUrl);
+    if (!file) return res.status(404).json({ error: "Document not found" });
+    try {
+      const content = await readPrivateWorkingDocument(file);
+      res.attachment(file.split("/").at(-1)!);
+      res.send(content);
+    } catch {
+      console.error("[PrivateDocuments] Legacy staff download failed; content not returned");
+      res.status(503).json({ error: "Private document is currently unavailable. Retry or contact your administrator." });
+    }
+  });
+  app.get("/api/private-documents/sedgwick", requireStaff, async (_req, res) => {
+    res.set("Cache-Control", "private, no-store");
+    try {
+      const entries = await Promise.all(Object.entries(sedgwickDocuments).map(async ([id, file]) =>
+        [id, (await readPrivateWorkingDocument(file)).toString("utf8")]));
+      res.json(Object.fromEntries(entries));
+    } catch {
+      console.error("[PrivateDocuments] Staff document retrieval failed; content not returned");
+      res.status(503).json({ error: "Private documents are currently unavailable. Retry or contact your administrator." });
+    }
+  });
+
+  app.get("/api/private-documents/file/:id", requireStaff, async (req, res) => {
+    res.set("Cache-Control", "private, no-store");
+    const id = String(req.params.id);
+    const file = Object.hasOwn(privateDownloads, id) ? privateDownloads[id] : undefined;
+    if (!file) return res.status(404).json({ error: "Document not found" });
+    try {
+      const content = await readPrivateWorkingDocument(file);
+      res.set("X-Content-Type-Options", "nosniff");
+      res.attachment(file.split("/").at(-1)!);
+      res.send(content);
+    } catch {
+      console.error("[PrivateDocuments] Staff download failed; content not returned");
+      res.status(503).json({ error: "Private document is currently unavailable. Retry or contact your administrator." });
+    }
+  });
   startGrantLifecycleScheduler();
   registerGrantManagementRoutes(app, () => runDailyGrantDiscovery());
   app.get("/api/grants", async (req, res) => {
@@ -7595,7 +7640,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
     }
   });
 
-  app.get("/api/proposal-pipeline", async (_req: Request, res: Response) => {
+  app.get("/api/proposal-pipeline", requireStaff, async (_req: Request, res: Response) => {
     try {
       const rows = await db.select().from(proposalPipeline).orderBy(proposalPipeline.priority);
       const proposals: any[] = rows.map(r => r.data);
@@ -7645,7 +7690,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
   });
 
   // PATCH prior-awards research for a proposal (Tabbara discipline)
-  app.patch("/api/proposal-pipeline/:id/prior-awards", requireAuth, async (req: Request, res: Response) => {
+  app.patch("/api/proposal-pipeline/:id/prior-awards", requireAuth, requireStaff, async (req: Request, res: Response) => {
     const { id } = req.params as Record<string, string>;
     try {
       const { priorAwardsResearchSchema } = await import("@shared/schema");
@@ -7676,7 +7721,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
   });
 
   // GET prior-awards research summary across all proposals
-  app.get("/api/proposal-pipeline/prior-awards/summary", async (_req: Request, res: Response) => {
+  app.get("/api/proposal-pipeline/prior-awards/summary", requireStaff, async (_req: Request, res: Response) => {
     try {
       const rows = await db.select({
         id: proposalPipeline.id,
@@ -7709,7 +7754,8 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
     }
   });
 
-  app.get("/api/proposal-pipeline/:id/framework", async (req: Request, res: Response) => {
+  app.get("/api/proposal-pipeline/:id/framework", requireStaff, async (req: Request, res: Response) => {
+    res.set("Cache-Control", "private, no-store");
     const { id } = req.params as Record<string, string>;
     const docMap: Record<string, string> = {
       "nsf-stem-k12": "docs/grants/NSF-STEM-K12-Proposal-Framework.md",
@@ -7725,18 +7771,17 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       "nih-sbir-phase1": "attached_assets/NIH_SBIR_Phase1_Concept.md"
     };
 
-    const docPath = docMap[id as string];
+    const docPath = Object.hasOwn(docMap, id) ? docMap[id] : undefined;
     if (!docPath) {
       return res.status(404).json({ error: "Proposal not found" });
     }
 
     try {
-      const fs = await import("fs/promises");
-      const path = await import("path");
-      const content = await fs.readFile(path.join(process.cwd(), docPath), "utf-8");
-      res.json({ id, content, path: docPath });
+      const content = (await readPrivateWorkingDocument(docPath)).toString("utf8");
+      res.json({ id, content });
     } catch (error: any) {
-      res.status(500).json({ error: `Failed to read framework: ${error.message}` });
+      console.error("[PrivateDocuments] Framework retrieval failed; content not returned");
+      res.status(503).json({ error: "Private framework is currently unavailable. Retry or contact your administrator." });
     }
   });
 

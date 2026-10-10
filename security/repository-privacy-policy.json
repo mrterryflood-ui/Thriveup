@@ -1,0 +1,40 @@
+{
+  "privatePrefixes": ["attached_assets/", "docs/grants/", "grant-materials/", ".agents/outputs/", ".private-documents/"],
+  "privateRootFiles": [
+    "Dr_Terry_Flood_TNTP_Application_Answers.md",
+    "TCAF_Federal_Health_Grants_April_2026.md",
+    "TCAF_RFPMart_Health_RFP_Analysis_April_2026.md",
+    "TCAF_Staffing_RFP_Opportunities_April_2026.md",
+    "TCAF_Texas_RFP_Deep_Analysis_April_2026.md",
+    "TCAF_WeAllBenefit_Executive_Summary.md",
+    "TCAF_WeAllBenefit_LOI_Draft.md",
+    "austin-grant-presentation.md",
+    "austin-housing-gap-assessment.md",
+    "austin-pflugerville-opportunity-pipeline.md",
+    "wellcome_prize.html",
+    "ecs-thrive-briefing.html"
+  ],
+  "approvedRootMarkdown": [
+    "ACOS_NAICS_PSC_Codes_Master_Reference.md",
+    "AUDIT-GATE.md",
+    "AutoimmuneThrive_Ecosystem_Integration_Instructions.md",
+    "MAP-GAP-REPORT.md",
+    "PBC_Ecosystem_Integration_Instructions.md",
+    "PBC_MCE_BlueWave_Pipeline_Instructions.md",
+    "SpeechBridge_Ecosystem_Integration_Instructions.md",
+    "ThriveUp_Academy_Executive_Summary.md",
+    "ecosystem-connection-instructions.md",
+    "ecosystem-evaluation-report.md",
+    "ecosystem-thematic-gap-assessment.md",
+    "replit.md",
+    "seo_strategy.md",
+    "threat_model.md"
+  ],
+  "approvedPublicDocuments": [
+    "public/platform-overview.html",
+    "public/platform-overview.pdf",
+    "client/public/capability-statement.html",
+    "client/public/legislative-plan.html",
+    "client/public/letterhead.html"
+  ]
+}

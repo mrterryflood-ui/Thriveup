@@ -5,9 +5,11 @@
   "license": "MIT",
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
+    "prebuild": "node scripts/verify-repository-privacy.mjs",
     "build": "tsx script/build.ts",
     "start": "NODE_ENV=production node dist/index.cjs",
-    "check": "tsc",
+    "check": "node scripts/verify-repository-privacy.mjs && tsc",
+    "verify:privacy": "node --test scripts/repository-privacy.test.mjs && node scripts/verify-repository-privacy.mjs",
     "lint": "eslint client/src --max-warnings=0",
     "lint:frontend": "npm run lint",
     "architect": "node scripts/architect-review.mjs",

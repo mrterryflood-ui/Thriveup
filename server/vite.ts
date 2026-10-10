@@ -12,6 +12,7 @@ const viteLogger = createLogger();
 
 export async function setupVite(server: Server, app: Express) {
   const serverOptions = {
+    ...viteConfig.server,
     middlewareMode: true,
     hmr: { server, path: "/vite-hmr" },
     allowedHosts: [
@@ -29,8 +30,11 @@ export async function setupVite(server: Server, app: Express) {
     customLogger: {
       ...viteLogger,
       error: (msg, options) => {
+        if (/outside of Vite serving allow list/i.test(msg)) {
+          viteLogger.warn("Vite denied a private or out-of-scope filesystem request.");
+          return;
+        }
         viteLogger.error(msg, options);
-        process.exit(1);
       },
     },
     server: serverOptions,
